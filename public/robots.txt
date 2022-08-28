@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Disallow: https://alexandr-sidorenko.me/creation
-
-# Host
-Host: https://alexandr-sidorenko.me
-
-# Sitemaps
-Sitemap: https://alexandr-sidorenko.me/sitemap.xml
