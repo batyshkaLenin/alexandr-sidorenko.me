@@ -1,4 +1,12 @@
 {
+  "name": "alexandr-sidorenko.me",
+  "description": "Личный сайт и блог",
+  "keywords": ["сайт", "блог"],
+  "homepage": "https://alexandr-sidorenko.me/",
+  "bugs": {
+    "url": "https://github.com/batyshkaLenin/alexandr-sidorenko.me/issues"
+  },
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -6,11 +14,9 @@
     "start": "next start"
   },
   "dependencies": {
-    "@auth0/auth0-react": "^1.4.0",
     "@tailwindcss/typography": "^0.4.0",
     "date-fns": "^2.19.0",
     "gray-matter": "4.0.3",
-    "ioredis": "^4.27.1",
     "nanoid": "^3.1.22",
     "next": "^10.2.3",
     "react": "^17.0.2",
