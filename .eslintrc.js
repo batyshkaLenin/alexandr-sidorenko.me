@@ -31,9 +31,6 @@ module.exports = {
     'plugin:@typescript-eslint/recommended'
   ],
   rules: {
-    // TODO: Включить после исправления
-    // https://github.com/feature-sliced/eslint-config/issues/92
-    // https://github.com/feature-sliced/eslint-config/issues/93
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',

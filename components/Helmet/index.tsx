@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { getUrl, getHost } from '../../lib/urls'
+import { getHost, getUrl } from '../../lib/urls'
 
 const Helmet = ({ title, description, keywords }) => {
     const router = useRouter()
