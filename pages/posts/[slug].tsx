@@ -1,9 +1,8 @@
 import { useRouter } from 'next/router'
 import ErrorPage from 'next/error'
-import distanceToNow from '../../lib/dateRelative'
-import { getAllPosts, getPostBySlug } from '../../lib/getPost'
-import markdownToHtml from '../../lib/markdownToHtml'
-import Head from 'next/head'
+import { distanceToNow } from '../../lib/dates'
+import { getAllPosts, getPostBySlug, markdownToHtml } from '../../lib/posts'
+import Helmet from "../../components/Helmet";
 
 export default function PostPage({ post }) {
   const router = useRouter()
@@ -14,10 +13,7 @@ export default function PostPage({ post }) {
 
   return (
     <>
-      <Head>
-        <title>{post.title} | My awesome blog</title>
-      </Head>
-
+      <Helmet title={`${post.title} | Блог Александра Сидоренко`} description={post.description} />
       {router.isFallback ? (
         <div>Loading…</div>
       ) : (

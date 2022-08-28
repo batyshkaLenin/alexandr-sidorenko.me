@@ -57,14 +57,14 @@ input:focus + .slider {
   -webkit-transition: 0.4s;
   transition: 0.4s;
   box-shadow: 0 0px 7.5px #2020203d;
-  background: #fefefe url('../public/images/night.png') no-repeat center;
+  background: #fefefe url('../../public/images/night.png') no-repeat center;
 }
 
 input:checked + .slider:before {
   -webkit-transform: translateX(12px);
   -ms-transform: translateX(12px);
   transform: translateX(12px);
-  background: #fefefe url('../public/images/sunny.png') no-repeat center;
+  background: #fefefe url('../../public/images/sunny.png') no-repeat center;
 }
 
 .settings {

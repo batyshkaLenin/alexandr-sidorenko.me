@@ -1,6 +1,7 @@
-import { getAllPosts } from '../../lib/getPost'
-import PostListItem from '../../components/PostListItem'
+import { getAllPosts } from '../../lib/posts'
+import PostListItem from '../../components/PostsListItem/PostListItem'
 import { NextPage } from 'next'
+import Helmet from "../../components/Helmet";
 
 interface Author {
   name: string
@@ -37,6 +38,7 @@ interface BlogPost {
 
 const PostsPage: NextPage = ({ allPosts }: { allPosts?: BlogPost[] }) => (
   <>
+    <Helmet title='Блог Александра Сидоренко' />
     {allPosts.map((post: BlogPost | undefined, index) => (
       <PostListItem
         key={index}

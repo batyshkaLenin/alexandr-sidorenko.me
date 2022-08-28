@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './PostsList.module.scss'
+import styles from './PostListItem.module.scss'
 import Link from "next/link";
 
 const defaultProps = {
@@ -20,7 +20,7 @@ interface BlogBoxProps {
     tags?: Array<string>
 }
 
-const PostList = (props: BlogBoxProps) => <Link as={`/posts/${props.slug}`} href="/posts/[slug]">
+const PostListItem = (props: BlogBoxProps) => <Link as={`/posts/${props.slug}`} href="/posts/[slug]">
             <div>
                 <article>
                     <div className={styles.title}>
@@ -47,6 +47,6 @@ const PostList = (props: BlogBoxProps) => <Link as={`/posts/${props.slug}`} href
             </div>
         </Link>
 
-PostList.defaultProps = defaultProps
+PostListItem.defaultProps = defaultProps
 
-export default PostList
+export default PostListItem

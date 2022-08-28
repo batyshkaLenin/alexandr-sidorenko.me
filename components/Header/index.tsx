@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
-import Menu from './Menu'
+import Menu from '../Menu'
 import styles from './Header.module.scss'
 import classNames from 'classnames'
-import {useLocalStorage} from "../lib/useLocalStorage";
+import {useLocalStorage} from "../../lib/hooks/useLocalStorage";
 
 const Header = () => {
     const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('dark', 'theme')
