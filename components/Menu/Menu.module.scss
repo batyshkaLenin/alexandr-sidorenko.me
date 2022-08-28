@@ -6,6 +6,7 @@
 .menuItem {
   list-style: none;
   margin-right: 50px;
+  text-transform: lowercase;
   &:last-child {
     margin-right: 0;
   }

@@ -2,7 +2,7 @@ import Image from 'next/image'
 import { NextPage } from 'next'
 import classNames from 'classnames'
 import styles from './index.module.scss'
-import Helmet from "../components/Helmet";
+import Helmet from '../components/Helmet'
 
 const HomePage: NextPage = () => {
   const play = () => document.getElementsByTagName('audio')[0].play()
