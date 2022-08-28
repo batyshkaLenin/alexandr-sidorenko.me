@@ -1,0 +1,37 @@
+@import url('https://alexandr-sidorenko.me/fonts/fontello.css');
+
+@font-face {
+  font-family: 'fontello';
+  src: url('https://alexandr-sidorenko.me/fonts/fontello.eot?87642909');
+  src: url('https://alexandr-sidorenko.me/fonts/fontello.woff?87642909')
+      format('woff'),
+    url('https://alexandr-sidorenko.me/fonts/fontello.ttf?87642909')
+      format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PTRootUIWebRegular';
+  src: url('https://alexandr-sidorenko.me/fonts/PT Root UI_Regular.eot');
+  src: url('https://alexandr-sidorenko.me/fonts/PT Root UI_Regular.woff2')
+      format('woff2'),
+    url('https://alexandr-sidorenko.me/fonts/PT Root UI_Regular.ttf')
+      format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geometria';
+  src: local('Geometria'), url('https://alexandr-sidorenko.me/fonts/Geometria.otf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Muller';
+  src: local('Muller'), url('https://alexandr-sidorenko.me/fonts/Muller.otf');
+  font-display: swap;
+}

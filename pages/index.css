@@ -1,0 +1,46 @@
+[data-theme='dark'] {
+    --color-bg: #070707;
+    --color-text: #fefefe;
+}
+
+[data-theme='light'] {
+    --color-bg: #fefefe;
+    --color-text: #070707;
+}
+
+body {
+    font-family: 'PTRootUIWebRegular', serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Geometria', serif;
+}
+
+p {
+    font-size: larger;
+}
+
+.root {
+    margin: 50px;
+    display: flex;
+    flex-direction: column;
+    cursor: default;
+}
+
+@media only screen and (max-device-width: 480px) {
+    .root {
+        margin: 5px;
+    }
+}

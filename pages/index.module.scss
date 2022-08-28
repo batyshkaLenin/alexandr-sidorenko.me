@@ -1,0 +1,44 @@
+.name {
+  font-size: xxx-large;
+}
+
+.me {
+  pointer-events: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  max-width: 450px;
+  max-height: 450px;
+}
+
+.page {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.text {
+  display: flex;
+  max-width: 600px;
+}
+
+.photo {
+  display: flex;
+  max-width: 450px;
+  max-height: 450px;
+  cursor: url('../public/images/note.png'), auto;
+}
+
+@media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
+  .me {
+    max-width: 350px;
+    max-height: 350px;
+  }
+  .photo {
+    max-width: 350px;
+    max-height: 350px;
+    cursor: unset;
+  }
+}

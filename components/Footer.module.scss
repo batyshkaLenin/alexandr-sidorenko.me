@@ -1,0 +1,38 @@
+.footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap-reverse;
+}
+
+.rights {
+  display: flex;
+  align-items: flex-end;
+}
+.copy {
+  margin-right: 10px;
+}
+.design {
+  margin-left: 10px;
+}
+
+.contactList {
+  display: flex;
+}
+.contactItem {
+  list-style: none;
+  margin-right: 50px;
+}
+
+@media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
+  .footer {
+    flex-direction: column-reverse;
+    flex-wrap: unset;
+  }
+  .contacts {
+    display: flex;
+    justify-content: center;
+  }
+  .rights {
+    justify-content: center;
+  }
+}
