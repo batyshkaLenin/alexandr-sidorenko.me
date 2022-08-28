@@ -2,8 +2,10 @@ import classNames from 'classnames'
 import styles from './Menu.module.scss'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useAmp } from 'next/amp'
 
 const Menu = () => {
+    const isAmp = useAmp()
     const router = useRouter()
     const { asPath: path } = router
     return (
@@ -15,9 +17,8 @@ const Menu = () => {
                     itemProp="itemListElement"
                     itemType="https://schema.org/ListItem"
                 >
-                    <Link href="/">
+                    <Link href={isAmp ? '/?amp=1' : '/'}>
                         <a itemProp="item url">
-                            <link href="/"/>
                             <span itemProp="name">Обо мне</span>
                             <meta itemProp="position" content="1"/>
                         </a>
@@ -29,7 +30,7 @@ const Menu = () => {
                     itemProp="itemListElement"
                     itemType="https://schema.org/ListItem"
                 >
-                    <Link href="/posts">
+                    <Link href={isAmp ? '/posts?amp=1' : '/posts'}>
                         <a itemProp="item url">
                             <span itemProp="name">Блог</span>
                             <meta itemProp="position" content="2"/>
@@ -42,7 +43,7 @@ const Menu = () => {
                     itemProp="itemListElement"
                     itemType="https://schema.org/ListItem"
                 >
-                    <Link href="/creation" itemProp="item">
+                    <Link href={isAmp ? '/creation?amp=1' : '/creation'} itemProp="item">
                         <a itemProp="item url">
                             <span itemProp="name">Творчество</span>
                             <meta itemProp="position" content="3"/>

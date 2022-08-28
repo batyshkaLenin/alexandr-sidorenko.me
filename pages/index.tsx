@@ -4,8 +4,12 @@ import classNames from 'classnames'
 import styles from './index.module.scss'
 import Helmet from '../components/Helmet'
 import Link from 'next/link'
+import { useAmp } from 'next/amp'
+
+export const config = { amp: 'hybrid' }
 
 const HomePage: NextPage = () => {
+  const isAmp = useAmp()
   const play = () => document.getElementsByTagName('audio')[0].play()
 
   const pause = () => document.getElementsByTagName('audio')[0].pause()
@@ -47,9 +51,9 @@ const HomePage: NextPage = () => {
               width='450px'
               height='450px'
           />
-          <audio loop autoPlay={false} preload='auto' >
-            <source src='/banjo.mp3' />
-          </audio>
+          {isAmp ? null : <audio loop autoPlay={false} preload='auto' >
+            <source src='/banjo.mp3' type="audio/mpeg" />
+          </audio>}
         </section>
       </section>
     </div>

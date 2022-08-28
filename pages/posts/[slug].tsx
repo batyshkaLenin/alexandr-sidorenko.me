@@ -1,17 +1,22 @@
 import { useRouter } from 'next/router'
+import { useAmp } from 'next/amp'
 import ErrorPage from 'next/error'
 import { distanceToNow } from '../../lib/dates'
 import { getAllPosts, getPostBySlug, markdownToHtml } from '../../lib/posts'
 import Helmet from "../../components/Helmet";
 import React from "react";
-import Link from "next/link";
+import Link from 'next/link'
+
+export const config = { amp: 'hybrid' }
 
 export default function PostPage({ post }) {
+  const isAmp = useAmp()
   const router = useRouter()
 
   if (!router.isFallback && !post?.slug) {
     return <ErrorPage statusCode={404} />
   }
+  const postURL = `/posts/${post.slug}`
 
   return (
     <>
@@ -23,7 +28,7 @@ export default function PostPage({ post }) {
           <header className='post-full-header'>
             <h1 className='post-full-title p-name' itemProp="headline">{post.title}</h1>
             <meta itemProp="author" content="Александр Сидоренко" />
-            <Link as={`/posts/${post.slug}`} href="/posts/[slug]" >
+            <Link as={isAmp ? `${postURL}?amp=1` : postURL} href="/posts/[slug]" >
               <a
                   itemProp="url"
                   className='p-url'

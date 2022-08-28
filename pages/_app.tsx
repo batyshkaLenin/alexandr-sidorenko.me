@@ -8,14 +8,16 @@ import Head from 'next/head'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Router from 'next/router'
+import {useAmp} from "next/amp";
 
 const { publicRuntimeConfig, serverRuntimeConfig } = getConfig()
 
 function _App({ Component, pageProps }) {
+  const isAmp = useAmp()
   return (
     <>
       <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {isAmp ? null : <meta name="viewport" content="width=device-width, initial-scale=1" />}
         <meta charSet='utf-8' />
       </Head>
 

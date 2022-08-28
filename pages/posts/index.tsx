@@ -36,6 +36,8 @@ interface BlogPost {
   metaImage?: any
 }
 
+export const config = { amp: 'hybrid' }
+
 const PostsPage: NextPage = ({ allPosts, description }: { description: string, allPosts: BlogPost[] }) => (
   <>
     <Helmet title='Блог Александра Сидоренко' description={description} />
