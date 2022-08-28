@@ -4,6 +4,5 @@ const { publicRuntimeConfig, serverRuntimeConfig } = getConfig()
 
 export const getHost = (): string => {
     const isServerSide = typeof window === 'undefined'
-    const host = (isServerSide ? serverRuntimeConfig : publicRuntimeConfig).HOST
-    return host
+    return (isServerSide ? serverRuntimeConfig : publicRuntimeConfig).NEXT_PUBLIC_HOST
 }

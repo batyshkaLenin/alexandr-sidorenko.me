@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from './PostListItem.module.scss'
-import Link from "next/link";
+import Link from 'next/link'
 
 const defaultProps = {
     author: '',
@@ -12,23 +12,25 @@ const defaultProps = {
 interface BlogBoxProps {
     id?: string
     slug?: string
-    title?: string
-    description?: string
+    title: string
+    description: string
     readingTime?: string
     author?: string
-    publishedDate?: string
+    date: string
     tags?: Array<string>
 }
 
 const PostListItem = (props: BlogBoxProps) => <Link as={`/posts/${props.slug}`} href="/posts/[slug]">
-            <div>
-                <article>
+            <a>
+                <article itemProp="blogPost" itemScope itemType="https://schema.org/BlogPosting">
+                    <meta itemProp="author" content="Александр Сидоренко" />
+                    <meta itemProp="dateCreated" content={new Date(props.date).toJSON()} />
                     <div className={styles.title}>
-                        <h3>{props.title}</h3>
+                        <h2 itemProp="headline">{props.title}</h2>
                     </div>
 
                     <div>
-                        <div className={styles.description}>
+                        <div className={styles.description} itemProp="description">
                             {props.description}
                         </div>
                     </div>
@@ -44,7 +46,7 @@ const PostListItem = (props: BlogBoxProps) => <Link as={`/posts/${props.slug}`} 
                         )}
                     </div>
                 </article>
-            </div>
+            </a>
         </Link>
 
 PostListItem.defaultProps = defaultProps

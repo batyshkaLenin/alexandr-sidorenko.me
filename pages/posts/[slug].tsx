@@ -3,6 +3,8 @@ import ErrorPage from 'next/error'
 import { distanceToNow } from '../../lib/dates'
 import { getAllPosts, getPostBySlug, markdownToHtml } from '../../lib/posts'
 import Helmet from "../../components/Helmet";
+import React from "react";
+import Link from "next/link";
 
 export default function PostPage({ post }) {
   const router = useRouter()
@@ -17,23 +19,28 @@ export default function PostPage({ post }) {
       {router.isFallback ? (
         <div>Loading…</div>
       ) : (
-        <article className='post-full post h-entry'>
+        <article className='post-full post h-entry' itemProp="blogPost" itemScope itemType="https://schema.org/BlogPosting">
           <header className='post-full-header'>
-            <h1 className='post-full-title p-name'>{post.title}</h1>
-            <a
-              className='p-url'
-              href={`https://alexandr-sidorenko.me/post/${post.slug}`}
-            >
-              <time
-                className='text-center meta dt-published'
-                dateTime={new Date(new Date(post.date)).toJSON()}
+            <h1 className='post-full-title p-name' itemProp="headline">{post.title}</h1>
+            <meta itemProp="author" content="Александр Сидоренко" />
+            <Link as={`/posts/${post.slug}`} href="/posts/[slug]" >
+              <a
+                  itemProp="url"
+                  className='p-url'
               >
-                {distanceToNow(new Date(post.date))}
-              </time>
-            </a>
+                <time
+                    className='text-center meta dt-published'
+                    itemProp="dateCreated"
+                    dateTime={new Date(post.date).toJSON()}
+                >
+                  {distanceToNow(new Date(post.date))}
+                </time>
+              </a>
+            </Link>
           </header>
           <section
             className='post-full-content e-content'
+            itemProp="articleBody"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </article>

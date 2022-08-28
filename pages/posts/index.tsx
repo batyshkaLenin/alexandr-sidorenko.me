@@ -25,7 +25,7 @@ interface BlogPost {
   id: string
   body: string
   excerpt: string
-  publishedDate: string
+  date: string
   slug: string
   tags: Array<string>
   title: string
@@ -36,27 +36,32 @@ interface BlogPost {
   metaImage?: any
 }
 
-const PostsPage: NextPage = ({ allPosts }: { allPosts?: BlogPost[] }) => (
+const PostsPage: NextPage = ({ allPosts, description }: { description: string, allPosts: BlogPost[] }) => (
   <>
-    <Helmet title='Блог Александра Сидоренко' />
-    {allPosts.map((post: BlogPost | undefined, index) => (
-      <PostListItem
-        key={index}
-        description={post?.excerpt}
-        id={post?.id}
-        slug={post?.slug}
-        tags={post?.tags}
-        title={post?.title}
-      />
-    ))}
+    <Helmet title='Блог Александра Сидоренко' description={description} />
+    <div itemScope itemType="https://schema.org/Blog">
+      <meta itemProp="description" content={description} />
+      {allPosts.map((post: BlogPost | undefined, index) => (
+          <PostListItem
+              key={index}
+              description={post?.excerpt}
+              id={post?.id}
+              slug={post?.slug}
+              tags={post?.tags}
+              title={post?.title}
+              date={post.date}
+          />
+      ))}
+    </div>
   </>
 )
 
 export async function getStaticProps() {
   const allPosts = getAllPosts(['slug', 'title', 'excerpt', 'date'])
+  const description = 'Блог Александра Сидоренко с заметками и полноценными статьями о разработке, музыке и жизни'
 
   return {
-    props: { allPosts },
+    props: { allPosts, description },
   }
 }
 
