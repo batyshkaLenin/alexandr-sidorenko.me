@@ -16,6 +16,7 @@ const Helmet = ({ title, description, keywords }) => {
             <meta content={title} name='title' />
             <meta content={description} name='description' />
             <meta content={keywords} name='keywords' />
+            <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
 
             {/* Icons */}
             <link href='/favicon.ico' rel='shortcut icon' />
