@@ -19,11 +19,11 @@ const HomePage: NextPage = () => {
       <Helmet>
         <meta content='website' property='og:type' />
       </Helmet>
-      <style jsx>{`
+      {isAmp && <style jsx>{`
         .fn { display: flex; justify-content: space-around; }
         .vcard { display: flex; flex-direction: column-reverse; }
         .photo-section { display: flex; justify-content: center; }
-      `}</style>
+      `}</style>}
       <section className={classNames(styles.page, 'vcard')}>
         <section className={styles.text}>
           <article itemScope itemProp="mainEntity" itemType="https://schema.org/Person">
