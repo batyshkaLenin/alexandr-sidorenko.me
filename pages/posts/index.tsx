@@ -2,6 +2,7 @@ import { getAllPosts } from '../../lib/posts'
 import { PostListItem, PostPreview } from '../../components/PostsListItem/PostListItem'
 import { NextPage } from 'next'
 import Helmet from "../../components/Helmet";
+import React from "react";
 
 export const config = { amp: 'hybrid' }
 
@@ -12,7 +13,9 @@ type PostPageProps = {
 
 const PostsPage: NextPage = ({ posts, description }: PostPageProps) => (
   <>
-    <Helmet title='Блог Александра Сидоренко' description={description} />
+    <Helmet title='Блог Александра Сидоренко' description={description}>
+        <meta content='website' property='og:type' />
+    </Helmet>
     <div itemScope itemType="https://schema.org/Blog">
       <meta itemProp="description" content={description} />
       {posts.map((post, index) => (

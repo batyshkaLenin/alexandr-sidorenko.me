@@ -2,14 +2,18 @@ import { useRouter } from 'next/router'
 import { useAmp } from 'next/amp'
 import ErrorPage from 'next/error'
 import { distanceToNow } from '../../lib/dates'
-import { getAllPosts, getPostBySlug, markdownToHtml } from '../../lib/posts'
+import {getAllPosts, getPostBySlug, markdownToHtml, Post} from '../../lib/posts'
 import Helmet from "../../components/Helmet";
 import React from "react";
 import Link from 'next/link'
 
 export const config = { amp: 'hybrid' }
 
-export default function PostPage({ post }) {
+type PostPageProps = {
+  post: Pick<Post, 'slug' | 'title' | 'author'| 'description' | 'created' | 'modified' | 'content' | 'preview'>
+}
+
+export default function PostPage({ post }: PostPageProps) {
   const isAmp = useAmp()
   const router = useRouter()
 
@@ -20,7 +24,15 @@ export default function PostPage({ post }) {
 
   return (
     <>
-      <Helmet title={`${post.title} | Блог Александра Сидоренко`} description={post.description} />
+      <Helmet title={`${post.title} | Блог Александра Сидоренко`} description={post.description} image={post.preview}>
+        <meta content='article' property='og:type' />
+        <meta content={post.author.firstName} property='og:article:author:first_name'/>
+        <meta content={post.author.lastName} property='og:article:author:last_name'/>
+        <meta content={post.author.username} property='og:article:author:username'/>
+        <meta content={post.author.gender} property='og:article:author:gender'/>
+        <meta content={post.created} property='og:article:published_time' />
+        <meta content={post.modified} property='og:article:modified_time' />
+      </Helmet>
       {router.isFallback ? (
         <div>Loading…</div>
       ) : (
@@ -36,7 +48,7 @@ export default function PostPage({ post }) {
                 <time
                     className='text-center meta dt-published'
                     itemProp="dateCreated"
-                    dateTime={new Date(post.created).toJSON()}
+                    dateTime={post.created}
                 >
                   {distanceToNow(new Date(post.created))}
                 </time>
@@ -58,9 +70,12 @@ export async function getStaticProps({ params }) {
   const post = getPostBySlug(params.slug, [
     'slug',
     'title',
+    'author',
     'description',
     'created',
+    'modified',
     'content',
+    'preview',
   ])
   const content = await markdownToHtml(post.content || '')
 

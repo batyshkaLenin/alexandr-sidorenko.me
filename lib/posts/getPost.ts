@@ -4,14 +4,23 @@ import matter from 'gray-matter'
 
 const postsDirectory = join(process.cwd(), '_posts')
 
+type Author = {
+  firstName: string
+  lastName: string
+  fullName: string
+  username: string
+  gender: 'male' | 'female'
+}
+
 export type Post = {
   slug: string
   title: string
   description: string
   created: string
   content: string
-  author: string
+  author: Author
   modified: string
+  preview?: string
   tags: string[]
 }
 
@@ -26,7 +35,7 @@ export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = 
   const fileStats = fs.statSync(fullPath)
   const { data, content } = matter(fileContents)
 
-  const item: unknown = { created: data.created }
+  const item: unknown = { created: new Date(data.created).toJSON() }
 
   fields.forEach((field) => {
     switch (field) {
@@ -37,10 +46,19 @@ export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = 
         item[field] = content
         break
       case "author":
-        item[field] = 'Александр Сидоренко'
+        item[field] = {
+          firstName: 'Александр',
+          lastName: 'Сидоренко',
+          fullName: 'Александр Сидоренко',
+          username: 'batyshkaLenin',
+          gender: 'male',
+        }
         break
       case "modified":
         item[field] = fileStats.mtime.toJSON()
+        break
+      case "created":
+        item[field] = new Date(data.created).toJSON()
         break
       case "tags":
         try {

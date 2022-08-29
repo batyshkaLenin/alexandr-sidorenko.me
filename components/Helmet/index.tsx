@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { getHost, getUrl } from '../../lib/urls'
 
-const Helmet = ({ title, description, keywords }) => {
+const Helmet = ({ title, description, keywords, image, children }) => {
     const router = useRouter()
     const canonicalUrl = getUrl(router)
     const host = getHost()
@@ -27,6 +27,7 @@ const Helmet = ({ title, description, keywords }) => {
             {/* Twitter */}
             <meta content='summary' name='twitter:card' />
             <meta content={title} name='twitter:title' />
+            <meta content={image} property='twitter:image' />
             <meta content={description} property='twitter:description' />
             <meta content='@batyshkaLenin' property='twitter:site' />
 
@@ -34,6 +35,7 @@ const Helmet = ({ title, description, keywords }) => {
             <meta content='Александр Сидоренко' property='og:site_name' />
             <meta content='ru-RU' property='og:locale' />
             <meta content={title} property='og:title' />
+            <meta content={image} property='og:image' />
             <meta content={description} property='og:description' />
             <meta content={canonicalUrl} property='og:url' />
 
@@ -56,15 +58,20 @@ const Helmet = ({ title, description, keywords }) => {
                 href='/manifest.json'
                 rel='manifest'
             />
+
+            {/* Additional tags */}
+            {children ? children : null}
         </Head>
     )
 }
 
 Helmet.defaultProps = {
     title: 'Александр Сидоренко',
+    image: '/images/me.png',
     description: 'Программист, усопший вождь, взломщик. Участник хакатонов и CTF. Основатель Blurred Education Хочу сыграть Летова на всех струнных и разработать бомбический проект с Blurred Technologies.',
     keywords:
         'Александр Сидоренко, программист, усопший вождь, взломщик, хакер, батюшка Ленин, Ленин, джаваскриптер, бэкэндер',
+    children: null,
 }
 
 export default Helmet

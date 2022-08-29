@@ -13,9 +13,9 @@ export const PostListItem = (post: PostPreview) => {
     return (<Link as={isAmp ? `${postURL}?amp=1` : postURL} href="/posts/[slug]">
         <a>
             <article itemProp="blogPost" itemScope itemType="https://schema.org/BlogPosting">
-                <meta itemProp="author" content={post.author} />
-                <meta itemProp="dateCreated" content={new Date(post.created).toJSON()} />
-                <meta itemProp="dateModified" content={new Date(post.modified).toJSON()} />
+                <meta itemProp="author" content={post.author.fullName} />
+                <meta itemProp="dateCreated" content={post.created} />
+                <meta itemProp="dateModified" content={post.modified} />
                 <div className={styles.title}>
                     <h2 itemProp="headline">{post.title}</h2>
                 </div>

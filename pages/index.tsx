@@ -5,6 +5,7 @@ import styles from './index.module.scss'
 import Helmet from '../components/Helmet'
 import Link from 'next/link'
 import { useAmp } from 'next/amp'
+import React from "react";
 
 export const config = { amp: 'hybrid' }
 
@@ -15,7 +16,9 @@ const HomePage: NextPage = () => {
   const pause = () => document.getElementsByTagName('audio')[0].pause()
   return (
     <div itemScope itemType="https://schema.org/WebPage">
-      <Helmet />
+      <Helmet>
+        <meta content='website' property='og:type' />
+      </Helmet>
       <section className={classNames(styles.page, 'vcard')}>
         <section className={styles.text}>
           <article itemScope itemProp="mainEntity" itemType="https://schema.org/Person">
