@@ -9,8 +9,8 @@ const Menu = () => {
     const router = useRouter()
     const { asPath: path } = router
     return (
-        <nav>
-            <ul className={styles.menu} itemScope itemType="https://schema.org/BreadcrumbList">
+        <nav itemScope itemType="https://schema.org/SiteNavigationElement">
+            <ul className={styles.menu} itemProp="about" itemScope itemType="https://schema.org/ItemList">
                 <li
                     itemScope
                     className={classNames(styles.menuItem, path === '/' && styles.active)}
@@ -20,7 +20,6 @@ const Menu = () => {
                     <Link href={isAmp ? '/?amp=1' : '/'}>
                         <a itemProp="item url">
                             <span itemProp="name">Обо мне</span>
-                            <meta itemProp="position" content="1"/>
                         </a>
                     </Link>
                 </li>
@@ -33,7 +32,6 @@ const Menu = () => {
                     <Link href={isAmp ? '/posts?amp=1' : '/posts'}>
                         <a itemProp="item url">
                             <span itemProp="name">Блог</span>
-                            <meta itemProp="position" content="2"/>
                         </a>
                     </Link>
                 </li>
@@ -46,7 +44,6 @@ const Menu = () => {
                     <Link href={isAmp ? '/creation?amp=1' : '/creation'} itemProp="item">
                         <a itemProp="item url">
                             <span itemProp="name">Творчество</span>
-                            <meta itemProp="position" content="3"/>
                         </a>
                     </Link>
                 </li>
