@@ -4,6 +4,7 @@
 public/robots.txt
 public/sitemap.xml
 public/sitemap-*.xml
+public/rss
 
 # dependencies
 /node_modules
