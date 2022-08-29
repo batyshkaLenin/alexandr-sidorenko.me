@@ -1,6 +1,6 @@
-import path from 'path.js'
+import path from 'path'
 import matter from 'gray-matter'
-import fs from 'fs.js'
+import fs from 'fs'
 import { Feed } from 'feed'
 import { remark } from "remark"
 import html from "remark-html"
