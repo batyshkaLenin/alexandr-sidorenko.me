@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './Footer.module.scss'
+import styles from '../../styles/Footer.module.scss'
 import Link from 'next/link'
 
 const Footer = () => (
@@ -15,35 +15,35 @@ const Footer = () => (
                     <li className={styles.contactItem}>
                         <Link href="https://github.com/batyshkaLenin">
                             <a rel="me">
-                                <i className="icon-github-circled" />
+                                <i className="icon-github-circled" aria-label='Ссылка на GitHub' role='link' />
                             </a>
                         </Link>
                     </li>
                     <li className={styles.contactItem}>
                         <Link href="https://vk.com/batyshkalenin">
                             <a rel="me">
-                                <i className="icon-vkontakte" />
+                                <i className="icon-vkontakte" aria-label='Ссылка на ВКонтакте' role='link' />
                             </a>
                         </Link>
                     </li>
                     <li className={styles.contactItem}>
                         <Link href="https://soundcloud.com/better_not_be_born">
                             <a rel="me">
-                                <i className="icon-soundcloud" />
+                                <i className="icon-soundcloud" aria-label='Ссылка на SoundCloud' role='link' />
                             </a>
                         </Link>
                     </li>
                     <li className={styles.contactItem}>
                         <Link href="https://twitter.com/batyshkaLenin">
                             <a rel="me">
-                                <i className="icon-twitter" />
+                                <i className="icon-twitter" aria-label='Ссылка на Twitter' role='link' />
                             </a>
                         </Link>
                     </li>
                     <li className={styles.contactItem}>
                         <Link href="https://t.me/batyshka_Lenin">
                             <a rel="me">
-                                <i className="icon-telegram" />
+                                <i className="icon-telegram" aria-label='Ссылка на Telegram' role='link' />
                             </a>
                         </Link>
                     </li>

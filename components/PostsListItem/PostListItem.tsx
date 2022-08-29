@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './PostListItem.module.scss'
+import styles from '../../styles/PostListItem.module.scss'
 import Link from 'next/link'
 import {useAmp} from "next/amp";
 import { Post } from '../../lib/posts'

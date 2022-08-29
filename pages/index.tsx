@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { NextPage } from 'next'
 import classNames from 'classnames'
-import styles from './index.module.scss'
+import styles from '../styles/index.module.scss'
 import Helmet from '../components/Helmet'
 import Link from 'next/link'
 import { useAmp } from 'next/amp'

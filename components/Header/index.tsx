@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import Menu from '../Menu'
-import styles from './Header.module.scss'
+import styles from '../../styles/Header.module.scss'
 import classNames from 'classnames'
 import { useLocalStorage } from "../../lib/hooks";
 import { useAmp } from "next/amp";
@@ -17,8 +17,11 @@ const Header = () => {
         <header className={styles.header}>
             <Menu />
             {isAmp ? null : <div className={styles.settings}>
-                <label className={styles.switch} id='switch'>
+                <label className={styles.switch} id='switch' htmlFor='slider'>
                     <input
+                        role="switch"
+                        aria-label='Переключатель темы'
+                        aria-checked={theme === 'light'}
                         checked={theme === 'light'}
                         id='slider'
                         type='checkbox'
