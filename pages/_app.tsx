@@ -35,7 +35,7 @@ function _App({ Component, pageProps }) {
         <Footer />
       </div>
        <Script id='ext-ga' async src={`https://www.googletagmanager.com/gtag/js?id=${GA_CODE}`} strategy="afterInteractive" />
-       <Script id='int-ga' strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', ${GA_CODE});`}</Script>
+       <Script id='int-ga' strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${GA_CODE}');`}</Script>
     </>
   )
 }
