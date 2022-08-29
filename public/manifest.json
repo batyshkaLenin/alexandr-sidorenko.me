@@ -1,6 +1,7 @@
 {
   "short_name": "Александр Сидоренко",
   "name": "Александр Сидоренко",
+  "description": "Блог Александра Сидоренко",
   "icons": [
     {
       "src": "favicon.ico",
@@ -18,8 +19,23 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "shortcuts":[
+    {
+      "name":"Обо мне",
+      "url":"/"
+    },
+    {
+      "name":"Блог",
+      "url":"/posts"
+    },
+    {
+      "name":"Творчество",
+      "url":"/creation"
+    }
+  ],
+  "start_url": "/",
+  "orientation": "portrait",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#070707",
+  "background_color": "#070707"
 }

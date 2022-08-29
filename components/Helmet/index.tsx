@@ -28,8 +28,10 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <meta content='summary' name='twitter:card' />
             <meta content={title} name='twitter:title' />
             <meta content={image} property='twitter:image' />
+            <meta content={title} property='twitter:image:alt' />
             <meta content={description} property='twitter:description' />
             <meta content='@batyshkaLenin' property='twitter:site' />
+            <meta content="@batyshkaLenin" name="twitter:creator" />
 
             {/* Open Graph */}
             <meta content='Александр Сидоренко' property='og:site_name' />
@@ -53,11 +55,8 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <meta content='Александр Сидоренко' name='apple-mobile-web-app-title' />
             <meta content='default' name='apple-mobile-web-app-status-bar-style' />
             <meta content='Александр Сидоренко' name='application-name' />
-            <link
-                crossOrigin='use-credentials'
-                href='/manifest.json'
-                rel='manifest'
-            />
+            <meta content='#070707' name='theme-color' />
+            <link href='/manifest.json' rel='manifest' />
 
             {/* Additional tags */}
             {children ? children : null}
