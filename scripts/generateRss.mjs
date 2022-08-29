@@ -19,7 +19,7 @@ async function getAllPosts() {
         const item = {
             ...data,
             slug: realSlug,
-            content
+            content,
         }
 
         return item
@@ -48,6 +48,7 @@ async function generateRss() {
         description: "Блог Александра Сидоренко",
         id: siteURL,
         link: siteURL,
+        image: `${siteURL}/images/me.png`,
         favicon: `${siteURL}/favicon.ico`,
         feedLinks: {
             rss2: `${siteURL}/rss/feed.xml`,
@@ -62,7 +63,6 @@ async function generateRss() {
     allPosts.forEach((post) => {
         const url = `${siteURL}/blog/${post.slug}`;
         feed.addItem({
-            category: post.tags,
             title: post.title,
             id: url,
             link: url,
