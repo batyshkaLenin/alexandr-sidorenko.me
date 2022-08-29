@@ -9,46 +9,49 @@ const Menu = () => {
     const router = useRouter()
     const { asPath: path } = router
     return (
-        <nav itemScope itemType="https://schema.org/SiteNavigationElement">
-            <ul className={styles.menu} itemProp="about" itemScope itemType="https://schema.org/ItemList">
-                <li
-                    itemScope
-                    className={classNames(styles.menuItem, path === '/' && styles.active)}
-                    itemProp="itemListElement"
-                    itemType="https://schema.org/ListItem"
-                >
-                    <Link href={isAmp ? '/?amp=1' : '/'}>
-                        <a itemProp="item url">
-                            <span itemProp="name">Обо мне</span>
-                        </a>
-                    </Link>
-                </li>
-                <li
-                    itemScope
-                    className={classNames(styles.menuItem, /posts/.test(path) && styles.active)}
-                    itemProp="itemListElement"
-                    itemType="https://schema.org/ListItem"
-                >
-                    <Link href={isAmp ? '/posts?amp=1' : '/posts'}>
-                        <a itemProp="item url">
-                            <span itemProp="name">Блог</span>
-                        </a>
-                    </Link>
-                </li>
-                <li
-                    itemScope
-                    className={classNames(styles.menuItem, /creation/.test(path) && styles.active)}
-                    itemProp="itemListElement"
-                    itemType="https://schema.org/ListItem"
-                >
-                    <Link href={isAmp ? '/creation?amp=1' : '/creation'}>
-                        <a itemProp="item url">
-                            <span itemProp="name">Творчество</span>
-                        </a>
-                    </Link>
-                </li>
-            </ul>
-        </nav>
+        <>
+            <style jsx>{`nav > ul { display: flex; justify-content: space-around; }`}</style>
+            <nav itemScope itemType="https://schema.org/SiteNavigationElement">
+                <ul className={styles.menu} itemProp="about" itemScope itemType="https://schema.org/ItemList">
+                    <li
+                        itemScope
+                        className={classNames(styles.menuItem, path === '/' && styles.active)}
+                        itemProp="itemListElement"
+                        itemType="https://schema.org/ListItem"
+                    >
+                        <Link href={isAmp ? '/?amp=1' : '/'}>
+                            <a itemProp="item url">
+                                <span itemProp="name">Обо мне</span>
+                            </a>
+                        </Link>
+                    </li>
+                    <li
+                        itemScope
+                        className={classNames(styles.menuItem, /posts/.test(path) && styles.active)}
+                        itemProp="itemListElement"
+                        itemType="https://schema.org/ListItem"
+                    >
+                        <Link href={isAmp ? '/posts?amp=1' : '/posts'}>
+                            <a itemProp="item url">
+                                <span itemProp="name">Блог</span>
+                            </a>
+                        </Link>
+                    </li>
+                    <li
+                        itemScope
+                        className={classNames(styles.menuItem, /creation/.test(path) && styles.active)}
+                        itemProp="itemListElement"
+                        itemType="https://schema.org/ListItem"
+                    >
+                        <Link href={isAmp ? '/creation?amp=1' : '/creation'}>
+                            <a itemProp="item url">
+                                <span itemProp="name">Творчество</span>
+                            </a>
+                        </Link>
+                    </li>
+                </ul>
+            </nav>
+        </>
     )
 }
 

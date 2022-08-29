@@ -1,8 +1,12 @@
 import React from 'react'
 import styles from '../../styles/Footer.module.scss'
 import Link from 'next/link'
+import { useAmp } from "next/amp"
 
-const Footer = () => (
+const Footer = () => {
+    const isAmp = useAmp()
+
+    return (
         <footer className={styles.footer}>
             <section className={styles.rights}>
                 <div className={styles.copy}>&copy; 2020-{new Date().getFullYear()}</div>|
@@ -15,35 +19,35 @@ const Footer = () => (
                     <li className={styles.contactItem}>
                         <Link href="https://github.com/batyshkaLenin">
                             <a rel="me">
-                                <i className="icon-github-circled" aria-label='Ссылка на GitHub' role='link' />
+                                {isAmp ? "GitHub" : <i className="icon-github-circled" aria-label='Ссылка на GitHub' role='link' />}
                             </a>
                         </Link>
                     </li>
                     <li className={styles.contactItem}>
                         <Link href="https://vk.com/batyshkalenin">
                             <a rel="me">
-                                <i className="icon-vkontakte" aria-label='Ссылка на ВКонтакте' role='link' />
+                                {isAmp ? "ВКонтакте" : <i className="icon-vkontakte" aria-label='Ссылка на ВКонтакте' role='link' />}
                             </a>
                         </Link>
                     </li>
                     <li className={styles.contactItem}>
                         <Link href="https://soundcloud.com/better_not_be_born">
                             <a rel="me">
-                                <i className="icon-soundcloud" aria-label='Ссылка на SoundCloud' role='link' />
+                                {isAmp ? 'SoundCloud' : <i className="icon-soundcloud" aria-label='Ссылка на SoundCloud' role='link' />}
                             </a>
                         </Link>
                     </li>
                     <li className={styles.contactItem}>
                         <Link href="https://twitter.com/batyshkaLenin">
                             <a rel="me">
-                                <i className="icon-twitter" aria-label='Ссылка на Twitter' role='link' />
+                                {isAmp ? 'Twitter' : <i className="icon-twitter" aria-label='Ссылка на Twitter' role='link' />}
                             </a>
                         </Link>
                     </li>
                     <li className={styles.contactItem}>
                         <Link href="https://t.me/batyshka_Lenin">
                             <a rel="me">
-                                <i className="icon-telegram" aria-label='Ссылка на Telegram' role='link' />
+                                {isAmp ? 'Telegram' : <i className="icon-telegram" aria-label='Ссылка на Telegram' role='link' />}
                             </a>
                         </Link>
                     </li>
@@ -51,5 +55,6 @@ const Footer = () => (
             </section>
         </footer>
     )
+}
 
 export default Footer
