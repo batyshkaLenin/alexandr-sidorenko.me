@@ -22,6 +22,34 @@ export default function PostPage({ post }: PostPageProps) {
   }
   const postURL = `/posts/${post.slug}`
 
+  const breadcrumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement":
+        [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "item":
+                {
+                  "@id": "/posts",
+                  "url": "/posts",
+                  "name": "Блог",
+                },
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "item":
+                {
+                  "@id": postURL,
+                  "url": postURL,
+                  "name": post.title,
+                },
+          },
+        ],
+  }
+
   return (
     <>
       <Helmet title={`${post.title} | Блог Александра Сидоренко`} description={post.description} image={post.preview}>
@@ -32,6 +60,7 @@ export default function PostPage({ post }: PostPageProps) {
         <meta content={post.author.gender} property='og:article:author:gender'/>
         <meta content={post.created} property='og:article:published_time' />
         <meta content={post.modified} property='og:article:modified_time' />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}/>
       </Helmet>
       {router.isFallback ? (
         <div>Loading…</div>
