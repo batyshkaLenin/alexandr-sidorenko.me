@@ -4,40 +4,63 @@ import matter from 'gray-matter'
 
 const postsDirectory = join(process.cwd(), '_posts')
 
-export function getPostSlugs() {
+export type Post = {
+  slug: string
+  title: string
+  description: string
+  created: string
+  content: string
+  author: string
+  modified: string
+  tags: string[]
+}
+
+export function getPostSlugs(): string[] {
   return fs.readdirSync(postsDirectory)
 }
 
-export function getPostBySlug(slug, fields = []): any {
+export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = []): Pick<Post, 'created' | F> {
   const realSlug = slug.replace(/\.md$/, '')
   const fullPath = join(postsDirectory, `${realSlug}.md`)
   const fileContents = fs.readFileSync(fullPath, 'utf8')
+  const fileStats = fs.statSync(fullPath)
   const { data, content } = matter(fileContents)
 
-  const items = {}
+  const item: unknown = { created: data.created }
 
-  // Ensure only the minimal needed data is exposed
   fields.forEach((field) => {
-    if (field === 'slug') {
-      items[field] = realSlug
-    }
-    if (field === 'content') {
-      items[field] = content
-    }
-
-    if (typeof data[field] !== 'undefined') {
-      items[field] = data[field]
+    switch (field) {
+      case "slug":
+        item[field] = realSlug
+        break
+      case "content":
+        item[field] = content
+        break
+      case "author":
+        item[field] = 'Александр Сидоренко'
+        break
+      case "modified":
+        item[field] = fileStats.mtime.toJSON()
+        break
+      case "tags":
+        try {
+          item[field] = data[field] || []
+        } catch (_) {
+          item[field] = []
+        }
+        break
+      default:
+        item[field] = data[field]
     }
   })
 
-  return items
+  return <Pick<Post, 'created' | F>>item
 }
 
-export function getAllPosts(fields = []) {
+export function getAllPosts<F extends keyof Post>(fields: F[] = []): Pick<Post, "created" | F>[] {
   const slugs = getPostSlugs()
   const posts = slugs
-    .map((slug) => getPostBySlug(slug, fields))
-    // sort posts by date in descending order
-    .sort((post1: any, post2: any) => (post1.date > post2.date ? -1 : 1))
+    .map((slug) => getPostBySlug<F>(slug, fields))
+    .sort((post1, post2) => (post1.created > post2.created ? -1 : 1))
   return posts
 }

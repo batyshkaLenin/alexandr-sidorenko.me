@@ -36,9 +36,9 @@ export default function PostPage({ post }) {
                 <time
                     className='text-center meta dt-published'
                     itemProp="dateCreated"
-                    dateTime={new Date(post.date).toJSON()}
+                    dateTime={new Date(post.created).toJSON()}
                 >
-                  {distanceToNow(new Date(post.date))}
+                  {distanceToNow(new Date(post.created))}
                 </time>
               </a>
             </Link>
@@ -58,8 +58,8 @@ export async function getStaticProps({ params }) {
   const post = getPostBySlug(params.slug, [
     'slug',
     'title',
-    'excerpt',
-    'date',
+    'description',
+    'created',
     'content',
   ])
   const content = await markdownToHtml(post.content || '')

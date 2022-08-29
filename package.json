@@ -19,7 +19,7 @@
     "lint": "eslint --ext .ts,.tsx .",
     "pre-commit": "yarn lint-staged",
     "prepare": "husky install",
-    "postbuild": "next-sitemap && node --experimental-modules lib/posts/generateRss.mjs"
+    "postbuild": "next-sitemap && node --experimental-modules scripts/generateRss.mjs"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

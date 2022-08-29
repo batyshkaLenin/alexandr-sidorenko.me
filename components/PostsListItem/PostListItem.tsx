@@ -2,59 +2,30 @@ import React from 'react'
 import styles from './PostListItem.module.scss'
 import Link from 'next/link'
 import {useAmp} from "next/amp";
+import { Post } from '../../lib/posts'
 
-const defaultProps = {
-    author: '',
-    description: '',
-    publishedDate: '',
-    readingTime: '',
-}
+export type PostPreview = Pick<Post, 'slug' | 'title' | 'description' | 'created' | 'author' | 'modified'>
 
-interface BlogBoxProps {
-    id?: string
-    slug?: string
-    title: string
-    description: string
-    readingTime?: string
-    author?: string
-    date: string
-    tags?: Array<string>
-}
-
-const PostListItem = (props: BlogBoxProps) => {
+export const PostListItem = (post: PostPreview) => {
     const isAmp = useAmp()
-    const postURL = `/posts/${props.slug}`
+    const postURL = `/posts/${post.slug}`
 
     return (<Link as={isAmp ? `${postURL}?amp=1` : postURL} href="/posts/[slug]">
         <a>
             <article itemProp="blogPost" itemScope itemType="https://schema.org/BlogPosting">
-                <meta itemProp="author" content="Александр Сидоренко" />
-                <meta itemProp="dateCreated" content={new Date(props.date).toJSON()} />
+                <meta itemProp="author" content={post.author} />
+                <meta itemProp="dateCreated" content={new Date(post.created).toJSON()} />
+                <meta itemProp="dateModified" content={new Date(post.modified).toJSON()} />
                 <div className={styles.title}>
-                    <h2 itemProp="headline">{props.title}</h2>
+                    <h2 itemProp="headline">{post.title}</h2>
                 </div>
 
                 <div>
                     <div className={styles.description} itemProp="description">
-                        {props.description}
+                        {post.description}
                     </div>
-                </div>
-
-                <div>
-                    {props.tags && props.tags.length > 0 && (
-                        <>
-                            Теги:{' '}
-                            {props.tags.map((tag, index) => (
-                                <span key={index}>{tag} </span>
-                            ))}
-                        </>
-                    )}
                 </div>
             </article>
         </a>
     </Link>)
 }
-
-PostListItem.defaultProps = defaultProps
-
-export default PostListItem

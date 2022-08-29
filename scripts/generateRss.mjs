@@ -1,6 +1,6 @@
-import path from 'path'
+import path from 'path.js'
 import matter from 'gray-matter'
-import fs from 'fs'
+import fs from 'fs.js'
 import { Feed } from 'feed'
 import { remark } from "remark"
 import html from "remark-html"
@@ -62,21 +62,21 @@ async function generateRss() {
     allPosts.forEach((post) => {
         const url = `${siteURL}/blog/${post.slug}`;
         feed.addItem({
+            category: post.tags,
             title: post.title,
             id: url,
             link: url,
-            description: post.excerpt,
+            description: post.description,
             content: post.content,
             author: [author],
             contributor: [author],
-            date: new Date(post.date),
+            date: new Date(post.created),
         });
     })
 
     await fs.promises.mkdir("./public/rss", { recursive: true });
     await fs.promises.writeFile("./public/rss/feed.xml", feed.rss2());
     await fs.promises.writeFile("./public/rss/feed.json", feed.json1());
-    await fs.promises.writeFile("./public/rss/feed.atom", feed.atom1());
 }
 
 generateRss().then(() => {
