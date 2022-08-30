@@ -10,7 +10,7 @@ export const PostListItem = (post: PostPreview) => {
     const isAmp = useAmp()
     const postURL = `/posts/${post.slug}`
 
-    return (<Link as={isAmp ? `${postURL}?amp=1` : postURL} href="/posts/[slug]">
+    return (<Link as={isAmp ? `${postURL}.amp` : postURL} href="/posts/[slug]">
         <a>
             <article itemProp="blogPost" itemScope itemType="https://schema.org/BlogPosting">
                 <meta itemProp="author" content={post.author.fullName} />
