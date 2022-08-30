@@ -85,7 +85,7 @@ export default function PostPage({ post }: PostPageProps) {
             </Link>
           </header>
           <section
-            className='post-full-content e-content'
+            className='postContent'
             itemProp="articleBody"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
