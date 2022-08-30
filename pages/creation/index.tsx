@@ -29,7 +29,7 @@ const CreationPage: NextPage = () => {
             <meta content='website' property='og:type' />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}/>
         </Helmet>
-        <div>Страница находится в разработке</div>
+        <div>Страница с публикациями моего творчества. Я занимаюсь музыкой, пишу стихи и рассказы. В данный момент находится в разработке</div>
     </>)
 }
 
