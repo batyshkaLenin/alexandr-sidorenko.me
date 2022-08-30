@@ -20,7 +20,7 @@ function _App({ Component, pageProps }) {
   return (
     <>
       <Head>
-        {isAmp ? null : <meta
+        {isAmp ? <meta name="robots" content="noindex,nofollow,noarchive" /> : <meta
             name='viewport'
             content='minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover'
         />}
