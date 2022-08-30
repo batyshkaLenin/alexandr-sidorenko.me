@@ -1,10 +1,13 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { getHost, getUrl } from '../../lib/urls'
+import { useAmp } from "next/amp"
 
 const Helmet = ({ title, description, keywords, image, children }) => {
+    const isAmp = useAmp()
     const router = useRouter()
-    const canonicalUrl = getUrl(router)
+    const url = getUrl(router)
+    const canonicalUrl = isAmp ? url.replace("?amp=1", "") : url
     const host = getHost()
 
     return (
@@ -12,6 +15,7 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <title>{title}</title>
 
             {/* Basic */}
+            <link rel="amphtml" href={`${canonicalUrl}?amp=1`} />
             <link href={canonicalUrl} rel='canonical' />
             <meta content={title} name='title' />
             <meta content={description} name='description' />
