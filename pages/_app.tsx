@@ -44,4 +44,12 @@ _App.displayName = 'App'
 
 const App = withYM(YM_CODE, Router)(_App)
 
+App.getInitialProps = async (appCtx: AppContext) => {
+    const appProps = await NextApp.getInitialProps(appCtx)
+
+    return {
+        pageProps: { ...appProps.pageProps },
+    }
+}
+
 export default App
