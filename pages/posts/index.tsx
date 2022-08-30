@@ -8,6 +8,8 @@ type PostPageProps = {
     description: string
 }
 
+export const config = { amp: 'hybrid' }
+
 const PostsPage: NextPage = ({ posts, description }: PostPageProps) => {
 
     const breadcrumbs = {
