@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@types/node": "18.7.13",
-    "@types/react": "18.0.17",
+    "@types/react": "18.0.18",
     "@typescript-eslint/eslint-plugin": "5.35.1",
     "@typescript-eslint/parser": "5.35.1",
     "concurrently": "7.3.0",
