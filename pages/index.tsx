@@ -5,7 +5,6 @@ import styles from '../styles/index.module.scss'
 import Helmet from '../components/Helmet'
 import Link from 'next/link'
 import { useAmp } from 'next/amp'
-import React from "react";
 
 export const config = { amp: 'hybrid' }
 

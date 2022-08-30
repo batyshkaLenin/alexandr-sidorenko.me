@@ -1,6 +1,5 @@
 import { NextPage } from 'next'
-import Helmet from "../../components/Helmet";
-import React from "react";
+import Helmet from "../../components/Helmet"
 
 export const config = { amp: 'hybrid' }
 

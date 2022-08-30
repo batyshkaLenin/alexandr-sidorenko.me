@@ -1,15 +1,14 @@
 import { getAllPosts } from '../../lib/posts'
 import { PostListItem, PostPreview } from '../../components/PostsListItem/PostListItem'
 import { NextPage } from 'next'
-import Helmet from "../../components/Helmet";
-import React from "react";
-
-export const config = { amp: 'hybrid' }
+import Helmet from "../../components/Helmet"
 
 type PostPageProps = {
     posts: PostPreview[]
     description: string
 }
+
+export const config = { amp: 'hybrid' }
 
 const PostsPage: NextPage = ({ posts, description }: PostPageProps) => {
 

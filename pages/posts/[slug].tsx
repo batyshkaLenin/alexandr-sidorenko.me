@@ -3,8 +3,7 @@ import { useAmp } from 'next/amp'
 import ErrorPage from 'next/error'
 import { distanceToNow } from '../../lib/dates'
 import {getAllPosts, getPostBySlug, markdownToHtml, Post} from '../../lib/posts'
-import Helmet from "../../components/Helmet";
-import React from "react";
+import Helmet from "../../components/Helmet"
 import Link from 'next/link'
 
 export const config = { amp: 'hybrid' }
