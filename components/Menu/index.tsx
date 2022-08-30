@@ -31,7 +31,7 @@ const Menu = () => {
                         itemProp="itemListElement"
                         itemType="https://schema.org/ListItem"
                     >
-                        <Link href={'/posts'}>
+                        <Link href={isAmp ? '/posts.amp' : '/posts'}>
                             <a itemProp="item url">
                                 <span itemProp="name">Блог</span>
                             </a>

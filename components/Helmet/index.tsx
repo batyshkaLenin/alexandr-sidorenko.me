@@ -15,7 +15,7 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <title>{title}</title>
 
             {/* Basic */}
-            {isAmp ? <link rel="amphtml" href={`${canonicalUrl}?amp=1`} /> : null}
+            {isAmp ? <link rel="amphtml" href={`${canonicalUrl}${canonicalUrl.includes('posts') ? '.amp' : '?amp=1'}`} /> : null}
             <link href={canonicalUrl} rel='canonical' />
             <meta content={title} name='title' />
             <meta content={description} name='description' />
