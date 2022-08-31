@@ -4,12 +4,8 @@ import classNames from 'classnames'
 import styles from '../styles/index.module.scss'
 import Helmet from '../components/Helmet'
 import Link from 'next/link'
-import { useAmp } from 'next/amp'
-
-export const config = { amp: 'hybrid' }
 
 const HomePage: NextPage = () => {
-  const isAmp = useAmp()
   const play = () => document.getElementsByTagName('audio')[0].play()
 
   const pause = () => document.getElementsByTagName('audio')[0].pause()
@@ -18,11 +14,6 @@ const HomePage: NextPage = () => {
       <Helmet>
         <meta content='website' property='og:type' />
       </Helmet>
-      {isAmp && <style jsx>{`
-        .fn { display: flex; justify-content: space-around; }
-        .vcard { display: flex; flex-direction: column-reverse; }
-        .photo-section { display: flex; justify-content: center; }
-      `}</style>}
       <section className={classNames(styles.page, 'vcard')}>
         <section className={styles.text}>
           <article itemScope itemProp="mainEntity" itemType="https://schema.org/Person">
@@ -50,22 +41,17 @@ const HomePage: NextPage = () => {
           </article>
         </section>
         <section className={classNames(styles.photo, 'photo-section')} onMouseOut={pause} onMouseOver={play}>
-          {isAmp ? <amp-img   itemProp="image"
-                              alt='Александр Сидоренко в мексиканской шляпе и с банджо в руках'
-                              className={classNames(styles.me, 'photo')}
-                              src='/images/me.png'
-                              width='450px'
-                              height='450px' /> : <Image
+          <Image
               itemProp="image"
               alt='Александр Сидоренко в мексиканской шляпе и с банджо в руках'
               className={classNames(styles.me, 'photo')}
               src='/images/me.png'
               width='450px'
               height='450px'
-          />}
-          {isAmp ? null : <audio loop autoPlay={false} preload='auto' >
+          />
+          <audio loop autoPlay={false} preload='auto' >
             <source src='/banjo.mp3' type="audio/mpeg" />
-          </audio>}
+          </audio>
         </section>
       </section>
     </div>

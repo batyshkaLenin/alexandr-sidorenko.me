@@ -1,8 +1,6 @@
 import { NextPage } from 'next'
 import Helmet from "../../components/Helmet"
 
-export const config = { amp: 'hybrid' }
-
 const CreationPage: NextPage = () => {
 
     const breadcrumbs = {
