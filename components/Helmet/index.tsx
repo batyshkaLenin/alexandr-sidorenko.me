@@ -9,6 +9,7 @@ const Helmet = ({ title, description, keywords, image, children }) => {
     const url = getUrl(router)
     const canonicalUrl = isAmp ? url.replace(".amp", "") : url
     const host = getHost()
+    const imageURl = `${host}${image}`
 
     return (
         <Head>
@@ -30,7 +31,7 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             {/* Twitter */}
             <meta content='summary' name='twitter:card' />
             <meta content={title} name='twitter:title' />
-            <meta content={image} property='twitter:image' />
+            <meta content={imageURl} property='twitter:image' />
             <meta content={title} property='twitter:image:alt' />
             <meta content={description} property='twitter:description' />
             <meta content='@batyshkaLenin' property='twitter:site' />
@@ -40,7 +41,7 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <meta content='Александр Сидоренко' property='og:site_name' />
             <meta content='ru-RU' property='og:locale' />
             <meta content={title} property='og:title' />
-            <meta content={image} property='og:image' />
+            <meta content={imageURl} property='og:image' />
             <meta content={description} property='og:description' />
             <meta content={canonicalUrl} property='og:url' />
 
