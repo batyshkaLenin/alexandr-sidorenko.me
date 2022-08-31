@@ -4,11 +4,14 @@ import classNames from 'classnames'
 import styles from '../styles/index.module.scss'
 import Helmet from '../components/Helmet'
 import Link from 'next/link'
+import { useState } from "react"
 
 const HomePage: NextPage = () => {
-  const play = () => document.getElementsByTagName('audio')[0].play()
+  const [audioRef, setAudioRef] = useState<HTMLAudioElement | undefined>()
 
-  const pause = () => document.getElementsByTagName('audio')[0].pause()
+  const play = () => { if (audioRef) return audioRef.play() }
+  const pause = () => { if (audioRef) return audioRef.pause() }
+
   return (
     <div itemScope itemType="https://schema.org/WebPage">
       <Helmet>
@@ -49,7 +52,7 @@ const HomePage: NextPage = () => {
               width='450px'
               height='450px'
           />
-          <audio loop autoPlay={false} preload='auto' >
+          <audio ref={(ref) => setAudioRef(ref)} autoPlay={false} loop preload='auto' >
             <source src='/banjo.mp3' type="audio/mpeg" />
           </audio>
         </section>

@@ -5,6 +5,7 @@ import { distanceToNow } from '../../lib/dates'
 import {getAllPosts, getPostBySlug, markdownToHtml, Post} from '../../lib/posts'
 import Helmet from "../../components/Helmet"
 import Link from 'next/link'
+import { getUrl } from "../../lib/urls"
 
 export const config = { amp: 'hybrid' }
 
@@ -15,6 +16,7 @@ type PostPageProps = {
 export default function PostPage({ post }: PostPageProps) {
   const isAmp = useAmp()
   const router = useRouter()
+  const url = getUrl(router)
 
   if (!router.isFallback && !post?.slug) {
     return <ErrorPage statusCode={404} />
@@ -52,6 +54,7 @@ export default function PostPage({ post }: PostPageProps) {
   return (
     <>
       <Helmet title={`${post.title} | Блог Александра Сидоренко`} description={post.description} image={post.preview}>
+        <link rel="amphtml" href={`${url}.amp`} />
         <meta content='article' property='og:type' />
         <meta content={post.author.firstName} property='og:article:author:first_name'/>
         <meta content={post.author.lastName} property='og:article:author:last_name'/>
