@@ -56,7 +56,7 @@ export default function CreationPage({ creation }: CreationPageProps) {
 
   return (
     <>
-      <Helmet title={`${typedTitle} | ${additionalTitle} Александра Сидоренко`} description={creation.description} image={creation.preview}>
+      <Helmet title={`${typedTitle} | Творчество Александра Сидоренко`} description={creation.description} image={creation.preview}>
         <link rel="amphtml" href={`${url}.amp`} />
         <meta content='article' property='og:type' />
         <meta content={creation.author.firstName} property='og:article:author:first_name'/>
