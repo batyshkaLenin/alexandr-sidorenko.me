@@ -1,7 +1,7 @@
-import { getAllPosts } from '../../lib/posts'
-import { PostListItem, PostPreview } from '../../components/PostsListItem/PostListItem'
+import { getAllPosts } from '../../lib/markdown'
 import { NextPage } from 'next'
 import Helmet from "../../components/Helmet"
+import { PublicationList, PostPreview } from "../../components/publication/list"
 
 type PostPageProps = {
     posts: PostPreview[]
@@ -34,20 +34,7 @@ const PostsPage: NextPage = ({ posts, description }: PostPageProps) => {
                 <meta content='website' property='og:type' />
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}/>
             </Helmet>
-            <div itemScope itemType="https://schema.org/Blog">
-                <meta itemProp="description" content={description} />
-                {posts.map((post, index) => (
-                    <PostListItem
-                        key={index}
-                        description={post.description}
-                        slug={post.slug}
-                        title={post.title}
-                        created={post.created}
-                        author={post.author}
-                        modified={post.modified}
-                    />
-                ))}
-            </div>
+            <PublicationList publications={posts} type="post" />
         </>
     )
 }

@@ -86,8 +86,8 @@ preview: "/assets/posts/bluredu-new-teachers/blurred-technologies.jpg"
 
 ## Ссылки на Blurred Education:
 
-Группа ВКонтакте - [https://vk.com/blur_edu](https://vk.com/blur_edu)
-[Интервью с первой итерации](https://vk.com/video231915592_456240050)
-[Интервью со второй итерации](https://www.youtube.com/watch?v=TEuiiLuFMMU)
-Мой твиттер - [https://twitter.com/batyshkaLenin](https://twitter.com/batyshkaLenin)
+Группа ВКонтакте - [https://vk.com/blur_edu](https://vk.com/blur_edu)  
+[Интервью с первой итерации](https://vk.com/video231915592_456240050)  
+[Интервью со второй итерации](https://www.youtube.com/watch?v=TEuiiLuFMMU)  
+Мой твиттер - [https://twitter.com/batyshkaLenin](https://twitter.com/batyshkaLenin)  
 P.S. С наилучшими пожеланиями, успоший вождь, батюшка Ленин.

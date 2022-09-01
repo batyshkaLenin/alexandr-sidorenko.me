@@ -21,8 +21,10 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <meta content={description} name='description' />
             <meta content={keywords} name='keywords' />
             <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-            <link rel="alternate" type="application/rss+xml" title="Блог Александра Сидоренко" href="/rss/feed.xml" />
-            <link rel="alternate" type="application/json" title="Блог Александра Сидоренко" href="/rss/feed.json" />
+            <link rel="alternate" type="application/rss+xml" title="Блог Александра Сидоренко" href="/rss/posts/feed.xml" />
+            <link rel="alternate" type="application/json" title="Блог Александра Сидоренко" href="/rss/posts/feed.json" />
+            <link rel="alternate" type="application/rss+xml" title="Творчество Александра Сидоренко" href="/rss/creation/feed.xml" />
+            <link rel="alternate" type="application/json" title="Творчество Александра Сидоренко" href="/rss/creation/feed.json" />
 
             {/* Icons */}
             <link href='/favicon.ico' rel='shortcut icon' />

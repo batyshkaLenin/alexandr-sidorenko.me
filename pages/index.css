@@ -45,7 +45,7 @@ p {
     }
 }
 
-.postContent > p > img {
+.publicationContent > p > img {
     max-height: 600px;
     max-width: 100%;
     display: block;

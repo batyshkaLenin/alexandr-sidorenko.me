@@ -1,7 +1,14 @@
 import { NextPage } from 'next'
 import Helmet from "../../components/Helmet"
+import { CreationPreview, PublicationList } from "../../components/publication/list"
+import { getAllCreation } from "../../lib/markdown"
 
-const CreationPage: NextPage = () => {
+type CreationPageProps = {
+    creation: CreationPreview[]
+    description: string
+}
+
+const CreationPage: NextPage = ({ creation, description }: CreationPageProps) => {
 
     const breadcrumbs = {
         "@context": "https://schema.org",
@@ -22,12 +29,20 @@ const CreationPage: NextPage = () => {
     }
 
     return (<>
-        <Helmet title='Творчество Александра Сидоренко' description="Страница с публикациями моего творчества. Я занимаюсь музыкой, пишу стихи и рассказы.">
+        <Helmet title='Творчество Александра Сидоренко' description={description}>
             <meta content='website' property='og:type' />
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}/>
         </Helmet>
-        <div>Страница с публикациями моего творчества. Я занимаюсь музыкой, пишу стихи и рассказы. В данный момент находится в разработке</div>
+        <PublicationList publications={creation} type={'creation'} />
     </>)
+}
+
+export async function getStaticProps() {
+    const creation = getAllCreation(['slug', 'title', 'description', 'modified', 'created', 'author', 'creationType'])
+    const description = 'Страница с публикациями моего творчества. Я занимаюсь музыкой, пишу стихи и рассказы.'
+    return {
+        props: { creation, description },
+    }
 }
 
 export default CreationPage

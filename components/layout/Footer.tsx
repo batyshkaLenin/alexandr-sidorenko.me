@@ -3,7 +3,7 @@ import styles from '../../styles/Footer.module.scss'
 import Link from 'next/link'
 import { useAmp } from "next/amp"
 
-const Footer = () => {
+export const Footer = () => {
     const isAmp = useAmp()
 
     return (
@@ -56,5 +56,3 @@ const Footer = () => {
         </footer>
     )
 }
-
-export default Footer

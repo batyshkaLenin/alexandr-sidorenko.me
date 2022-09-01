@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
-import Menu from '../Menu'
+import Menu from './Menu'
 import styles from '../../styles/Header.module.scss'
 import classNames from 'classnames'
 import { useLocalStorage } from "../../lib/hooks";
 import { useAmp } from "next/amp";
 
-const Header = () => {
+export const Header = () => {
     const isAmp = useAmp()
     const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('dark', 'theme')
 
@@ -37,5 +37,3 @@ const Header = () => {
         </header>
     )
 }
-
-export default Header

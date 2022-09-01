@@ -6,13 +6,24 @@ import { remark } from "remark"
 import html from "remark-html"
 import imgLinks from "@pondorasti/remark-img-links"
 
-const postsDirectory = path.join(process.cwd(), '_posts')
+/**
+ * @typedef PublicationType
+ * @type {'post' | 'creation'}
+ */
 
-async function getAllPosts() {
-    const slugs = await fs.promises.readdir(postsDirectory)
-    const posts = slugs.map(slug => {
+/**
+ * Получить все публикации по типу
+ * @param {PublicationType} type
+ */
+async function getAllPublications(type) {
+    const postsDirectory = path.join(process.cwd(), '_posts')
+    const creationDirectory = path.join(process.cwd(), '_creation')
+    const isPost = type === 'post'
+    const directory = isPost ? postsDirectory : creationDirectory
+    const slugs = await fs.promises.readdir(directory)
+    const publications = slugs.map(slug => {
         const realSlug = slug.replace(/\.md$/, '')
-        const fullPath = path.join(postsDirectory, `${realSlug}.md`)
+        const fullPath = path.join(directory, `${realSlug}.md`)
         const fileContents = fs.readFileSync(fullPath, 'utf8')
         const { data, content } = matter(fileContents)
 
@@ -25,60 +36,78 @@ async function getAllPosts() {
         return item
     })
 
-    const postsWithHtml = await Promise.all(posts.map(async (post) => {
-        const result = await remark().use(imgLinks, { absolutePath: 'https://alexandr-sidorenko.me' }).use(html).process(post.content)
+    const publicationsWithHtml = await Promise.all(publications.map(async (publication) => {
+        const result = await remark().use(imgLinks, { absolutePath: 'https://alexandr-sidorenko.me' }).use(html).process(publication.content)
         const htmlContent = result.toString()
-        return { ...post, content: htmlContent }
+        return { ...publication, content: htmlContent }
     }))
 
-    return postsWithHtml.sort((post1, post2) => (post1.date > post2.date ? -1 : 1))
+    return publicationsWithHtml.sort((post1, post2) => (post1.date > post2.date ? -1 : 1))
 }
 
-async function generateRss() {
+/**
+ *
+ * @param {PublicationType} type
+ */
+async function generateRss(type) {
+    const isPost = type === 'post'
     const siteURL = 'https://alexandr-sidorenko.me';
-    const allPosts = await getAllPosts();
+    const allPublications = await getAllPublications(type)
 
     const author = {
         name: "Александр Сидоренко",
-        link: "https://twitter.com/batyshkaLenin/",
+        link: isPost ? "https://twitter.com/batyshkaLenin/" : "https://vk.com/better_not_be_born",
     };
 
+    const path = isPost ? 'posts' : 'creation'
     const feed = new Feed({
         title: "Александр Сидоренко",
-        description: "Блог Александра Сидоренко",
+        description: isPost ? "Блог Александра Сидоренко" : "Творчество Александра Сидоренко",
         id: siteURL,
         link: siteURL,
         image: `${siteURL}/images/me.png`,
         favicon: `${siteURL}/favicon.ico`,
         feedLinks: {
-            rss2: `${siteURL}/rss/feed.xml`,
-            json: `${siteURL}/rss/feed.json`,
-            atom: `${siteURL}/rss/feed.atom`,
+            rss2: `${siteURL}/rss/${path}/feed.xml`,
+            json: `${siteURL}/rss/${path}/feed.json`,
         },
         author,
         copyright: `Все права защищены 2020-${new Date().getFullYear()}, Александр Сидоренко`,
         language: "ru"
     });
 
-    allPosts.forEach((post) => {
-        const url = `${siteURL}/blog/${post.slug}`;
+    allPublications.forEach((pub) => {
+        const url = `${siteURL}/${path}/${pub.slug}`;
         feed.addItem({
-            title: post.title,
+            title: pub.title,
             id: url,
             link: url,
-            description: post.description,
-            content: post.content,
+            description: pub.description,
+            content: pub.content,
             author: [author],
             contributor: [author],
-            date: new Date(post.created),
+            date: new Date(pub.created),
         });
     })
 
-    await fs.promises.mkdir("./public/rss", { recursive: true });
-    await fs.promises.writeFile("./public/rss/feed.xml", feed.rss2());
-    await fs.promises.writeFile("./public/rss/feed.json", feed.json1());
+    await fs.promises.mkdir(`./public/rss/${path}`, { recursive: true });
+    await fs.promises.writeFile(`./public/rss/${path}/feed.xml`, feed.rss2());
+    await fs.promises.writeFile(`./public/rss/${path}/feed.json`, feed.json1());
 }
 
-generateRss().then(() => {
-    console.info('RSS generation completed')
-}).catch(console.error)
+
+async function generateAllRSS() {
+    const types = ['post', 'creation']
+    for (let i = 0; i < types.length; i++) {
+        const type = types[i]
+        try {
+            await generateRss(type)
+            console.info(`RSS for ${type} generation completed`)
+        } catch (e) {
+            console.warn(`RSS for ${type} generation failed`)
+            console.error(e)
+        }
+    }
+}
+
+generateAllRSS().then(() => console.info('All RSS generation completed'))

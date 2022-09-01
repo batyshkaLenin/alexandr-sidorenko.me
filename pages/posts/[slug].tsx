@@ -2,10 +2,11 @@ import { useRouter } from 'next/router'
 import { useAmp } from 'next/amp'
 import ErrorPage from 'next/error'
 import { distanceToNow } from '../../lib/dates'
-import {getAllPosts, getPostBySlug, markdownToHtml, Post} from '../../lib/posts'
+import {getAllPosts, getPostBySlug, markdownToHtml, Post} from '../../lib/markdown'
 import Helmet from "../../components/Helmet"
 import Link from 'next/link'
 import { getUrl } from "../../lib/urls"
+import {getPublicationAdditionalTitle} from "../../components/publication/list";
 
 export const config = { amp: 'hybrid' }
 
@@ -67,7 +68,7 @@ export default function PostPage({ post }: PostPageProps) {
       {router.isFallback ? (
         <div>Loading…</div>
       ) : (
-        <article className='post-full post h-entry' itemProp="blogPost" itemScope itemType="https://schema.org/BlogPosting">
+        <article className='post-full post h-entry' itemProp="blogPost" itemScope itemType="https://schema.org/Article">
           <meta itemProp="image" content={post.preview || '/images/me.png'} />
           <header className='post-full-header'>
             <h1 className='post-full-title p-name' itemProp="headline">{post.title}</h1>
@@ -88,7 +89,7 @@ export default function PostPage({ post }: PostPageProps) {
             </Link>
           </header>
           <section
-            className='postContent'
+            className='publicationContent'
             itemProp="articleBody"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
