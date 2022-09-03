@@ -8,6 +8,8 @@ export function getPublicationAdditionalTitle(type: PublicationType, publication
                 return 'Рассказ'
             case 'poetry':
                 return 'Стих'
+            case 'poetry-compilation':
+                return 'Подборка стихов'
             default:
                 return 'Произведение'
         }
