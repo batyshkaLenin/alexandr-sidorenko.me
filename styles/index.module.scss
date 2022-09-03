@@ -1,5 +1,8 @@
 .name {
   font-size: xxx-large;
+  & a {
+    text-decoration: none;
+  }
 }
 
 .me {

@@ -1,14 +1,19 @@
 [data-theme='dark'] {
-    --color-bg: #070707;
-    --color-text: #fefefe;
+    --color-bg: var(--color-bg-dark);
+    --color-text: var(--color-text-dark);
 }
 
 [data-theme='light'] {
-    --color-bg: #fefefe;
-    --color-text: #070707;
+    --color-bg: var(--color-bg-light);
+    --color-text: var(--color-text-light);
 }
 
 body {
+    --color-accent-red: #EF3A3A;
+    --color-bg-dark: #070707;
+    --color-text-dark: #fefefe;
+    --color-bg-light: var(--color-text-dark);
+    --color-text-light: var(--color-bg-dark);
     font-family: 'PTRootUIWebRegular', serif;
     background-color: var(--color-bg);
     color: var(--color-text);
@@ -16,7 +21,6 @@ body {
 
 a {
     color: var(--color-text);
-    text-decoration: none;
 }
 
 h1,

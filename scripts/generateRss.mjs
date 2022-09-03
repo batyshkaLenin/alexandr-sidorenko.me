@@ -86,7 +86,7 @@ async function generateRss(type) {
             content: pub.content,
             author: [author],
             contributor: [author],
-            date: new Date(pub.created),
+            date: new Date(pub.published),
         });
     })
 

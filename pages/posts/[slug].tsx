@@ -6,12 +6,11 @@ import {getAllPosts, getPostBySlug, markdownToHtml, Post} from '../../lib/markdo
 import Helmet from "../../components/Helmet"
 import Link from 'next/link'
 import { getUrl } from "../../lib/urls"
-import {getPublicationAdditionalTitle} from "../../components/publication/list";
 
 export const config = { amp: 'hybrid' }
 
 type PostPageProps = {
-  post: Pick<Post, 'slug' | 'title' | 'author'| 'description' | 'created' | 'modified' | 'content' | 'preview'>
+  post: Pick<Post, 'slug' | 'title' | 'author'| 'description' | 'created' | 'published' | 'modified' | 'content' | 'preview'>
 }
 
 export default function PostPage({ post }: PostPageProps) {
@@ -61,7 +60,7 @@ export default function PostPage({ post }: PostPageProps) {
         <meta content={post.author.lastName} property='og:article:author:last_name'/>
         <meta content={post.author.username} property='og:article:author:username'/>
         <meta content={post.author.gender} property='og:article:author:gender'/>
-        <meta content={post.created} property='og:article:published_time' />
+        <meta content={post.published} property='og:article:published_time' />
         <meta content={post.modified} property='og:article:modified_time' />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}/>
       </Helmet>
@@ -73,6 +72,7 @@ export default function PostPage({ post }: PostPageProps) {
           <header className='post-full-header'>
             <h1 className='post-full-title p-name' itemProp="headline">{post.title}</h1>
             <meta itemProp="author" content="Александр Сидоренко" />
+            <meta itemProp="dateCreated" content={post.created} />
             <Link as={isAmp ? `${postURL}?amp=1` : postURL} href="/posts/[slug]" >
               <a
                   itemProp="url"
@@ -80,10 +80,10 @@ export default function PostPage({ post }: PostPageProps) {
               >
                 <time
                     className='text-center meta dt-published'
-                    itemProp="dateCreated"
-                    dateTime={post.created}
+                    itemProp="datePublished"
+                    dateTime={post.published}
                 >
-                  {distanceToNow(new Date(post.created))}
+                  {distanceToNow(new Date(post.published))}
                 </time>
               </a>
             </Link>
@@ -106,6 +106,7 @@ export async function getStaticProps({ params }) {
     'author',
     'description',
     'created',
+    'published',
     'modified',
     'content',
     'preview',

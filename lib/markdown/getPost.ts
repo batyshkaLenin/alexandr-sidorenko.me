@@ -16,6 +16,7 @@ export type Post = {
   slug: string
   title: string
   description: string
+  published: string
   created: string
   content: string
   author: Author
@@ -28,14 +29,14 @@ export function getPostSlugs(): string[] {
   return fs.readdirSync(postsDirectory)
 }
 
-export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = []): Pick<Post, 'created' | F> {
+export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = []): Pick<Post, 'published' | F> {
   const realSlug = slug.replace(/\.md$/, '')
   const fullPath = join(postsDirectory, `${realSlug}.md`)
   const fileContents = fs.readFileSync(fullPath, 'utf8')
   const fileStats = fs.statSync(fullPath)
   const { data, content } = matter(fileContents)
 
-  const item: unknown = { created: new Date(data.created).toJSON() }
+  const item: unknown = { published: new Date(data.published).toJSON() }
 
   fields.forEach((field) => {
     switch (field) {
@@ -58,7 +59,8 @@ export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = 
         item[field] = fileStats.mtime.toJSON()
         break
       case "created":
-        item[field] = new Date(data.created).toJSON()
+      case "published":
+        item[field] = new Date(data[field]).toJSON()
         break
       case "tags":
         try {
@@ -72,13 +74,13 @@ export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = 
     }
   })
 
-  return <Pick<Post, 'created' | F>>item
+  return <Pick<Post, 'published' | F>>item
 }
 
-export function getAllPosts<F extends keyof Post>(fields: F[] = []): Pick<Post, "created" | F>[] {
+export function getAllPosts<F extends keyof Post>(fields: F[] = []): Pick<Post, "published" | F>[] {
   const slugs = getPostSlugs()
   const posts = slugs
     .map((slug) => getPostBySlug<F>(slug, fields))
-    .sort((post1, post2) => (post1.created > post2.created ? -1 : 1))
+    .sort((post1, post2) => (post1.published > post2.published ? -1 : 1))
   return posts
 }

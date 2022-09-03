@@ -30,12 +30,12 @@
   height: 17px;
 }
 input:checked + .slider {
-  background-color: #f0393b;
+  background-color: var(--color-accent-red);
   width: 30px;
   height: 17px;
 }
 input:focus + .slider {
-  box-shadow: 0 0 1px #f0393b;
+  box-shadow: 0 0 1px var(--color-accent-red);
 }
 .slider.round {
   border-radius: 17px;

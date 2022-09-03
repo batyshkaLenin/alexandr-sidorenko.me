@@ -1,17 +1,34 @@
-import { useRouter } from 'next/router'
-import { useAmp } from 'next/amp'
+import {useRouter} from 'next/router'
+import {useAmp} from 'next/amp'
 import ErrorPage from 'next/error'
-import { distanceToNow } from '../../lib/dates'
-import { getAllCreation, getCreationBySlug, markdownToHtml, Creation } from '../../lib/markdown'
+import {distanceToNow} from '../../lib/dates'
+import { Creation, getAllCreation, getCreationBySlug, markdownToHtml } from '../../lib/markdown'
 import Helmet from "../../components/Helmet"
 import Link from 'next/link'
-import { getUrl } from "../../lib/urls"
+import {getUrl} from "../../lib/urls"
 import {getPublicationAdditionalTitle} from "../../components/publication/list";
 
 export const config = { amp: 'hybrid' }
 
+enum TriggerWarning {
+  Adulthood = '18',
+  Addiction = 'addict',
+  Religion = 'religion'
+}
+
+function getTriggerWarningText(tw: TriggerWarning) {
+  switch (tw) {
+    case TriggerWarning.Adulthood:
+      return 'Материал предназначен для лиц старше 18 лет.'
+    case TriggerWarning.Religion:
+      return 'Данное сообщение (материал), описывает душевные терзания разочарованного в жизни человека, выполняющим функции лирического героя и не несёт в себе цели оскорбления чувств верующих. Если вы чувствительны к этой теме немедленно прекратите чтение страницы и закройте вкладку браузера.'
+    case TriggerWarning.Addiction:
+      return 'В данном материале упомянуты реалистичные сцены употребления алкоголя, табачных изделий и (или) других наркотических или психоактивных веществ. Их употребление опасно для здоровья и (или) запрещено законом.'
+  }
+}
+
 type CreationPageProps = {
-  creation: Pick<Creation, 'slug' | 'title' | 'author'| 'description' | 'created' | 'modified' | 'content' | 'preview' | 'creationType'>
+  creation: Pick<Creation, 'slug' | 'title' | 'author'| 'description' | 'created' | 'published' | 'modified' | 'content' | 'preview' | 'creationType' | 'tw'>
 }
 
 export default function CreationPage({ creation }: CreationPageProps) {
@@ -63,7 +80,7 @@ export default function CreationPage({ creation }: CreationPageProps) {
         <meta content={creation.author.lastName} property='og:article:author:last_name'/>
         <meta content={creation.author.username} property='og:article:author:username'/>
         <meta content={creation.author.gender} property='og:article:author:gender'/>
-        <meta content={creation.created} property='og:article:published_time' />
+        <meta content={creation.published} property='og:article:published_time' />
         <meta content={creation.modified} property='og:article:modified_time' />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}/>
       </Helmet>
@@ -75,19 +92,29 @@ export default function CreationPage({ creation }: CreationPageProps) {
           <header>
             <h1>{additionalTitle && `${additionalTitle} `} &quot;<span itemProp="headline">{creation.title}</span>&quot;</h1>
             <meta itemProp="author" content="Александр Сидоренко" />
+            <meta itemProp="dateCreated" content={creation.created} />
             <Link as={isAmp ? `${creationURL}?amp=1` : creationURL} href="/creation/[slug]" >
               <a
                   itemProp="url"
               >
                 <time
-                    itemProp="dateCreated"
-                    dateTime={creation.created}
+                    itemProp="datePublished"
+                    dateTime={creation.published}
                 >
-                  {distanceToNow(new Date(creation.created))}
+                  {distanceToNow(new Date(creation.published))}
                 </time>
               </a>
             </Link>
           </header>
+          {creation.tw && creation.tw.length ? (<>
+            <hr />
+            <section className='publicationContent'>
+              {creation.tw.map((tw, index) => {
+                return (<blockquote key={index}><p>{getTriggerWarningText(tw)}</p></blockquote>)
+              })}
+            </section>
+            <hr />
+          </>) : null}
           <section
             className='publicationContent'
             itemProp="articleBody"
@@ -106,10 +133,12 @@ export async function getStaticProps({ params }) {
     'author',
     'description',
     'created',
+    'published',
     'modified',
     'content',
     'preview',
     'creationType',
+    'tw',
   ])
   const content = await markdownToHtml(creation.content || '')
 

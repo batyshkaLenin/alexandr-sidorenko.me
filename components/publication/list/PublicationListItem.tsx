@@ -11,7 +11,7 @@ export const PublicationListItem = (publication: PublicationPreviewWithType) => 
 
     return (<Link as={publicationURL} href={`/${path}/[slug]`}>
         <a>
-            <article itemScope itemType="https://schema.org/Article">
+            <article className={styles.article} itemScope itemType="https://schema.org/Article">
                 <meta itemProp="author" content={publication.author.fullName} />
                 <meta itemProp="dateCreated" content={publication.created} />
                 <meta itemProp="dateModified" content={publication.modified} />
@@ -19,10 +19,8 @@ export const PublicationListItem = (publication: PublicationPreviewWithType) => 
                     <h2>{additionalTitle && `${additionalTitle} `}&quot;<span itemProp="headline">{publication.title}</span>&quot;</h2>
                 </div>
 
-                <div>
-                    <div className={styles.description} itemProp="description">
-                        {publication.description}
-                    </div>
+                <div className={styles.description} itemProp="description">
+                    {publication.description}
                 </div>
             </article>
         </a>

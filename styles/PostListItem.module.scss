@@ -1,6 +1,25 @@
+.article:hover {
+  margin-left: -20px;
+  padding-left: 5px;
+  border-left: 15px solid var(--color-accent-red);
+  left: 50%;
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, var(--color-text-dark) 50%, var(--color-bg-dark) 0) 0/200% no-repeat;
+    color: var(--color-bg-dark);
+  }
+  [data-theme='light'] & {
+    background: linear-gradient(90deg, var(--color-text-light) 50%, var(--color-bg-light) 0) 0/200% no-repeat;
+    color: var(--color-bg-light);
+  }
+  transition: .4s;
+  a > & {
+  text-decoration: underline;
+  }
+}
+
 .title {
   font-weight: bold;
-  line-height: 121.5%;
+  line-height: 170%;
 }
 
 .description {
@@ -8,4 +27,6 @@
   font-weight: normal;
   line-height: 121.5%;
   color: #888888;
+  text-decoration: none;
+  display: inline-block;
 }
