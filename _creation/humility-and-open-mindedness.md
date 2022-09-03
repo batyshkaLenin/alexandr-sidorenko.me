@@ -4,7 +4,7 @@ description: "Все уйдут, а я усну в кигуруми пикачу
 Напишите мне утром, но я не отвечу, ведь апогей творчества позади, я теперь недоступен."
 created: "2021-12-01"
 preview: "/images/me.jpg"
-creationType: "poetry"
+creationType: "poetry-compilation"
 ---
 
 > Материал предназначен для лиц старше 18 лет.
