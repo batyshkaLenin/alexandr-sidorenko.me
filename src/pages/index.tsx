@@ -53,7 +53,7 @@ const HomePage: NextPage = () => {
               height='450px'
           />
           <audio ref={(ref) => setAudioRef(ref)} autoPlay={false} loop preload='auto' >
-            <source src='/public/banjo.mp3' type="audio/mpeg" />
+            <source src='/banjo.mp3' type="audio/mpeg" />
           </audio>
         </section>
       </section>
