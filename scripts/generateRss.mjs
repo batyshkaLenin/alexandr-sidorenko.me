@@ -16,8 +16,8 @@ import imgLinks from "@pondorasti/remark-img-links"
  * @param {PublicationType} type
  */
 async function getAllPublications(type) {
-    const postsDirectory = path.join(process.cwd(), '_posts')
-    const creationDirectory = path.join(process.cwd(), '_creation')
+    const postsDirectory = path.join(process.cwd(), '_content/posts')
+    const creationDirectory = path.join(process.cwd(), '_content/creation')
     const isPost = type === 'post'
     const directory = isPost ? postsDirectory : creationDirectory
     const slugs = await fs.promises.readdir(directory)

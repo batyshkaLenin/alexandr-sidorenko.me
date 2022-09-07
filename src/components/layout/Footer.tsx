@@ -6,7 +6,7 @@ import { useAmp } from "next/amp"
 export const Footer = () => {
     const isAmp = useAmp()
 
-    return (
+    return (<>{!isAmp ?
         <footer className={styles.footer}>
             <section className={styles.rights}>
                 <div className={styles.copy}>&copy; 2020-{new Date().getFullYear()}</div>|
@@ -53,6 +53,6 @@ export const Footer = () => {
                     </li>
                 </ul>
             </section>
-        </footer>
-    )
+        </footer> : null}
+        </>)
 }

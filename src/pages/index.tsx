@@ -21,7 +21,7 @@ const HomePage: NextPage = () => {
         <section className={styles.text}>
           <article itemScope itemProp="mainEntity" itemType="https://schema.org/Person">
             <h1 className={styles.name}>
-              <Link href="/">
+              <Link href="/src/pages">
                 <a itemProp="sameAs">
                   <span itemProp="name" className="fn">Александр Сидоренко</span>
                 </a>
@@ -53,7 +53,7 @@ const HomePage: NextPage = () => {
               height='450px'
           />
           <audio ref={(ref) => setAudioRef(ref)} autoPlay={false} loop preload='auto' >
-            <source src='/banjo.mp3' type="audio/mpeg" />
+            <source src='/public/banjo.mp3' type="audio/mpeg" />
           </audio>
         </section>
       </section>

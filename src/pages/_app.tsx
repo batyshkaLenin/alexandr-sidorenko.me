@@ -1,5 +1,5 @@
-import './index.css'
-import '../public/fonts/fonts.css'
+import '../styles/index.css'
+import '../../public/fonts/fonts.css'
 import withYM from 'next-ym'
 import getConfig from 'next/config'
 import NextApp, { AppContext } from 'next/app'

@@ -2,7 +2,7 @@ import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
 
-const creationDirectory = join(process.cwd(), '_creation')
+const creationDirectory = join(process.cwd(), '_content/creation')
 
 enum TriggerWarning {
     Adulthood = '18',

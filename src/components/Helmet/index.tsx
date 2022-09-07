@@ -64,6 +64,10 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <meta content='#070707' name='theme-color' />
             <link href='/manifest.json' rel='manifest' />
 
+            {isAmp ? <style amp-custom="">{`
+            body { padding: 20px; }
+            img { max-height: 600px; max-width: 100%; display: block; margin-left: auto; margin-right: auto; }
+            `}</style> : null}
             {/* Additional tags */}
             {children ? children : null}
         </Head>

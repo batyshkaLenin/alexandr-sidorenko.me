@@ -17,13 +17,24 @@
 
 .contactList {
   display: flex;
+  padding: 0;
 }
 .contactItem {
   list-style: none;
   margin-right: 50px;
+  &:last-child {
+    margin-right: 0;
+  }
 }
 
-@media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
+@media (max-width: 790px) {
+  .footer {
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+@media only screen and (min-width: 320px) and (max-width: 480px) {
   .footer {
     flex-direction: column-reverse;
     flex-wrap: unset;
@@ -33,6 +44,7 @@
     justify-content: center;
   }
   .rights {
+    display: flex;
     justify-content: center;
   }
 }

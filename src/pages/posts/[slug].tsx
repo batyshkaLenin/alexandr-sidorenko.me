@@ -6,6 +6,7 @@ import {getAllPosts, getPostBySlug, markdownToHtml, Post} from '../../lib/markdo
 import Helmet from "../../components/Helmet"
 import Link from 'next/link'
 import { getUrl } from "../../lib/urls"
+import classNames from "classnames";
 
 export const config = { amp: 'hybrid' }
 

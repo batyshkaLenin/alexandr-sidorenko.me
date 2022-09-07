@@ -1,7 +1,7 @@
 .menu {
   font-family: 'Muller', serif;
   display: flex;
-  padding: 10px;
+  padding: 0 10px 10px 0;
 }
 .menuItem {
   list-style: none;
@@ -22,8 +22,9 @@
   }
 }
 
-@media only screen and (max-device-width: 320px) {
+@media (max-width: 320px) {
   .menuItem {
+    margin-left: 0;
     margin-right: 10px;
     &.active {
       list-style: none;
@@ -39,8 +40,9 @@
   }
 }
 
-@media only screen and (min-device-width: 321px) and (max-device-width: 480px) {
+@media (min-width: 321px) and (max-width: 480px) {
   .menuItem {
+    margin-left: 0;
     margin-right: 10px;
     &.active {
       list-style: none;

@@ -10,6 +10,11 @@ module.exports = withPWA({
   runtimeCaching,
 })({
   reactStrictMode: true,
+  experimental: {
+    amp: {
+      skipValidation: true,
+    },
+  },
   serverRuntimeConfig: {
     GA_CODE: process.env.NEXT_PUBLIC_GA_CODE,
     YM_CODE: process.env.NEXT_PUBLIC_YM_CODE,
