@@ -1,17 +1,11 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import Menu from './Menu'
 import styles from '../../styles/Header.module.scss'
 import classNames from 'classnames'
-import { useLocalStorage } from "../../lib/hooks";
 import { useAmp } from "next/amp";
 
-export const Header = () => {
+export const Header = (props) => {
     const isAmp = useAmp()
-    const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('dark', 'theme')
-
-    useEffect(() => {
-        document.body.setAttribute('data-theme', theme)
-    }, [theme])
 
     return (
         <header className={styles.header}>
@@ -21,13 +15,13 @@ export const Header = () => {
                     <input
                         role="switch"
                         aria-label='Переключатель темы'
-                        aria-checked={theme === 'light'}
-                        checked={theme === 'light'}
+                        aria-checked={props.theme === 'light'}
+                        checked={props.theme === 'light'}
                         id='slider'
                         type='checkbox'
                         onChange={() => {
-                            const newTheme = theme === 'light' ? 'dark' : 'light'
-                            setTheme(newTheme)
+                            const newTheme = props.theme === 'light' ? 'dark' : 'light'
+                            props.setTheme(newTheme)
                             document.body.setAttribute('data-theme', newTheme)
                         }}
                     />

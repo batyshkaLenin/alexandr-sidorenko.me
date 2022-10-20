@@ -3,7 +3,7 @@ import styles from '../../styles/Footer.module.scss'
 import Link from 'next/link'
 import { useAmp } from "next/amp"
 
-export const Footer = () => {
+export const Footer = (props) => {
     const isAmp = useAmp()
 
     return (<>{!isAmp ?
@@ -16,6 +16,13 @@ export const Footer = () => {
             </section>
             <section className={styles.contacts}>
                 <ul className={styles.contactList}>
+                    <li className={styles.contactItem}>
+                        <Link href="https://webring.xxiivv.com/#batyshkaLenin">
+                            <a target="_blank" rel="noopener">
+                                {isAmp ? "XXIIVV webring" : <img className={styles.webring} src={`https://webring.xxiivv.com/icon.${props.theme === 'light' ? 'black' : 'white'}.svg`} alt="XXIIVV webring"/>}
+                            </a>
+                        </Link>
+                    </li>
                     <li className={styles.contactItem}>
                         <Link href="https://github.com/batyshkaLenin">
                             <a rel="me">

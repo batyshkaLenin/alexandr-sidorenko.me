@@ -9,6 +9,8 @@ import { Header, Footer } from '../components/layout'
 import Router from 'next/router'
 import {useAmp} from "next/amp";
 import Script from "next/script";
+import {useLocalStorage} from "../lib/hooks";
+import {useEffect} from "react";
 
 const { publicRuntimeConfig, serverRuntimeConfig } = getConfig()
 const isServerSide = typeof window === 'undefined'
@@ -16,6 +18,11 @@ const { YM_CODE, GA_CODE } = isServerSide ? serverRuntimeConfig : publicRuntimeC
 
 function _App({ Component, pageProps }) {
   const isAmp = useAmp()
+    const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('dark', 'theme')
+
+    useEffect(() => {
+        document.body.setAttribute('data-theme', theme)
+    }, [theme])
   return (
     <>
       <Head>
@@ -27,11 +34,11 @@ function _App({ Component, pageProps }) {
       </Head>
 
       <div className='root'>
-        <Header />
+        <Header theme={theme} setTheme={setTheme}/>
         <main>
           <Component {...pageProps} />
         </main>
-        <Footer />
+        <Footer theme={theme} />
       </div>
        <Script id='ext-ga' async src={`https://www.googletagmanager.com/gtag/js?id=${GA_CODE}`} strategy="afterInteractive" />
        <Script id='int-ga' strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${GA_CODE}');`}</Script>
