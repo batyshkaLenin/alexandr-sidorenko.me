@@ -67,6 +67,8 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             {/* IndieWeb */}
             <link href="https://webmention.io/alexandr-sidorenko.me/webmention" rel="webmention" />
             <link href="https://webmention.io/alexandr-sidorenko.me/xmlrpc" rel="pingback" />
+            <link href="https://indieauth.com/auth" rel="authorization_endpoint" />
+            <link href="https://tokens.indieauth.com/token" rel="token_endpoint" />
             <link href="https://merveilles.town/@batyshkaLenin" rel="me" />
 
             {isAmp ? <style jsx>{`
