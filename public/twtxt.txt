@@ -1,8 +1,17 @@
 # Created with twtxt-cli-0.0.1
 #
-# nick = batyshkaLenin
-# url = https://alexandr-sidorenko.me/twtxt.txt
+# Learn more about twtxt-cli https://github.com/batyshkaLenin/twtxt-cli
 #
+# nick        = batyshkaLenin
+# url         = https://alexandr-sidorenko.me/twtxt.txt
+#
+# following   = 1
+#
+#
+# follow = xxiivv https://wiki.xxiivv.com/links/tw.txt
+#
+
+2022-10-21T04:05:01+06:00	А к чёрту, сделал функционал фолловинга. Позже это всё дело опубликую и запаблишу в npm. Надо ещё код причесать.
 2022-10-21T03:43:26+06:00	Ну и ещё запилил хук после того как запостишь, чтобы не нужно было делать коммит и пуш для деплоя статики на сайт.
 2022-10-21T03:42:45+06:00	Ладно, допилю уже утром. Сейчас уже почти четыре часа утра. Сделал функционал по постингу пока только.
 2022-10-21T02:48:11+06:00	Это первое тестовое сообщение с моего собственного клиента twtxt!
