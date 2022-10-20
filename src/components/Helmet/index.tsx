@@ -64,6 +64,11 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <meta content='#070707' name='theme-color' />
             <link href='/manifest.json' rel='manifest' />
 
+            {/* IndieWeb */}
+            <link href="https://webmention.io/alexandr-sidorenko.me/webmention" rel="webmention" />
+            <link href="https://webmention.io/alexandr-sidorenko.me/xmlrpc" rel="pingback" />
+            <link href="https://merveilles.town/@batyshkaLenin" rel="me" />
+
             {isAmp ? <style jsx>{`
             body { padding: 20px; }
             section.publicationContent > p > img { max-height: 600px; max-width: 100%; display: block; margin-left: auto; margin-right: auto; }
