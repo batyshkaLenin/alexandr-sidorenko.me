@@ -70,6 +70,7 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <link href="https://indieauth.com/auth" rel="authorization_endpoint" />
             <link href="https://tokens.indieauth.com/token" rel="token_endpoint" />
             <link href="https://aperture.p3k.io/microsub/791" rel="microsub" />
+            <link href="https://alexandr-sidorenko.me/micropub" rel="micropub" />
             <link href="https://merveilles.town/@batyshkaLenin" rel="me" />
 
             {isAmp ? <style jsx>{`
