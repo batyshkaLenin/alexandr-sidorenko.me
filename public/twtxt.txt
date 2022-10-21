@@ -1,4 +1,4 @@
-# Created with twtxt-cli-0.0.17
+# Created with twtxt-cli-0.0.20
 #
 # You can install the same client as this user with the command 'npm install -g twtxt-cli'.
 # Learn more about twtxt-cli https://github.com/batyshkaLenin/twtxt-cli
@@ -14,6 +14,7 @@
 # follow = xxiivv https://wiki.xxiivv.com/links/tw.txt
 #
 
+2022-10-21T18:42:05+06:00	Добавил CodeCoverage и написал чуть чуть тестов, не то чтобы это было нужно в полутора файлах, но да!
 2022-10-21T16:51:01+06:00	Добавил возможность проверять подписаны ли на тебя люди, если их файл соответствует формату
 2022-10-21T15:27:24+06:00	Добавил проверку на новую версию, теперь будет предупреждать что нужно обновиться
 2022-10-21T13:51:28+06:00	Запаблишил софтину в npm, теперь можно пользоваться
