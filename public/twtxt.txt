@@ -1,4 +1,4 @@
-# Created with twtxt-cli-0.0.1
+# Created with twtxt-cli-0.0.4
 #
 # Learn more about twtxt-cli https://github.com/batyshkaLenin/twtxt-cli
 #
@@ -13,6 +13,7 @@
 # follow = xxiivv https://wiki.xxiivv.com/links/tw.txt
 #
 
+2022-10-21T13:51:28+06:00	Запаблишил софтину в npm, теперь можно пользоваться
 2022-10-21T04:22:08+06:00	Welcome, twtxt enjoyers как говорится!
 2022-10-21T04:20:16+06:00	Добавил метатегов, чтобы по файлику можно было парсить всякую чепуху
 2022-10-21T04:14:51+06:00	Прикол, командлайн тулза считает вопросительный знак каким-то особым символом, надо будет это поковырять
