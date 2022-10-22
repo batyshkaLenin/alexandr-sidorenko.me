@@ -14,6 +14,7 @@
 # follow = xxiivv https://wiki.xxiivv.com/links/tw.txt
 #
 
+2022-10-22T21:36:10+06:00	(#afkchxq) @<prologic https://twtxt.net/user/prologic/twtxt.txt> This is actually the first time I've seen documentation on extensions. It's just that I've seen metadata from various people in the ribbons that can probably be used in some way. For example, because of this, my console client checks to see if the user you're subscribed to is subscribed to you.
 2022-10-22T21:23:12+06:00	@<prologic https://twtxt.net/user/prologic/twtxt.txt> welcome me into the family! The CLI for twtxt didn't work for me, so I wrote my [own](https://www.npmjs.com/package/twtxt-cli)
 2022-10-22T21:12:52+06:00	Мне очень не нравится размер макета. Пока это 21.4kB. Но я и не возился со всякими сборками. Так, добавил пару тестов и причесал линтинг
 2022-10-21T18:53:28+06:00	Мои посты выглядят как сраный чейнджлог. Программизм до мозга костей!
