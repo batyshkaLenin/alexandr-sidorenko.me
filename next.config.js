@@ -15,6 +15,16 @@ module.exports = withPWA({
       skipValidation: true,
     },
   },
+  future: {
+    webpack5: true,
+  },
+  webpack(config) {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+    };
+    return config;
+  },
   serverRuntimeConfig: {
     GA_CODE: process.env.NEXT_PUBLIC_GA_CODE,
     YM_CODE: process.env.NEXT_PUBLIC_YM_CODE,

@@ -10,6 +10,20 @@ enum TriggerWarning {
     Religion = 'religion'
 }
 
+export enum CreativeWriting {
+    Poem = 'poem',
+    Poetry = 'poetry',
+    PoetryCompilation = 'poetry-compilation'
+}
+
+export enum CreativeMusic {
+    Single = 'single',
+    EP = 'ep',
+    Album = 'album'
+}
+
+export type CreationType = CreativeWriting | CreativeMusic
+
 type Author = {
     firstName: string
     lastName: string
@@ -28,7 +42,7 @@ export type Creation = {
     author: Author
     modified: string
     preview?: string
-    creationType: string
+    creationType: CreationType
     tw: TriggerWarning[]
 }
 

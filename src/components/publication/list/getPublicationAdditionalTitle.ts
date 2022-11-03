@@ -1,15 +1,22 @@
-import { PublicationType } from "./types"
+import {PublicationType} from "./types"
+import {CreationType, CreativeMusic, CreativeWriting} from "../../../lib/markdown";
 
 
-export function getPublicationAdditionalTitle(type: PublicationType, publicationType?: string) {
+export function getPublicationAdditionalTitle(type: PublicationType, publicationType?: CreationType) {
     if (type === 'creation') {
         switch (publicationType) {
-            case 'poem':
+            case CreativeWriting.Poem:
                 return 'Рассказ'
-            case 'poetry':
+            case CreativeWriting.Poetry:
                 return 'Стих'
-            case 'poetry-compilation':
+            case CreativeWriting.PoetryCompilation:
                 return 'Подборка стихов'
+            case CreativeMusic.Single:
+                return 'Сингл'
+            case CreativeMusic.EP:
+                return 'EP'
+            case CreativeMusic.Album:
+                return 'Альбом'
             default:
                 return 'Произведение'
         }
