@@ -75,6 +75,9 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <link href="https://www.linkedin.com/in/alexandr-sidorenko/" rel="me" />
             <link href="https://career.habr.com/batyshkalenin" rel="me" />
             <link href="https://hh.ru/applicant/resumes/view?resume=6700a5c7ff0594c2ba0039ed1f425a6c4a7771" rel="me" />
+            <link href="https://www.instagram.com/alexander_sidorenko/" rel="me" />
+            <link href="https://www.facebook.com/sidorenko.alexandr" rel="me" />
+            <link href="https://steamcommunity.com/id/batyshkaLenin/" rel="me" />
 
             {isAmp ? <style jsx>{`
             body { padding: 20px; }
