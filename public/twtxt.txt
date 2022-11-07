@@ -15,6 +15,7 @@
 # follow = prologic https://twtxt.net/user/prologic/twtxt.txt
 #
 
+2022-11-07T19:17:20+06:00	Теперь мой journal.html формируется из twtxt ленты, правда я намеренно вырезают упоминания
 2022-11-07T19:11:20+06:00	При этом поступаю максимально нерационально, вместо того, чтобы решать проблему одиночества, я замыкаюсь ещё больше и пишу в тот блог, где это никто не прочитает
 2022-11-07T19:07:47+06:00	Чувствую себя одиноко...
 2022-10-22T21:36:10+06:00	(#2gzobda) @<prologic https://twtxt.net/user/prologic/twtxt.txt> No, unfortunately, he doesn't yet. I answer messages manually. I think so far, what can be done with the responses and how to better design it in the console.
