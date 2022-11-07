@@ -69,6 +69,8 @@ export default function PostPage({ post }: PostPageProps) {
         <div>Loading…</div>
       ) : (
         <article className='post-full post h-entry' itemProp="blogPost" itemScope itemType="https://schema.org/Article">
+          <data className="u-photo" value={post.preview || '/images/me.png'} />
+          <data className="u-url" value={`https://alexandr-sidorenko.me${postURL}`} />
           <meta itemProp="image" content={post.preview || '/images/me.png'} />
           <header className='post-full-header'>
             <h1 className='post-full-title p-name' itemProp="headline">{post.title}</h1>
@@ -77,7 +79,6 @@ export default function PostPage({ post }: PostPageProps) {
             <Link as={isAmp ? `${postURL}?amp=1` : postURL} href="/posts/[slug]" >
               <a
                   itemProp="url"
-                  className='p-url u-url'
               >
                 <time
                     className='text-center meta dt-published'

@@ -88,15 +88,16 @@ export default function CreationPage({ creation }: CreationPageProps) {
         <div>Loading…</div>
       ) : (
         <article itemScope itemType="https://schema.org/Article">
+          <data className="u-photo" value={creation.preview || '/images/me.png'} />
+          <data className="u-url" value={`https://alexandr-sidorenko.me${creationURL}`} />
           <meta itemProp="image" content={creation.preview || '/images/me.png'} />
           <header>
             <h1>{additionalTitle && `${additionalTitle} `} &quot;<span itemProp="headline">{creation.title}</span>&quot;</h1>
-            <meta className="p-author h-card" itemProp="author" content="Александр Сидоренко" />
+            <meta itemProp="author" content="Александр Сидоренко" />
             <meta itemProp="dateCreated" content={creation.created} />
             <Link as={isAmp ? `${creationURL}?amp=1` : creationURL} href="/creation/[slug]" >
               <a
                   itemProp="url"
-                  className='p-url u-url'
               >
                 <time
                     itemProp="datePublished"
