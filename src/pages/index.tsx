@@ -18,6 +18,14 @@ const HomePage: NextPage = () => {
         <meta content='website' property='og:type' />
       </Helmet>
       <section className={classNames(styles.page, 'vcard', 'h-card')}>
+        <data className="p-given-name" value="Александр" />
+        <data className="p-family-name" value="Сидоренко" />
+        <data className='photo u-photo' value="https://alexandr-sidorenko.me/avatar.jpg" />
+        <data className='p-nickname' value="batyshkaLenin" />
+        <data className="p-country-name" value="Russia" />
+        <data className="p-locality" value="Novosibirsk" />
+        <data className="p-sex" value="male" />
+        <time className="dt-bday" dateTime="1999-10-26" />
         <section className={styles.text}>
           <article itemScope itemProp="mainEntity" itemType="https://schema.org/Person">
             <h1 className={styles.name}>
@@ -27,7 +35,7 @@ const HomePage: NextPage = () => {
                 </a>
               </Link>
             </h1>
-            <p className='note p-note' itemProp="description">
+            <p className='p-note' itemProp="description">
               &quot;Это алхимия!&quot; - говорю я, когда пишу код. Программист,
               усопший вождь, взломщик. Участвовал в хакатонах, соревнованиях по
               информационной безопасности и вел образовательный проект Blurred
@@ -47,7 +55,7 @@ const HomePage: NextPage = () => {
           <Image
               itemProp="image"
               alt='Александр Сидоренко в мексиканской шляпе и с банджо в руках'
-              className={classNames(styles.me, 'photo', 'u-photo')}
+              className={styles.me}
               src='/images/me.png'
               width='450px'
               height='450px'
