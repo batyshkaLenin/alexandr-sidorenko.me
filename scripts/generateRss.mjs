@@ -122,7 +122,7 @@ function encode(r){
 
 async function generateJournal() {
     const currentTimelineText = fs.readFileSync(path.join(process.cwd(), 'public/twtxt.txt')).toString();
-    const parsedTimeline = parseTimeline(currentTimelineText);
+    const parsedTimeline = parseTimeline(currentTimelineText).filter(item => !item.text.includes('@<'));
     const groups = parsedTimeline.reduce((groups, item) => {
         const date = item.date.split('T')[0];
         if (!groups[date]) {
