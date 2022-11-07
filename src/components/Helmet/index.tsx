@@ -15,6 +15,13 @@ const Helmet = ({ title, description, keywords, image, children }) => {
         <Head>
             <title>{title}</title>
 
+            {/* Technical */}
+            <link href="https://mc.yandex.ru" rel="preconnect" />
+            <link href="https://webring.xxiivv.com" rel="preconnect" />
+            <link href="https://www.googletagmanager.com" rel="preconnect" />
+            <link href="https://vitals.vercel-insights.com" rel="preconnect" />
+            <link href="https://www.google-analytics.com" rel="preconnect" />
+
             {/* Basic */}
             <link href={canonicalUrl} rel='canonical' />
             <meta content={title} name='title' />
