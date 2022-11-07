@@ -129,7 +129,7 @@ async function generateJournal() {
     }, {});
     let journalText = '<html lang="ru"><head><title>Журнал Александра Сидоренко</title></head><body><h1>Журнал Александра Сидоренко</h1>'
     Object.keys(groups).forEach(date => {
-       journalText += `<article><h2>${date}</h2>${groups[date].map(item => `<p>${item}</p>`)}</article>`
+       journalText += `<article><h2>${date}</h2>${groups[date].map(item => `<p>${item}</p>`).join('')}</article>`
     });
     journalText += '</body></html>'
     await fs.promises.writeFile('./public/journal.html', journalText);
