@@ -18,15 +18,15 @@ const HomePage: NextPage = () => {
         <meta content='website' property='og:type' />
       </Helmet>
       <section className={classNames(styles.page, 'vcard', 'h-card')}>
-        <data className="p-given-name" value="Александр" />
-        <data className="p-family-name" value="Сидоренко" />
-        <data className='photo u-photo' value="https://alexandr-sidorenko.me/avatar.jpg" />
-        <data className='p-nickname' value="batyshkaLenin" />
-        <data className="p-country-name" value="Russia" />
-        <data className="p-locality" value="Novosibirsk" />
-        <data className="p-sex" value="male" />
-        <time className="dt-bday" dateTime="1999-10-26" />
         <section className={styles.text}>
+          <data className="p-given-name" value="Александр" />
+          <data className="p-family-name" value="Сидоренко" />
+          <data className='photo u-photo' value="https://alexandr-sidorenko.me/avatar.jpg" />
+          <data className='p-nickname' value="batyshkaLenin" />
+          <data className="p-country-name" value="Russia" />
+          <data className="p-locality" value="Novosibirsk" />
+          <data className="p-sex" value="male" />
+          <time className="dt-bday" dateTime="1999-10-26" />
           <article itemScope itemProp="mainEntity" itemType="https://schema.org/Person">
             <h1 className={styles.name}>
               <Link href="/">
