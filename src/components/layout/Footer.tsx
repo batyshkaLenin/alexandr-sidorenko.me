@@ -12,6 +12,15 @@ export const Footer = (props) => {
                 <div className={styles.copy}>&copy; 2020-{new Date().getFullYear()}</div>|
                 <div className={styles.design}>
                     Designed by <Link href="https://vk.com/wemadefrombrokenparts"><a>Meiks</a></Link>
+                </div>|
+                <div className={styles.webringCarousel}>
+                    <Link href="https://xn--sr8hvo.ws/%F0%9F%89%90%F0%9F%8C%BC%F0%9F%8D%AC/previous">
+                        <a>←</a>
+                    </Link>
+                    <span>🕸💍</span>
+                    <Link href="https://xn--sr8hvo.ws/%F0%9F%89%90%F0%9F%8C%BC%F0%9F%8D%AC/next">
+                        <a>→</a>
+                    </Link>
                 </div>
             </section>
             <section className={styles.contacts}>
