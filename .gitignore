@@ -4,6 +4,7 @@
 public/robots.txt
 public/sitemap.xml
 public/sitemap-*.xml
+public/journal.html
 public/rss
 public/sw.js
 public/workbox-*.js

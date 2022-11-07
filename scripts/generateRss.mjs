@@ -110,4 +110,31 @@ async function generateAllRSS() {
     }
 }
 
+function parseTimeline(txt) {
+    const splittedTimeline = txt.split('\n').filter((str) => str[0] !== '#');
+    const timeline = splittedTimeline.map((i) => i.split('\t')).filter((i) => i.length === 2);
+    return timeline.map((i) => ({ text: i[1], date: i[0] }));
+}
+
+async function generateJournal() {
+    const currentTimelineText = fs.readFileSync(path.join(process.cwd(), 'public/twtxt.txt')).toString();
+    const parsedTimeline = parseTimeline(currentTimelineText);
+    const groups = parsedTimeline.reduce((groups, item) => {
+        const date = item.date.split('T')[0];
+        if (!groups[date]) {
+            groups[date] = [];
+        }
+        groups[date] = [item.text].concat(groups[date]);
+        return groups;
+    }, {});
+    let journalText = '<html lang="ru"><head><title>Журнал Александра Сидоренко</title></head><body><h1>Журнал Александра Сидоренко</h1>'
+    Object.keys(groups).forEach(date => {
+       journalText += `<article><h2>${date}</h2><p>${groups[date].join('\n')}</p></article>`
+    });
+    journalText += '</body></html>'
+    await fs.promises.writeFile('./public/journal.html', journalText);
+}
+
+generateJournal().then(() => console.info('Journal generation completed'));
+
 generateAllRSS().then(() => console.info('All RSS generation completed'))
