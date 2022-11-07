@@ -7,7 +7,7 @@ const Helmet = ({ title, description, keywords, image, children }) => {
     const isAmp = useAmp()
     const router = useRouter()
     const url = getUrl(router)
-    const canonicalUrl = isAmp ? url.replace(".amp", "") : url
+    const canonicalUrl = url.replace(".amp", "")
     const host = getHost()
     const imageURl = `${host}${image}`
 
@@ -70,10 +70,10 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <link href="https://indieauth.com/auth" rel="authorization_endpoint" />
             <link href="https://tokens.indieauth.com/token" rel="token_endpoint" />
             <link href="https://aperture.p3k.io/microsub/791" rel="microsub" />
-            <link href="https://alexandr-sidorenko.me/micropub" rel="micropub" />
             <link href="https://merveilles.town/@batyshkaLenin" rel="me" />
             <link href="https://www.linkedin.com/in/alexandr-sidorenko/" rel="me" />
             <link href="https://career.habr.com/batyshkalenin" rel="me" />
+            <link href="https://www.tiktok.com/@batyshkalenin" rel="me" />
             <link href="https://hh.ru/applicant/resumes/view?resume=6700a5c7ff0594c2ba0039ed1f425a6c4a7771" rel="me" />
             <link href="https://www.instagram.com/alexander_sidorenko/" rel="me" />
             <link href="https://www.facebook.com/sidorenko.alexandr" rel="me" />
