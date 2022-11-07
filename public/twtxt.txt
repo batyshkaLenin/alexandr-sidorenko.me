@@ -15,6 +15,7 @@
 # follow = prologic https://twtxt.net/user/prologic/twtxt.txt
 #
 
+2022-11-07T19:11:20+06:00	При этом поступаю максимально нерационально, вместо того, чтобы решать проблему одиночества, я замыкаюсь ещё больше и пишу в тот блог, где это никто не прочитает
 2022-11-07T19:07:47+06:00	Чувствую себя одиноко...
 2022-10-22T21:36:10+06:00	(#2gzobda) @<prologic https://twtxt.net/user/prologic/twtxt.txt> No, unfortunately, he doesn't yet. I answer messages manually. I think so far, what can be done with the responses and how to better design it in the console.
 2022-10-22T21:36:10+06:00	(#afkchxq) @<prologic https://twtxt.net/user/prologic/twtxt.txt> This is actually the first time I've seen documentation on extensions. It's just that I've seen metadata from various people in the ribbons that can probably be used in some way. For example, because of this, my console client checks to see if the user you're subscribed to is subscribed to you.
