@@ -91,11 +91,12 @@ export default function CreationPage({ creation }: CreationPageProps) {
           <meta itemProp="image" content={creation.preview || '/images/me.png'} />
           <header>
             <h1>{additionalTitle && `${additionalTitle} `} &quot;<span itemProp="headline">{creation.title}</span>&quot;</h1>
-            <meta itemProp="author" content="Александр Сидоренко" />
+            <meta className="p-author h-card" itemProp="author" content="Александр Сидоренко" />
             <meta itemProp="dateCreated" content={creation.created} />
             <Link as={isAmp ? `${creationURL}?amp=1` : creationURL} href="/creation/[slug]" >
               <a
                   itemProp="url"
+                  className='p-url u-url'
               >
                 <time
                     itemProp="datePublished"
@@ -116,7 +117,7 @@ export default function CreationPage({ creation }: CreationPageProps) {
             <hr />
           </>) : null}
           <section
-            className='publicationContent'
+            className='publicationContent e-content'
             itemProp="articleBody"
             dangerouslySetInnerHTML={{ __html: creation.content }}
           />

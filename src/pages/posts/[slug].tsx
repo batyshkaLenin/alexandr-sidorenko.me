@@ -72,12 +72,12 @@ export default function PostPage({ post }: PostPageProps) {
           <meta itemProp="image" content={post.preview || '/images/me.png'} />
           <header className='post-full-header'>
             <h1 className='post-full-title p-name' itemProp="headline">{post.title}</h1>
-            <meta itemProp="author" content="Александр Сидоренко" />
+            <meta className="p-author h-card" itemProp="author" content="Александр Сидоренко" />
             <meta itemProp="dateCreated" content={post.created} />
             <Link as={isAmp ? `${postURL}?amp=1` : postURL} href="/posts/[slug]" >
               <a
                   itemProp="url"
-                  className='p-url'
+                  className='p-url u-url'
               >
                 <time
                     className='text-center meta dt-published'
@@ -90,7 +90,7 @@ export default function PostPage({ post }: PostPageProps) {
             </Link>
           </header>
           <section
-            className='publicationContent'
+            className='publicationContent e-content'
             itemProp="articleBody"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
