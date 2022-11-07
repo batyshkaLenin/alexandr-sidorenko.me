@@ -88,7 +88,7 @@ export default function CreationPage({ creation }: CreationPageProps) {
         <div>Loading…</div>
       ) : (
         <article itemScope itemType="https://schema.org/Article">
-          <data className="u-photo" value={creation.preview || '/images/me.png'} />
+          <data className="u-photo" value="https://alexandr-sidorenko.me/avatar.jpg" />
           <data className="u-url" value={`https://alexandr-sidorenko.me${creationURL}`} />
           <meta itemProp="image" content={creation.preview || '/images/me.png'} />
           <header>

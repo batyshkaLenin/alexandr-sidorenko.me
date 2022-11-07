@@ -69,7 +69,7 @@ export default function PostPage({ post }: PostPageProps) {
         <div>Loading…</div>
       ) : (
         <article className='post-full post h-entry' itemProp="blogPost" itemScope itemType="https://schema.org/Article">
-          <data className="u-photo" value={post.preview || '/images/me.png'} />
+          <data className="u-photo" value="https://alexandr-sidorenko.me/avatar.jpg" />
           <data className="u-url" value={`https://alexandr-sidorenko.me${postURL}`} />
           <meta itemProp="image" content={post.preview || '/images/me.png'} />
           <header className='post-full-header'>
