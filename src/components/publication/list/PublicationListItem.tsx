@@ -17,9 +17,9 @@ export const PublicationListItem = (publication: PublicationPreviewWithType) => 
                 <meta itemProp="dateModified" content={publication.modified} />
                 <h2 className={styles.title}>{additionalTitle && `${additionalTitle} `}&quot;<span itemProp="headline">{publication.title}</span>&quot;</h2>
 
-                <div className={styles.description} itemProp="description">
+                <p className={styles.description} itemProp="description">
                     {publication.description}
-                </div>
+                </p>
             </article>
         </a>
     </Link>)
