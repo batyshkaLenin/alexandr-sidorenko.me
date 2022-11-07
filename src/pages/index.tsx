@@ -17,17 +17,17 @@ const HomePage: NextPage = () => {
       <Helmet>
         <meta content='website' property='og:type' />
       </Helmet>
-      <section className={classNames(styles.page, 'vcard')}>
+      <section className={classNames(styles.page, 'vcard', 'h-card')}>
         <section className={styles.text}>
           <article itemScope itemProp="mainEntity" itemType="https://schema.org/Person">
             <h1 className={styles.name}>
               <Link href="/src/pages">
-                <a itemProp="sameAs">
+                <a itemProp="sameAs" className="url" rel="me">
                   <span itemProp="name" className="fn">Александр Сидоренко</span>
                 </a>
               </Link>
             </h1>
-            <p className='note' itemProp="description">
+            <p className='note p-note' itemProp="description">
               &quot;Это алхимия!&quot; - говорю я, когда пишу код. Программист,
               усопший вождь, взломщик. Участвовал в хакатонах, соревнованиях по
               информационной безопасности и вел образовательный проект Blurred
@@ -47,7 +47,7 @@ const HomePage: NextPage = () => {
           <Image
               itemProp="image"
               alt='Александр Сидоренко в мексиканской шляпе и с банджо в руках'
-              className={classNames(styles.me, 'photo')}
+              className={classNames(styles.me, 'photo', 'u-photo')}
               src='/images/me.png'
               width='450px'
               height='450px'
