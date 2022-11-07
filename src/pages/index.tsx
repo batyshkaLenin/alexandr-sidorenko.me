@@ -21,7 +21,7 @@ const HomePage: NextPage = () => {
         <section className={styles.text}>
           <article itemScope itemProp="mainEntity" itemType="https://schema.org/Person">
             <h1 className={styles.name}>
-              <Link href="/src/pages">
+              <Link href="/">
                 <a itemProp="sameAs" className="url" rel="me">
                   <span itemProp="name" className="fn">Александр Сидоренко</span>
                 </a>
