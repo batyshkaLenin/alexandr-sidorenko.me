@@ -5,7 +5,7 @@ import DeferNextScript from "../components/DeferNextScript";
 const Document: FC = () => (
   <Html lang='ru'>
     <Head />
-    <body>
+    <body data-ssml-voice-gender="male">
       <Main />
       <DeferNextScript />
     </body>

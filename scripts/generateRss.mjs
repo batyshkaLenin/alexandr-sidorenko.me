@@ -116,6 +116,10 @@ function parseTimeline(txt) {
     return timeline.map((i) => ({ text: i[1], date: i[0] }));
 }
 
+function encode(r){
+    return r.replace(/[\x26\x0A\<>'"]/g,function(r){return"&#"+r.charCodeAt(0)+";"})
+}
+
 async function generateJournal() {
     const currentTimelineText = fs.readFileSync(path.join(process.cwd(), 'public/twtxt.txt')).toString();
     const parsedTimeline = parseTimeline(currentTimelineText);
@@ -129,7 +133,7 @@ async function generateJournal() {
     }, {});
     let journalText = '<html lang="ru"><head><title>Журнал Александра Сидоренко</title></head><body><h1>Журнал Александра Сидоренко</h1>'
     Object.keys(groups).forEach(date => {
-       journalText += `<article><h2>${date}</h2>${groups[date].map(item => `<p>${item}</p>`).join('')}</article>`
+       journalText += `<article><h2>${date}</h2>${groups[date].map(item => `<p>${encode(item)}</p>`).join('')}</article>`
     });
     journalText += '</body></html>'
     await fs.promises.writeFile('./public/journal.html', journalText);
