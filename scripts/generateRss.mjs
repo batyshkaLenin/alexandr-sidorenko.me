@@ -93,7 +93,7 @@ async function generateRss(type) {
     })
 
     await fs.promises.mkdir(`./public/rss/${path}`, { recursive: true });
-    await fs.promises.writeFile(`./public/rss/${path}/feed.xml`, feed.rss2());
+    await fs.promises.writeFile(`./public/rss/${path}/feed.xml`, feed.rss2().replaceAll('<item>', '<item turbo="true">'));
     await fs.promises.writeFile(`./public/rss/${path}/feed.json`, feed.json1());
 }
 
