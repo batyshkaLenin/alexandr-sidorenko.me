@@ -129,7 +129,9 @@ export default function CreationPage({ creation }: CreationPageProps) {
             </section>
             <hr />
           </>) : null}
-          {audio && Object.keys(audio).length ? (<audio controls>
+          {audio && Object.keys(audio).length ? isAmp ? (<amp-audio controls="true">
+            {Object.keys(audio).map((mime, key) => (<source key={key} type={mime} src={audio[mime]} />))}
+          </amp-audio>) : (<audio controls>
             {Object.keys(audio).map((mime, key) => (<source key={key} type={mime} src={audio[mime]} />))}
           </audio>) : null}
           <section

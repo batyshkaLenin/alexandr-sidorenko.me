@@ -86,10 +86,6 @@ const Helmet = ({ title, description, keywords, image, children }) => {
             <link href="https://www.facebook.com/sidorenko.alexandr" rel="me" />
             <link href="https://steamcommunity.com/id/batyshkaLenin/" rel="me" />
 
-            {isAmp ? <style jsx>{`
-            body { padding: 20px; }
-            section.publicationContent > p > img { max-height: 600px; max-width: 100%; display: block; margin-left: auto; margin-right: auto; }
-            `}</style> : null}
             {/* Additional tags */}
             {children ? children : null}
         </Head>
