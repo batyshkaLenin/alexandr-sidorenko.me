@@ -4,7 +4,6 @@ import { getHost, getUrl } from '../../lib/urls'
 import { useAmp } from "next/amp"
 
 const Helmet = ({ title, description, keywords, image, children }) => {
-    const isAmp = useAmp()
     const router = useRouter()
     const url = getUrl(router)
     const canonicalUrl = url.replace(".amp", "")
