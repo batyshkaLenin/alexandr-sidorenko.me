@@ -15,6 +15,30 @@ module.exports = withPWA({
       skipValidation: true,
     },
   },
+  async redirects() {
+    return [
+      {
+        source: '/post/:slug',
+        destination: '/posts/:slug',
+        permanent: true,
+      },
+      {
+        source: '/blog/:slug',
+        destination: '/posts/:slug',
+        permanent: true,
+      },
+      {
+        source: '/blog',
+        destination: '/posts',
+        permanent: true,
+      },
+      {
+        source: '/music',
+        destination: '/creation',
+        permanent: true,
+      },
+    ]
+  },
   future: {
     webpack5: true,
   },
