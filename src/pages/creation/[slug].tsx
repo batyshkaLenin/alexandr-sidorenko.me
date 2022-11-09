@@ -2,19 +2,13 @@ import {useRouter} from 'next/router'
 import {useAmp} from 'next/amp'
 import ErrorPage from 'next/error'
 import {distanceToNow} from '../../lib/dates'
-import { Creation, getAllCreation, getCreationBySlug, markdownToHtml } from '../../lib/markdown'
+import {Creation, getAllCreation, getCreationBySlug, markdownToHtml, TriggerWarning } from '../../lib/markdown'
 import Helmet from "../../components/Helmet"
 import Link from 'next/link'
 import {getUrl} from "../../lib/urls"
 import {getPublicationAdditionalTitle} from "../../components/publication/list";
 
 export const config = { amp: 'hybrid' }
-
-enum TriggerWarning {
-  Adulthood = '18',
-  Addiction = 'addict',
-  Religion = 'religion'
-}
 
 function getTriggerWarningText(tw: TriggerWarning) {
   switch (tw) {
@@ -28,7 +22,7 @@ function getTriggerWarningText(tw: TriggerWarning) {
 }
 
 type CreationPageProps = {
-  creation: Pick<Creation, 'slug' | 'title' | 'author'| 'description' | 'created' | 'published' | 'modified' | 'content' | 'preview' | 'creationType' | 'tw'>
+  creation: Pick<Creation, 'slug' | 'title' | 'author'| 'description' | 'created' | 'published' | 'modified' | 'content' | 'preview' | 'creationType' | 'audio' | 'tw'>
 }
 
 export default function CreationPage({ creation }: CreationPageProps) {
@@ -71,6 +65,12 @@ export default function CreationPage({ creation }: CreationPageProps) {
         ],
   }
 
+  const audio = creation.audio ? creation.audio.reduce((acc, filepath) => {
+    if (filepath.includes('.mp3')) acc["audio/mpeg"] = filepath;
+    if (filepath.includes('.wav')) acc["audio/wav"] = filepath;
+    return acc;
+  }, {}) : {};
+
   return (
     <>
       <Helmet title={`${typedTitle} | Творчество Александра Сидоренко`} description={creation.description} image={creation.preview}>
@@ -94,19 +94,31 @@ export default function CreationPage({ creation }: CreationPageProps) {
           <header>
             <h1>{additionalTitle && `${additionalTitle} `} &quot;<span itemProp="headline">{creation.title}</span>&quot;</h1>
             <meta itemProp="author" content="Александр Сидоренко" />
-            <meta itemProp="dateCreated" content={creation.created} />
-            <Link as={isAmp ? `${creationURL}?amp=1` : creationURL} href="/creation/[slug]" >
-              <a
-                  itemProp="url"
-              >
-                <time
-                    itemProp="datePublished"
-                    dateTime={creation.published}
+            <section className="dateBox">
+              <span>
+                Опубликовано: <Link as={isAmp ? `${creationURL}?amp=1` : creationURL} href="/creation/[slug]" >
+                <a
+                    itemProp="url"
                 >
-                  {distanceToNow(new Date(creation.published))}
-                </time>
-              </a>
-            </Link>
+                  <time
+                      itemProp="datePublished"
+                      dateTime={creation.published}
+                  >
+                    {distanceToNow(new Date(creation.published))}
+                  </time>
+                </a>
+              </Link>
+              </span>
+              <span>
+                Создано: <Link as={isAmp ? `${creationURL}?amp=1` : creationURL} href="/creation/[slug]" >
+                <a
+                    itemProp="url"
+                >
+                  <time itemProp="dateCreated" dateTime={creation.created}>{distanceToNow(new Date(creation.created))}</time>
+                </a>
+              </Link>
+              </span>
+            </section>
           </header>
           {creation.tw && creation.tw.length ? (<>
             <hr />
@@ -117,6 +129,9 @@ export default function CreationPage({ creation }: CreationPageProps) {
             </section>
             <hr />
           </>) : null}
+          {audio && Object.keys(audio).length ? (<audio controls>
+            {Object.keys(audio).map((mime, key) => (<source key={key} type={mime} src={audio[mime]} />))}
+          </audio>) : null}
           <section
             className='publicationContent e-content'
             itemProp="articleBody"
@@ -140,6 +155,7 @@ export async function getStaticProps({ params }) {
     'content',
     'preview',
     'creationType',
+    'audio',
     'tw',
   ])
   const content = await markdownToHtml(creation.content || '')

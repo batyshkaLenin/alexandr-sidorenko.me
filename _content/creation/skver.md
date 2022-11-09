@@ -5,7 +5,7 @@ created: "2022-08-16"
 published: "2022-09-02"
 preview: "/assets/creation/skver/skver.jpg"
 creationType: "poem"
-tw: "addict"
+tw: ["addict"]
 ---
 
 ![Тот самый сквер](/assets/creation/skver/skver.jpg)

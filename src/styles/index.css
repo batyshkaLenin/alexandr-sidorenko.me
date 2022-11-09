@@ -56,3 +56,8 @@ p {
     margin-left: auto;
     margin-right: auto;
 }
+
+.dateBox {
+    display: flex;
+    justify-content: space-between;
+}

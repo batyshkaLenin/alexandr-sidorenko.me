@@ -6,7 +6,7 @@ created: "2021-12-01"
 published: "2022-09-04"
 preview: "/assets/creation/humility-and-open-mindedness/man-with-gun.jpg"
 creationType: "poetry-compilation"
-tw: "18,religion,addict"
+tw: ["18","religion","addict"]
 ---
 
 Я мечтал чтобы жизнь измерялась в байтах, а суки измеряют её в долларах.  

@@ -4,7 +4,7 @@ import matter from 'gray-matter'
 
 const creationDirectory = join(process.cwd(), '_content/creation')
 
-enum TriggerWarning {
+export enum TriggerWarning {
     Adulthood = '18',
     Addiction = 'addict',
     Religion = 'religion'
@@ -43,6 +43,7 @@ export type Creation = {
     modified: string
     preview?: string
     creationType: CreationType
+    audio?: string[]
     tw: TriggerWarning[]
 }
 
@@ -84,7 +85,8 @@ export function getCreationBySlug<F extends keyof Creation>(slug: string, fields
                 item[field] = new Date(data[field]).toJSON()
                 break
             case "tw":
-                item[field] = data[field] ? data[field].split(',') : []
+            case "audio":
+                item[field] = data[field] || []
                 break
             default:
                 item[field] = data[field]
