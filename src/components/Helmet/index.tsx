@@ -68,7 +68,7 @@ const Helmet = ({ title, description, keywords, image, children }: HelmetProps) 
 
             {/* Dublin Core */}
             <meta content={locale === 'ru' ? 'ru-RU' : 'en-US'} name='DC.language' />
-            <meta content={host} name='DC.publisher.url' />
+            <meta content={`${host}/${locale}`} name='DC.publisher.url' />
             <meta content={localeUrl} name='DC.identifier' />
             <meta content={customTitle} name='DC.title' />
             <meta content={customDescription} name='DC.description' />
