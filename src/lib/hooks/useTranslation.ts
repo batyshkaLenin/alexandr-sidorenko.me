@@ -13,8 +13,8 @@ type TranslationHook = {
 
 export default function useTranslation(): TranslationHook {
     const router = useRouter();
-    const locale: Locales = <Locales>router.locale;
-    const asPath = router.asPath;
+    const locale: Locales = <Locales>router?.locale;
+    const asPath = router?.asPath;
 
     const setLocale = useCallback(
         (locale) => {
