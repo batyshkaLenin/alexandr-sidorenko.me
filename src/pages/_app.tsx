@@ -3,6 +3,7 @@ import '../../public/fonts/fonts.css'
 import withYM from 'next-ym'
 import getConfig from 'next/config'
 import NextApp, { AppContext } from 'next/app'
+import { Analytics } from '@vercel/analytics/react';
 
 import Head from 'next/head'
 import { Header, Footer } from '../components/layout'
@@ -41,6 +42,7 @@ function _App({ Component, pageProps }) {
         </main>
         <Footer theme={theme} />
       </div>
+       <Analytics />
        <Script id='ext-ga' async src={`https://www.googletagmanager.com/gtag/js?id=${GA_CODE}`} strategy="afterInteractive" />
        <Script id='int-ga' strategy="afterInteractive">{`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${GA_CODE}');`}</Script>
     </>
