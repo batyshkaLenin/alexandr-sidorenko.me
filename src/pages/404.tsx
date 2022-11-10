@@ -19,6 +19,10 @@ const NotFoundPage: NextPage<{ locale: Locale }> = ({ locale }) => (
   </>
 )
 
-NotFoundPage.getInitialProps = ({ locale }) => ({ locale: locale as Locale })
+export async function getStaticProps({ locale }: { locale: Locale }) {
+  return {
+    props: { locale: locale as Locale },
+  }
+}
 
 export default NotFoundPage
