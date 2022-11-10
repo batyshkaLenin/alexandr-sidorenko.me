@@ -3,7 +3,6 @@ import Link from "next/link"
 import styles from '../styles/Error.module.scss'
 import Helmet from "../components/Helmet";
 import locales from '../../public/locales/index'
-import useTranslation from "../lib/hooks/useTranslation";
 
 const getData = (code?: number, locale: 'en' | 'ru' = 'ru') => {
     let output
@@ -27,8 +26,7 @@ const getData = (code?: number, locale: 'en' | 'ru' = 'ru') => {
     return output
 }
 
-const ErrorPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
-    const { locale } = useTranslation()
+const ErrorPage: NextPage<{ statusCode?: number, locale: 'en' | 'ru' }> = ({ statusCode, locale }) => {
     const { title, linkUrl, linkText } = getData(statusCode, locale)
     return (
         <>
@@ -47,9 +45,9 @@ const ErrorPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
     )
 }
 
-ErrorPage.getInitialProps = ({ res, err }) => {
-    const statusCode = res ? res.statusCode : err ? err.statusCode : 404
-    return { statusCode }
+ErrorPage.getInitialProps = (props) => {
+    const statusCode = props.res ? props.res.statusCode : props.err ? props.err.statusCode : 404
+    return { statusCode, locale: props.locale as 'en' | 'ru' }
 }
 
 export default ErrorPage
