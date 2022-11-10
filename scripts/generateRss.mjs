@@ -35,7 +35,7 @@ async function getAllPublications(type, locale) {
     const creativityDirectory = path.join(process.cwd(), `_content/creativity/${locale}`)
     const isPost = type === 'post'
     const directory = isPost ? postsDirectory : creativityDirectory
-    const slugs = await fs.promises.readdir(directory)
+    const slugs = (await fs.promises.readdir(directory)) || []
     const publications = slugs.map(slug => {
         const realSlug = slug.replace(/\.md$/, '')
         const fullPath = path.join(directory, `${realSlug}.md`)
