@@ -56,6 +56,26 @@ module.exports = withPWA({
         destination: '/assets/creativity/:path*',
         permanent: true,
       },
+      {
+        source: '/rss/creation/feed.xml',
+        destination: '/rss/ru/creativity/feed.xml',
+        permanent: true,
+      },
+      {
+        source: '/rss/posts/feed.xml',
+        destination: '/rss/ru/posts/feed.xml',
+        permanent: true,
+      },
+      {
+        source: '/rss/creation/feed.json',
+        destination: '/rss/ru/creativity/feed.json',
+        permanent: true,
+      },
+      {
+        source: '/rss/posts/feed.json',
+        destination: '/rss/ru/posts/feed.json',
+        permanent: true,
+      },
     ]
   },
   future: {
