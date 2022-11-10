@@ -20,6 +20,17 @@ module.exports = withPWA({
         skipValidation: true,
       },
     },
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'webring.xxiivv.com',
+          port: '',
+        },
+      ],
+      dangerouslyAllowSVG: true,
+      contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    },
     i18n: {
       locales: ['en', 'ru'],
       defaultLocale: 'ru',

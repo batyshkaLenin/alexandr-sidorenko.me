@@ -1,4 +1,5 @@
 import { useAmp } from 'next/amp'
+import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 import { Theme } from '../../lib/types'
@@ -43,12 +44,14 @@ export const Footer = (props: FooterProps) => {
                 {isAmp ? (
                   'XXIIVV webring'
                 ) : (
-                  <img
+                  <Image
                     alt='XXIIVV webring'
                     className={styles.webring}
+                    height={20}
                     src={`https://webring.xxiivv.com/icon.${
                       props.theme === Theme.Light ? 'black' : 'white'
                     }.svg`}
+                    width={20}
                   />
                 )}
               </a>

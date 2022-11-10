@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import type { NextPage } from 'next'
 import Link from 'next/link'
 import Helmet from '../components/Helmet'
@@ -45,7 +46,9 @@ const ErrorPage: NextPage<{ statusCode?: number; locale: Locale }> = ({
   )
 }
 
-ErrorPage.getInitialProps = ({ res, err, locale }) => {
+ErrorPage.getInitialProps = async (ctx) => {
+  const { res, err, locale } = ctx
+  await Sentry.captureUnderscoreErrorException(ctx)
   const statusCode = res ? res.statusCode : err ? err.statusCode : 404
   return { statusCode, locale: locale as Locale }
 }
