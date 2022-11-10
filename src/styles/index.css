@@ -61,3 +61,20 @@ p {
     display: flex;
     justify-content: space-between;
 }
+
+.foreign {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.settings {
+    display: flex;
+    align-items: center;
+}
+
+.languageSwitch {
+    cursor: pointer;
+    border: var(--color-text) solid 1px;
+    margin-right: 10px;
+    padding: 2px;
+}

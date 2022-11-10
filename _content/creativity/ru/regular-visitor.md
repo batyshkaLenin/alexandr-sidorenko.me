@@ -3,9 +3,9 @@ title: "Постоянщик"
 description: "Это грустный угол, мы здесь сидим: кто-то пьёт воду, а кто-то пьёт спирт. На гитаре играем песни свои, пока в сигарете тихо вечность горит. Уставшие тени нас ведут в хоровод и на сморщенной вене моя юность умрёт."
 created: "2021-11-27"
 published: "2022-11-03"
-preview: "/assets/creation/regular-visitor/mattew-with-yamaha-46yo.jpg"
-audio: ["/assets/creation/regular-visitor/Постоянщик.mp3", "/assets/creation/regular-visitor/Постоянщик.wav"]
-creationType: "single"
+preview: "/assets/creativity/regular-visitor/mattew-with-yamaha-46yo.jpg"
+audio: ["/assets/creativity/regular-visitor/Постоянщик.mp3", "/assets/creativity/regular-visitor/Постоянщик.wav"]
+creativityType: "single"
 tw: ["addict"]
 ---
 Это грустный угол, мы здесь сидим:  

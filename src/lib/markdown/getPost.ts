@@ -1,6 +1,7 @@
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
+import locales from '../../../public/locales/index'
 
 const postsDirectory = join(process.cwd(), '_content/posts')
 
@@ -25,13 +26,13 @@ export type Post = {
   tags: string[]
 }
 
-export function getPostSlugs(): string[] {
-  return fs.readdirSync(postsDirectory)
+export function getPostSlugs(locale: 'en' | 'ru' = 'ru'): string[] {
+  return fs.readdirSync(`${postsDirectory}/${locale}`)
 }
 
-export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = []): Pick<Post, 'published' | F> {
+export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = [], locale: 'en' | 'ru' = 'ru'): Pick<Post, 'published' | F> {
   const realSlug = slug.replace(/\.md$/, '')
-  const fullPath = join(postsDirectory, `${realSlug}.md`)
+  const fullPath = join(`${postsDirectory}/${locale}`, `${realSlug}.md`)
   const fileContents = fs.readFileSync(fullPath, 'utf8')
   const fileStats = fs.statSync(fullPath)
   const { data, content } = matter(fileContents)
@@ -48,9 +49,9 @@ export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = 
         break
       case "author":
         item[field] = {
-          firstName: 'Александр',
-          lastName: 'Сидоренко',
-          fullName: 'Александр Сидоренко',
+          firstName: locales[locale]['FIRSTNAME'],
+          lastName: locales[locale]['LASTNAME'],
+          fullName: locales[locale]['FULL_NAME'],
           username: 'batyshkaLenin',
           gender: 'male',
         }
@@ -77,10 +78,10 @@ export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = 
   return <Pick<Post, 'published' | F>>item
 }
 
-export function getAllPosts<F extends keyof Post>(fields: F[] = []): Pick<Post, "published" | F>[] {
-  const slugs = getPostSlugs()
+export function getAllPosts<F extends keyof Post>(fields: F[] = [], locale: 'en' | 'ru' = 'ru'): Pick<Post, "published" | F>[] {
+  const slugs = getPostSlugs(locale)
   const posts = slugs
-    .map((slug) => getPostBySlug<F>(slug, fields))
+    .map((slug) => getPostBySlug<F>(slug, fields, locale))
     .sort((post1, post2) => (post1.published > post2.published ? -1 : 1))
   return posts
 }

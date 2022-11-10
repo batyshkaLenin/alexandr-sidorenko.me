@@ -15,6 +15,10 @@ module.exports = withPWA({
       skipValidation: true,
     },
   },
+  i18n: {
+    locales: ['en', 'ru'],
+    defaultLocale: 'ru',
+  },
   async redirects() {
     return [
       {
@@ -34,7 +38,22 @@ module.exports = withPWA({
       },
       {
         source: '/music',
-        destination: '/creation',
+        destination: '/creativity',
+        permanent: true,
+      },
+      {
+        source: '/creation',
+        destination: '/creativity',
+        permanent: true,
+      },
+      {
+        source: '/creation/:slug',
+        destination: '/creativity/:slug',
+        permanent: true,
+      },
+      {
+        source: '/assets/creation/:path*',
+        destination: '/assets/creativity/:path*',
         permanent: true,
       },
     ]

@@ -2,11 +2,11 @@ import { useRouter } from 'next/router'
 import { useAmp } from 'next/amp'
 import ErrorPage from 'next/error'
 import { distanceToNow } from '../../lib/dates'
-import {getAllPosts, getPostBySlug, markdownToHtml, Post} from '../../lib/markdown'
+import { getAllPosts, getPostBySlug, markdownToHtml, Post} from '../../lib/markdown'
 import Helmet from "../../components/Helmet"
 import Link from 'next/link'
 import { getUrl } from "../../lib/urls"
-import classNames from "classnames";
+import useTranslation from "../../lib/hooks/useTranslation";
 
 export const config = { amp: 'hybrid' }
 
@@ -15,6 +15,7 @@ type PostPageProps = {
 }
 
 export default function PostPage({ post }: PostPageProps) {
+  const { t } = useTranslation();
   const isAmp = useAmp()
   const router = useRouter()
   const url = getUrl(router)
@@ -36,7 +37,7 @@ export default function PostPage({ post }: PostPageProps) {
                 {
                   "@id": "/posts",
                   "url": "/posts",
-                  "name": "Блог",
+                  "name": t('MENU_BLOG'),
                 },
           },
           {
@@ -54,7 +55,7 @@ export default function PostPage({ post }: PostPageProps) {
 
   return (
     <>
-      <Helmet title={`${post.title} | Блог Александра Сидоренко`} description={post.description} image={post.preview}>
+      <Helmet title={`${post.title} | ${t('BLOG_TITLE')}`} description={post.description} image={post.preview}>
         <link rel="amphtml" href={`${url}.amp`} />
         <meta content='article' property='og:type' />
         <meta content={post.author.firstName} property='og:article:author:first_name'/>
@@ -76,7 +77,7 @@ export default function PostPage({ post }: PostPageProps) {
           <meta itemProp="image" content={post.preview || '/images/me.png'} />
           <header className='post-full-header'>
             <h1 className='post-full-title p-name' itemProp="headline">{post.title}</h1>
-            <meta className="p-author h-card" itemProp="author" content="Александр Сидоренко" />
+            <meta className="p-author h-card" itemProp="author" content={t('FULL_NAME')} />
             <meta itemProp="dateCreated" content={post.created} />
             <Link as={isAmp ? `${postURL}?amp=1` : postURL} href="/posts/[slug]" >
               <a
@@ -103,7 +104,7 @@ export default function PostPage({ post }: PostPageProps) {
   )
 }
 
-export async function getStaticProps({ params }) {
+export async function getStaticProps({ params, locale }) {
   const post = getPostBySlug(params.slug, [
     'slug',
     'title',
@@ -114,7 +115,7 @@ export async function getStaticProps({ params }) {
     'modified',
     'content',
     'preview',
-  ])
+  ], locale)
   const content = await markdownToHtml(post.content || '')
 
   return {
@@ -128,14 +129,16 @@ export async function getStaticProps({ params }) {
 }
 
 export async function getStaticPaths() {
-  const posts = getAllPosts(['slug'])
+  const postsRU = getAllPosts(['slug'], 'ru')
+  const postsEN = getAllPosts(['slug'], 'en')
+  const localeFeeds = { ru: postsRU, en: postsEN };
 
   return {
-    paths: posts.map(({ slug }) => ({
-      params: {
-        slug,
-      },
-    })),
+    paths: Object.keys(localeFeeds).flatMap(locale => {
+      return localeFeeds[locale].map(path => {
+        return { params: { slug: path.slug }, locale }
+      })
+    }),
     fallback: false,
   }
 }

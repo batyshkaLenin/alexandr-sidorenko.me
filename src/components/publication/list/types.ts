@@ -1,7 +1,7 @@
-import { Creation, Post } from "../../../lib/markdown"
+import { Creativity, Post } from "../../../lib/markdown"
 
-export type PublicationType = 'post' | 'creation'
+export type PublicationType = 'post' | 'creativity'
 export type PostPreview = Pick<Post, 'slug' | 'title' | 'description' | 'created' | 'author' | 'modified'>
-export type CreationPreview = Pick<Creation, 'slug' | 'title' | 'description' | 'created' | 'author' | 'modified' | 'creationType'>
-export type PublicationPreview = (PostPreview | CreationPreview)
-export type PublicationPreviewWithType = (PostPreview | CreationPreview) & { type: PublicationType }
+export type CreativityPreview = Pick<Creativity, 'slug' | 'title' | 'description' | 'created' | 'author' | 'modified' | 'creativityType'>
+export type PublicationPreview = (PostPreview | CreativityPreview)
+export type PublicationPreviewWithType = (PostPreview | CreativityPreview) & { type: PublicationType }

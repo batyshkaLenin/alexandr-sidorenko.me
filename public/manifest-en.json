@@ -1,7 +1,7 @@
 {
-  "short_name": "Александр Сидоренко",
-  "name": "Александр Сидоренко",
-  "description": "Блог Александра Сидоренко",
+  "short_name": "Alexandr Sidorenko",
+  "name": "Alexandr Sidorenko",
+  "description": "Alexander Sidorenko's website",
   "icons": [
     {
       "src": "favicon.ico",
@@ -23,19 +23,19 @@
   ],
   "shortcuts":[
     {
-      "name":"Обо мне",
-      "url":"/"
+      "name":"About me",
+      "url":"/en/"
     },
     {
-      "name":"Блог",
-      "url":"/posts"
+      "name":"Blog",
+      "url":"/en/posts"
     },
     {
-      "name":"Творчество",
-      "url":"/creation"
+      "name":"Creativity",
+      "url":"/en/creativity"
     }
   ],
-  "start_url": "/",
+  "start_url": "/en/",
   "orientation": "portrait",
   "display": "standalone",
   "theme_color": "#070707",

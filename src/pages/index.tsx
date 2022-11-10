@@ -5,8 +5,10 @@ import styles from '../styles/index.module.scss'
 import Helmet from '../components/Helmet'
 import Link from 'next/link'
 import { useState } from "react"
+import useTranslation from "../lib/hooks/useTranslation";
 
 const HomePage: NextPage = () => {
+  const { t } = useTranslation()
   const [audioRef, setAudioRef] = useState<HTMLAudioElement | undefined>()
 
   const play = () => { if (audioRef) return audioRef.play() }
@@ -19,42 +21,31 @@ const HomePage: NextPage = () => {
       </Helmet>
       <section className={classNames(styles.page, 'vcard', 'h-card')}>
         <section className={styles.text}>
-          <data className="p-given-name" value="Александр" />
-          <data className="p-family-name" value="Сидоренко" />
+          <data className="p-given-name" value={t('FIRSTNAME')} />
+          <data className="p-family-name" value={t('LASTNAME')} />
           <data className='photo u-photo' value="https://alexandr-sidorenko.me/avatar.jpg" />
           <data className='p-nickname' value="batyshkaLenin" />
-          <data className="p-country-name" value="Russia" />
-          <data className="p-locality" value="Novosibirsk" />
+          <data className="p-country-name" value={t('COUNTRY')} />
+          <data className="p-locality" value={t('CITY')} />
           <data className="p-sex" value="male" />
           <time className="dt-bday" dateTime="1999-10-26" />
           <article itemScope itemProp="mainEntity" itemType="https://schema.org/Person">
             <h1 className={styles.name}>
               <Link href="/">
                 <a itemProp="sameAs" className="url" rel="me">
-                  <span itemProp="name" className="fn">Александр Сидоренко</span>
+                  <span itemProp="name" className="fn">{t('FULL_NAME')}</span>
                 </a>
               </Link>
             </h1>
             <p className='p-note' itemProp="description">
-              &quot;Это алхимия!&quot; - говорю я, когда пишу код. Программист,
-              усопший вождь, взломщик. Участвовал в хакатонах, соревнованиях по
-              информационной безопасности и вел образовательный проект Blurred
-              Education. Хочу сыграть ООО &quot;Моя оборона&quot; на всех струнных
-              музыкальных инструментах (сейчас сыграл на шести) и разработать
-              бомбический проект с командой{' '}
-              <Link href="https://blur.tech/" >
-                <a>
-                  Blurred Technologies
-                </a>
-              </Link>
-              .
+              {t('DESCRIPTION')}
             </p>
           </article>
         </section>
         <section className={classNames(styles.photo, 'photo-section')} onMouseOut={pause} onMouseOver={play}>
           <Image
               itemProp="image"
-              alt='Александр Сидоренко в мексиканской шляпе и с банджо в руках'
+              alt={t('AVATAR_ALT')}
               className={styles.me}
               src='/images/me.png'
               width='450px'

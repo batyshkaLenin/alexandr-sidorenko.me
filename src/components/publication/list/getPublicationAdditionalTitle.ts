@@ -1,25 +1,26 @@
 import {PublicationType} from "./types"
-import {CreationType, CreativeMusic, CreativeWriting} from "../../../lib/markdown";
+import {CreativityType, CreativeMusic, CreativeWriting} from "../../../lib/markdown";
+import locales from '../../../../public/locales/index';
 
 
-export function getPublicationAdditionalTitle(type: PublicationType, publicationType?: CreationType) {
-    if (type === 'creation') {
+export function getPublicationAdditionalTitle(locale: 'en' | 'ru', type: PublicationType, publicationType?: CreativityType) {
+    if (type === 'creativity') {
         switch (publicationType) {
+            case CreativeWriting.Story:
+                return locales[locale]["STORY"]
             case CreativeWriting.Poem:
-                return 'Рассказ'
+                return locales[locale]["POEM"]
             case CreativeWriting.Poetry:
-                return 'Стих'
-            case CreativeWriting.PoetryCompilation:
-                return 'Подборка стихов'
+                return locales[locale]["POETRY"]
             case CreativeMusic.Single:
-                return 'Сингл'
+                return locales[locale]["SINGLE"]
             case CreativeMusic.EP:
-                return 'EP'
+                return locales[locale]["EP"]
             case CreativeMusic.Album:
-                return 'Альбом'
+                return locales[locale]["ALBUM"]
             default:
-                return 'Произведение'
+                return locales[locale]["WORK"]
         }
     }
-    return 'Статья'
+    return locales[locale]["ARTICLE"]
 }

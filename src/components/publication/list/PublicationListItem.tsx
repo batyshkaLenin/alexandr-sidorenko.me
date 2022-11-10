@@ -3,11 +3,13 @@ import styles from '../../../styles/PostListItem.module.scss'
 import Link from 'next/link'
 import { PublicationPreviewWithType } from "./types";
 import {getPublicationAdditionalTitle} from "./getPublicationAdditionalTitle";
+import useTranslation from "../../../lib/hooks/useTranslation";
 
 export const PublicationListItem = (publication: PublicationPreviewWithType) => {
-    const path = publication.type === 'post' ? 'posts' : 'creation'
+    const { locale } = useTranslation();
+    const path = publication.type === 'post' ? 'posts' : 'creativity'
     const publicationURL = `/${path}/${publication.slug}`
-    const additionalTitle = 'creationType' in publication ? getPublicationAdditionalTitle(publication.type, publication.creationType) : null
+    const additionalTitle = 'creativityType' in publication ? getPublicationAdditionalTitle(locale, publication.type, publication.creativityType) : null
 
     return (<Link as={publicationURL} href={`/${path}/[slug]`}>
         <a>

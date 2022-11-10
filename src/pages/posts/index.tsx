@@ -2,13 +2,15 @@ import { getAllPosts } from '../../lib/markdown'
 import { NextPage } from 'next'
 import Helmet from "../../components/Helmet"
 import { PublicationList, PostPreview } from "../../components/publication/list"
+import useTranslation from "../../lib/hooks/useTranslation";
 
 type PostPageProps = {
     posts: PostPreview[]
-    description: string
 }
 
-const PostsPage: NextPage = ({ posts, description }: PostPageProps) => {
+const PostsPage: NextPage = ({ posts }: PostPageProps) => {
+    const { t } = useTranslation();
+    const description = t('BLOG_DESCRIPTION');
 
     const breadcrumbs = {
         "@context": "https://schema.org",
@@ -22,7 +24,7 @@ const PostsPage: NextPage = ({ posts, description }: PostPageProps) => {
                         {
                             "@id": "/posts",
                             "url": "/posts",
-                            "name": "Блог",
+                            "name": t('MENU_BLOG'),
                         },
                 },
             ],
@@ -30,7 +32,7 @@ const PostsPage: NextPage = ({ posts, description }: PostPageProps) => {
 
     return (
         <>
-            <Helmet title='Блог Александра Сидоренко' description={description}>
+            <Helmet title={t('BLOG_TITLE')} description={description}>
                 <meta content='website' property='og:type' />
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}/>
             </Helmet>
@@ -39,11 +41,10 @@ const PostsPage: NextPage = ({ posts, description }: PostPageProps) => {
     )
 }
 
-export async function getStaticProps() {
-  const posts = getAllPosts(['slug', 'title', 'description', 'modified', 'created', 'author'])
-  const description = 'Блог Александра Сидоренко с заметками и полноценными статьями о разработке, музыке и жизни'
+export async function getStaticProps(req) {
+  const posts = getAllPosts(['slug', 'title', 'description', 'modified', 'created', 'author'], req.locale)
   return {
-    props: { posts, description },
+    props: { posts },
   }
 }
 

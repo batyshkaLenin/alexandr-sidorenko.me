@@ -2,22 +2,24 @@ import type { NextPage } from 'next'
 import Link from "next/link"
 import styles from '../styles/Error.module.scss'
 import Helmet from "../components/Helmet";
+import locales from '../../public/locales/index'
+import useTranslation from "../lib/hooks/useTranslation";
 
-const getData = (code?: number) => {
+const getData = (code?: number, locale: 'en' | 'ru' = 'ru') => {
     let output
     switch (code) {
         case 404:
             output = {
-                title: 'Страница не найдена',
-                linkText: 'Перейти на главную',
+                title: locales[locale]["NOT_FOUND"],
+                linkText: locales[locale]["BACK_TO_MAIN_PAGE"],
                 linkUrl: '/',
             }
             break
         case 500:
         default:
             output = {
-                title: 'Неизвестная ошибка',
-                linkText: 'Обновить страницу',
+                title: locales[locale]["UNKNOWN_ERROR"],
+                linkText: locales[locale]["RESTART"],
                 linkUrl: '',
             }
     }
@@ -26,7 +28,8 @@ const getData = (code?: number) => {
 }
 
 const ErrorPage: NextPage<{ statusCode?: number }> = ({ statusCode }) => {
-    const { title, linkUrl, linkText } = getData(statusCode)
+    const { locale } = useTranslation()
+    const { title, linkUrl, linkText } = getData(statusCode, locale)
     return (
         <>
             <Helmet title={title}>

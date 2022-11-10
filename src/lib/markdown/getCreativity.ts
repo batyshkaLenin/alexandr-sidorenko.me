@@ -1,19 +1,21 @@
 import fs from 'fs'
-import { join } from 'path'
+import {join} from 'path'
 import matter from 'gray-matter'
+import locales from "../../../public/locales";
 
-const creationDirectory = join(process.cwd(), '_content/creation')
+const creativityDirectory = join(process.cwd(), '_content/creativity')
 
 export enum TriggerWarning {
     Adulthood = '18',
     Addiction = 'addict',
-    Religion = 'religion'
+    Religion = 'religion',
+    Translation = 'deepl',
 }
 
 export enum CreativeWriting {
     Poem = 'poem',
     Poetry = 'poetry',
-    PoetryCompilation = 'poetry-compilation'
+    Story = 'story',
 }
 
 export enum CreativeMusic {
@@ -22,7 +24,7 @@ export enum CreativeMusic {
     Album = 'album'
 }
 
-export type CreationType = CreativeWriting | CreativeMusic
+export type CreativityType = CreativeWriting | CreativeMusic
 
 type Author = {
     firstName: string
@@ -32,7 +34,7 @@ type Author = {
     gender: 'male' | 'female'
 }
 
-export type Creation = {
+export type Creativity = {
     slug: string
     title: string
     description: string
@@ -42,18 +44,18 @@ export type Creation = {
     author: Author
     modified: string
     preview?: string
-    creationType: CreationType
+    creativityType: CreativityType
     audio?: string[]
     tw: TriggerWarning[]
 }
 
-export function getCreationSlugs(): string[] {
-    return fs.readdirSync(creationDirectory)
+export function getCreativitySlugs(locale: 'ru' | 'en' = 'ru'): string[] {
+    return fs.readdirSync(`${creativityDirectory}/${locale}`)
 }
 
-export function getCreationBySlug<F extends keyof Creation>(slug: string, fields: F[] = []): Pick<Creation, 'published' | F> {
+export function getCreativityBySlug<F extends keyof Creativity>(slug: string, fields: F[] = [], locale: 'ru' | 'en' = 'ru'): Pick<Creativity, 'published' | F> {
     const realSlug = slug.replace(/\.md$/, '')
-    const fullPath = join(creationDirectory, `${realSlug}.md`)
+    const fullPath = join(`${creativityDirectory}/${locale}`, `${realSlug}.md`)
     const fileContents = fs.readFileSync(fullPath, 'utf8')
     const fileStats = fs.statSync(fullPath)
     const { data, content } = matter(fileContents)
@@ -70,9 +72,9 @@ export function getCreationBySlug<F extends keyof Creation>(slug: string, fields
                 break
             case "author":
                 item[field] = {
-                    firstName: 'Александр',
-                    lastName: 'Сидоренко',
-                    fullName: 'Александр Сидоренко',
+                    firstName: locales[locale]['FIRSTNAME'],
+                    lastName: locales[locale]['LASTNAME'],
+                    fullName: locales[locale]['FULL_NAME'],
                     username: 'unborned',
                     gender: 'male',
                 }
@@ -93,13 +95,12 @@ export function getCreationBySlug<F extends keyof Creation>(slug: string, fields
         }
     })
 
-    return <Pick<Creation, 'published' | F>>item
+    return <Pick<Creativity, 'published' | F>>item
 }
 
-export function getAllCreation<F extends keyof Creation>(fields: F[] = []): Pick<Creation, "published" | F>[] {
-    const slugs = getCreationSlugs()
-    const creation = slugs
-        .map((slug) => getCreationBySlug<F>(slug, fields))
-        .sort((creation1, creation2) => (creation1.published > creation2.published ? -1 : 1))
-    return creation
+export function getAllCreativity<F extends keyof Creativity>(fields: F[] = [], locale: 'ru' | 'en' = 'ru'): Pick<Creativity, "published" | F>[] {
+    const slugs = getCreativitySlugs(locale)
+    return slugs
+        .map((slug) => getCreativityBySlug<F>(slug, fields, locale))
+        .sort((creativity1, creativity2) => (creativity1.published > creativity2.published ? -1 : 1))
 }

@@ -1,3 +1,3 @@
 export * from './getPost'
-export * from './getCreation'
+export * from './getCreativity'
 export * from './markdownToHtml'
