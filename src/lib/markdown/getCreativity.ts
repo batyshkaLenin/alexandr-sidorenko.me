@@ -50,7 +50,11 @@ export type Creativity = {
 }
 
 export function getCreativitySlugs(locale: 'ru' | 'en' = 'ru'): string[] {
-    return fs.readdirSync(`${creativityDirectory}/${locale}`)
+    try {
+        return fs.readdirSync(`${creativityDirectory}/${locale}`)
+    } catch (_) {
+        return []
+    }
 }
 
 export function getCreativityBySlug<F extends keyof Creativity>(slug: string, fields: F[] = [], locale: 'ru' | 'en' = 'ru'): Pick<Creativity, 'published' | F> {

@@ -27,7 +27,11 @@ export type Post = {
 }
 
 export function getPostSlugs(locale: 'en' | 'ru' = 'ru'): string[] {
-  return fs.readdirSync(`${postsDirectory}/${locale}`)
+  try {
+    return fs.readdirSync(`${postsDirectory}/${locale}`)
+  } catch (_) {
+    return []
+  }
 }
 
 export function getPostBySlug<F extends keyof Post>(slug: string, fields: F[] = [], locale: 'en' | 'ru' = 'ru'): Pick<Post, 'published' | F> {
