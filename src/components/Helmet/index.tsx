@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { getHost, getUrl } from '../../lib/urls'
+import {getHost, getLocaleUrl, getUrl} from '../../lib/urls'
 import useTranslation from "../../lib/hooks/useTranslation";
 
 type HelmetProps = {
@@ -19,6 +19,7 @@ const Helmet = ({ title, description, keywords, image, children }: HelmetProps) 
     const router = useRouter()
     const url = getUrl(router)
     const canonicalUrl = url.replace(".amp", "")
+    const localeUrl = getLocaleUrl(router, locale).replace(".amp", "")
     const host = getHost()
     const imageURl = `${host}${image}`
 
@@ -63,12 +64,12 @@ const Helmet = ({ title, description, keywords, image, children }: HelmetProps) 
             <meta content={customTitle} property='og:title' />
             <meta content={imageURl} property='og:image' />
             <meta content={customDescription} property='og:description' />
-            <meta content={canonicalUrl} property='og:url' />
+            <meta content={localeUrl} property='og:url' />
 
             {/* Dublin Core */}
             <meta content={locale === 'ru' ? 'ru-RU' : 'en-US'} name='DC.language' />
             <meta content={host} name='DC.publisher.url' />
-            <meta content={canonicalUrl} name='DC.identifier' />
+            <meta content={localeUrl} name='DC.identifier' />
             <meta content={customTitle} name='DC.title' />
             <meta content={customDescription} name='DC.description' />
             <meta content={customKeywords} name='DC.subject' />
