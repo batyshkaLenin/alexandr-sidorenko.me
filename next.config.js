@@ -14,7 +14,6 @@ module.exports = withPWA({
 })({
   reactStrictMode: true,
   experimental: {
-    scrollRestoration: true,
     amp: {
       skipValidation: true,
     },
@@ -81,9 +80,6 @@ module.exports = withPWA({
         permanent: true,
       },
     ]
-  },
-  future: {
-    webpack5: true,
   },
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
