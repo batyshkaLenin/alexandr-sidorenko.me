@@ -18,11 +18,12 @@ const { YM_CODE, GA_CODE } = isServerSide ? serverRuntimeConfig : publicRuntimeC
 
 function _App({ Component, pageProps }) {
   const isAmp = useAmp()
-    const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('dark', 'theme')
+  const [theme, setTheme] = useLocalStorage<'dark' | 'light'>('dark', 'theme')
 
-    useEffect(() => {
-        document.body.setAttribute('data-theme', theme)
-    }, [theme])
+  useEffect(() => {
+      document.body.setAttribute('data-theme', theme)
+  }, [theme])
+
   return (
     <>
       <Head>
