@@ -59,14 +59,14 @@ const Helmet = ({ title, description, keywords, image, children }: HelmetProps) 
 
             {/* Open Graph */}
             <meta content={t('FULL_NAME')} property='og:site_name' />
-            <meta content='ru-RU' property='og:locale' />
+            <meta content={locale === 'ru' ? 'ru-RU' : 'en-US'} property='og:locale' />
             <meta content={customTitle} property='og:title' />
             <meta content={imageURl} property='og:image' />
             <meta content={customDescription} property='og:description' />
             <meta content={canonicalUrl} property='og:url' />
 
             {/* Dublin Core */}
-            <meta content='ru-RU' name='DC.language' />
+            <meta content={locale === 'ru' ? 'ru-RU' : 'en-US'} name='DC.language' />
             <meta content={host} name='DC.publisher.url' />
             <meta content={canonicalUrl} name='DC.identifier' />
             <meta content={customTitle} name='DC.title' />
