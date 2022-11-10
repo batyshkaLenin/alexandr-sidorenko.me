@@ -17,12 +17,11 @@
     "start": "next start",
     "not-work-lint": "next lint",
     "lint": "eslint --ext .ts,.tsx .",
-    "pre-commit": "yarn lint-staged",
     "prepare": "husky install",
     "postbuild": "next-sitemap && node --experimental-modules scripts/generateRss.mjs"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
+    "*.{js,jsm,jsx,ts,tsx}": [
       "yarn lint"
     ]
   },
@@ -47,20 +46,23 @@
     "swr": "1.3.0"
   },
   "devDependencies": {
+    "@feature-sliced/eslint-config": "^0.1.0-beta.6",
     "@types/node": "18.7.16",
     "@types/react": "18.0.25",
-    "@typescript-eslint/eslint-plugin": "5.42.1",
-    "@typescript-eslint/parser": "5.42.1",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
     "concurrently": "7.5.0",
     "cross-env": "7.0.3",
-    "eslint": "8.27.0",
-    "eslint-config-next": "13.0.2",
-    "eslint-config-prettier": "8.5.0",
-    "eslint-import-resolver-typescript": "3.5.1",
-    "eslint-plugin-prettier": "4.2.1",
-    "husky": "8.0.2",
-    "lint-staged": "13.0.3",
-    "prettier": "2.7.1",
+    "eslint": "^8.27.0",
+    "eslint-config-next": "^13.0.2",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.5.2",
+    "eslint-plugin-boundaries": "^3.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "fork-ts-checker-webpack-plugin": "^7.2.13",
+    "husky": "^8.0.2",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1",
     "typescript": "4.8.4"
   }
 }

@@ -1,9 +1,13 @@
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
-import { ru, enUS } from 'date-fns/locale'
+import { enUS, ru } from 'date-fns/locale'
+import { Locale } from '../types'
 
-export function distanceToNow(dateTime, locale = 'ru') {
+export function distanceToNow(
+  dateTime: number | Date,
+  locale: Locale = Locale.RU,
+): string {
   return formatDistanceToNowStrict(dateTime, {
     addSuffix: true,
-    locale: locale === 'ru' ? ru : enUS,
+    locale: locale === Locale.RU ? ru : enUS,
   })
 }

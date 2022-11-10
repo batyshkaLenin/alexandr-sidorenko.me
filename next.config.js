@@ -1,8 +1,11 @@
-const withPWA = require("next-pwa")
+/* eslint-disable @typescript-eslint/no-var-requires */
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+const withPWA = require('next-pwa')
 const runtimeCaching = require('next-pwa/cache')
 
 module.exports = withPWA({
-  dest: "public",
+  disable: process.env.NODE_ENV === 'development',
+  dest: 'public',
   publicExcludes: ['!rss/*', '!sitemap.xml', '!sitemap-*.xml'],
   register: true,
   skipWaiting: true,
@@ -11,6 +14,7 @@ module.exports = withPWA({
 })({
   reactStrictMode: true,
   experimental: {
+    scrollRestoration: true,
     amp: {
       skipValidation: true,
     },
@@ -81,12 +85,16 @@ module.exports = withPWA({
   future: {
     webpack5: true,
   },
-  webpack(config) {
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      config.plugins.push(new ForkTsCheckerWebpackPlugin())
+    }
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
-    };
-    return config;
+    }
+
+    return config
   },
   serverRuntimeConfig: {
     GA_CODE: process.env.NEXT_PUBLIC_GA_CODE,
@@ -98,4 +106,4 @@ module.exports = withPWA({
     YM_CODE: process.env.NEXT_PUBLIC_YM_CODE,
     HOST: process.env.NEXT_PUBLIC_HOST,
   },
-});
+})
