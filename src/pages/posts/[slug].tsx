@@ -123,16 +123,18 @@ export default function PostPage({ post }: PostPageProps) {
             itemProp='author'
           />
           <meta content={post.created} itemProp='dateCreated' />
-          <Link as={isAmp ? `${postURL}?amp=1` : postURL} href='/posts/[slug]'>
-            <a itemProp='url'>
-              <time
-                className='text-center meta dt-published'
-                dateTime={post.published}
-                itemProp='datePublished'
-              >
-                {distanceToNow(new Date(post.published))}
-              </time>
-            </a>
+          <Link
+            as={isAmp ? `${postURL}?amp=1` : postURL}
+            href='/posts/[slug]'
+            itemProp='url'
+          >
+            <time
+              className='text-center meta dt-published'
+              dateTime={post.published}
+              itemProp='datePublished'
+            >
+              {distanceToNow(new Date(post.published))}
+            </time>
           </Link>
         </header>
         <section

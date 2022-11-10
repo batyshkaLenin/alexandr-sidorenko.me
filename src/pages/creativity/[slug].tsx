@@ -170,15 +170,11 @@ export default function CreativityPage({ creativity }: CreativityPageProps) {
               <Link
                 as={isAmp ? `${creativityURL}?amp=1` : creativityURL}
                 href='/creativity/[slug]'
+                itemProp='url'
               >
-                <a itemProp='url'>
-                  <time
-                    dateTime={creativity.published}
-                    itemProp='datePublished'
-                  >
-                    {distanceToNow(new Date(creativity.published), locale)}
-                  </time>
-                </a>
+                <time dateTime={creativity.published} itemProp='datePublished'>
+                  {distanceToNow(new Date(creativity.published), locale)}
+                </time>
               </Link>
             </span>
             {isForeign ? (
@@ -187,7 +183,7 @@ export default function CreativityPage({ creativity }: CreativityPageProps) {
                 href='/creativity/[slug]'
                 locale='ru'
               >
-                <a>Read in the original language</a>
+                Read in the original language
               </Link>
             ) : null}
             <span>
@@ -196,11 +192,9 @@ export default function CreativityPage({ creativity }: CreativityPageProps) {
                 as={isAmp ? `${creativityURL}?amp=1` : creativityURL}
                 href='/creativity/[slug]'
               >
-                <a itemProp='url'>
-                  <time dateTime={creativity.created} itemProp='dateCreated'>
-                    {distanceToNow(new Date(creativity.created), locale)}
-                  </time>
-                </a>
+                <time dateTime={creativity.created} itemProp='dateCreated'>
+                  {distanceToNow(new Date(creativity.created), locale)}
+                </time>
               </Link>
             </span>
           </section>

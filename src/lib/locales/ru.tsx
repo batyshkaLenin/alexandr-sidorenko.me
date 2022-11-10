@@ -49,10 +49,7 @@ export const ru = {
       безопасности и вел образовательный проект Blurred Education. Хочу сыграть
       ООО &quot;Моя оборона&quot; на всех струнных музыкальных инструментах
       (сейчас сыграл на шести) и разработать бомбический проект с командой{' '}
-      <Link href='https://blur.tech/'>
-        <a>Blurred Technologies</a>
-      </Link>
-      .
+      <Link href='https://blur.tech/'>Blurred Technologies</Link>.
     </>
   ),
 }

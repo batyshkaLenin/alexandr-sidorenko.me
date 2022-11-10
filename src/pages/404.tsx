@@ -12,9 +12,7 @@ const NotFoundPage: NextPage<{ locale: Locale }> = ({ locale }) => (
     </Helmet>
     <div className={styles.errorBlock}>
       <span>{locales[locale]['NOT_FOUND']}</span>
-      <Link href='/'>
-        <a>{locales[locale]['BACK_TO_MAIN_PAGE']}</a>
-      </Link>
+      <Link href='/'>{locales[locale]['BACK_TO_MAIN_PAGE']}</Link>
     </div>
   </>
 )

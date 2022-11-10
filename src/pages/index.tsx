@@ -42,12 +42,10 @@ const HomePage: NextPage = () => {
             itemType='https://schema.org/Person'
           >
             <h1 className={styles.name}>
-              <Link href='/'>
-                <a className='url' itemProp='sameAs' rel='me'>
-                  <span className='fn' itemProp='name'>
-                    {t('FULL_NAME')}
-                  </span>
-                </a>
+              <Link href='/' itemProp='sameAs' rel='me'>
+                <span className='fn' itemProp='name'>
+                  {t('FULL_NAME')}
+                </span>
               </Link>
             </h1>
             <p className='p-note' itemProp='description'>
@@ -63,10 +61,10 @@ const HomePage: NextPage = () => {
           <Image
             alt={t('AVATAR_ALT')}
             className={styles.me}
-            height='450px'
+            height={450}
             itemProp='image'
             src='/images/me.png'
-            width='450px'
+            width={450}
           />
           <audio
             loop
