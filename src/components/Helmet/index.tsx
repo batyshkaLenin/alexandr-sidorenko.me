@@ -35,7 +35,6 @@ const Helmet = ({ title, description, keywords, image, children }: HelmetProps) 
 
             {/* Basic */}
             <link href={canonicalUrl} rel='canonical' />
-            <link rel="alternate" hrefLang="en" href={`${canonicalUrl}en`} />
             <meta content={customTitle} name='title' />
             <meta content={customDescription} name='description' />
             <meta content={customKeywords} name='keywords' />
