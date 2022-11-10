@@ -98,7 +98,6 @@ async function generateRss(type, locale) {
             title: pub.title,
             id: url,
             link: url,
-            audio: pub.audio && pub.audio.length ? `${siteURL}${pub.audio[0]}` : undefined,
             image: pub.preview ? `${siteURL}${pub.preview}` : undefined,
             description: pub.description,
             content: pub.content,
