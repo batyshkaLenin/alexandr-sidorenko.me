@@ -19,12 +19,12 @@ export default function useTranslation(): TranslationHook {
     (locale: Locale) => {
       router.push(asPath, asPath, { locale })
     },
-    [asPath],
+    [asPath, router],
   )
 
   const t = useCallback(
     (keyString: LocalesKeys) => <string>locales[locale][keyString],
-    [router, locale],
+    [locale],
   )
 
   const isForeign = useMemo(() => locale !== 'ru', [locale])

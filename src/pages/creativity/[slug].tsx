@@ -1,5 +1,4 @@
 import { useAmp } from 'next/amp'
-import ErrorPage from 'next/error'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Helmet from '../../components/Helmet'
