@@ -2,53 +2,9 @@ import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
 import locales from '../locales'
-import { Locale } from '../types'
+import { Creativity, Locale } from '../types'
 
 const creativityDirectory = join(process.cwd(), '_content/creativity')
-
-export enum TriggerWarning {
-  Adulthood = '18',
-  Addiction = 'addict',
-  Religion = 'religion',
-  Translation = 'deepl',
-}
-
-export enum CreativeWriting {
-  Poem = 'poem',
-  Poetry = 'poetry',
-  Story = 'story',
-}
-
-export enum CreativeMusic {
-  Single = 'single',
-  EP = 'ep',
-  Album = 'album',
-}
-
-export type CreativityType = CreativeWriting | CreativeMusic
-
-type Author = {
-  firstName: string
-  lastName: string
-  fullName: string
-  username: string
-  gender: 'male' | 'female'
-}
-
-export type Creativity = {
-  slug: string
-  title: string
-  description: string
-  published: string
-  created: string
-  content: string
-  author: Author
-  modified: string
-  preview?: string
-  creativityType: CreativityType
-  audio?: string[]
-  tw: TriggerWarning[]
-}
 
 export function getCreativitySlugs(locale: Locale = Locale.RU): string[] {
   try {

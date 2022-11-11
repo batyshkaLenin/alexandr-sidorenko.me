@@ -1,17 +1,12 @@
 import { useAmp } from 'next/amp'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import Helmet from '../../components/Helmet'
-import { distanceToNow } from '../../lib/dates'
-import useTranslation from '../../lib/hooks/useTranslation'
-import {
-  getAllLocalesPosts,
-  getPostBySlug,
-  markdownToHtml,
-  Post,
-} from '../../lib/markdown'
-import { Locale } from '../../lib/types'
-import { getUrl } from '../../lib/urls'
+import Helmet from 'components/Helmet'
+import { distanceToNow } from 'lib/dates'
+import useTranslation from 'lib/hooks/useTranslation'
+import { getAllLocalesPosts, getPostBySlug, markdownToHtml } from 'lib/markdown'
+import { Locale, Post } from 'lib/types'
+import { getUrl } from 'lib/urls'
 
 export const config = { amp: 'hybrid' }
 

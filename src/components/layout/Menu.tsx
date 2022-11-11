@@ -2,8 +2,8 @@ import classNames from 'classnames'
 import { useAmp } from 'next/amp'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import useTranslation from '../../lib/hooks/useTranslation'
-import styles from '../../styles/Menu.module.scss'
+import useTranslation from 'lib/hooks/useTranslation'
+import styles from 'styles/Menu.module.scss'
 
 const Menu = () => {
   const isAmp = useAmp()

@@ -2,30 +2,9 @@ import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
 import locales from '../locales'
-import { Locale } from '../types'
+import { Locale, Post } from '../types'
 
 const postsDirectory = join(process.cwd(), '_content/posts')
-
-type Author = {
-  firstName: string
-  lastName: string
-  fullName: string
-  username: string
-  gender: 'male' | 'female'
-}
-
-export type Post = {
-  slug: string
-  title: string
-  description: string
-  published: string
-  created: string
-  content: string
-  author: Author
-  modified: string
-  preview?: string
-  tags: string[]
-}
 
 export function getPostSlugs(locale: Locale = Locale.RU): string[] {
   try {

@@ -1,9 +1,9 @@
 import type { NextPage } from 'next'
 import Link from 'next/link'
-import Helmet from '../components/Helmet'
-import locales from '../lib/locales'
-import { Locale } from '../lib/types'
-import styles from '../styles/Error.module.scss'
+import Helmet from 'components/Helmet'
+import locales from 'lib/locales'
+import { Locale } from 'lib/types'
+import styles from 'styles/Error.module.scss'
 
 const NotFoundPage: NextPage<{ locale: Locale }> = ({ locale }) => (
   <>

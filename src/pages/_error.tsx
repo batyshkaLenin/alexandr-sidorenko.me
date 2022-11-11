@@ -1,10 +1,10 @@
 import * as Sentry from '@sentry/nextjs'
 import type { NextPage } from 'next'
 import Link from 'next/link'
-import Helmet from '../components/Helmet'
-import locales from '../lib/locales'
-import { Locale } from '../lib/types'
-import styles from '../styles/Error.module.scss'
+import Helmet from 'components/Helmet'
+import locales from 'lib/locales'
+import { Locale } from 'lib/types'
+import styles from 'styles/Error.module.scss'
 
 const getData = (code?: number, locale: Locale = Locale.RU) => {
   switch (code) {

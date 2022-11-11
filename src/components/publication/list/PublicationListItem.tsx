@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import React from 'react'
-import useTranslation from '../../../lib/hooks/useTranslation'
-import { PublicationPreviewWithType } from '../../../lib/types'
-import styles from '../../../styles/PostListItem.module.scss'
-import { getPublicationAdditionalTitle } from './getPublicationAdditionalTitle'
+import useTranslation from 'lib/hooks/useTranslation'
+import { getPublicationAdditionalTitle } from 'lib/publication'
+import { PublicationPreviewWithType } from 'lib/types'
+import styles from 'styles/PostListItem.module.scss'
 
 export const PublicationListItem = (
   publication: PublicationPreviewWithType,

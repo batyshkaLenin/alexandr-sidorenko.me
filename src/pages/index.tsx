@@ -3,9 +3,9 @@ import { NextPage } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import Helmet from '../components/Helmet'
-import useTranslation from '../lib/hooks/useTranslation'
-import styles from '../styles/index.module.scss'
+import Helmet from 'components/Helmet'
+import useTranslation from 'lib/hooks/useTranslation'
+import styles from 'styles/index.module.scss'
 
 const HomePage: NextPage = () => {
   const { t } = useTranslation()

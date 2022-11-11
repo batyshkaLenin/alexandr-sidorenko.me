@@ -1,10 +1,11 @@
-import locales from '../../../lib/locales'
+import locales from '../locales'
 import {
   CreativeMusic,
   CreativeWriting,
   CreativityType,
-} from '../../../lib/markdown'
-import { Locale, PublicationType } from '../../../lib/types'
+  Locale,
+  PublicationType,
+} from '../types'
 
 export function getPublicationAdditionalTitle(
   locale: Locale,

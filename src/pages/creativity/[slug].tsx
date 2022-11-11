@@ -1,37 +1,22 @@
 import { useAmp } from 'next/amp'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import Helmet from '../../components/Helmet'
-import { getPublicationAdditionalTitle } from '../../components/publication/list'
-import { distanceToNow } from '../../lib/dates'
-import useTranslation from '../../lib/hooks/useTranslation'
-import locales from '../../lib/locales'
+import Helmet from 'components/Helmet'
+import { distanceToNow } from 'lib/dates'
+import useTranslation from 'lib/hooks/useTranslation'
 import {
-  Creativity,
   getAllLocalesCreativity,
   getCreativityBySlug,
   markdownToHtml,
-  TriggerWarning,
-} from '../../lib/markdown'
-import { Locale } from '../../lib/types'
-import { getUrl } from '../../lib/urls'
+} from 'lib/markdown'
+import {
+  getPublicationAdditionalTitle,
+  getTriggerWarningText,
+} from 'lib/publication'
+import { Creativity, Locale } from 'lib/types'
+import { getUrl } from 'lib/urls'
 
 export const config = { amp: 'hybrid' }
-
-function getTriggerWarningText(tw: TriggerWarning, locale: Locale = Locale.RU) {
-  switch (tw) {
-    case TriggerWarning.Adulthood:
-      return locales[locale]['TW_ADULTHOOD']
-    case TriggerWarning.Religion:
-      return locales[locale]['TW_RELIGION']
-    case TriggerWarning.Addiction:
-      return locales[locale]['TW_ADDICTION']
-    case TriggerWarning.Translation:
-      return locales[locale]['TW_TRANSLATION']
-    default:
-      return undefined
-  }
-}
 
 type CreativityPageProps = {
   creativity: Pick<

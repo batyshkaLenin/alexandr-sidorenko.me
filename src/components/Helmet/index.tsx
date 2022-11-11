@@ -1,8 +1,8 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React from 'react'
-import useTranslation from '../../lib/hooks/useTranslation'
-import { getHost, getLocaleUrl, getUrl } from '../../lib/urls'
+import useTranslation from 'lib/hooks/useTranslation'
+import { getHost, getLocaleUrl, getUrl } from 'lib/urls'
 
 type HelmetProps = {
   title?: string
