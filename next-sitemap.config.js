@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path')
-const siteURL = process.env.NEXT_PUBLIC_HOST || 'https://alexandr-sidorenko.me';
+const siteURL = process.env.NEXT_PUBLIC_HOST || 'https://alexandr-sidorenko.me'
 
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {

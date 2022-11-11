@@ -11,8 +11,8 @@ module.exports = {
     },
     'import/resolver': {
       node: {
-        extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx'],
-        moduleDirectory: ['node_modules', 'src', 'scripts', 'public/locales'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        moduleDirectory: ['node_modules', 'src', 'scripts'],
       },
       typescript: {
         alwaysTryTypes: true,

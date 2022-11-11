@@ -16,12 +16,12 @@
     "build": "next build",
     "start": "next start",
     "not-work-lint": "next lint",
-    "lint": "eslint --ext .ts,.tsx .",
+    "lint": "eslint --ext .ts,.tsx,.mjs,.js .",
     "prepare": "husky install",
     "postbuild": "next-sitemap && node --experimental-modules scripts/generateRss.mjs"
   },
   "lint-staged": {
-    "*.{js,jsm,jsx,ts,tsx}": [
+    "*.{js,mjs,jsx,ts,tsx}": [
       "yarn lint"
     ]
   },
