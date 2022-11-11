@@ -45,20 +45,15 @@ export const en = {
   DESCRIPTION: (
     <>
       &quot;It&apos;s alchemy!&quot; - I say as I write code. Programmer,{' '}
-      <Link href='https://twitter.com/batyshkaLenin'>
-        <a>deceased leader</a>
-      </Link>
-      , hacker. I&apos;ve participated in hackathons, information security
+      <Link href='https://twitter.com/batyshkaLenin'>deceased leader</Link>
+      hacker. I&apos;ve participated in hackathons, information security
       competitions, and run the Blurred Education project. I want to play{' '}
       <Link href='https://www.gr-oborona.ru/texts/1056898718.html'>
-        <a>&quot;My Defense&quot;</a>
+        &quot;My Defense&quot;
       </Link>{' '}
       on all stringed musical instruments (I&apos;ve played six now) and develop
       a bombastic project with the{' '}
-      <Link href='https://blur.tech/'>
-        <a>Blurred Technologies</a>
-      </Link>{' '}
-      team.
+      <Link href='https://blur.tech/'>Blurred Technologies</Link> team.
     </>
   ),
 }

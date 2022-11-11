@@ -1,30 +1,27 @@
+import * as Sentry from '@sentry/nextjs'
 import type { NextPage } from 'next'
 import Link from 'next/link'
-import Helmet from '../components/Helmet'
-import { Locale } from '../lib/types'
-import styles from '../styles/Error.module.scss'
+import Helmet from 'components/Helmet'
+import locales from 'lib/locales'
+import { Locale } from 'lib/types'
+import styles from 'styles/Error.module.scss'
 
 const getData = (code?: number, locale: Locale = Locale.RU) => {
-  let output
   switch (code) {
     case 404:
-      output = {
-        title: locale === Locale.RU ? 'Страница не найдена' : 'Page not found',
-        linkText: locale === Locale.RU ? 'Вернуться на главную' : 'Go to Home',
+      return {
+        title: locales[locale]['NOT_FOUND'],
+        linkText: locales[locale]['BACK_TO_MAIN_PAGE'],
         linkUrl: '/',
       }
-      break
     case 500:
     default:
-      output = {
-        title: locale === Locale.RU ? 'Неизвестная ошибка' : 'Unknown error',
-        linkText:
-          locale === Locale.RU ? 'Перезагрузить страницу' : 'Refresh page',
+      return {
+        title: locales[locale]['UNKNOWN_ERROR'],
+        linkText: locales[locale]['RESTART'],
         linkUrl: '',
       }
   }
-
-  return output
 }
 
 const ErrorPage: NextPage<{ statusCode?: number; locale: Locale }> = ({
@@ -49,7 +46,9 @@ const ErrorPage: NextPage<{ statusCode?: number; locale: Locale }> = ({
   )
 }
 
-ErrorPage.getInitialProps = ({ res, err, locale }) => {
+ErrorPage.getInitialProps = async (ctx) => {
+  const { res, err, locale } = ctx
+  await Sentry.captureUnderscoreErrorException(ctx)
   const statusCode = res ? res.statusCode : err ? err.statusCode : 404
   return { statusCode, locale: locale as Locale }
 }

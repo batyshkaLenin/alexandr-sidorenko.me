@@ -1,4 +1,5 @@
-import { Creativity, Post } from '../markdown'
+import { Creativity } from './creativity'
+import { Post } from './posts'
 
 export type PublicationType = 'post' | 'creativity'
 export type PostPreview = Pick<

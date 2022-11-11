@@ -1,38 +1,22 @@
 import { useAmp } from 'next/amp'
-import ErrorPage from 'next/error'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import Helmet from '../../components/Helmet'
-import { getPublicationAdditionalTitle } from '../../components/publication/list'
-import { distanceToNow } from '../../lib/dates'
-import useTranslation from '../../lib/hooks/useTranslation'
-import locales from '../../lib/locales'
+import Helmet from 'components/Helmet'
+import { distanceToNow } from 'lib/dates'
+import useTranslation from 'lib/hooks/useTranslation'
 import {
-  Creativity,
   getAllLocalesCreativity,
   getCreativityBySlug,
   markdownToHtml,
-  TriggerWarning,
-} from '../../lib/markdown'
-import { Locale } from '../../lib/types'
-import { getUrl } from '../../lib/urls'
+} from 'lib/markdown'
+import {
+  getPublicationAdditionalTitle,
+  getTriggerWarningText,
+} from 'lib/publication'
+import { Creativity, Locale } from 'lib/types'
+import { getUrl } from 'lib/urls'
 
 export const config = { amp: 'hybrid' }
-
-function getTriggerWarningText(tw: TriggerWarning, locale: Locale = Locale.RU) {
-  switch (tw) {
-    case TriggerWarning.Adulthood:
-      return locales[locale]['TW_ADULTHOOD']
-    case TriggerWarning.Religion:
-      return locales[locale]['TW_RELIGION']
-    case TriggerWarning.Addiction:
-      return locales[locale]['TW_ADDICTION']
-    case TriggerWarning.Translation:
-      return locales[locale]['TW_TRANSLATION']
-    default:
-      return undefined
-  }
-}
 
 type CreativityPageProps = {
   creativity: Pick<
@@ -57,10 +41,6 @@ export default function CreativityPage({ creativity }: CreativityPageProps) {
   const isAmp = useAmp()
   const router = useRouter()
   const url = getUrl(router)
-
-  if (!router.isFallback && !creativity?.slug) {
-    return <ErrorPage statusCode={404} />
-  }
   const creativityURL = `/creativity/${creativity.slug}`
   const additionalTitle = getPublicationAdditionalTitle(
     locale,
@@ -145,108 +125,99 @@ export default function CreativityPage({ creativity }: CreativityPageProps) {
           type='application/ld+json'
         />
       </Helmet>
-      {router.isFallback ? (
-        <div>Loading…</div>
-      ) : (
-        <article itemScope itemType='https://schema.org/Article'>
-          {isAmp ? null : (
-            <>
-              <data
-                className='u-photo'
-                value='https://alexandr-sidorenko.me/avatar.jpg'
-              />
-              <data
-                className='u-url'
-                value={`https://alexandr-sidorenko.me${creativityURL}`}
-              />
-            </>
-          )}
-          <meta
-            content={creativity.preview || '/images/me.png'}
-            itemProp='image'
-          />
-          <header>
-            <h1>
-              {additionalTitle && `${additionalTitle} `} &quot;
-              <span itemProp='headline'>{creativity.title}</span>&quot;
-            </h1>
-            <meta content={t('FULL_NAME')} itemProp='author' />
-            <section className='dateBox'>
-              <span>
-                {t('PUBLISHED')}:{' '}
-                <Link
-                  as={isAmp ? `${creativityURL}?amp=1` : creativityURL}
-                  href='/creativity/[slug]'
-                >
-                  <a itemProp='url'>
-                    <time
-                      dateTime={creativity.published}
-                      itemProp='datePublished'
-                    >
-                      {distanceToNow(new Date(creativity.published), locale)}
-                    </time>
-                  </a>
-                </Link>
-              </span>
-              {isForeign ? (
-                <Link
-                  as={isAmp ? `${creativityURL}?amp=1` : creativityURL}
-                  href='/creativity/[slug]'
-                  locale='ru'
-                >
-                  <a>Read in the original language</a>
-                </Link>
-              ) : null}
-              <span>
-                {t('CREATED')}:{' '}
-                <Link
-                  as={isAmp ? `${creativityURL}?amp=1` : creativityURL}
-                  href='/creativity/[slug]'
-                >
-                  <a itemProp='url'>
-                    <time dateTime={creativity.created} itemProp='dateCreated'>
-                      {distanceToNow(new Date(creativity.created), locale)}
-                    </time>
-                  </a>
-                </Link>
-              </span>
+
+      <article itemScope itemType='https://schema.org/Article'>
+        {isAmp ? null : (
+          <>
+            <data
+              className='u-photo'
+              value='https://alexandr-sidorenko.me/avatar.jpg'
+            />
+            <data
+              className='u-url'
+              value={`https://alexandr-sidorenko.me${creativityURL}`}
+            />
+          </>
+        )}
+        <meta
+          content={creativity.preview || '/images/me.png'}
+          itemProp='image'
+        />
+        <header>
+          <h1>
+            {additionalTitle && `${additionalTitle} `} &quot;
+            <span itemProp='headline'>{creativity.title}</span>&quot;
+          </h1>
+          <meta content={t('FULL_NAME')} itemProp='author' />
+          <section className='dateBox'>
+            <span>
+              {t('PUBLISHED')}:{' '}
+              <Link
+                as={isAmp ? `${creativityURL}?amp=1` : creativityURL}
+                href='/creativity/[slug]'
+                itemProp='url'
+              >
+                <time dateTime={creativity.published} itemProp='datePublished'>
+                  {distanceToNow(new Date(creativity.published), locale)}
+                </time>
+              </Link>
+            </span>
+            {isForeign ? (
+              <Link
+                as={isAmp ? `${creativityURL}?amp=1` : creativityURL}
+                href='/creativity/[slug]'
+                locale='ru'
+              >
+                Read in the original language
+              </Link>
+            ) : null}
+            <span>
+              {t('CREATED')}:{' '}
+              <Link
+                as={isAmp ? `${creativityURL}?amp=1` : creativityURL}
+                href='/creativity/[slug]'
+              >
+                <time dateTime={creativity.created} itemProp='dateCreated'>
+                  {distanceToNow(new Date(creativity.created), locale)}
+                </time>
+              </Link>
+            </span>
+          </section>
+        </header>
+        {creativity.tw && creativity.tw.length ? (
+          <>
+            <hr />
+            <section className='publicationContent'>
+              {creativity.tw.map((tw, index) => (
+                <blockquote key={index}>
+                  <p>{getTriggerWarningText(tw, locale)}</p>
+                </blockquote>
+              ))}
             </section>
-          </header>
-          {creativity.tw && creativity.tw.length ? (
-            <>
-              <hr />
-              <section className='publicationContent'>
-                {creativity.tw.map((tw, index) => (
-                  <blockquote key={index}>
-                    <p>{getTriggerWarningText(tw, locale)}</p>
-                  </blockquote>
-                ))}
-              </section>
-              <hr />
-            </>
-          ) : null}
-          {audio && Object.keys(audio).length ? (
-            isAmp ? (
-              <amp-audio controls='true'>
-                {Object.keys(audio).map((mime, key) => (
-                  <source key={key} src={audio[mime]} type={mime} />
-                ))}
-              </amp-audio>
-            ) : (
-              <audio controls>
-                {Object.keys(audio).map((mime, key) => (
-                  <source key={key} src={audio[mime]} type={mime} />
-                ))}
-              </audio>
-            )
-          ) : null}
-          <section
-            className='publicationContent e-content'
-            dangerouslySetInnerHTML={{ __html: creativity.content }}
-            itemProp='articleBody'
-          />
-        </article>
-      )}
+            <hr />
+          </>
+        ) : null}
+        {audio && Object.keys(audio).length ? (
+          isAmp ? (
+            <amp-audio controls='true'>
+              {Object.keys(audio).map((mime, key) => (
+                <source key={key} src={audio[mime]} type={mime} />
+              ))}
+            </amp-audio>
+          ) : (
+            <audio controls>
+              {Object.keys(audio).map((mime, key) => (
+                <source key={key} src={audio[mime]} type={mime} />
+              ))}
+            </audio>
+          )
+        ) : null}
+        <section
+          className='publicationContent e-content'
+          dangerouslySetInnerHTML={{ __html: creativity.content }}
+          itemProp='articleBody'
+        />
+      </article>
     </>
   )
 }

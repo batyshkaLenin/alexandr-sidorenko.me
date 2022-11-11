@@ -1,8 +1,8 @@
-import Helmet from '../../components/Helmet'
-import { PublicationList } from '../../components/publication/list'
-import useTranslation from '../../lib/hooks/useTranslation'
-import { getAllCreativity } from '../../lib/markdown'
-import { CreativityPreview, Locale } from '../../lib/types'
+import Helmet from 'components/Helmet'
+import { PublicationList } from 'components/publication/list'
+import useTranslation from 'lib/hooks/useTranslation'
+import { getAllCreativity } from 'lib/markdown'
+import { CreativityPreview, Locale } from 'lib/types'
 
 type CreativityPageProps = {
   creativity: CreativityPreview[]

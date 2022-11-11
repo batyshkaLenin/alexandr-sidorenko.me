@@ -1,4 +1,4 @@
-import '../styles/index.css'
+import 'styles/index.css'
 import '../../public/fonts/fonts.css'
 import { Analytics } from '@vercel/analytics/react'
 // @ts-expect-error "Yandex Metrika without types"
@@ -10,10 +10,10 @@ import Head from 'next/head'
 import Router from 'next/router'
 import Script from 'next/script'
 import { useEffect } from 'react'
-import NextApp, { AppContext, AppInitialProps } from 'next/app'
-import { Footer, Header } from '../components/layout'
-import { useLocalStorage } from '../lib/hooks'
-import { Theme } from '../lib/types'
+import { Footer, Header } from 'components/layout'
+import { useLocalStorage } from 'lib/hooks'
+import { Theme } from 'lib/types'
+import { AppContext, AppInitialProps } from 'next/app'
 
 const { publicRuntimeConfig, serverRuntimeConfig } = getConfig()
 const isServerSide = typeof window === 'undefined'
@@ -63,16 +63,6 @@ function _App({ Component, pageProps }: AppContext & AppInitialProps) {
   )
 }
 
-_App.displayName = 'App'
-
 const App = withYM(YM_CODE, Router)(_App)
-
-App.getInitialProps = async (appCtx: AppContext) => {
-  const appProps = await NextApp.getInitialProps(appCtx)
-
-  return {
-    pageProps: { ...appProps.pageProps },
-  }
-}
 
 export default App

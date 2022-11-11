@@ -1,5 +1,5 @@
 import React from 'react'
-import { PublicationPreview, PublicationType } from '../../../lib/types'
+import { PublicationPreview, PublicationType } from 'lib/types'
 import { PublicationListItem } from './PublicationListItem'
 
 type PublicationsListProps = {

@@ -1,8 +1,8 @@
-import Helmet from '../../components/Helmet'
-import { PublicationList } from '../../components/publication/list'
-import useTranslation from '../../lib/hooks/useTranslation'
-import { getAllPosts } from '../../lib/markdown'
-import { Locale, PostPreview } from '../../lib/types'
+import Helmet from 'components/Helmet'
+import { PublicationList } from 'components/publication/list'
+import useTranslation from 'lib/hooks/useTranslation'
+import { getAllPosts } from 'lib/markdown'
+import { Locale, PostPreview } from 'lib/types'
 
 type PostPageProps = {
   posts: PostPreview[]

@@ -1,18 +1,12 @@
 import { useAmp } from 'next/amp'
-import ErrorPage from 'next/error'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import Helmet from '../../components/Helmet'
-import { distanceToNow } from '../../lib/dates'
-import useTranslation from '../../lib/hooks/useTranslation'
-import {
-  getAllLocalesPosts,
-  getPostBySlug,
-  markdownToHtml,
-  Post,
-} from '../../lib/markdown'
-import { Locale } from '../../lib/types'
-import { getUrl } from '../../lib/urls'
+import Helmet from 'components/Helmet'
+import { distanceToNow } from 'lib/dates'
+import useTranslation from 'lib/hooks/useTranslation'
+import { getAllLocalesPosts, getPostBySlug, markdownToHtml } from 'lib/markdown'
+import { Locale, Post } from 'lib/types'
+import { getUrl } from 'lib/urls'
 
 export const config = { amp: 'hybrid' }
 
@@ -36,10 +30,6 @@ export default function PostPage({ post }: PostPageProps) {
   const isAmp = useAmp()
   const router = useRouter()
   const url = getUrl(router)
-
-  if (!router.isFallback && !post?.slug) {
-    return <ErrorPage statusCode={404} />
-  }
   const postURL = `/posts/${post.slug}`
 
   const breadcrumbs = {
@@ -99,60 +89,55 @@ export default function PostPage({ post }: PostPageProps) {
           type='application/ld+json'
         />
       </Helmet>
-      {router.isFallback ? (
-        <div>Loading…</div>
-      ) : (
-        <article
-          itemScope
-          className='post-full post h-entry'
-          itemProp='blogPost'
-          itemType='https://schema.org/Article'
-        >
-          {isAmp ? null : (
-            <>
-              <data
-                className='u-photo'
-                value='https://alexandr-sidorenko.me/avatar.jpg'
-              />
-              <data
-                className='u-url'
-                value={`https://alexandr-sidorenko.me${postURL}`}
-              />
-            </>
-          )}
-          <meta content={post.preview || '/images/me.png'} itemProp='image' />
-          <header className='post-full-header'>
-            <h1 className='post-full-title p-name' itemProp='headline'>
-              {post.title}
-            </h1>
-            <meta
-              className='p-author h-card'
-              content={t('FULL_NAME')}
-              itemProp='author'
+      <article
+        itemScope
+        className='post-full post h-entry'
+        itemProp='blogPost'
+        itemType='https://schema.org/Article'
+      >
+        {isAmp ? null : (
+          <>
+            <data
+              className='u-photo'
+              value='https://alexandr-sidorenko.me/avatar.jpg'
             />
-            <meta content={post.created} itemProp='dateCreated' />
-            <Link
-              as={isAmp ? `${postURL}?amp=1` : postURL}
-              href='/posts/[slug]'
-            >
-              <a itemProp='url'>
-                <time
-                  className='text-center meta dt-published'
-                  dateTime={post.published}
-                  itemProp='datePublished'
-                >
-                  {distanceToNow(new Date(post.published))}
-                </time>
-              </a>
-            </Link>
-          </header>
-          <section
-            className='publicationContent e-content'
-            dangerouslySetInnerHTML={{ __html: post.content }}
-            itemProp='articleBody'
+            <data
+              className='u-url'
+              value={`https://alexandr-sidorenko.me${postURL}`}
+            />
+          </>
+        )}
+        <meta content={post.preview || '/images/me.png'} itemProp='image' />
+        <header className='post-full-header'>
+          <h1 className='post-full-title p-name' itemProp='headline'>
+            {post.title}
+          </h1>
+          <meta
+            className='p-author h-card'
+            content={t('FULL_NAME')}
+            itemProp='author'
           />
-        </article>
-      )}
+          <meta content={post.created} itemProp='dateCreated' />
+          <Link
+            as={isAmp ? `${postURL}?amp=1` : postURL}
+            href='/posts/[slug]'
+            itemProp='url'
+          >
+            <time
+              className='text-center meta dt-published'
+              dateTime={post.published}
+              itemProp='datePublished'
+            >
+              {distanceToNow(new Date(post.published))}
+            </time>
+          </Link>
+        </header>
+        <section
+          className='publicationContent e-content'
+          dangerouslySetInnerHTML={{ __html: post.content }}
+          itemProp='articleBody'
+        />
+      </article>
     </>
   )
 }

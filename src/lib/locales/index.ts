@@ -1,7 +1,9 @@
 import { en } from './en'
 import { ru } from './ru'
 
-export default {
+const locales = {
   en,
   ru,
 }
+
+export default locales

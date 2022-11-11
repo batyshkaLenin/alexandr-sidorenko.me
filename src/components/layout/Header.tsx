@@ -1,9 +1,9 @@
 import classNames from 'classnames'
 import { useAmp } from 'next/amp'
 import React from 'react'
-import useTranslation from '../../lib/hooks/useTranslation'
-import { Locale, Theme } from '../../lib/types'
-import styles from '../../styles/Header.module.scss'
+import useTranslation from 'lib/hooks/useTranslation'
+import { Locale, Theme } from 'lib/types'
+import styles from 'styles/Header.module.scss'
 import Menu from './Menu'
 
 type HeaderProps = {

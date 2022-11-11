@@ -2,8 +2,8 @@ import classNames from 'classnames'
 import { useAmp } from 'next/amp'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import useTranslation from '../../lib/hooks/useTranslation'
-import styles from '../../styles/Menu.module.scss'
+import useTranslation from 'lib/hooks/useTranslation'
+import styles from 'styles/Menu.module.scss'
 
 const Menu = () => {
   const isAmp = useAmp()
@@ -25,10 +25,8 @@ const Menu = () => {
           itemProp='itemListElement'
           itemType='https://schema.org/ListItem'
         >
-          <Link href='/'>
-            <a itemProp='item url'>
-              <span itemProp='name'>{t('MENU_ABOUT_ME')}</span>
-            </a>
+          <Link href='/' itemProp='item url'>
+            <span itemProp='name'>{t('MENU_ABOUT_ME')}</span>
           </Link>
         </li>
         <li
@@ -40,10 +38,8 @@ const Menu = () => {
           itemProp='itemListElement'
           itemType='https://schema.org/ListItem'
         >
-          <Link href='/posts'>
-            <a itemProp='item url'>
-              <span itemProp='name'>{t('MENU_BLOG')}</span>
-            </a>
+          <Link href='/posts' itemProp='item url'>
+            <span itemProp='name'>{t('MENU_BLOG')}</span>
           </Link>
         </li>
         <li
@@ -55,10 +51,8 @@ const Menu = () => {
           itemProp='itemListElement'
           itemType='https://schema.org/ListItem'
         >
-          <Link href='/creativity'>
-            <a itemProp='item url'>
-              <span itemProp='name'>{t('MENU_CREATIVITY')}</span>
-            </a>
+          <Link href='/creativity' itemProp='item url'>
+            <span itemProp='name'>{t('MENU_CREATIVITY')}</span>
           </Link>
         </li>
       </ul>
