@@ -22,9 +22,6 @@ module.exports = withPWA({
           skipValidation: true,
         },
       },
-      sentry: {
-        hideSourceMaps: true,
-      },
       images: {
         domains: ['webring.xxiivv.com'],
         dangerouslyAllowSVG: true,

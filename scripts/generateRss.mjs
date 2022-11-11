@@ -48,7 +48,7 @@ async function getAllPublications(type, locale) {
   try {
     slugs = await fs.promises.readdir(directory)
   } catch (err) {
-    console.error(`Error of reading ${directory}`)
+    console.warn(`Error of reading ${directory}`)
     slugs = []
   }
   const publications = slugs.map((slug) => {
