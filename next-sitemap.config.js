@@ -10,9 +10,9 @@ module.exports = {
     policies: [
       {
         userAgent: '*',
+        allow: '/',
         disallow: ['/404', '/en/404'],
       },
-      { userAgent: '*', allow: '/' },
     ],
   },
   generateRobotsTxt: true,
