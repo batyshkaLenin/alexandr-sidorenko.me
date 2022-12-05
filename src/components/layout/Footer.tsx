@@ -37,27 +37,6 @@ export const Footer = (props: FooterProps) => {
       <section className={styles.contacts}>
         <ul className={styles.contactList}>
           <li className={styles.contactItem}>
-            <Link
-              href='https://webring.xxiivv.com/#batyshkaLenin'
-              rel='noopener'
-              target='_blank'
-            >
-              {isAmp ? (
-                'XXIIVV webring'
-              ) : (
-                <Image
-                  alt='XXIIVV webring'
-                  className={styles.webring}
-                  height={20}
-                  src={`https://webring.xxiivv.com/icon.${
-                    props.theme === Theme.Light ? 'black' : 'white'
-                  }.svg`}
-                  width={20}
-                />
-              )}
-            </Link>
-          </li>
-          <li className={styles.contactItem}>
             <Link href='https://github.com/batyshkaLenin' rel='me'>
               {isAmp ? (
                 'GitHub'
