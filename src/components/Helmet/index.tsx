@@ -141,7 +141,7 @@ const Helmet = ({
       <link href='https://www.instagram.com/alexander_sidorenko/' rel='me' />
       <link href='https://www.facebook.com/sidorenko.alexandr' rel='me' />
       <link href='https://steamcommunity.com/id/batyshkaLenin/' rel='me' />
-      <link href='/key.txt' rel='pgpkey' />
+      <link href='/key.pub' rel='pgpkey' type='application/pgp-keys' />
 
       {/* Additional tags */}
       {children ? children : null}
