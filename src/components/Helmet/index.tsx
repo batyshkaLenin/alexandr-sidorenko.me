@@ -127,6 +127,8 @@ const Helmet = ({
         href='https://webmention.io/alexandr-sidorenko.me/xmlrpc'
         rel='pingback'
       />
+      <link href='https://alexandr-sidorenko.me/' rel='openid.delegate' />
+      <link href='https://openid.indieauth.com/openid' rel='openid.server' />
       <link href='https://indieauth.com/auth' rel='authorization_endpoint' />
       <link href='https://tokens.indieauth.com/token' rel='token_endpoint' />
       <link href='https://aperture.p3k.io/microsub/791' rel='microsub' />
