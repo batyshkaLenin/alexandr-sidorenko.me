@@ -28,7 +28,7 @@
   "dependencies": {
     "@pondorasti/remark-img-links": "^1.0.8",
     "@sentry/nextjs": "^7.19.0",
-    "@vercel/analytics": "^0.1.4",
+    "@vercel/analytics": "^0.1.6",
     "classnames": "2.3.2",
     "date-fns": "2.29.3",
     "feed": "^4.2.2",
