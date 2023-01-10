@@ -46,7 +46,7 @@ function _App({ Component, pageProps }: AppContext & AppInitialProps) {
         <main>
           <Component {...pageProps} />
         </main>
-        <Footer theme={theme} />
+        <Footer />
       </div>
       <Analytics />
       <Script

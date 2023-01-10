@@ -1,15 +1,9 @@
 import { useAmp } from 'next/amp'
-import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
-import { Theme } from 'lib/types'
 import styles from 'styles/Footer.module.scss'
 
-type FooterProps = {
-  theme: Theme
-}
-
-export const Footer = (props: FooterProps) => {
+export const Footer = () => {
   const isAmp = useAmp()
 
   return !isAmp ? (
