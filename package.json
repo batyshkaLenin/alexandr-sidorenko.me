@@ -43,7 +43,7 @@
     "remark-html": "15.0.1",
     "sass": "1.56.1",
     "sharp": "^0.31.3",
-    "swr": "1.3.0"
+    "swr": "2.0.0"
   },
   "devDependencies": {
     "@feature-sliced/eslint-config": "^0.1.0-beta.6",
