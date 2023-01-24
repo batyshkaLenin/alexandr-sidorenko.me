@@ -5,4 +5,4 @@ export enum Locale {
   EN = 'en',
 }
 
-export type LocalesKeys = keyof typeof locales[Locale]
+export type LocalesKeys = keyof (typeof locales)[Locale]
