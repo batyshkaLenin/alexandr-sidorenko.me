@@ -18,11 +18,15 @@ type DocumentFiles = {
   allFiles: readonly string[]
 }
 
+type CrossOrigin = '' | 'anonymous' | 'use-credentials' | undefined
+
 /**
  * Custom NextScript to defer loading of unnecessary JS.
  * Standard behavior is async. Compatible with Next.js 10.0.3
  */
 class DeferNextScript extends NextScript {
+  crossOrigin: CrossOrigin = (this.props.crossOrigin ||
+    process.env.__NEXT_CROSS_ORIGIN) as CrossOrigin
   getDynamicChunks(files: DocumentFiles) {
     const {
       dynamicImports,
@@ -38,9 +42,7 @@ class DeferNextScript extends NextScript {
       return (
         <script
           key={bundle.file}
-          crossOrigin={
-            this.props.crossOrigin || process.env.__NEXT_CROSS_ORIGIN
-          }
+          crossOrigin={this.crossOrigin}
           defer={!isDevelopment}
           nonce={this.props.nonce}
           src={`${assetPrefix}/_next/${encodeURI(
@@ -66,7 +68,7 @@ class DeferNextScript extends NextScript {
     return [...normalScripts, ...lowPriorityScripts].map((file) => (
       <script
         key={file}
-        crossOrigin={this.props.crossOrigin || process.env.__NEXT_CROSS_ORIGIN}
+        crossOrigin={this.crossOrigin}
         defer={!isDevelopment}
         nonce={this.props.nonce}
         src={`${assetPrefix}/_next/${encodeURI(
