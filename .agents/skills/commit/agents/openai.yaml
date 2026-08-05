@@ -1,4 +1,4 @@
 interface:
   display_name: "Create Conventional Commit"
   short_description: "Prepare and create a Conventional Commit"
-  default_prompt: "Use $commit to prepare the repository and create a detailed Conventional Commit."
+  default_prompt: "Use $commit to prepare the repository and create a focused Conventional Commit."

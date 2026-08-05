@@ -27,11 +27,25 @@ Prepare the current index safely. Do not create a commit, tag, release, or push.
 3. Stop on unresolved conflicts, an unfinished merge/rebase/cherry-pick that
    requires user action, or the absence of a Git repository. Preserve all
    existing changes; never reset, restore, clean, or overwrite them.
+4. Resolve the language for commit and changelog prose in this order:
+   - an explicit language rule in the applicable `AGENTS.md`, otherwise the
+     predominant natural language of its instructions;
+   - the predominant language of other applicable repository documentation;
+   - the established language of recent relevant, non-automated commits;
+   - English when no reliable convention exists.
+   Prefer the nearest applicable instruction file in a nested repository. Do
+   not use the conversation language merely because the user invoked the skill
+   in that language.
 
 ## 2. Reconcile the index with the user
 
 Interpret "not in the index" as both unstaged tracked changes and untracked
 files, including the unstaged portion of a partially staged file.
+
+Treat Git-ignored paths that remain outside the index as outside the commit.
+Do not inspect or summarize their contents, use them to infer the change, or
+mention them in a changelog or commit message. Mention an ignored path to the
+user only when needed to explain staging scope or a missing requested file.
 
 - If the user already explicitly authorized committing everything, review for
   obvious secrets, credentials, unexpectedly large files, generated artifacts,
@@ -82,11 +96,26 @@ files, including the unstaged portion of a partially staged file.
 2. Follow the existing format and release workflow. Update `Unreleased` when
    that is the established convention; otherwise add the new version and ISO
    date in the established style.
-3. Derive entries from the staged diff and relevant session context. Describe
-   user-visible behavior accurately; do not invent changes, issue numbers, or
-   validation results.
-4. Update each affected package's changelog when the repository requires it.
-5. Stage version files, lockfiles, changelog entries, and release fragments
+3. Use the resolved repository language while preserving the changelog's
+   established terminology and structure. An explicit repository instruction
+   overrides a conflicting historical convention.
+4. Curate entries from the staged diff and use relevant session context only
+   to clarify their impact. Record changes notable to consumers: additions,
+   behavior changes, deprecations, removals, fixes, and security changes. Group
+   related work and order it by importance instead of copying the commit log or
+   listing files.
+5. Exclude implementation noise and changes without meaningful consumer
+   impact, such as validation or test results, commands run, formatting-only
+   edits, routine maintenance, generated metadata, and ignored paths. Include
+   internal work only when it materially changes compatibility, support,
+   performance, security, distribution, or documented usage. Never invent
+   changes, issue numbers, or outcomes.
+6. Follow the existing category set. When establishing a Keep a Changelog
+   structure, use `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, and
+   `Security`; when the project explicitly follows Common Changelog, use its
+   `Changed`, `Added`, `Removed`, and `Fixed` categories.
+7. Update each affected package's changelog when the repository requires it.
+8. Stage version files, lockfiles, changelog entries, and release fragments
    created by this workflow without asking again, then explicitly tell the user
    which files were added to the index and why.
 
@@ -141,3 +170,5 @@ Leave the repository ready for a separate commit step.
 - [Git status](https://git-scm.com/docs/git-status)
 - [Git hooks](https://git-scm.com/docs/githooks)
 - [Semantic Versioning 2.0.0](https://semver.org/)
+- [Common Changelog](https://common-changelog.org/)
+- [Keep a Changelog 2.0.0](https://keepachangelog.com/en/2.0.0/)

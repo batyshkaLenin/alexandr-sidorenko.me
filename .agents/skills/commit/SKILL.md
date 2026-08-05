@@ -1,7 +1,7 @@
 ---
 name: commit
 description: >-
-  Prepare repository changes and create a detailed Conventional Commit. Use
+  Prepare repository changes and create a focused Conventional Commit. Use
   when the user asks to commit current work, create a Git commit, or turn the
   session's completed changes into a commit while preserving repository rules,
   hooks, versioning, changelog updates, and explicit staging consent.
@@ -28,8 +28,9 @@ checks, reports conflicts, or leaves the intended index ambiguous.
    state.
 2. Use relevant session context to understand intent and rationale, but verify
    every factual claim against the staged snapshot.
-3. Inspect recent commit subjects and repository instructions for established
-   language, scope names, line length, and footer conventions.
+3. Use the language resolved by the `pre-commit` workflow. Inspect recent
+   commit subjects and repository instructions for established scope names,
+   line length, and footer conventions.
 4. Stop if the index is empty or contains unrelated changes that cannot be
    described as one coherent commit. Ask whether to split genuinely independent
    changes instead of hiding them under a vague message.
@@ -41,7 +42,7 @@ Follow Conventional Commits:
 ```text
 <type>[optional scope][!]: <concise description>
 
-<detailed body explaining what changed and why>
+[optional body]
 
 [optional footer(s)]
 ```
@@ -63,12 +64,19 @@ Use `!` and a `BREAKING CHANGE: ...` footer for incompatible changes. Add issue
 or review trailers only when known. Never fabricate them.
 
 Write a specific imperative subject, normally no more than 72 characters and
-without a trailing period unless repository rules say otherwise. Use the
-project's established commit language; if none exists, use the user's language.
+without a trailing period unless repository rules say otherwise.
 
-Provide a real body, not a restatement of the subject. Summarize the meaningful
-changes, motivation, important compatibility or migration details, and the
-validation actually performed. Avoid a mechanical file-by-file inventory.
+Keep the message limited to information important for understanding the
+committed change. Add a body only when it contributes material context that is
+not clear from the subject, such as motivation, user impact, design rationale,
+compatibility, or migration requirements. A body is optional; never pad it to
+make the message appear detailed.
+
+Describe only the staged snapshot. Do not mention ignored or uncommitted
+changes, validation or test results, commands run, hook status, a mechanical
+file inventory, release-workflow bookkeeping, or the process used to create the
+commit. Do not restate the subject. Use footers only for actual trailers and
+breaking-change information.
 
 ## 4. Commit safely
 
