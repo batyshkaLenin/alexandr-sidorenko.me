@@ -56,4 +56,5 @@ next-env.d.ts
 tmp/
 
 # AI
-PLAN.md
+.ai/
+.claude

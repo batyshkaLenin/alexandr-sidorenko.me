@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare Commit"
+  short_description: "Stage, version, changelog, and validate changes"
+  default_prompt: "Use $pre-commit to prepare the current repository for a safe commit."
