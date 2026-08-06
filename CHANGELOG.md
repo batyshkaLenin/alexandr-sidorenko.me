@@ -26,7 +26,7 @@ This project has no public releases yet, so entries are tracked under
   (h-card, h-entry, h-feed).
 - Web app manifest, favicon and touch icons, and Webmention discovery.
 - A cleanup service worker (`/sw.js`) that unregisters the old Workbox
-  worker and clears its caches for returning visitors.
+  worker for returning visitors without touching Cache Storage.
 
 ### Changed
 
