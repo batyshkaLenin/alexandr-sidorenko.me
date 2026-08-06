@@ -6,6 +6,7 @@ line breaks:
 ```sh
 hugo build --gc --minify --panicOnWarning --environment preview
 python3 scripts/check-content-parity.py
+python3 scripts/check-feed-contract.py
 ```
 
 The checker normalizes front matter, HTML provenance comments, Markdown hard-break
@@ -15,9 +16,10 @@ read-only `tmp/old_project` checkout is present, it also performs a live normali
 old/current body comparison.
 
 The rendered snapshot counts `<br>` boundaries independently in page HTML, RSS,
-and JSON Feed. It covers poem, poetry collection, lyrics, prose link list,
-bibliography, and ordinary prose soft-wrap fixtures. Global Goldmark `hardWraps`
-must remain disabled.
+and JSON Feed. Warning-gated publications retain their boundaries in page HTML
+but intentionally expose no body breaks in feeds. The snapshot covers poem,
+poetry collection, lyrics, prose link list, bibliography, and ordinary prose
+soft-wrap fixtures. Global Goldmark `hardWraps` must remain disabled.
 
 Reviewed intentional differences:
 
@@ -25,3 +27,8 @@ Reviewed intentional differences:
 - `creativity/skver`: the source-only provenance comment is excluded from the body
   comparison; it records that the legacy English source remains read-only and its
   former URL is neither published nor redirected.
+
+The feed contract check parses RSS and JSON Feed, verifies that warning-gated
+bodies are absent while page HTML retains them, compares warning-safe card/feed
+summaries, rejects root-relative embedded URLs, and checks audio MIME and byte
+length against the referenced static file. Plain publications remain full-text.

@@ -1,0 +1,15 @@
+{{- $attachments := slice -}}
+{{- range .Params.audio -}}
+  {{- $src := .src -}}
+  {{- $type := .type -}}
+  {{- if not $src }}{{ errorf "audio entry on %s is missing src" $.Path }}{{ end -}}
+  {{- if not $type }}{{ errorf "audio entry %s on %s is missing type" $src $.Path }}{{ end -}}
+  {{- $attachment := dict "url" ($src | absURL) "mime_type" $type -}}
+  {{- if hasPrefix $src "/" -}}
+    {{- $file := os.Stat (printf "static%s" $src) -}}
+    {{- if not $file }}{{ errorf "audio file %s referenced by %s does not exist" $src $.Path }}{{ end -}}
+    {{- $attachment = merge $attachment (dict "size_in_bytes" $file.Size) -}}
+  {{- end -}}
+  {{- $attachments = $attachments | append $attachment -}}
+{{- end -}}
+{{- return $attachments -}}

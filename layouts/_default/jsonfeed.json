@@ -6,16 +6,18 @@
       {{- $authors = $authors | append (dict "name" .name) }}
     {{- end }}
   {{- end }}
+  {{- $attachments := partial "publication/audio.html" . }}
   {{- $item := dict
     "id" .Permalink
     "url" .Permalink
     "title" .Title
-    "content_html" (.Content | string)
-    "summary" .Description
+    "content_html" (partial "publication/feed-content.html" . | string)
+    "summary" (partial "publication/summary.txt" .)
     "date_published" (.Date.Format "2006-01-02T15:04:05Z07:00")
   }}
   {{- with .Lastmod }}{{ $item = merge $item (dict "date_modified" (.Format "2006-01-02T15:04:05Z07:00")) }}{{ end }}
   {{- if gt (len $authors) 0 }}{{ $item = merge $item (dict "authors" $authors) }}{{ end }}
+  {{- if gt (len $attachments) 0 }}{{ $item = merge $item (dict "attachments" $attachments) }}{{ end }}
   {{- $items = $items | append $item }}
 {{- end }}
 {{- $self := .OutputFormats.Get "jsonfeed" }}

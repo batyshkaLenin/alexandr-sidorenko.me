@@ -13,26 +13,16 @@
   <img class="u-photo" src="{{ . }}" alt="" width="1200" height="630" loading="lazy" decoding="async">
   {{ end }}
 
-  {{ with .Params.audio }}
-  {{ range . }}
-  <p><audio controls preload="none" src="{{ . }}">
-    <a href="{{ . }}">{{ . }}</a>
-  </audio></p>
-  {{ end }}
-  {{ end }}
-
   {{ $warnings := .Params.content_warnings }}
   {{ if $warnings }}
   <details>
-    <summary>Содержит предупреждения о содержании — раскрыть</summary>
-    <ul class="content-warnings">
-      {{ range $warnings }}
-      <li>{{ with index hugo.Data.content_warnings . }}{{ . }}{{ else }}{{ . }}{{ end }}</li>
-      {{ end }}
-    </ul>
+    <summary>{{ partial "publication/summary.txt" . }}</summary>
+    {{ partial "publication/warnings.html" . }}
+    {{ partial "publication/audio-player.html" . }}
     <div class="e-content">{{ .Content }}</div>
   </details>
   {{ else }}
+  {{ partial "publication/audio-player.html" . }}
   <div class="e-content">{{ .Content }}</div>
   {{ end }}
 </article>

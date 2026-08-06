@@ -188,7 +188,7 @@ def main() -> int:
             errors,
             f"{publication_id} HTML breaks",
             page_break_count(html_path),
-            publication["rendered_breaks"],
+            publication["html_breaks"],
         )
 
         url = SITE_ORIGIN + publication["url_path"].lstrip("/")
@@ -196,13 +196,13 @@ def main() -> int:
             errors,
             f"{publication_id} RSS breaks",
             len(BR.findall(rss.get(url, ""))),
-            publication["rendered_breaks"],
+            publication["feed_breaks"],
         )
         check_equal(
             errors,
             f"{publication_id} JSON Feed breaks",
             len(BR.findall(json_feed.get(url, ""))),
-            publication["rendered_breaks"],
+            publication["feed_breaks"],
         )
 
     skver = (root / "content/creativity/skver.md").read_text()

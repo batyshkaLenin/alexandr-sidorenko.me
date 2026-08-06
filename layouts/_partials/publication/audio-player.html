@@ -1,0 +1,5 @@
+{{- range partial "publication/audio.html" . }}
+<p><audio controls preload="none" src="{{ .url }}">
+  <a href="{{ .url }}">{{ .url }}</a>
+</audio></p>
+{{- end }}

@@ -18,7 +18,8 @@ This project has no public releases yet, so entries are tracked under
 - Footer social links and an environment-aware `robots.txt` that disallows
   crawling outside production builds.
 - Cloudflare Workers Static Assets preview deployment.
-- Full-text RSS and JSON Feed 1.1, site-wide and per section.
+- RSS and JSON Feed 1.1, site-wide and per section, with full publication text
+  where the content-warning policy permits it.
 - Sitemap driven by real per-page `lastmod`, not build time.
 - Open Graph and Twitter Card metadata, schema.org JSON-LD
   (ProfilePage/BlogPosting/CreativeWork), and microformats2 markup
@@ -37,7 +38,11 @@ This project has no public releases yet, so entries are tracked under
 ### Fixed
 
 - Migrated poetry, lyrics, link lists, and bibliography entries now preserve
-  their authored line breaks consistently in page HTML, RSS, and JSON Feed.
+  their authored line breaks consistently in page HTML and in feeds where the
+  publication body is permitted.
+- RSS, JSON Feed, and publication cards now honor content warnings without
+  leaking gated excerpts; feed media uses absolute URLs and complete audio
+  attachment metadata when available.
 - Byline username text failed WCAG AA contrast in light mode (~4:1) due
   to two stacked `opacity` values multiplying; now a single flat value
   with contrast well above 4.5:1 in both themes.

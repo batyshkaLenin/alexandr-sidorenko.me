@@ -7,7 +7,9 @@ lastmod: 2022-11-03
 authors: ["unborned"]
 creative_type: "single"
 cover: "/assets/creativity/regular-visitor/mattew-with-yamaha-46yo.jpg"
-audio: ["/assets/creativity/regular-visitor/Постоянщик.mp3"]
+audio:
+  - src: "/assets/creativity/regular-visitor/Постоянщик.mp3"
+    type: "audio/mpeg"
 content_warnings: ["addict"]
 draft: false
 uid: "https://alexandr-sidorenko.me/creativity/regular-visitor"
@@ -17,16 +19,16 @@ uid: "https://alexandr-sidorenko.me/creativity/regular-visitor"
 На гитаре играем песни свои,\
 Пока в сигарете тихо вечность горит.\
 Уставшие тени нас ведут в хоровод\
-И на сморщенной вене моя юность умрёт.\
+И на сморщенной вене моя юность умрёт.
 
 Мы проиграем свои жизни в нарды:\
 Кто-то на басу, кто-то на ударных.\
 В нашей группе "Просто Пошёл Нахуй"\
-Играют обрыганы, играют обрыганы.\
+Играют обрыганы, играют обрыганы.
 
 В расстёгнутой куртке, с незавязанным шарфом,\
 Идёт постоянщик приклеенный к бару.\
 Возьмёт своё пиво, то, что покрепче.\
 И отпустит свой груз, что впивается в плечи.\
 Подмигнёт ему бармен, все грехи отпуская:\
-Ты прописан в бутлеге, нам тебя не хватает!\
+Ты прописан в бутлеге, нам тебя не хватает!

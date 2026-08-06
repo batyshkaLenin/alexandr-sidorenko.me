@@ -1,0 +1,7 @@
+{{- with .Params.content_warnings }}
+<ul class="content-warnings">
+  {{- range . }}
+  <li>{{ with index hugo.Data.content_warnings . }}{{ . }}{{ else }}{{ . }}{{ end }}</li>
+  {{- end }}
+</ul>
+{{- end }}

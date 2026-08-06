@@ -1,0 +1,286 @@
+#!/usr/bin/env python3
+"""Verify warning, embedded URL, and audio metadata contracts in generated feeds."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+import xml.etree.ElementTree as ET
+from html.parser import HTMLParser
+from pathlib import Path
+from urllib.parse import quote, urljoin
+
+SITE_ORIGIN = "https://alexandr-sidorenko.me/"
+CONTENT_NS = "{http://purl.org/rss/1.0/modules/content/}encoded"
+EMBEDDED_URL = re.compile(r"(?:href|src)=[\"']([^\"']+)", re.IGNORECASE)
+
+
+class CardParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.cards: dict[str, str] = {}
+        self._card: dict[str, str] | None = None
+        self._summary: list[str] | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = dict(attrs)
+        classes = (attributes.get("class") or "").split()
+        if tag == "li" and "h-entry" in classes:
+            self._card = {}
+        elif self._card is not None and tag == "a" and "p-name" in classes:
+            self._card["href"] = attributes.get("href") or ""
+        elif self._card is not None and tag == "p" and "p-summary" in classes:
+            self._summary = []
+
+    def handle_data(self, data: str) -> None:
+        if self._summary is not None:
+            self._summary.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "p" and self._summary is not None and self._card is not None:
+            self._card["summary"] = " ".join("".join(self._summary).split())
+            self._summary = None
+        elif tag == "li" and self._card is not None:
+            href = self._card.get("href")
+            if href:
+                self.cards[urljoin(SITE_ORIGIN, href)] = self._card.get("summary", "")
+            self._card = None
+
+
+class SummaryParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.summaries: list[str] = []
+        self._current: list[str] | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "summary":
+            self._current = []
+
+    def handle_data(self, data: str) -> None:
+        if self._current is not None:
+            self._current.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "summary" and self._current is not None:
+            self.summaries.append(" ".join("".join(self._current).split()))
+            self._current = None
+
+
+def normalized(value: str) -> str:
+    return " ".join(value.split())
+
+
+def check(errors: list[str], condition: bool, message: str) -> None:
+    if not condition:
+        errors.append(message)
+
+
+def rss_items(public_dir: Path) -> dict[str, dict[str, object]]:
+    root = ET.parse(public_dir / "feed.xml").getroot()
+    result: dict[str, dict[str, object]] = {}
+    for item in root.findall("./channel/item"):
+        url = item.findtext("link")
+        if url:
+            result[url] = {
+                "summary": item.findtext("description") or "",
+                "content": item.findtext(CONTENT_NS) or "",
+                "enclosures": [element.attrib for element in item.findall("enclosure")],
+            }
+    return result
+
+
+def json_items(public_dir: Path) -> dict[str, dict[str, object]]:
+    feed = json.loads((public_dir / "feed.json").read_text())
+    return {item["url"]: item for item in feed["items"]}
+
+
+def card_summaries(public_dir: Path) -> dict[str, str]:
+    parser = CardParser()
+    for section in ("posts", "creativity"):
+        parser.feed((public_dir / section / "index.html").read_text())
+    return parser.cards
+
+
+def expected_audio(root: Path, audio: dict[str, str]) -> dict[str, object]:
+    source = audio["src"]
+    static_file = root / "static" / source.lstrip("/")
+    return {
+        "url": SITE_ORIGIN.rstrip("/") + quote(source, safe="/"),
+        "mime_type": audio["type"],
+        "size_in_bytes": static_file.stat().st_size,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--root", type=Path, default=Path(__file__).resolve().parents[1]
+    )
+    parser.add_argument("--public-dir", type=Path, default=Path("public"))
+    parser.add_argument(
+        "--fixture", type=Path, default=Path("tests/fixtures/feed-contract.json")
+    )
+    args = parser.parse_args()
+
+    root = args.root.resolve()
+    public_dir = (
+        args.public_dir if args.public_dir.is_absolute() else root / args.public_dir
+    )
+    fixture_path = args.fixture if args.fixture.is_absolute() else root / args.fixture
+    fixture = json.loads(fixture_path.read_text())
+    warning_summary = fixture["warning_summary"]
+    rss = rss_items(public_dir)
+    json_feed = json_items(public_dir)
+    cards = card_summaries(public_dir)
+    errors: list[str] = []
+
+    check(errors, len(rss) == len(fixture["items"]), "RSS item count changed")
+    check(
+        errors, len(json_feed) == len(fixture["items"]), "JSON Feed item count changed"
+    )
+
+    for item in fixture["items"]:
+        item_id = item["id"]
+        url = urljoin(SITE_ORIGIN, item["url_path"].lstrip("/"))
+        check(errors, url in rss, f"{item_id}: missing RSS item")
+        check(errors, url in json_feed, f"{item_id}: missing JSON Feed item")
+        check(errors, url in cards, f"{item_id}: missing section card")
+        if url not in rss or url not in json_feed:
+            continue
+
+        rss_item = rss[url]
+        json_item = json_feed[url]
+        rss_content = str(rss_item["content"])
+        json_content = str(json_item["content_html"])
+        check(
+            errors,
+            normalized(rss_content) == normalized(json_content),
+            f"{item_id}: RSS and JSON Feed content differ",
+        )
+        check(
+            errors,
+            str(rss_item["summary"]) == str(json_item["summary"]) == cards.get(url),
+            f"{item_id}: feed and card summaries differ",
+        )
+
+        if item["warning"]:
+            page_html = (public_dir / item["html"]).read_text()
+            summary_parser = SummaryParser()
+            summary_parser.feed(page_html)
+            check(
+                errors,
+                item["body_marker"] not in rss_content,
+                f"{item_id}: gated body leaked into RSS",
+            )
+            check(
+                errors,
+                item["body_marker"] not in json_content,
+                f"{item_id}: gated body leaked into JSON Feed",
+            )
+            check(
+                errors,
+                item["body_marker"] in page_html,
+                f"{item_id}: gated body missing from page HTML",
+            )
+            check(
+                errors,
+                warning_summary in rss_content,
+                f"{item_id}: RSS warning missing",
+            )
+            check(
+                errors,
+                warning_summary in json_content,
+                f"{item_id}: JSON Feed warning missing",
+            )
+            check(
+                errors,
+                summary_parser.summaries == [warning_summary],
+                f"{item_id}: page warning summary differs",
+            )
+            check(
+                errors,
+                cards.get(url) == warning_summary,
+                f"{item_id}: card leaks its editorial summary",
+            )
+            if item.get("audio"):
+                details_start = page_html.find("<details")
+                details_end = page_html.find("</details>", details_start)
+                audio_start = page_html.find("<audio")
+                check(
+                    errors,
+                    details_start < audio_start < details_end,
+                    f"{item_id}: HTML audio bypasses the warning disclosure",
+                )
+        else:
+            check(
+                errors,
+                item["body_marker"] in rss_content,
+                f"{item_id}: full RSS body missing",
+            )
+            check(
+                errors,
+                item["body_marker"] in json_content,
+                f"{item_id}: full JSON Feed body missing",
+            )
+
+        for content_name, content in (
+            ("RSS", rss_content),
+            ("JSON Feed", json_content),
+        ):
+            relative = [
+                value
+                for value in EMBEDDED_URL.findall(content)
+                if value.startswith("/")
+            ]
+            check(
+                errors,
+                not relative,
+                f"{item_id}: {content_name} has relative URLs {relative}",
+            )
+            for expected_url in item.get("expected_urls", []):
+                check(
+                    errors,
+                    expected_url in content,
+                    f"{item_id}: {content_name} lost {expected_url}",
+                )
+
+        enclosures = list(rss_item["enclosures"])
+        attachments = list(json_item.get("attachments", []))
+        if audio := item.get("audio"):
+            expected = expected_audio(root, audio)
+            check(
+                errors,
+                attachments == [expected],
+                f"{item_id}: JSON attachment metadata differs",
+            )
+            expected_enclosure = {
+                "url": expected["url"],
+                "type": expected["mime_type"],
+                "length": str(expected["size_in_bytes"]),
+            }
+            check(
+                errors,
+                enclosures == [expected_enclosure],
+                f"{item_id}: RSS enclosure metadata differs",
+            )
+        else:
+            check(errors, not attachments, f"{item_id}: unexpected JSON attachments")
+            check(errors, not enclosures, f"{item_id}: unexpected RSS enclosures")
+
+    if errors:
+        print("Feed contract check failed:", file=sys.stderr)
+        for error in errors:
+            print(f"- {error}", file=sys.stderr)
+        return 1
+
+    print(
+        f"OK: {len(fixture['items'])} feed items; warning, URL, audio, XML and JSON contracts"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
