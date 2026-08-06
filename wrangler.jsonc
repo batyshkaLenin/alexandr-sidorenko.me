@@ -1,0 +1,12 @@
+{
+  // Cloudflare Workers project name (becomes <name>.<subdomain>.workers.dev for preview)
+  "name": "alexandr-sidorenko-me",
+  "compatibility_date": "2026-08-06",
+  "build": {
+    "command": "chmod a+x build.sh && ./build.sh"
+  },
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page"
+  }
+}

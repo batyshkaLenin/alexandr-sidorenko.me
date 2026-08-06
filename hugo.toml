@@ -1,0 +1,25 @@
+baseURL = 'https://alexandr-sidorenko.me/'
+locale = 'ru-RU'
+title = 'Александр Сидоренко'
+copyright = '© Александр Сидоренко'
+enableGitInfo = true
+enableEmoji = false
+enableRobotsTXT = true
+
+[params]
+  description = 'Блог и творчество Александра Сидоренко: заметки и статьи о разработке, музыке и жизни.'
+  author = 'Александр Сидоренко'
+
+[taxonomies]
+  tag = 'tags'
+
+[outputs]
+  home = ['html']
+  section = ['html']
+  page = ['html']
+
+[minify]
+  disableXML = true
+
+[markup.goldmark.renderer]
+  unsafe = false

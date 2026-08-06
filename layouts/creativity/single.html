@@ -1,0 +1,36 @@
+{{ define "main" }}
+<article>
+  <h1>{{ .Title }}</h1>
+  <p>
+    <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_long" }}</time>
+    {{ with .Params.creative_type }} · {{ with index hugo.Data.creative_types . }}{{ . }}{{ else }}{{ . }}{{ end }}{{ end }}
+  </p>
+  {{ partial "byline.html" . }}
+  {{ with .Params.cover }}
+  <img src="{{ . }}" alt="" width="1200" height="630" loading="lazy" decoding="async">
+  {{ end }}
+
+  {{ with .Params.audio }}
+  {{ range . }}
+  <p><audio controls preload="none" src="{{ . }}">
+    <a href="{{ . }}">{{ . }}</a>
+  </audio></p>
+  {{ end }}
+  {{ end }}
+
+  {{ $warnings := .Params.content_warnings }}
+  {{ if $warnings }}
+  <details>
+    <summary>Содержит предупреждения о содержании — раскрыть</summary>
+    <ul class="content-warnings">
+      {{ range $warnings }}
+      <li>{{ with index hugo.Data.content_warnings . }}{{ . }}{{ else }}{{ . }}{{ end }}</li>
+      {{ end }}
+    </ul>
+    {{ .Content }}
+  </details>
+  {{ else }}
+  {{ .Content }}
+  {{ end }}
+</article>
+{{ end }}

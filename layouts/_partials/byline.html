@@ -1,0 +1,5 @@
+{{ range .Params.authors }}
+  {{ with index hugo.Data.authors . }}
+  <p class="byline">{{ .name }} <span class="username">@{{ .username }}</span></p>
+  {{ end }}
+{{ end }}

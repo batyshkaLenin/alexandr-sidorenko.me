@@ -1,0 +1,58 @@
+# Перенесено из src/components/layout/Footer.tsx (footer: true, видимые
+# иконки) и src/components/Helmet/index.tsx (остальные rel=me — были
+# только в <head>, не в UI). Все — идентичность batyshkaLenin/
+# Александр Сидоренко. footer:true рендерится в подвале сайта;
+# полный список с rel:"me" пойдёт в <link rel="me"> в Фазе 4.
+
+- label: "GitHub"
+  url: "https://github.com/batyshkaLenin"
+  rel: "me"
+  footer: true
+- label: "ВКонтакте"
+  url: "https://vk.com/batyshkalenin"
+  rel: "me"
+  footer: true
+- label: "SoundCloud"
+  url: "https://soundcloud.com/better_not_be_born"
+  rel: "me"
+  footer: true
+- label: "Twitter"
+  url: "https://twitter.com/batyshkaLenin"
+  rel: "me"
+  footer: true
+- label: "Telegram"
+  url: "https://t.me/batyshka_Lenin"
+  rel: "me"
+  footer: true
+- label: "Mastodon"
+  url: "https://merveilles.town/@batyshkaLenin"
+  rel: "me"
+  footer: false
+- label: "LinkedIn"
+  url: "https://www.linkedin.com/in/alexandr-sidorenko/"
+  rel: "me"
+  footer: false
+- label: "Хабр Карьера"
+  url: "https://career.habr.com/batyshkalenin"
+  rel: "me"
+  footer: false
+- label: "TikTok"
+  url: "https://www.tiktok.com/@batyshkalenin"
+  rel: "me"
+  footer: false
+- label: "hh.ru"
+  url: "https://hh.ru/applicant/resumes/view?resume=6700a5c7ff0594c2ba0039ed1f425a6c4a7771"
+  rel: "me"
+  footer: false
+- label: "Instagram"
+  url: "https://www.instagram.com/alexander_sidorenko/"
+  rel: "me"
+  footer: false
+- label: "Facebook"
+  url: "https://www.facebook.com/sidorenko.alexandr"
+  rel: "me"
+  footer: false
+- label: "Steam"
+  url: "https://steamcommunity.com/id/batyshkaLenin/"
+  rel: "me"
+  footer: false

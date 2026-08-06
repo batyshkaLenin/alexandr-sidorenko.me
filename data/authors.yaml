@@ -1,0 +1,31 @@
+# Перенесено как есть из старого сайта (src/lib/locales/ru.tsx,
+# src/lib/markdown/getPost.ts, getCreativity.ts). Оба идентификатора —
+# один и тот же человек с разным публичным username по типу контента.
+# Финальная публичная форма — открытый вопрос, см.
+# .ai/adr/redesign-author-identities-deferred.md.
+
+batyshkaLenin:
+  name: "Александр Сидоренко"
+  username: "batyshkaLenin"
+  city: "Новосибирск"
+  country: "Россия"
+  avatar: "/avatar.jpg"
+  avatar_alt: "Александр Сидоренко в мексиканской шляпе и с банджо в руках"
+  note: >-
+    Программист, усопший вождь, взломщик. Участник хакатонов и CTF.
+  used_for: ["posts"]
+  # Полный список rel=me — data/links.yaml (там же единственный источник
+  # правды, чтобы не расходиться с этим списком).
+
+unborned:
+  name: "Александр Сидоренко"
+  username: "unborned"
+  city: "Новосибирск"
+  country: "Россия"
+  avatar: "/avatar.jpg"
+  avatar_alt: "Александр Сидоренко в мексиканской шляпе и с банджо в руках"
+  note: >-
+    Пишу музыку, стихи и рассказы.
+  used_for: ["creativity"]
+  # unborned не использовался с rel=me на старом сайте — все ссылки
+  # в data/links.yaml привязаны к batyshkaLenin.

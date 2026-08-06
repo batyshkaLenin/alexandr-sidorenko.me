@@ -1,0 +1,12 @@
+{{ define "main" }}
+<article>
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+</article>
+<nav aria-label="Разделы">
+  <ul>
+    <li><a href="{{ "/posts" | relLangURL }}">Блог</a></li>
+    <li><a href="{{ "/creativity" | relLangURL }}">Творчество</a></li>
+  </ul>
+</nav>
+{{ end }}

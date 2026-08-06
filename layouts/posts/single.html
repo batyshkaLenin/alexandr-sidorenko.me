@@ -1,0 +1,16 @@
+{{ define "main" }}
+<article>
+  <h1>{{ .Title }}</h1>
+  <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_long" }}</time>
+  {{ partial "byline.html" . }}
+  {{ with .Params.cover }}
+  <img src="{{ . }}" alt="" width="1200" height="630" loading="lazy" decoding="async">
+  {{ end }}
+  {{ .Content }}
+  {{ with .Params.tags }}
+  <ul class="tags">
+    {{ range . }}<li>{{ . }}</li>{{ end }}
+  </ul>
+  {{ end }}
+</article>
+{{ end }}

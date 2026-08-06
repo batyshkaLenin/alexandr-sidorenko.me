@@ -7,3 +7,11 @@ tmp/
 # AI
 .ai/
 .claude
+
+# Hugo
+/public/
+/resources/
+.hugo_build.lock
+
+# Wrangler
+.wrangler/
