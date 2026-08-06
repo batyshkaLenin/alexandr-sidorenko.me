@@ -1,13 +1,16 @@
 {{ define "main" }}
-<article>
-  <h1>{{ .Title }}</h1>
+<article class="h-entry">
+  <h1 class="p-name">{{ .Title }}</h1>
   <p>
-    <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_long" }}</time>
+    <a class="u-url u-uid" href="{{ .Permalink }}">
+      <time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date | time.Format ":date_long" }}</time>
+    </a>
+    {{ with .Lastmod }}<time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>{{ end }}
     {{ with .Params.creative_type }} · {{ with index hugo.Data.creative_types . }}{{ . }}{{ else }}{{ . }}{{ end }}{{ end }}
   </p>
   {{ partial "byline.html" . }}
   {{ with .Params.cover }}
-  <img src="{{ . }}" alt="" width="1200" height="630" loading="lazy" decoding="async">
+  <img class="u-photo" src="{{ . }}" alt="" width="1200" height="630" loading="lazy" decoding="async">
   {{ end }}
 
   {{ with .Params.audio }}
@@ -27,10 +30,10 @@
       <li>{{ with index hugo.Data.content_warnings . }}{{ . }}{{ else }}{{ . }}{{ end }}</li>
       {{ end }}
     </ul>
-    {{ .Content }}
+    <div class="e-content">{{ .Content }}</div>
   </details>
   {{ else }}
-  {{ .Content }}
+  <div class="e-content">{{ .Content }}</div>
   {{ end }}
 </article>
 {{ end }}

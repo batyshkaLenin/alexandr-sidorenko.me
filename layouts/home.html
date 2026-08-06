@@ -1,7 +1,11 @@
 {{ define "main" }}
-<article>
-  <h1>{{ .Title }}</h1>
-  {{ .Content }}
+<article class="h-card">
+  <img class="u-photo" src="{{ "/avatar.jpg" | absURL }}" alt="{{ .Site.Params.author }}" width="200" height="200" loading="lazy" decoding="async">
+  <h1 class="p-name">{{ .Title }}</h1>
+  <a class="u-url" rel="me" href="{{ .Site.BaseURL }}">{{ .Site.BaseURL }}</a>
+  <div class="p-note">
+    {{ .Content }}
+  </div>
 </article>
 <nav aria-label="Разделы">
   <ul>

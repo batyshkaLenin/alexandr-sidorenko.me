@@ -1,8 +1,39 @@
+{{ $title := cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title) }}
+{{ $description := cond (ne .Description "") .Description .Site.Params.description }}
+{{ $image := cond (ne (.Params.cover | default "") "") (.Params.cover | absURL) (absURL "/avatar.jpg") }}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} — {{ .Site.Title }}{{ end }}</title>
-<meta name="description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<title>{{ $title }}</title>
+<meta name="description" content="{{ $description }}">
 <link rel="canonical" href="{{ .Permalink }}">
 {{ with (resources.Get "css/main.css") | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
+{{ if or .IsHome (eq .Kind "section") }}
+{{ with .OutputFormats.Get "rss" }}<link rel="alternate" type="{{ .MediaType }}" href="{{ .Permalink }}" title="RSS">{{ end }}
+{{ with .OutputFormats.Get "jsonfeed" }}<link rel="alternate" type="{{ .MediaType }}" href="{{ .Permalink }}" title="JSON Feed">{{ end }}
+{{ end }}
+
+<link rel="icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/logo192.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#070707">
+
+<meta property="og:type" content="{{ if eq .Kind "page" }}article{{ else }}website{{ end }}">
+<meta property="og:site_name" content="{{ .Site.Title }}">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="{{ $title }}">
+<meta property="og:description" content="{{ $description }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:image" content="{{ $image }}">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $title }}">
+<meta name="twitter:description" content="{{ $description }}">
+<meta name="twitter:image" content="{{ $image }}">
+<meta name="twitter:site" content="@batyshkaLenin">
+<meta name="twitter:creator" content="@batyshkaLenin">
+
+<link rel="webmention" href="https://webmention.io/alexandr-sidorenko.me/webmention">
+
+{{ partial "schema.html" . }}

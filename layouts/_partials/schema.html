@@ -1,0 +1,32 @@
+{{ $author := dict "@type" "Person" "name" .Site.Params.author "url" .Site.BaseURL }}
+{{ if .IsHome }}
+{{ $json := dict
+  "@context" "https://schema.org"
+  "@type" "ProfilePage"
+  "mainEntity" (dict
+    "@type" "Person"
+    "name" .Site.Params.author
+    "url" .Site.BaseURL
+    "description" .Site.Params.description
+    "image" (absURL "/avatar.jpg")
+  )
+}}
+<script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>
+{{ else if eq .Kind "page" }}
+{{ $type := cond (eq .Section "posts") "BlogPosting" "CreativeWork" }}
+{{ $json := dict
+  "@context" "https://schema.org"
+  "@type" $type
+  "headline" .Title
+  "name" .Title
+  "description" .Description
+  "url" .Permalink
+  "mainEntityOfPage" .Permalink
+  "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")
+  "author" $author
+}}
+{{ with .Lastmod }}{{ $json = merge $json (dict "dateModified" (.Format "2006-01-02T15:04:05Z07:00")) }}{{ end }}
+{{ with .Params.cover }}{{ $json = merge $json (dict "image" (. | absURL)) }}{{ end }}
+{{ with .Params.tags }}{{ $json = merge $json (dict "keywords" (delimit . ", ")) }}{{ end }}
+<script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>
+{{ end }}

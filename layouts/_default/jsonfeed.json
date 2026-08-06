@@ -1,0 +1,31 @@
+{{- $items := slice }}
+{{- range .RegularPagesRecursive.ByDate.Reverse }}
+  {{- $authors := slice }}
+  {{- range .Params.authors }}
+    {{- with index hugo.Data.authors . }}
+      {{- $authors = $authors | append (dict "name" .name) }}
+    {{- end }}
+  {{- end }}
+  {{- $item := dict
+    "id" .Permalink
+    "url" .Permalink
+    "title" .Title
+    "content_html" (.Content | string)
+    "summary" .Description
+    "date_published" (.Date.Format "2006-01-02T15:04:05Z07:00")
+  }}
+  {{- with .Lastmod }}{{ $item = merge $item (dict "date_modified" (.Format "2006-01-02T15:04:05Z07:00")) }}{{ end }}
+  {{- if gt (len $authors) 0 }}{{ $item = merge $item (dict "authors" $authors) }}{{ end }}
+  {{- $items = $items | append $item }}
+{{- end }}
+{{- $self := .OutputFormats.Get "jsonfeed" }}
+{{- $feed := dict
+  "version" "https://jsonfeed.org/version/1.1"
+  "title" (cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title))
+  "home_page_url" .Permalink
+  "feed_url" $self.Permalink
+  "description" (cond (ne .Description "") .Description .Site.Params.description)
+  "language" "ru"
+  "items" $items
+}}
+{{- $feed | jsonify (dict "indent" "  ") }}

@@ -1,15 +1,20 @@
 {{ define "main" }}
-<article>
-  <h1>{{ .Title }}</h1>
-  <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format ":date_long" }}</time>
+<article class="h-entry">
+  <h1 class="p-name">{{ .Title }}</h1>
+  <a class="u-url u-uid" href="{{ .Permalink }}">
+    <time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date | time.Format ":date_long" }}</time>
+  </a>
+  {{ with .Lastmod }}<time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>{{ end }}
   {{ partial "byline.html" . }}
   {{ with .Params.cover }}
-  <img src="{{ . }}" alt="" width="1200" height="630" loading="lazy" decoding="async">
+  <img class="u-photo" src="{{ . }}" alt="" width="1200" height="630" loading="lazy" decoding="async">
   {{ end }}
-  {{ .Content }}
+  <div class="e-content">
+    {{ .Content }}
+  </div>
   {{ with .Params.tags }}
   <ul class="tags">
-    {{ range . }}<li>{{ . }}</li>{{ end }}
+    {{ range . }}<li class="p-category">{{ . }}</li>{{ end }}
   </ul>
   {{ end }}
 </article>

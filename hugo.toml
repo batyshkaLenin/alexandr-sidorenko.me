@@ -13,10 +13,34 @@ enableRobotsTXT = true
 [taxonomies]
   tag = 'tags'
 
+# Explicit front-matter lastmod wins; git commit date is only a fallback
+# when a page has none. Without this, enableGitInfo makes Hugo prefer
+# :git over front matter, silently overriding real lastmod values with
+# commit dates — the exact "sitemap lastmod tied to build" bug the
+# migration is meant to fix (01-current-site-audit.md §7).
+[frontmatter]
+  lastmod = ['lastmod', ':git', ':default']
+
 [outputs]
-  home = ['html']
-  section = ['html']
+  home = ['html', 'rss', 'jsonfeed']
+  section = ['html', 'rss', 'jsonfeed']
   page = ['html']
+  taxonomy = ['html']
+  term = ['html']
+
+[mediaTypes.'application/feed+json']
+  suffixes = ['json']
+
+[outputFormats.rss]
+  mediaType = 'application/rss+xml'
+  baseName = 'feed'
+  isPlainText = true
+
+[outputFormats.jsonfeed]
+  mediaType = 'application/feed+json'
+  baseName = 'feed'
+  isPlainText = true
+  rel = 'alternate'
 
 [minify]
   disableXML = true
