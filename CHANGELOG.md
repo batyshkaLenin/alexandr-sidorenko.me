@@ -36,6 +36,8 @@ This project has no public releases yet, so entries are tracked under
 
 ### Fixed
 
+- Migrated poetry, lyrics, link lists, and bibliography entries now preserve
+  their authored line breaks consistently in page HTML, RSS, and JSON Feed.
 - Byline username text failed WCAG AA contrast in light mode (~4:1) due
   to two stacked `opacity` values multiplying; now a single flat value
   with contrast well above 4.5:1 in both themes.

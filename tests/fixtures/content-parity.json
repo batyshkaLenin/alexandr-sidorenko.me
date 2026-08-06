@@ -1,0 +1,83 @@
+{
+  "schema": "content-parity/v1",
+  "fixture_classes": [
+    "poem",
+    "poetry",
+    "lyrics",
+    "prose-link-list",
+    "bibliography",
+    "prose-soft-wrap"
+  ],
+  "required_skver_provenance": [
+    "URL больше не публикуется и не перенаправляется",
+    "tmp/old_project/_content/creativity/en/skver.md"
+  ],
+  "publications": [
+    {
+      "id": "creativity/23",
+      "fixture_class": "poem",
+      "legacy_source": "tmp/old_project/_content/creativity/ru/23.md",
+      "current_source": "content/creativity/23.md",
+      "html": "creativity/23/index.html",
+      "url_path": "/creativity/23/",
+      "normalized_sha256": "6986df765b9aae65e63c69677b657195fce72146f0b65cee939a5ab3a52b1fa5",
+      "source_hard_breaks": 53,
+      "rendered_breaks": 53
+    },
+    {
+      "id": "creativity/humility-and-open-mindedness",
+      "fixture_class": "poetry",
+      "legacy_source": "tmp/old_project/_content/creativity/ru/humility-and-open-mindedness.md",
+      "current_source": "content/creativity/humility-and-open-mindedness.md",
+      "html": "creativity/humility-and-open-mindedness/index.html",
+      "url_path": "/creativity/humility-and-open-mindedness/",
+      "normalized_sha256": "8cebb42c24855a2ab6030973ae3c0f66a4821bc1a628b0fc0e44c64ffd00e99d",
+      "source_hard_breaks": 78,
+      "rendered_breaks": 58
+    },
+    {
+      "id": "creativity/regular-visitor",
+      "fixture_class": "lyrics",
+      "legacy_source": "tmp/old_project/_content/creativity/ru/regular-visitor.md",
+      "current_source": "content/creativity/regular-visitor.md",
+      "html": "creativity/regular-visitor/index.html",
+      "url_path": "/creativity/regular-visitor/",
+      "normalized_sha256": "2b50cf22cad3bd2bbc1abcbfdd4f960ad0580d45c223c29d3e3d6d4033b4e1fe",
+      "source_hard_breaks": 16,
+      "rendered_breaks": 13
+    },
+    {
+      "id": "posts/bluredu-new-teachers",
+      "fixture_class": "prose-link-list",
+      "legacy_source": "tmp/old_project/_content/posts/ru/bluredu-new-teachers.md",
+      "current_source": "content/posts/bluredu-new-teachers.md",
+      "html": "posts/bluredu-new-teachers/index.html",
+      "url_path": "/posts/bluredu-new-teachers/",
+      "normalized_sha256": "500c7e42312160c29f093889990785c3a9966dd161ccd63964b88c5436397f63",
+      "source_hard_breaks": 4,
+      "rendered_breaks": 4
+    },
+    {
+      "id": "posts/philosophy-of-freedom",
+      "fixture_class": "bibliography",
+      "legacy_source": "tmp/old_project/_content/posts/ru/philosophy-of-freedom.md",
+      "current_source": "content/posts/philosophy-of-freedom.md",
+      "html": "posts/philosophy-of-freedom/index.html",
+      "url_path": "/posts/philosophy-of-freedom/",
+      "normalized_sha256": "946f97b5e4d748b1bf35c37f4e92b70892f3816439a37023b0236bfb09c77a38",
+      "source_hard_breaks": 3,
+      "rendered_breaks": 2
+    },
+    {
+      "id": "creativity/skver",
+      "fixture_class": "prose-soft-wrap",
+      "legacy_source": "tmp/old_project/_content/creativity/ru/skver.md",
+      "current_source": "content/creativity/skver.md",
+      "html": "creativity/skver/index.html",
+      "url_path": "/creativity/skver/",
+      "normalized_sha256": "5ccdba846a0e74cf066564d99c421d9e29cd5694e0cec7678bde1cc12aa15cb7",
+      "source_hard_breaks": 0,
+      "rendered_breaks": 0
+    }
+  ]
+}

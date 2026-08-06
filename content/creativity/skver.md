@@ -14,12 +14,10 @@ uid: "https://alexandr-sidorenko.me/creativity/skver"
 
 <!--
 На старом сайте существовал английский перевод (DeepL) этого текста
-по адресу /en/creativity/skver — отдельной страницей не переносится
-(см. ADR redesign-canonical-url-policy: RU — единственная актуальная
-версия). Provenance перевода сохранена здесь по решению
-04-migration-roadmap.md Фаза 2, п. 6: /en/creativity/skver делает
-permanent redirect на эту страницу (см. url-manifest.md), исходный
-перевод остаётся в tmp/old_project/_content/creativity/en/skver.md.
+по адресу /en/creativity/skver. По ADR redesign-no-backward-compat этот
+URL больше не публикуется и не перенаправляется. Исходный перевод сохранён
+только как read-only provenance в
+tmp/old_project/_content/creativity/en/skver.md.
 -->
 
 ![Тот самый сквер](/assets/creativity/skver/skver.jpg)
