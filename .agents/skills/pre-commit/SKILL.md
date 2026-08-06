@@ -67,13 +67,25 @@ user only when needed to explain staging scope or a missing requested file.
    and repository policy. Examples include package manifests, lockfiles,
    Changesets, release-please, semantic-release, Cargo/Maven/Gradle metadata,
    charts, plugins, and application build metadata.
-2. Do not introduce versioning into an unversioned project. Do not change a
-   private manifest that intentionally has no version.
-3. If versioning exists, follow the project's own release policy and tooling.
+2. Do not introduce versioning into an unversioned project on your own
+   initiative. Do not change a private manifest that intentionally has no
+   version.
+3. A project without any package manifest can still be versioned through Git
+   itself: an annotated tag (`git tag -a vMAJOR.MINOR.PATCH -m "<description>"`)
+   records both the version and a description directly in history, with no
+   manifest required. A lightweight Git Flow-style scheme (a `develop`/release
+   line and `vMAJOR.MINOR.PATCH` tags cut from it) is a reasonable default when
+   the user wants a defined process, but any consistent annotated-tag scheme is
+   fine — do not impose the full Git Flow branching model unless asked. Only
+   set this up, or cut a new tag, when the user explicitly requests versioning
+   or a release; this skill still only prepares the commit and changelog data
+   the tag would describe; creating the tag itself is out of scope here (see
+   the scope note above) and belongs to the explicit commit/release step.
+4. If versioning exists, follow the project's own release policy and tooling.
    In a monorepo, update only affected versioned units and required dependants.
    If the repository uses release fragments or automated release PRs, create or
    update the expected metadata instead of fighting that workflow.
-4. When no project-specific rule exists, apply Semantic Versioning to the
+5. When no project-specific rule exists, apply Semantic Versioning to the
    affected public artifact:
    - `major` for an incompatible public API, schema, CLI, protocol, or persisted
      data change;
@@ -81,13 +93,15 @@ user only when needed to explain staging scope or a missing requested file.
    - `patch` for backward-compatible fixes, performance work, or a required
      release containing only internal, documentation, test, build, or chore
      changes.
-5. Ask before proceeding when the bump is materially ambiguous, especially for
+6. Ask before proceeding when the bump is materially ambiguous, especially for
    breaking behavior or multiple independently versioned packages.
-6. Use the repository's package/release tool so related lockfiles remain
+7. Use the repository's package/release tool so related lockfiles remain
    consistent. Prevent that tool from committing, tagging, publishing, or
    pushing. For npm, for example, use
    `npm version <level> --no-git-tag-version` rather than editing
-   `package-lock.json` manually.
+   `package-lock.json` manually. For the manifest-less Git-tag scheme in point
+   3, the equivalent is: prepare the changelog entry here, and cut the actual
+   `git tag -a` in the explicit commit/release step, never inside this skill.
 
 ## 4. Update changelog data
 

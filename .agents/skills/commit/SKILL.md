@@ -88,7 +88,12 @@ breaking-change information.
 3. Preserve configured signing behavior. Do not force signing off or introduce
    a new signing identity.
 4. Do not use `--amend`, create a tag, publish a release, or push unless the
-   user explicitly asks for that action.
+   user explicitly asks for that action. When they do ask for a tag/release on
+   a project with no package manifest (see `pre-commit`'s Git-tag versioning
+   scheme), create an annotated tag with a description —
+   `git tag -a vMAJOR.MINOR.PATCH -m "<description>"` — never a lightweight
+   tag, so the version and its description live in git history the same way a
+   changelog entry would.
 
 If a commit hook fails or modifies files, do not bypass it. Confirm that no
 commit was created, inspect the new index/worktree state, and invoke the
