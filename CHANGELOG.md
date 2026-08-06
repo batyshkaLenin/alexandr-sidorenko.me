@@ -27,6 +27,19 @@ This project has no public releases yet, so entries are tracked under
 - A cleanup service worker (`/sw.js`) that unregisters the old Workbox
   worker and clears its caches for returning visitors.
 
+### Changed
+
+- Prose now measures `65ch` (character-width aware, so Cyrillic gets a
+  comfortable line length the way a fixed pixel width didn't), base font
+  size raised for long-form reading, `prefers-reduced-motion` respected,
+  and the print stylesheet no longer hides collapsed content-warning text.
+
+### Fixed
+
+- Byline username text failed WCAG AA contrast in light mode (~4:1) due
+  to two stacked `opacity` values multiplying; now a single flat value
+  with contrast well above 4.5:1 in both themes.
+
 ### Removed
 
 - Legacy Next.js site source (components, pages, styles, build tooling and
