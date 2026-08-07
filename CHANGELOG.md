@@ -30,6 +30,10 @@ This project has no public releases yet, so entries are tracked under
 
 ### Changed
 
+- Every internal address the site publishes — links, `canonical`, `og:url`,
+  microformats `u-url`, sitemap, RSS, JSON Feed, and JSON-LD — now uses a
+  single form without a trailing slash (the root stays `/`), so a page no
+  longer declares a canonical URL that the host answers with a redirect.
 - Prose now measures `65ch` (character-width aware, so Cyrillic gets a
   comfortable line length the way a fixed pixel width didn't), base font
   size raised for long-form reading, `prefers-reduced-motion` respected,

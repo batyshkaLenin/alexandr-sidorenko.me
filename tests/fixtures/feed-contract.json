@@ -4,7 +4,7 @@
   "items": [
     {
       "id": "creativity/23",
-      "url_path": "/creativity/23/",
+      "url_path": "/creativity/23",
       "html": "creativity/23/index.html",
       "warning": false,
       "body_marker": "Жить без последствий.",
@@ -14,14 +14,14 @@
     },
     {
       "id": "creativity/humility-and-open-mindedness",
-      "url_path": "/creativity/humility-and-open-mindedness/",
+      "url_path": "/creativity/humility-and-open-mindedness",
       "html": "creativity/humility-and-open-mindedness/index.html",
       "warning": true,
       "body_marker": "Я мечтал чтобы жизнь измерялась в байтах"
     },
     {
       "id": "creativity/regular-visitor",
-      "url_path": "/creativity/regular-visitor/",
+      "url_path": "/creativity/regular-visitor",
       "html": "creativity/regular-visitor/index.html",
       "warning": true,
       "body_marker": "Это грустный угол, мы здесь сидим:",
@@ -32,14 +32,14 @@
     },
     {
       "id": "creativity/skver",
-      "url_path": "/creativity/skver/",
+      "url_path": "/creativity/skver",
       "html": "creativity/skver/index.html",
       "warning": true,
       "body_marker": "После школы нужно было где-то засесть"
     },
     {
       "id": "posts/bluredu-new-teachers",
-      "url_path": "/posts/bluredu-new-teachers/",
+      "url_path": "/posts/bluredu-new-teachers",
       "html": "posts/bluredu-new-teachers/index.html",
       "warning": false,
       "body_marker": "Замечали, скажешь человеку слово",
@@ -50,7 +50,7 @@
     },
     {
       "id": "posts/philosophy-of-freedom",
-      "url_path": "/posts/philosophy-of-freedom/",
+      "url_path": "/posts/philosophy-of-freedom",
       "html": "posts/philosophy-of-freedom/index.html",
       "warning": false,
       "body_marker": "Статья для конференции «Наука. Технологии. Инновации. 2018».",

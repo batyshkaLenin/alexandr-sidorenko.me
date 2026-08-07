@@ -29,8 +29,8 @@
   "headline" .Title
   "name" .Title
   "description" .Description
-  "url" .Permalink
-  "mainEntityOfPage" .Permalink
+  "url" (partial "canonical-url.html" .Permalink)
+  "mainEntityOfPage" (partial "canonical-url.html" .Permalink)
   "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")
   "author" $author
 }}

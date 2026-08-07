@@ -9,7 +9,7 @@
   {{- $attachments := partial "publication/audio.html" . }}
   {{- $item := dict
     "id" .Params.uid
-    "url" .Permalink
+    "url" (partial "canonical-url.html" .Permalink)
     "title" .Title
     "content_html" (partial "publication/feed-content.html" . | string)
     "summary" (partial "publication/summary.txt" .)
@@ -24,7 +24,7 @@
 {{- $feed := dict
   "version" "https://jsonfeed.org/version/1.1"
   "title" (cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title))
-  "home_page_url" .Permalink
+  "home_page_url" (partial "canonical-url.html" .Permalink)
   "feed_url" $self.Permalink
   "description" (cond (ne .Description "") .Description .Site.Params.description)
   "language" "ru"

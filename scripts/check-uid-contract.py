@@ -2,9 +2,13 @@
 """Verify the stable-UID identity contract (see ADR redesign-stable-uid-contract).
 
 Location URL (.Permalink/canonical/u-url) and persistent UID (front matter
-`uid` -> u-uid/RSS guid/JSON Feed id/JSON-LD @id) must stay distinct: every
-publication needs a unique, correctly formatted uid, and every identity
+`uid` -> u-uid/RSS guid/JSON Feed id/JSON-LD @id) stay separate sources:
+every publication needs a unique, correctly formatted uid, and every identity
 output must agree with it independently of the current permalink.
+
+Since T56 both use the same no-trailing-slash form, so their current values
+match byte for byte. The uid is still authored front matter that survives a
+move, not something derived from the current location.
 """
 
 from __future__ import annotations
@@ -160,7 +164,7 @@ def main() -> int:
                 )
             else:
                 uids[uid] = path
-            permalinks[uid] = f"{SITE_ORIGIN}{section}/{path.stem}/"
+            permalinks[uid] = f"{SITE_ORIGIN}{section}/{path.stem}"
 
     rss = rss_guids(public_dir)
     rss_perma = rss_guid_is_permalink(public_dir)
@@ -202,7 +206,7 @@ def main() -> int:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print(f"OK: {len(uids)} publication(s) — unique uid, HTML/RSS/JSON Feed/JSON-LD agree, distinct from permalink")
+    print(f"OK: {len(uids)} publication(s) — unique uid, HTML/RSS/JSON Feed/JSON-LD agree, independent of the permalink")
     return 0
 
 

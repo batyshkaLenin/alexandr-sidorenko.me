@@ -1,0 +1,23 @@
+{{- /*
+Site override of the theme's term.html: identical markup, but publication
+links go through canonical-url.html so the site emits a single URL form (T56).
+*/ -}}
+{{ define "main" }}
+<section class="dc-panel dc-panel--wide">
+  <h1 class="dc-visually-hidden">{{ .Title }}</h1>
+  {{ partial "declassified/panel-label.html" (printf "$ grep -rl %s ~/" .Title) }}
+  <div class="dc-panel__body">
+    <ul class="dc-list">
+      {{ range .Pages.ByDate.Reverse }}
+      <li class="dc-list__item">
+        <h2 class="dc-list__title"><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></h2>
+        {{ partial "declassified/hooks/publication-extra.html" . }}
+        {{ with .Summary }}<div class="dc-list__excerpt">{{ . }}</div>{{ end }}
+      </li>
+      {{ else }}
+      <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+      {{ end }}
+    </ul>
+  </div>
+</section>
+{{ end }}

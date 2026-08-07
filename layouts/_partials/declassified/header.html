@@ -1,0 +1,25 @@
+{{- /*
+Site override of the theme's header partial: identical markup, but menu hrefs
+go through canonical-url.html so the site emits a single URL form (T56).
+The no-trailing-slash policy is this site's ADR, not a theme concern.
+*/ -}}
+<header class="dc-header">
+  <div class="dc-topbar">
+    {{ partial "declassified/hooks/header-extra.html" . }}
+  </div>
+  {{ with .Site.Menus.main }}
+  <nav class="dc-nav" aria-label="{{ $.Site.Title }}">
+    <ul class="dc-nav__list">
+      {{ range $i, $item := . }}
+      <li>
+        <a
+          class="dc-nav__link"
+          href="{{ partial "canonical-url.html" $item.URL }}"
+          {{ if $.IsMenuCurrent "main" $item }}aria-current="page"{{ end }}
+        ><span class="dc-nav__index" aria-hidden="true">[{{ add $i 1 }}]</span> {{ $item.Name }}</a>
+      </li>
+      {{ end }}
+    </ul>
+  </nav>
+  {{ end }}
+</header>

@@ -61,7 +61,7 @@ creativity+status — all real site data, no invented dynamic state.
       <ul class="dc-list">
         {{ range (.Site.GetPage "/posts").Pages.ByDate.Reverse | first 3 }}
         <li class="dc-list__item">
-          <h3 class="dc-list__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+          <h3 class="dc-list__title"><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></h3>
           <div class="dc-list__excerpt">{{ partial "publication/summary.txt" . }}</div>
         </li>
         {{ else }}
@@ -81,7 +81,7 @@ creativity+status — all real site data, no invented dynamic state.
     <div class="dc-panel__body">
       <div class="dc-creativity-grid">
         {{ range (.Site.GetPage "/creativity").Pages.ByDate.Reverse | first 4 }}
-        <a class="dc-creativity-card" href="{{ .RelPermalink }}">
+        <a class="dc-creativity-card" href="{{ partial "canonical-url.html" .RelPermalink }}">
           <span class="dc-list__type">{{ partial "publication/creative-type-label.html" (dict "type" .Params.creative_type "page" .) }}</span>
           <span class="dc-creativity-card__title">{{ .Title }}</span>
         </a>

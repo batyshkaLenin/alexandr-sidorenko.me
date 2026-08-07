@@ -1,0 +1,9 @@
+{{- /*
+Normalizes one URL string (absolute or root-relative) to the site's canonical
+form: no trailing slash, except the root. See ADR redesign-canonical-url-policy.
+*/ -}}
+{{- $url := . -}}
+{{- if ne (urls.Parse $url).Path "/" -}}
+  {{- $url = strings.TrimSuffix "/" $url -}}
+{{- end -}}
+{{- return $url -}}

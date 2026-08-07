@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
 <channel>
   <title>{{ if .IsHome }}{{ .Site.Title | htmlEscape }}{{ else }}{{ .Title | htmlEscape }} — {{ .Site.Title | htmlEscape }}{{ end }}</title>
-  <link>{{ .Permalink }}</link>
+  <link>{{ partial "canonical-url.html" .Permalink }}</link>
   <description>{{ if .Description }}{{ .Description | htmlEscape }}{{ else }}{{ .Site.Params.description | htmlEscape }}{{ end }}</description>
   <generator>Hugo</generator>
   <language>ru</language>
@@ -14,7 +14,7 @@
   {{- range .RegularPagesRecursive.ByDate.Reverse }}
   <item>
     <title>{{ .Title | htmlEscape }}</title>
-    <link>{{ .Permalink }}</link>
+    <link>{{ partial "canonical-url.html" .Permalink }}</link>
     <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" }}</pubDate>
     <guid isPermaLink="false">{{ .Params.uid }}</guid>
     <description>{{ partial "publication/summary.txt" . | htmlEscape }}</description>

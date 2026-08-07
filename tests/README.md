@@ -10,6 +10,7 @@ python3 scripts/check-feed-contract.py
 python3 scripts/check-uid-contract.py
 python3 scripts/check-404-contract.py
 python3 scripts/check-rel-me-contract.py
+python3 scripts/check-url-contract.py
 ```
 
 The checker normalizes front matter, HTML provenance comments, Markdown hard-break
@@ -40,7 +41,21 @@ The UID contract check (see ADR `redesign-stable-uid-contract`) verifies every
 publication's front-matter `uid` is unique and correctly formatted, and that
 HTML `u-uid`, RSS `<guid isPermaLink="false">`, JSON Feed `id`, and JSON-LD
 `@id` all agree with it — independently of `canonical`/`u-url`/`.Permalink`,
-which stay tied to the current location URL instead.
+which stay tied to the current location URL instead. Since T56 both use the
+no-trailing-slash form, their current values match byte for byte; the uid is
+still authored front matter that survives a move, not a derived value.
+
+The URL contract check (T56, ADR `redesign-canonical-url-policy`) collects
+every internal address the build emits — HTML `href`/`src`, URL-bearing
+`<meta>`, `canonical`, `og:url`, MF2 `u-url`, `sitemap.xml`, RSS, JSON Feed,
+JSON-LD, and `site.webmanifest` — and fails on any trailing slash outside the
+root. It then requires all representations of one page (`canonical`, `og:url`,
+`u-url`, sitemap `<loc>`, RSS `<link>`, JSON Feed `url`, JSON-LD
+`url`/`mainEntityOfPage`) to be the same byte string. Templates get that form
+from the `canonical-url.html` partial; the theme's own menu, taxonomy and term
+templates are overridden in `layouts/` for the same reason, since the policy
+belongs to this site, not to the theme. Verified by reverting a template to
+bare `.Permalink`/`$item.URL`: the check fails and names the file and place.
 
 The 404 contract check (T39) verifies `public/404.html` is Russian-titled
 (not Hugo's built-in English default), carries `robots: noindex`, and has

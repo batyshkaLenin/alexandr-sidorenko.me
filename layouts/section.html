@@ -28,7 +28,7 @@ theme fallback can't know to use.
           {{ with $page.Params.content_warnings }}<span class="dc-list__cw">cw</span>{{ end }}
         </p>
         {{ end }}
-        <h2 class="dc-list__title"><a class="u-url p-name" href="{{ $page.RelPermalink }}">{{ $page.Title }}</a></h2>
+        <h2 class="dc-list__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a></h2>
         {{ range $page.Params.authors }}
           {{ $authorKey := . }}
           {{ with index hugo.Data.authors $authorKey }}

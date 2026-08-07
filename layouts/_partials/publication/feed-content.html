@@ -1,7 +1,7 @@
 {{- if .Params.content_warnings -}}
 <p>{{ partial "publication/summary.txt" . }}</p>
 {{ partial "publication/warnings.html" . }}
-<p><a href="{{ .Permalink }}">Открыть публикацию на сайте</a></p>
+<p><a href="{{ partial "canonical-url.html" .Permalink }}">Открыть публикацию на сайте</a></p>
 {{- else -}}
   {{- $baseURL := strings.TrimSuffix "/" .Site.BaseURL -}}
   {{- $content := .Content -}}

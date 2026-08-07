@@ -10,7 +10,7 @@ same as the legacy site.
 {{ define "main" }}
 <article class="dc-panel dc-panel--detail h-entry">
   {{ with .Parent }}
-  <a class="dc-back" href="{{ .RelPermalink }}">← {{ .Title }}</a>
+  <a class="dc-back" href="{{ partial "canonical-url.html" .RelPermalink }}">← {{ .Title }}</a>
   {{ end }}
   {{ partial "declassified/panel-label.html" (printf "$ cat %s.md" .File.BaseFileName) }}
   <h1 class="dc-title p-name">{{ .Title }}</h1>
@@ -18,7 +18,7 @@ same as the legacy site.
   {{ if not $uid }}{{ errorf "%s: missing required 'uid' front matter (see ADR redesign-stable-uid-contract)" .File.Path }}{{ end }}
   <data class="u-uid" value="{{ $uid }}"></data>
   <p>
-    <a class="u-url" href="{{ .Permalink }}">
+    <a class="u-url" href="{{ partial "canonical-url.html" .Permalink }}">
       <time class="dc-list__date dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date | time.Format ":date_long" }}</time>
     </a>
     {{ with .Lastmod }}<time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>{{ end }}

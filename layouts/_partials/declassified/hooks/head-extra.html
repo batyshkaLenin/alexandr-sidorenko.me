@@ -27,7 +27,7 @@ card, webmention, and JSON-LD (schema.html only emits for IsHome/Kind
 {{ if $isNotFound }}
 <meta name="robots" content="noindex">
 {{ else }}
-<link rel="canonical" href="{{ .Permalink }}">
+<link rel="canonical" href="{{ partial "canonical-url.html" .Permalink }}">
 {{ end }}
 {{ with (resources.Get "css/site.css") | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
@@ -47,7 +47,7 @@ card, webmention, and JSON-LD (schema.html only emits for IsHome/Kind
 <meta property="og:locale" content="ru_RU">
 <meta property="og:title" content="{{ $title }}">
 <meta property="og:description" content="{{ $description }}">
-<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:url" content="{{ partial "canonical-url.html" .Permalink }}">
 <meta property="og:image" content="{{ $image }}">
 
 <meta name="twitter:card" content="summary_large_image">
