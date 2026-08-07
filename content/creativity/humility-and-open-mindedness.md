@@ -4,7 +4,7 @@ description: "Все уйдут, а я усну в кигуруми пикачу
 date: 2022-09-04
 created: 2021-12-01
 lastmod: 2022-09-04
-authors: ["unborned"]
+authors: ["batyshkaLenin"]
 creative_type: "poetry"
 cover: "/assets/creativity/humility-and-open-mindedness/man-with-gun.jpg"
 content_warnings: ["18", "religion", "addict"]

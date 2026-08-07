@@ -4,7 +4,7 @@ description: "Это грустный угол, мы здесь сидим: кт
 date: 2022-11-03
 created: 2021-11-27
 lastmod: 2022-11-03
-authors: ["unborned"]
+authors: ["ppn"]
 creative_type: "single"
 cover: "/assets/creativity/regular-visitor/mattew-with-yamaha-46yo.jpg"
 audio:

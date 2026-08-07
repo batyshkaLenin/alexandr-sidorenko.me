@@ -20,6 +20,7 @@ fallback can't know about.
     </a>
     {{ with .Lastmod }}<time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>{{ end }}
     {{ with .Params.creative_type }} · {{ with index hugo.Data.creative_types . }}{{ . }}{{ else }}{{ . }}{{ end }}{{ end }}
+    {{ with .Params.created }} · создано {{ (. | time.AsTime) | time.Format ":date_long" }}{{ end }}
   </p>
   {{ partial "byline.html" . }}
   {{ with .Params.cover }}

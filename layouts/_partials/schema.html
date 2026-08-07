@@ -1,4 +1,9 @@
 {{ $author := dict "@type" "Person" "name" .Site.Params.author "url" .Site.BaseURL }}
+{{ with .Params.authors }}
+  {{ with index hugo.Data.authors (index . 0) }}
+  {{ $author = dict "@type" "Person" "name" .name "url" ($.Site.BaseURL) }}
+  {{ end }}
+{{ end }}
 {{ if .IsHome }}
 {{ $json := dict
   "@context" "https://schema.org"
@@ -27,6 +32,7 @@
   "author" $author
 }}
 {{ with .Lastmod }}{{ $json = merge $json (dict "dateModified" (.Format "2006-01-02T15:04:05Z07:00")) }}{{ end }}
+{{ with .Params.created }}{{ $json = merge $json (dict "dateCreated" ((. | time.AsTime).Format "2006-01-02T15:04:05Z07:00")) }}{{ end }}
 {{ with .Params.cover }}{{ $json = merge $json (dict "image" (. | absURL)) }}{{ end }}
 {{ with .Params.tags }}{{ $json = merge $json (dict "keywords" (delimit . ", ")) }}{{ end }}
 <script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>

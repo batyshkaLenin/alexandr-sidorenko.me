@@ -12,10 +12,6 @@
   url: "https://vk.com/batyshkalenin"
   rel: "me"
   footer: true
-- label: "SoundCloud"
-  url: "https://soundcloud.com/better_not_be_born"
-  rel: "me"
-  footer: true
 - label: "Twitter"
   url: "https://twitter.com/batyshkaLenin"
   rel: "me"

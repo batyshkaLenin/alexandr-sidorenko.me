@@ -4,7 +4,7 @@ description: "Конечно, когда куришь не прокручива�
 date: 2022-09-02
 created: 2022-08-16
 lastmod: 2022-09-02
-authors: ["unborned"]
+authors: ["batyshkaLenin"]
 creative_type: "story"
 cover: "/assets/creativity/skver/skver.jpg"
 content_warnings: ["addict"]

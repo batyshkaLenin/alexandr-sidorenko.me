@@ -1,8 +1,8 @@
 {{ range .Params.authors }}
   {{ with index hugo.Data.authors . }}
   <p class="byline p-author h-card">
-    <img class="u-photo" src="{{ .avatar | absURL }}" alt="" width="32" height="32" loading="lazy" decoding="async">
-    <a class="p-name u-url" href="{{ "/" | absURL }}">{{ .name }}</a> <span class="username">@{{ .username }}</span>
+    {{ with .avatar }}<img class="u-photo" src="{{ . | absURL }}" alt="" width="32" height="32" loading="lazy" decoding="async">{{ end }}
+    <a class="p-name u-url" href="{{ "/" | absURL }}">{{ .name }}</a>{{ with .username }} <span class="username">@{{ . }}</span>{{ end }}
   </p>
   {{ end }}
 {{ end }}
