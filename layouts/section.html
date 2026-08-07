@@ -5,7 +5,7 @@ for the warning-safe publication/summary.txt partial, which the generic
 theme fallback can't know to use.
 */ -}}
 {{ define "main" }}
-<section class="dc-panel dc-panel--wide">
+<section class="dc-panel dc-panel--doc">
   <h1 class="dc-visually-hidden">{{ .Title }}</h1>
   {{ partial "declassified/panel-label.html" (printf "$ ls ~/%s" .Section) }}
   {{ with .Content }}
@@ -15,10 +15,16 @@ theme fallback can't know to use.
     <ul class="dc-list h-feed">
       {{ range .Pages.ByDate.Reverse }}
       {{ $page := . }}
+      {{ $creativeType := $page.Params.creative_type }}
+      {{ $tags := $page.Params.tags }}
       <li class="dc-list__item h-entry">
-        {{ with $page.Params.creative_type }}
+        {{ if or $creativeType $tags }}
         <p class="dc-list__meta">
+          {{ with $creativeType }}
           <span class="dc-list__type">{{ with index hugo.Data.creative_types . }}{{ . }}{{ else }}{{ . }}{{ end }}</span>
+          {{ else }}
+          {{ with $tags }}<span class="dc-list__type">{{ index . 0 }}</span>{{ end }}
+          {{ end }}
           {{ with $page.Params.content_warnings }}<span class="dc-list__cw">cw</span>{{ end }}
         </p>
         {{ end }}

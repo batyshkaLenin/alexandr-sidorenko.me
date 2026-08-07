@@ -10,3 +10,4 @@ own copyright/status line.
 <a href="{{ .url }}" rel="me">{{ .label }}</a>
 {{ end }}
 {{ end }}
+{{ with .Site.GetPage "/" }}{{ with .OutputFormats.Get "rss" }}<a href="{{ .Permalink }}">RSS</a>{{ end }}{{ end }}

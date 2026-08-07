@@ -22,8 +22,187 @@ img {
   color: var(--dc-muted);
 }
 
-.dc-home-avatar {
-  max-width: 12rem;
+.dc-identity__cursor {
+  color: var(--dc-accent);
+}
+
+/* Home page: three rows mirror the accepted Sidorenko TUI mockup layout
+   (240px filetree / 1fr about / 300px portrait, then posts+links, then
+   creativity+status). Collapses to one column at the theme's existing
+   860px dashboard breakpoint so it stacks the same way section pages do. */
+.dc-home-row {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.dc-home-row:last-child {
+  margin-bottom: 0;
+}
+
+.dc-home-row--identity {
+  grid-template-columns: 240px 1fr 300px;
+}
+
+.dc-home-row--posts,
+.dc-home-row--creativity {
+  grid-template-columns: 1fr 280px;
+}
+
+@media (max-width: 860px) {
+  .dc-home-row--identity,
+  .dc-home-row--posts,
+  .dc-home-row--creativity {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dc-filetree {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.dc-filetree a {
+  color: var(--dc-muted);
+  text-decoration: none;
+}
+
+.dc-filetree a:hover,
+.dc-filetree a:focus-visible {
+  text-decoration: underline;
+}
+
+.dc-filetree__current {
+  color: var(--dc-text);
+}
+
+.dc-filetree__rule {
+  border-top: 1px solid var(--dc-border);
+  margin: 12px 0;
+}
+
+.dc-filetree__label {
+  margin: 0;
+  color: var(--dc-primary);
+  font-size: 11px;
+}
+
+.dc-neofetch {
+  margin: 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--dc-muted);
+}
+
+.dc-neofetch div {
+  display: flex;
+  gap: 6px;
+}
+
+.dc-neofetch dt {
+  font-weight: 400;
+}
+
+.dc-neofetch dd {
+  margin: 0;
+  color: var(--dc-text);
+}
+
+.dc-hero-name {
+  margin: 0 0 4px;
+  color: var(--dc-primary);
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.dc-roles {
+  color: var(--dc-primary);
+  font-size: 13px;
+  margin: 10px 0 0;
+}
+
+.dc-portrait-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dc-portrait {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border: 1px solid #2a1420;
+}
+
+.dc-portrait-quote {
+  margin: 0;
+  color: var(--dc-muted);
+  font-size: 11.5px;
+  font-style: italic;
+  border-left: 2px solid var(--dc-accent);
+  padding-left: 8px;
+}
+
+.dc-creativity-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 860px) {
+  .dc-creativity-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.dc-creativity-card {
+  display: block;
+  border-left: 2px solid var(--dc-primary);
+  padding-left: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.dc-creativity-card__title {
+  display: block;
+  color: var(--dc-text);
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.dc-creativity-card:hover .dc-creativity-card__title,
+.dc-creativity-card:focus-visible .dc-creativity-card__title {
+  text-decoration: underline;
+}
+
+.dc-lastfm-note {
+  margin: 0 0 8px;
+  color: var(--dc-muted);
+  font-size: 12.5px;
+}
+
+.dc-lastfm-link {
+  display: inline-block;
+  border: 1px solid var(--dc-border);
+  border-radius: 2px;
+  padding: 2px 7px;
+  font-size: 12px;
+  color: var(--dc-accent);
+}
+
+/* Full list pages (.dc-panel--doc, from the theme) show a bordered type
+   tag; the compact home dashboard mini-lists keep the plain uppercase
+   label below. */
+.dc-panel--doc .dc-list__type {
+  border: 1px solid var(--dc-border);
+  padding: 0 5px;
 }
 
 .dc-list__meta {

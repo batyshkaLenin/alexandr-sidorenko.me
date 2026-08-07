@@ -17,6 +17,11 @@ theme = 'declassified'
   author = 'Александр Сидоренко'
 
 [[menus.main]]
+  name = 'Главная'
+  pageRef = '/'
+  weight = -1
+
+[[menus.main]]
   name = 'Блог'
   pageRef = '/posts'
   weight = 1

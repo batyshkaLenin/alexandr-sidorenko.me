@@ -1,27 +1,59 @@
 {{- /*
 Site-owned home composition (ownership matrix: theme provides the
-.dc-dashboard/.dc-panel grid primitives and generic home.html fallback;
-exact panel set/order/personal data is site's job, not theme config —
-see .ai/projects/redesign/07-declassified-theme-reassessment). Overrides
-the theme's generic home.html entirely: about/h-card, recent posts, links,
-recent creativity are real site data, not the theme's generic per-section
-loop.
+.dc-panel/.dc-list primitives and generic home.html fallback; exact panel
+set/order/personal data is site's job, not theme config — see
+.ai/projects/redesign/07-declassified-theme-reassessment). Overrides the
+theme's generic home.html entirely. Three rows mirror the accepted
+Sidorenko TUI mockup composition (.ai/projects/redesign/09-sidorenko-tui-
+design-contract): identity (filesystem/about/portrait), posts+links,
+creativity+status — all real site data, no invented dynamic state.
 */ -}}
 {{ define "main" }}
 <h1 class="dc-visually-hidden">{{ .Site.Title }}</h1>
-<div class="dc-dashboard">
 
-  <section class="dc-panel dc-panel--wide">
+<div class="dc-home-row dc-home-row--identity">
+
+  <section class="dc-panel">
+    {{ partial "declassified/panel-label.html" "$ ls -la ~/site" }}
+    <div class="dc-panel__body">
+      <ul class="dc-filetree">
+        <li class="dc-filetree__current">&gt; about.md</li>
+        <li><a href="{{ "/posts" | relLangURL }}">📁 blog/</a></li>
+        <li><a href="{{ "/creativity" | relLangURL }}">📁 creativity/</a></li>
+      </ul>
+      <div class="dc-filetree__rule"></div>
+      <p class="dc-filetree__label">$ neofetch</p>
+      <dl class="dc-neofetch">
+        <div><dt>OS</dt><dd>human</dd></div>
+        <div><dt>HOST</dt><dd>{{ strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) }}</dd></div>
+        <div><dt>ROLE</dt><dd>{{ .Site.Params.author }}{{ with .Params.roles }} · {{ . }}{{ end }}</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="dc-panel h-card">
     {{ partial "declassified/panel-label.html" "$ cat about.md" }}
-    <div class="dc-panel__body dc-prose h-card">
-      <img class="u-photo dc-home-avatar dc-duotone" src="{{ "/avatar.jpg" | absURL }}" alt="{{ .Site.Params.author }}" width="200" height="200" loading="lazy" decoding="async">
-      <h2 class="p-name">{{ .Site.Params.author }}</h2>
+    <div class="dc-panel__body dc-prose">
+      <h2 class="dc-hero-name p-name">{{ .Site.Params.author }}</h2>
       <a class="u-url" rel="me" href="{{ .Site.BaseURL }}">{{ .Site.BaseURL }}</a>
+      {{ with .Params.roles }}<p class="dc-roles">{{ . }}</p>{{ end }}
       <div class="p-note">
         {{ .Content }}
       </div>
     </div>
   </section>
+
+  <section class="dc-panel">
+    {{ partial "declassified/panel-label.html" "$ render --style=duotone" }}
+    <div class="dc-panel__body dc-portrait-body">
+      <img class="u-photo dc-portrait dc-duotone" src="{{ "/avatar.jpg" | absURL }}" alt="{{ .Site.Params.author }}" width="200" height="200" loading="lazy" decoding="async">
+      {{ with .Params.portrait_quote }}<p class="dc-portrait-quote">{{ . | safeHTML }}</p>{{ end }}
+    </div>
+  </section>
+
+</div>
+
+<div class="dc-home-row dc-home-row--posts">
 
   <section class="dc-panel">
     {{ partial "declassified/panel-label.html" "$ tail -n2 ~/posts/*.md" }}
@@ -54,23 +86,32 @@ loop.
     </div>
   </section>
 
-  <section class="dc-panel dc-panel--wide">
+</div>
+
+<div class="dc-home-row dc-home-row--creativity">
+
+  <section class="dc-panel">
     {{ partial "declassified/panel-label.html" "$ ls ~/creativity | head -4" }}
     <div class="dc-panel__body">
-      <ul class="dc-list">
+      <div class="dc-creativity-grid">
         {{ range (.Site.GetPage "/creativity").Pages.ByDate.Reverse | first 4 }}
-        <li class="dc-list__item">
-          <p class="dc-list__meta">
-            <span class="dc-list__type">{{ with index hugo.Data.creative_types .Params.creative_type }}{{ . }}{{ else }}{{ .Params.creative_type }}{{ end }}</span>
-            {{ with .Params.content_warnings }}<span class="dc-list__cw">cw</span>{{ end }}
-          </p>
-          <h3 class="dc-list__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
-        </li>
+        <a class="dc-creativity-card" href="{{ .RelPermalink }}">
+          <span class="dc-list__type">{{ with index hugo.Data.creative_types .Params.creative_type }}{{ . }}{{ else }}{{ .Params.creative_type }}{{ end }}</span>
+          <span class="dc-creativity-card__title">{{ .Title }}</span>
+        </a>
         {{ else }}
-        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+        <p class="dc-list__empty">{{ i18n "nothingHereYet" }}</p>
         {{ end }}
-      </ul>
+      </div>
       <a class="dc-panel__more" href="{{ "/creativity" | relLangURL }}">Творчество →</a>
+    </div>
+  </section>
+
+  <section class="dc-panel">
+    {{ partial "declassified/panel-label.html" "$ lastfm-cli --last-played" }}
+    <div class="dc-panel__body">
+      <p class="dc-lastfm-note">{{ i18n "nothingHereYet" }}</p>
+      <a class="dc-lastfm-link" href="https://www.last.fm/user/batyshkaLenin" target="_blank" rel="noopener">last.fm/batyshkaLenin →</a>
     </div>
   </section>
 
