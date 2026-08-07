@@ -30,6 +30,11 @@ This project has no public releases yet, so entries are tracked under
 
 ### Changed
 
+- Typography is now the site's own rather than whatever monospace the visitor
+  happens to have: Fira Code for the interface, PT Serif for publication
+  bodies, both from Google Fonts with `display=swap` and a full system
+  fallback. With the fonts blocked the layout stays put — panel heights move
+  by at most 0.7%.
 - Every internal address the site publishes — links, `canonical`, `og:url`,
   microformats `u-url`, sitemap, RSS, JSON Feed, and JSON-LD — now uses a
   single form without a trailing slash (the root stays `/`), so a page no

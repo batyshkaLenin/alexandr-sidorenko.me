@@ -1,6 +1,23 @@
 /* Site-specific overrides, loaded after the theme's assets/css/declassified.css
    (see head-extra hook) so these rules win by normal cascade order. */
 
+/* Typography (T49). The theme ships no font file and must stay usable without
+   external network, so the families are site-owned: it declares --dc-font as a
+   stack, this overrides it. Both stacks keep a full system tail — when the CDN
+   is unreachable the page falls straight through to it (ADR
+   redesign-external-resources-contract, п.5). */
+:root {
+  --dc-font: "Fira Code", ui-monospace, "SFMono-Regular", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  --dc-font-prose: "PT Serif", Georgia, "Times New Roman", serif;
+}
+
+/* Serif is for reading a publication, not for the TUI chrome: only the body of
+   a detail page changes family. Measure and rhythm stay as they were. */
+.dc-panel--detail .dc-prose {
+  font-family: var(--dc-font-prose);
+}
+
 /* The theme's own max-width rule only scopes .dc-prose img (Markdown body
    content); the site's own cover <img class="u-photo"> sits outside that
    div in posts/single.html and creativity/single.html and overflowed the
