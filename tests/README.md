@@ -7,6 +7,7 @@ line breaks:
 hugo build --gc --minify --panicOnWarning --environment preview
 python3 scripts/check-content-parity.py
 python3 scripts/check-feed-contract.py
+python3 scripts/check-uid-contract.py
 ```
 
 The checker normalizes front matter, HTML provenance comments, Markdown hard-break
@@ -32,3 +33,9 @@ The feed contract check parses RSS and JSON Feed, verifies that warning-gated
 bodies are absent while page HTML retains them, compares warning-safe card/feed
 summaries, rejects root-relative embedded URLs, and checks audio MIME and byte
 length against the referenced static file. Plain publications remain full-text.
+
+The UID contract check (see ADR `redesign-stable-uid-contract`) verifies every
+publication's front-matter `uid` is unique and correctly formatted, and that
+HTML `u-uid`, RSS `<guid isPermaLink="false">`, JSON Feed `id`, and JSON-LD
+`@id` all agree with it — independently of `canonical`/`u-url`/`.Permalink`,
+which stay tied to the current location URL instead.

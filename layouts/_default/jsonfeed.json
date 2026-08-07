@@ -8,7 +8,7 @@
   {{- end }}
   {{- $attachments := partial "publication/audio.html" . }}
   {{- $item := dict
-    "id" .Permalink
+    "id" .Params.uid
     "url" .Permalink
     "title" .Title
     "content_html" (partial "publication/feed-content.html" . | string)

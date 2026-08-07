@@ -17,6 +17,7 @@
 {{ $json := dict
   "@context" "https://schema.org"
   "@type" $type
+  "@id" .Params.uid
   "headline" .Title
   "name" .Title
   "description" .Description
