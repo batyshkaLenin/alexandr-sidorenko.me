@@ -5,7 +5,14 @@ site-owned output contract: description, canonical, feed discovery,
 favicons/manifest, Open Graph/Twitter, webmention, JSON-LD (schema.html),
 and the site's own stylesheet loaded after the theme's so its --dc-*
 overrides win by cascade order (documented in the theme README).
+
+The 404 kind is not a real, indexable resource (T39): it gets noindex
+instead of a canonical (there is no canonical URL for a page that doesn't
+exist) and skips the whole content-identity block — Open Graph/Twitter
+card, webmention, and JSON-LD (schema.html only emits for IsHome/Kind
+"page" anyway, but this keeps the intent explicit here too).
 */ -}}
+{{ $isNotFound := eq .Kind "404" }}
 {{ $title := cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title) }}
 {{ $description := cond (ne .Description "") .Description .Site.Params.description }}
 {{ with .Params.cover }}
@@ -17,7 +24,11 @@ overrides win by cascade order (documented in the theme README).
 {{ end }}
 {{ $image := cond (ne (.Params.cover | default "") "") (.Params.cover | absURL) (absURL "/avatar.jpg") }}
 <meta name="description" content="{{ $description }}">
+{{ if $isNotFound }}
+<meta name="robots" content="noindex">
+{{ else }}
 <link rel="canonical" href="{{ .Permalink }}">
+{{ end }}
 {{ with (resources.Get "css/site.css") | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
@@ -30,6 +41,7 @@ overrides win by cascade order (documented in the theme README).
 <link rel="apple-touch-icon" href="/logo192.png">
 <link rel="manifest" href="/site.webmanifest">
 
+{{ if not $isNotFound }}
 <meta property="og:type" content="{{ if eq .Kind "page" }}article{{ else }}website{{ end }}">
 <meta property="og:site_name" content="{{ .Site.Title }}">
 <meta property="og:locale" content="ru_RU">
@@ -46,5 +58,6 @@ overrides win by cascade order (documented in the theme README).
 <meta name="twitter:creator" content="@batyshkaLenin">
 
 <link rel="webmention" href="https://webmention.io/alexandr-sidorenko.me/webmention">
+{{ end }}
 
 {{ partial "schema.html" . }}

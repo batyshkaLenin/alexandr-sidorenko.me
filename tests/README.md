@@ -8,6 +8,7 @@ hugo build --gc --minify --panicOnWarning --environment preview
 python3 scripts/check-content-parity.py
 python3 scripts/check-feed-contract.py
 python3 scripts/check-uid-contract.py
+python3 scripts/check-404-contract.py
 ```
 
 The checker normalizes front matter, HTML provenance comments, Markdown hard-break
@@ -39,3 +40,12 @@ publication's front-matter `uid` is unique and correctly formatted, and that
 HTML `u-uid`, RSS `<guid isPermaLink="false">`, JSON Feed `id`, and JSON-LD
 `@id` all agree with it — independently of `canonical`/`u-url`/`.Permalink`,
 which stay tied to the current location URL instead.
+
+The 404 contract check (T39) verifies `public/404.html` is Russian-titled
+(not Hugo's built-in English default), carries `robots: noindex`, and has
+no canonical link, Open Graph/Twitter tags, or JSON-LD — a not-found
+response must not claim publication identity for a URL that doesn't exist.
+It doesn't check the HTTP status itself; that's a property of the static
+host (Cloudflare Workers Static Assets `not_found_handling: "404-page"`,
+verified manually with `wrangler dev` — an unmapped path returns a real
+404, not 200).
