@@ -1,0 +1,34 @@
+{{- /*
+Site override of the theme's empty enhance hook, rendered just before
+</body>. Fills #dc-clock (empty markup from header-extra.html) with the
+*visitor's own* local clock — Intl.DateTimeFormat with no explicit
+timeZone reads the browser's own system timezone, so this never claims to
+know or publish the site owner's location/timezone (the theme audit
+flagged that as dishonest — see 09-sidorenko-tui-design-contract). No
+aria-live: the element is aria-hidden and only ticks visually, so it can't
+spam a screen reader with updates. If this script is blocked or fails,
+#dc-clock stays empty — no stale/misleading placeholder — and all
+content/navigation remain fully usable regardless, per the theme's hook
+contract.
+*/ -}}
+<script>
+(function () {
+  "use strict";
+  var el = document.getElementById("dc-clock");
+  if (!el) return;
+  var fmt = new Intl.DateTimeFormat(undefined, {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+  function render() {
+    var offsetHours = -(new Date().getTimezoneOffset() / 60);
+    var sign = offsetHours >= 0 ? "+" : "";
+    el.textContent = fmt.format(new Date()) + " · UTC" + sign + offsetHours;
+  }
+  render();
+  setInterval(render, 30000);
+})();
+</script>

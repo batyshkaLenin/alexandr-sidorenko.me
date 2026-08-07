@@ -26,6 +26,14 @@ img {
   color: var(--dc-accent);
 }
 
+/* Empty by default — filled by the enhance hook's script with the
+   visitor's own local time. Stays empty and invisible with JS off. */
+.dc-clock {
+  margin: 0;
+  color: var(--dc-muted);
+  font-size: 13px;
+}
+
 /* Home page: three rows mirror the accepted Sidorenko TUI mockup layout
    (240px filetree / 1fr about / 300px portrait, then posts+links, then
    creativity+status). Collapses to one column at the theme's existing
