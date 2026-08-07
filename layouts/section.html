@@ -6,8 +6,16 @@ theme fallback can't know to use.
 */ -}}
 {{ define "main" }}
 <section class="dc-panel dc-panel--doc">
-  <h1 class="dc-visually-hidden">{{ .Title }}</h1>
   {{ partial "declassified/panel-label.html" (printf "$ ls ~/%s" .Section) }}
+  {{/* Feed paths come from .OutputFormats, never written out by hand, so the
+       section's own feeds stay correct if an output format is renamed. */}}
+  <div class="dc-section-head">
+    <h1 class="dc-section-title">{{ .Title }}</h1>
+    <p class="dc-section-feeds">
+      {{- with .OutputFormats.Get "rss" }}<a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">rss</a>{{ end }}
+      {{- with .OutputFormats.Get "jsonfeed" }}<a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">json feed</a>{{ end }}
+    </p>
+  </div>
   {{ with .Content }}
   <div class="dc-panel__body dc-prose">{{ . }}</div>
   {{ end }}
@@ -25,7 +33,12 @@ theme fallback can't know to use.
           {{ else }}
           {{ with $tags }}<span class="dc-list__type">{{ index . 0 }}</span>{{ end }}
           {{ end }}
-          {{ with $page.Params.content_warnings }}<span class="dc-list__cw">cw</span>{{ end }}
+          {{/* Name the category, never the plot: labels come from
+               data/content_warnings.yaml, whose full text stays the source for
+               the publication page and feeds (T36). */}}
+          {{ range $page.Params.content_warnings }}
+          {{- with index hugo.Data.content_warnings . }}<span class="dc-list__cw">cw: {{ .label }}</span>{{ end }}
+          {{- end }}
         </p>
         {{ end }}
         <h2 class="dc-list__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a></h2>
@@ -39,6 +52,10 @@ theme fallback can't know to use.
         {{ end }}
         <time class="dc-list__date dt-published" datetime="{{ $page.Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ $page.Date | time.Format ":date_long" }}</time>
         <p class="dc-list__excerpt p-summary">{{ partial "publication/summary.txt" $page }}</p>
+        {{/* Visual affordance only: the title above is already the link, and a
+             second anchor to the same address just repeats itself to a screen
+             reader. */}}
+        {{ if eq $.Section "posts" }}<span class="dc-list__read" aria-hidden="true">read →</span>{{ end }}
       </li>
       {{ else }}
       <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>

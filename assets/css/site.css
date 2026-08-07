@@ -18,15 +18,6 @@
   font-family: var(--dc-font-prose);
 }
 
-/* The theme's own max-width rule only scopes .dc-prose img (Markdown body
-   content); the site's own cover <img class="u-photo"> sits outside that
-   div in posts/single.html and creativity/single.html and overflowed the
-   760px detail panel without this. */
-img {
-  max-width: 100%;
-  height: auto;
-}
-
 .dc-identity {
   margin: 0;
   font-size: 13px;
@@ -248,6 +239,51 @@ img {
 .dc-panel--doc .dc-list__type {
   border: 1px solid var(--dc-border);
   padding: 0 5px;
+}
+
+/* Section heading and its feed badges sit on one line, wrapping instead of
+   overflowing on narrow viewports. */
+.dc-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: baseline;
+  margin: 0 0 14px;
+}
+
+.dc-section-title {
+  margin: 0;
+  color: var(--dc-primary);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.dc-section-feeds {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+
+.dc-badge {
+  border: 1px solid var(--dc-border);
+  padding: 0 5px;
+  color: var(--dc-muted);
+  font-size: 10.5px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.dc-badge:hover,
+.dc-badge:focus-visible {
+  color: var(--dc-accent);
+  border-color: var(--dc-accent);
+}
+
+.dc-list__read {
+  display: block;
+  margin-top: 6px;
+  color: var(--dc-accent);
+  font-size: 12px;
 }
 
 .dc-list__meta {

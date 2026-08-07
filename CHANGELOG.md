@@ -30,6 +30,10 @@ This project has no public releases yet, so entries are tracked under
 
 ### Changed
 
+- Section pages carry a visible heading with links to their own RSS and JSON
+  Feed, and list cards name the content warning's category ("18+", "религия")
+  instead of an unlabeled `cw` badge. Blog cards gained a `read →` affordance
+  that adds no second link to the same address.
 - Typography is now the site's own rather than whatever monospace the visitor
   happens to have: Fira Code for the interface, PT Serif for publication
   bodies, both from Google Fonts with `display=swap` and a full system
