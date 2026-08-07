@@ -7,9 +7,6 @@ lastmod: 2018-11-30
 authors: ["batyshkaLenin"]
 tags: ["Философия"]
 cover: "/assets/posts/philosophy-of-freedom/lenin.jpg"
-cover_width: 1596
-cover_height: 1197
-cover_alt: "Мавзолей Ленина на Красной площади в Москве"
 draft: false
 uid: "https://alexandr-sidorenko.me/posts/philosophy-of-freedom"
 ---

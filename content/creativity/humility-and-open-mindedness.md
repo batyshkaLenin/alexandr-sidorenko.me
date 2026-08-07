@@ -7,9 +7,6 @@ lastmod: 2022-09-04
 authors: ["batyshkaLenin"]
 creative_type: "poetry"
 cover: "/assets/creativity/humility-and-open-mindedness/man-with-gun.jpg"
-cover_width: 1596
-cover_height: 1197
-cover_alt: "Рука держит пистолет и наручники на фоне цветочных обоев с маками"
 content_warnings: ["18", "religion", "addict"]
 draft: false
 uid: "https://alexandr-sidorenko.me/creativity/humility-and-open-mindedness"

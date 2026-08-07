@@ -1,8 +1,11 @@
 {{- /*
 Site override of the theme's generic page.html: preserves the T36
 content-warning <details> gating (audio player + full body only inside the
-disclosure) and byline/cover/creative_type contract the generic theme
-fallback can't know about.
+disclosure) and byline/creative_type contract the generic theme fallback
+can't know about. cover is metadata-only (og:image, JSON-LD image via
+head-extra.html/schema.html) — not rendered as a visible <img> here; the
+only visible image is whatever the author put in the Markdown body,
+same as the legacy site.
 */ -}}
 {{ define "main" }}
 <article class="dc-panel dc-panel--detail h-entry">
@@ -23,7 +26,6 @@ fallback can't know about.
     {{ with .Params.created }} · создано {{ (. | time.AsTime) | time.Format ":date_long" }}{{ end }}
   </p>
   {{ partial "byline.html" . }}
-  {{ partial "publication/cover.html" . }}
 
   {{ $warnings := .Params.content_warnings }}
   {{ if $warnings }}

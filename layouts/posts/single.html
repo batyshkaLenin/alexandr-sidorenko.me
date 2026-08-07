@@ -1,7 +1,10 @@
 {{- /*
 Site override of the theme's generic page.html: post detail needs the
-byline/cover/tags MF2 output contract (h-entry/u-photo/p-category) the
-generic theme fallback doesn't and can't know about.
+byline/tags MF2 output contract (h-entry/p-category) the generic theme
+fallback doesn't and can't know about. cover is metadata-only (og:image,
+JSON-LD image via head-extra.html/schema.html) — it is intentionally not
+rendered as a visible <img> here; the only visible image is whatever the
+author put in the Markdown body itself, same as the legacy site.
 */ -}}
 {{ define "main" }}
 <article class="dc-panel dc-panel--detail h-entry">
@@ -18,7 +21,6 @@ generic theme fallback doesn't and can't know about.
   </a>
   {{ with .Lastmod }}<time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>{{ end }}
   {{ partial "byline.html" . }}
-  {{ partial "publication/cover.html" . }}
   <div class="dc-prose e-content">
     {{ .Content }}
   </div>

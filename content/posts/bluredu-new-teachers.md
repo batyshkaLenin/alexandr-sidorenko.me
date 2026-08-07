@@ -7,12 +7,11 @@ lastmod: 2020-09-30
 authors: ["batyshkaLenin"]
 tags: ["Статья"]
 cover: "/assets/posts/bluredu-new-teachers/blurred-technologies.jpg"
-cover_width: 1300
-cover_height: 787
-cover_alt: "Blurred Technologies - the future is now"
 draft: false
 uid: "https://alexandr-sidorenko.me/posts/bluredu-new-teachers"
 ---
+
+![Blurred Technologies - the future is now](/assets/posts/bluredu-new-teachers/blurred-technologies.jpg)
 
 Замечали, скажешь человеку слово “универ”, как он сразу погружается в душные воспоминания? Там он тратил свою молодость на бесполезные предметы. Там он получал устаревшие знания, и там обитали преподы, давно слившиеся с учебниками, но ничего не понимающие в современной IT-индустрии.
 

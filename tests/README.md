@@ -28,17 +28,6 @@ Reviewed intentional differences:
 - `creativity/skver`: the source-only provenance comment is excluded from the body
   comparison; it records that the legacy English source remains read-only and its
   former URL is neither published nor redirected.
-- `posts/bluredu-new-teachers`, `creativity/skver` (T34): both used to open their
-  body with a Markdown image identical to their front-matter `cover`, so the same
-  photo rendered twice on the page. The cover now renders once, from front matter,
-  with real intrinsic `width`/`height` (not a guessed fixed ratio) and an approved
-  `cover_alt` — the now-redundant leading body image was removed from the content.
-  A leading standalone image line is normalized away on both sides of the
-  legacy/current comparison (a no-op for every other publication, which never had
-  one), so the comparison still covers the actual prose. The cover no longer
-  appears inside RSS/JSON Feed content either — consistent with every other
-  publication, whose cover was already front-matter-only and never part of
-  `.Content`.
 
 The feed contract check parses RSS and JSON Feed, verifies that warning-gated
 bodies are absent while page HTML retains them, compares warning-safe card/feed
