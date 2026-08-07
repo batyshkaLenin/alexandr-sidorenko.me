@@ -1,14 +1,30 @@
 baseURL = 'https://alexandr-sidorenko.me/'
 locale = 'ru-RU'
+# Hugo's i18n bundle selection (theme UI strings) follows this key, not
+# `locale` — without it the theme's Russian i18n/ru.yaml is never picked and
+# English theme strings leak through despite the site being Russian-only
+# (audit finding A16, confirmed while wiring the theme in T26).
+defaultContentLanguage = 'ru'
 title = 'Александр Сидоренко'
 copyright = '© Александр Сидоренко'
 enableGitInfo = true
 enableEmoji = false
 enableRobotsTXT = true
+theme = 'declassified'
 
 [params]
   description = 'Блог и творчество Александра Сидоренко: заметки и статьи о разработке, музыке и жизни.'
   author = 'Александр Сидоренко'
+
+[[menus.main]]
+  name = 'Блог'
+  pageRef = '/posts'
+  weight = 1
+
+[[menus.main]]
+  name = 'Творчество'
+  pageRef = '/creativity'
+  weight = 2
 
 [taxonomies]
   tag = 'tags'

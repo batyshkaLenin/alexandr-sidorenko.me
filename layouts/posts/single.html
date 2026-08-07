@@ -1,15 +1,24 @@
+{{- /*
+Site override of the theme's generic page.html: post detail needs the
+byline/cover/tags MF2 output contract (h-entry/u-photo/p-category) the
+generic theme fallback doesn't and can't know about.
+*/ -}}
 {{ define "main" }}
-<article class="h-entry">
-  <h1 class="p-name">{{ .Title }}</h1>
+<article class="dc-panel dc-panel--detail h-entry">
+  {{ with .Parent }}
+  <a class="dc-back" href="{{ .RelPermalink }}">← {{ .Title }}</a>
+  {{ end }}
+  {{ partial "declassified/panel-label.html" (printf "$ cat %s.md" .File.BaseFileName) }}
+  <h1 class="dc-title p-name">{{ .Title }}</h1>
   <a class="u-url u-uid" href="{{ .Permalink }}">
-    <time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date | time.Format ":date_long" }}</time>
+    <time class="dc-list__date dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date | time.Format ":date_long" }}</time>
   </a>
   {{ with .Lastmod }}<time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>{{ end }}
   {{ partial "byline.html" . }}
   {{ with .Params.cover }}
   <img class="u-photo" src="{{ . }}" alt="" width="1200" height="630" loading="lazy" decoding="async">
   {{ end }}
-  <div class="e-content">
+  <div class="dc-prose e-content">
     {{ .Content }}
   </div>
   {{ with .Params.tags }}

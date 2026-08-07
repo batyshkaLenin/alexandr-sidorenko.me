@@ -1,0 +1,7 @@
+{{- /*
+Site override of the theme's empty header-extra hook: a short identity line
+inside <header>, above the theme-owned nav. Full biography/h-card lives in
+the home about panel (layouts/home.html), not here — this is just the
+top-bar prompt.
+*/ -}}
+<p class="dc-identity">{{ .Site.Params.author }}<span class="dc-identity__sep">@{{ strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) }}</span></p>

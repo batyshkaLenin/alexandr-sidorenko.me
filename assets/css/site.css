@@ -1,0 +1,54 @@
+/* Site-specific overrides, loaded after the theme's assets/css/declassified.css
+   (see head-extra hook) so these rules win by normal cascade order. */
+
+/* The theme's own max-width rule only scopes .dc-prose img (Markdown body
+   content); the site's own cover <img class="u-photo"> sits outside that
+   div in posts/single.html and creativity/single.html and overflowed the
+   760px detail panel without this. */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.dc-identity {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dc-accent);
+}
+
+.dc-identity__sep {
+  font-weight: 400;
+  color: var(--dc-muted);
+}
+
+.dc-home-avatar {
+  max-width: 12rem;
+}
+
+.dc-list__meta {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin: 0 0 3px;
+}
+
+.dc-list__type {
+  color: var(--dc-primary);
+  font-size: 10.5px;
+  text-transform: uppercase;
+}
+
+.dc-list__cw {
+  color: #ff5555;
+  font-size: 9.5px;
+  border: 1px solid #3a1f24;
+  padding: 0 4px;
+}
+
+.dc-list__date {
+  display: block;
+  color: var(--dc-faint);
+  font-size: 12px;
+  margin-bottom: 4px;
+}

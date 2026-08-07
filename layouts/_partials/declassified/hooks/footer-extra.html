@@ -1,0 +1,12 @@
+{{- /*
+Site override of the theme's empty footer-extra hook: rel=me social links
+from data/links.yaml (footer: true only — the rest are head-only rel=me,
+already emitted by schema.html/head-extra). Rendered before the theme's
+own copyright/status line.
+*/ -}}
+{{ $links := where hugo.Data.links "footer" true }}
+{{ with $links }}
+{{ range . }}
+<a href="{{ .url }}" rel="me">{{ .label }}</a>
+{{ end }}
+{{ end }}

@@ -1,16 +1,78 @@
+{{- /*
+Site-owned home composition (ownership matrix: theme provides the
+.dc-dashboard/.dc-panel grid primitives and generic home.html fallback;
+exact panel set/order/personal data is site's job, not theme config —
+see .ai/projects/redesign/07-declassified-theme-reassessment). Overrides
+the theme's generic home.html entirely: about/h-card, recent posts, links,
+recent creativity are real site data, not the theme's generic per-section
+loop.
+*/ -}}
 {{ define "main" }}
-<article class="h-card">
-  <img class="u-photo" src="{{ "/avatar.jpg" | absURL }}" alt="{{ .Site.Params.author }}" width="200" height="200" loading="lazy" decoding="async">
-  <h1 class="p-name">{{ .Title }}</h1>
-  <a class="u-url" rel="me" href="{{ .Site.BaseURL }}">{{ .Site.BaseURL }}</a>
-  <div class="p-note">
-    {{ .Content }}
-  </div>
-</article>
-<nav aria-label="Разделы">
-  <ul>
-    <li><a href="{{ "/posts" | relLangURL }}">Блог</a></li>
-    <li><a href="{{ "/creativity" | relLangURL }}">Творчество</a></li>
-  </ul>
-</nav>
+<h1 class="dc-visually-hidden">{{ .Site.Title }}</h1>
+<div class="dc-dashboard">
+
+  <section class="dc-panel dc-panel--wide">
+    {{ partial "declassified/panel-label.html" "$ cat about.md" }}
+    <div class="dc-panel__body dc-prose h-card">
+      <img class="u-photo dc-home-avatar dc-duotone" src="{{ "/avatar.jpg" | absURL }}" alt="{{ .Site.Params.author }}" width="200" height="200" loading="lazy" decoding="async">
+      <h2 class="p-name">{{ .Site.Params.author }}</h2>
+      <a class="u-url" rel="me" href="{{ .Site.BaseURL }}">{{ .Site.BaseURL }}</a>
+      <div class="p-note">
+        {{ .Content }}
+      </div>
+    </div>
+  </section>
+
+  <section class="dc-panel">
+    {{ partial "declassified/panel-label.html" "$ tail -n2 ~/posts/*.md" }}
+    <div class="dc-panel__body">
+      <ul class="dc-list">
+        {{ range (.Site.GetPage "/posts").Pages.ByDate.Reverse | first 3 }}
+        <li class="dc-list__item">
+          <h3 class="dc-list__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+          <div class="dc-list__excerpt">{{ partial "publication/summary.txt" . }}</div>
+        </li>
+        {{ else }}
+        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+        {{ end }}
+      </ul>
+      <a class="dc-panel__more" href="{{ "/posts" | relLangURL }}">Блог →</a>
+    </div>
+  </section>
+
+  <section class="dc-panel">
+    {{ partial "declassified/panel-label.html" "$ cat links.md" }}
+    <div class="dc-panel__body">
+      {{ $links := where hugo.Data.links "footer" true }}
+      <ul class="dc-list">
+        {{ range $links }}
+        <li class="dc-list__item">
+          <a href="{{ .url }}" rel="me">→ {{ .label }}</a>
+        </li>
+        {{ end }}
+      </ul>
+    </div>
+  </section>
+
+  <section class="dc-panel dc-panel--wide">
+    {{ partial "declassified/panel-label.html" "$ ls ~/creativity | head -4" }}
+    <div class="dc-panel__body">
+      <ul class="dc-list">
+        {{ range (.Site.GetPage "/creativity").Pages.ByDate.Reverse | first 4 }}
+        <li class="dc-list__item">
+          <p class="dc-list__meta">
+            <span class="dc-list__type">{{ with index hugo.Data.creative_types .Params.creative_type }}{{ . }}{{ else }}{{ .Params.creative_type }}{{ end }}</span>
+            {{ with .Params.content_warnings }}<span class="dc-list__cw">cw</span>{{ end }}
+          </p>
+          <h3 class="dc-list__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+        </li>
+        {{ else }}
+        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+        {{ end }}
+      </ul>
+      <a class="dc-panel__more" href="{{ "/creativity" | relLangURL }}">Творчество →</a>
+    </div>
+  </section>
+
+</div>
 {{ end }}

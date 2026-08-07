@@ -1,0 +1,35 @@
+{{- /*
+Site override of the theme's generic section.html: preserves the h-feed/
+h-entry MF2 output contract (T30/T36) and swaps the theme's plain .Summary
+for the warning-safe publication/summary.txt partial, which the generic
+theme fallback can't know to use.
+*/ -}}
+{{ define "main" }}
+<section class="dc-panel dc-panel--wide">
+  <h1 class="dc-visually-hidden">{{ .Title }}</h1>
+  {{ partial "declassified/panel-label.html" (printf "$ ls ~/%s" .Section) }}
+  {{ with .Content }}
+  <div class="dc-panel__body dc-prose">{{ . }}</div>
+  {{ end }}
+  <div class="dc-panel__body">
+    <ul class="dc-list h-feed">
+      {{ range .Pages.ByDate.Reverse }}
+      {{ $page := . }}
+      <li class="dc-list__item h-entry">
+        {{ with $page.Params.creative_type }}
+        <p class="dc-list__meta">
+          <span class="dc-list__type">{{ with index hugo.Data.creative_types . }}{{ . }}{{ else }}{{ . }}{{ end }}</span>
+          {{ with $page.Params.content_warnings }}<span class="dc-list__cw">cw</span>{{ end }}
+        </p>
+        {{ end }}
+        <h2 class="dc-list__title"><a class="u-url p-name" href="{{ $page.RelPermalink }}">{{ $page.Title }}</a></h2>
+        <time class="dc-list__date dt-published" datetime="{{ $page.Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ $page.Date | time.Format ":date_long" }}</time>
+        <p class="dc-list__excerpt p-summary">{{ partial "publication/summary.txt" $page }}</p>
+      </li>
+      {{ else }}
+      <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+      {{ end }}
+    </ul>
+  </div>
+</section>
+{{ end }}

@@ -1,12 +1,17 @@
+{{- /*
+Site override of the theme's empty head-extra hook. Theme head.html already
+emits charset/viewport/<title>/its own CSS link/theme-color — this only adds
+site-owned output contract: description, canonical, feed discovery,
+favicons/manifest, Open Graph/Twitter, webmention, JSON-LD (schema.html),
+and the site's own stylesheet loaded after the theme's so its --dc-*
+overrides win by cascade order (documented in the theme README).
+*/ -}}
 {{ $title := cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title) }}
 {{ $description := cond (ne .Description "") .Description .Site.Params.description }}
 {{ $image := cond (ne (.Params.cover | default "") "") (.Params.cover | absURL) (absURL "/avatar.jpg") }}
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ $title }}</title>
 <meta name="description" content="{{ $description }}">
 <link rel="canonical" href="{{ .Permalink }}">
-{{ with (resources.Get "css/main.css") | fingerprint }}
+{{ with (resources.Get "css/site.css") | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
 {{ if or .IsHome (eq .Kind "section") }}
@@ -17,7 +22,6 @@
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/logo192.png">
 <link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#070707">
 
 <meta property="og:type" content="{{ if eq .Kind "page" }}article{{ else }}website{{ end }}">
 <meta property="og:site_name" content="{{ .Site.Title }}">
