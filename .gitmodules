@@ -1,0 +1,3 @@
+[submodule "themes/declassified"]
+	path = themes/declassified
+	url = https://git.sr.ht/~batyshkalenin/declassified
