@@ -49,14 +49,26 @@ class CardParser(HTMLParser):
             self._card = None
 
 
-class SummaryParser(HTMLParser):
+class WarningTextParser(HTMLParser):
+    """Collects the full disclaimers rendered by publication/warnings.html.
+
+    Until T50 the gate was a native <details>, and this parser read its
+    <summary>. The gate is a scripted blur now (owner's decision, 2026-08-07):
+    the body renders open and the warnings are always visible above it, so what
+    has to be asserted is the presence of the warning texts themselves.
+    """
+
     def __init__(self) -> None:
         super().__init__()
-        self.summaries: list[str] = []
+        self.warnings: list[str] = []
+        self._depth = 0
         self._current: list[str] | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag == "summary":
+        classes = (dict(attrs).get("class") or "").split()
+        if tag == "ul" and "content-warnings" in classes:
+            self._depth = 1
+        elif self._depth and tag == "li":
             self._current = []
 
     def handle_data(self, data: str) -> None:
@@ -64,9 +76,11 @@ class SummaryParser(HTMLParser):
             self._current.append(data)
 
     def handle_endtag(self, tag: str) -> None:
-        if tag == "summary" and self._current is not None:
-            self.summaries.append(" ".join("".join(self._current).split()))
+        if tag == "li" and self._current is not None:
+            self.warnings.append(" ".join("".join(self._current).split()))
             self._current = None
+        elif tag == "ul" and self._depth:
+            self._depth = 0
 
 
 def normalized(value: str) -> str:
@@ -168,8 +182,8 @@ def main() -> int:
 
         if item["warning"]:
             page_html = (public_dir / item["html"]).read_text()
-            summary_parser = SummaryParser()
-            summary_parser.feed(page_html)
+            warning_parser = WarningTextParser()
+            warning_parser.feed(page_html)
             check(
                 errors,
                 item["body_marker"] not in rss_content,
@@ -195,10 +209,11 @@ def main() -> int:
                 warning_summary in json_content,
                 f"{item_id}: JSON Feed warning missing",
             )
+            expected_warnings = item.get("warning_texts", [])
             check(
                 errors,
-                summary_parser.summaries == [warning_summary],
-                f"{item_id}: page warning summary differs",
+                warning_parser.warnings == expected_warnings,
+                f"{item_id}: page warnings {warning_parser.warnings} != {expected_warnings}",
             )
             check(
                 errors,
@@ -206,13 +221,14 @@ def main() -> int:
                 f"{item_id}: card leaks its editorial summary",
             )
             if item.get("audio"):
-                details_start = page_html.find("<details")
-                details_end = page_html.find("</details>", details_start)
+                body_start = page_html.find('class="dc-warned__body"')
+                if body_start == -1:
+                    body_start = page_html.find("class=dc-warned__body")
                 audio_start = page_html.find("<audio")
                 check(
                     errors,
-                    details_start < audio_start < details_end,
-                    f"{item_id}: HTML audio bypasses the warning disclosure",
+                    body_start != -1 and body_start < audio_start,
+                    f"{item_id}: HTML audio sits outside the gated body",
                 )
         else:
             check(

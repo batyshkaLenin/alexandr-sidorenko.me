@@ -11,3 +11,7 @@ notFoundHome:
   other: "← вернуться на $ ~"
 notFoundSectionsLabel:
   other: "$ ls /"
+revealWarnedText:
+  other: "показать текст"
+headingAnchor:
+  other: "Ссылка на этот раздел"

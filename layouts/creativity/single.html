@@ -26,14 +26,19 @@ same as the legacy site.
   </p>
   {{ partial "byline.html" . }}
 
+  {{/* The body renders open and the gate is laid over it, so a reader
+       without JavaScript gets the publication rather than a dead control
+       (owner's decision, 2026-08-07). Warnings themselves always show. */}}
   {{ $warnings := .Params.content_warnings }}
   {{ if $warnings }}
-  <details>
-    <summary>{{ partial "publication/summary.txt" . }}</summary>
+  <div class="dc-warned" data-dc-warned>
     {{ partial "publication/warnings.html" . }}
-    {{ partial "publication/audio-player.html" . }}
-    <div class="dc-prose e-content">{{ .Content }}</div>
-  </details>
+    <button class="dc-warned__reveal" type="button" data-dc-reveal>{{ i18n "revealWarnedText" }}</button>
+    <div class="dc-warned__body">
+      {{ partial "publication/audio-player.html" . }}
+      <div class="dc-prose e-content">{{ .Content }}</div>
+    </div>
+  </div>
   {{ else }}
   {{ partial "publication/audio-player.html" . }}
   <div class="dc-prose e-content">{{ .Content }}</div>

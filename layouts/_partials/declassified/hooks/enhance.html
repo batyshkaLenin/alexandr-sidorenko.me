@@ -31,4 +31,26 @@ contract.
   render();
   setInterval(render, 30000);
 })();
+
+/* Content-warning gate. The body is already open in the markup; CSS blurs it
+   only while .dc-js is set and the container is not yet revealed, so this
+   script only has to flip that state. If it never runs, the reader still gets
+   the publication — the head script that sets .dc-js and this one live or die
+   together. */
+(function () {
+  "use strict";
+  var buttons = document.querySelectorAll("[data-dc-reveal]");
+  for (var i = 0; i < buttons.length; i++) {
+    (function (button) {
+      var container = button.closest("[data-dc-warned]");
+      if (!container) return;
+      button.setAttribute("aria-expanded", "false");
+      button.addEventListener("click", function () {
+        container.setAttribute("data-revealed", "");
+        button.setAttribute("aria-expanded", "true");
+        button.hidden = true;
+      });
+    })(buttons[i]);
+  }
+})();
 </script>

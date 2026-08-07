@@ -68,3 +68,11 @@ theme = 'declassified'
 
 [markup.goldmark.renderer]
   unsafe = false
+
+# Chroma emits classes instead of inline style attributes. The default
+# (noClasses = true) would put a style="" on every token and force
+# 'unsafe-inline' into style-src — a wider CSP hole than the fonts
+# (ADR redesign-external-resources-contract, п.3). Colors live in site.css.
+[markup.highlight]
+  noClasses = false
+  lineNumbersInTable = false

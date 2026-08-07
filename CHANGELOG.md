@@ -28,8 +28,20 @@ This project has no public releases yet, so entries are tracked under
 - A cleanup service worker (`/sw.js`) that unregisters the old Workbox
   worker for returning visitors without touching Cache Storage.
 
+### Added
+
+- Server-side syntax highlighting for code blocks (Hugo's own Chroma, no client
+  JavaScript and no external script), colored with the mockup's token palette.
+- Heading anchors in publication bodies: reachable by keyboard, named for a
+  screen reader, revealed on hover or focus.
+
 ### Changed
 
+- Content warnings no longer gate the publication behind a disclosure the
+  reader must open. The body renders open and the gate is laid over it, so
+  without JavaScript the publication simply reads — the way the old site
+  behaved. With JavaScript the body is blurred until "показать текст" is
+  pressed, and the warnings themselves always show either way.
 - Printing a publication now yields the publication: no shell header with its
   live clock, no navigation, no footer, no command labels. A page with audio
   prints the track name and its address in place of the dead player control,

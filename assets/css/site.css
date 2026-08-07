@@ -241,6 +241,168 @@
   padding: 0 5px;
 }
 
+/* Heading anchors (T50). Hidden visually until hover or keyboard focus, but
+   always present in the tab order and always named — a hover-only control is
+   no control at all for a keyboard or a screen reader. */
+.dc-heading-anchor {
+  margin-left: 0.4em;
+  color: var(--dc-faint);
+  font-size: 0.8em;
+  text-decoration: none;
+  opacity: 0;
+}
+
+.dc-prose :is(h2, h3, h4, h5, h6):hover .dc-heading-anchor,
+.dc-heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+.dc-heading-anchor:hover,
+.dc-heading-anchor:focus-visible {
+  color: var(--dc-accent);
+}
+
+@media print {
+  .dc-heading-anchor {
+    display: none;
+  }
+}
+
+/* Content-warning gate (T50). Everything here is scoped to .dc-js: with no
+   JavaScript the publication is simply open, which is what the old site did
+   and what the owner chose. */
+.dc-warned__reveal {
+  display: none;
+}
+
+.dc-js .dc-warned__reveal {
+  display: inline-block;
+  margin: 0 0 16px;
+  border: 1px solid var(--dc-accent);
+  border-radius: 2px;
+  background: none;
+  padding: 4px 10px;
+  color: var(--dc-accent);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dc-js .dc-warned:not([data-revealed]) .dc-warned__body {
+  filter: blur(4px);
+  user-select: none;
+}
+
+/* Paper follows the reader's decision, same rule as the old <details> gate
+   (owner, 2026-08-08): text left unrevealed doesn't print, and revealed text
+   prints unblurred. The control itself is never printed — nobody can press it. */
+@media print {
+  .dc-warned:not([data-revealed]) .dc-warned__body {
+    display: none;
+  }
+
+  .dc-warned[data-revealed] .dc-warned__body {
+    filter: none !important;
+  }
+
+  .dc-warned__reveal {
+    display: none !important;
+  }
+}
+
+/* Code highlighting (T50). Chroma classes, colored with the mockup's token
+   palette (Sidorenko TUI.dc.html lines 27–33). Every color measures at least
+   4.8:1 on the code background, so the palette carries AA as-is. */
+.dc-prose .highlight {
+  background: var(--dc-bg);
+  border: 1px solid var(--dc-border);
+  border-radius: 2px;
+  padding: 12px 14px;
+  overflow-x: auto;
+  font-size: 13px;
+}
+
+.dc-prose .highlight pre {
+  margin: 0;
+  background: none;
+}
+
+/* comment, preprocessor */
+.dc-prose .chroma .c,
+.dc-prose .chroma .ch,
+.dc-prose .chroma .cm,
+.dc-prose .chroma .c1,
+.dc-prose .chroma .cs,
+.dc-prose .chroma .cp,
+.dc-prose .chroma .cpf {
+  color: #6a8578;
+  font-style: italic;
+}
+
+/* string */
+.dc-prose .chroma .s,
+.dc-prose .chroma .sa,
+.dc-prose .chroma .sb,
+.dc-prose .chroma .sc,
+.dc-prose .chroma .dl,
+.dc-prose .chroma .sd,
+.dc-prose .chroma .s2,
+.dc-prose .chroma .se,
+.dc-prose .chroma .sh,
+.dc-prose .chroma .si,
+.dc-prose .chroma .sx,
+.dc-prose .chroma .sr,
+.dc-prose .chroma .s1,
+.dc-prose .chroma .ss {
+  color: #39ff88;
+}
+
+/* keyword */
+.dc-prose .chroma .k,
+.dc-prose .chroma .kd,
+.dc-prose .chroma .kn,
+.dc-prose .chroma .kp,
+.dc-prose .chroma .kr,
+.dc-prose .chroma .kt {
+  color: #ff2f6e;
+}
+
+/* function, class name */
+.dc-prose .chroma .nf,
+.dc-prose .chroma .fm,
+.dc-prose .chroma .nc,
+.dc-prose .chroma .nn {
+  color: #93ad9f;
+}
+
+/* number, boolean */
+.dc-prose .chroma .m,
+.dc-prose .chroma .mb,
+.dc-prose .chroma .mf,
+.dc-prose .chroma .mh,
+.dc-prose .chroma .mi,
+.dc-prose .chroma .mo,
+.dc-prose .chroma .il,
+.dc-prose .chroma .kc {
+  color: #ff6b6b;
+}
+
+/* punctuation, operator */
+.dc-prose .chroma .p,
+.dc-prose .chroma .o,
+.dc-prose .chroma .ow {
+  color: #6a8578;
+}
+
+/* property, tag, attribute */
+.dc-prose .chroma .na,
+.dc-prose .chroma .nt,
+.dc-prose .chroma .nv,
+.dc-prose .chroma .py,
+.dc-prose .chroma .nb {
+  color: #d7e6dc;
+}
+
 .dc-audio {
   display: flex;
   flex-direction: column;

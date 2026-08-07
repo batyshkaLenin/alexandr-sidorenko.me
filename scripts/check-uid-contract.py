@@ -26,6 +26,19 @@ UID_PATTERN = re.compile(
     r"^https://alexandr-sidorenko\.me/(posts|creativity)/[^/]+$"
 )
 UID_LINE = re.compile(r'^uid:\s*"([^"]*)"\s*$')
+DRAFT_LINE = re.compile(r"^draft:\s*true\s*$")
+
+
+def is_draft(path: Path) -> bool:
+    """Drafts are not published, so there is no rendered page to agree with.
+    They still carry a uid, and its uniqueness/format is checked like any
+    other — only the output comparison is skipped."""
+    for line in path.read_text().splitlines()[1:]:
+        if line.strip() == "---":
+            return False
+        if DRAFT_LINE.match(line.strip()):
+            return True
+    return False
 
 
 def front_matter_uid(path: Path) -> str | None:
@@ -141,7 +154,8 @@ def main() -> int:
     self_test()
 
     errors: list[str] = []
-    uids: dict[str, Path] = {}
+    seen: dict[str, Path] = {}  # every uid, drafts included — uniqueness is global
+    uids: dict[str, Path] = {}  # published only: these must agree with the output
     permalinks: dict[str, str] = {}
 
     for section in ("posts", "creativity"):
@@ -158,12 +172,13 @@ def main() -> int:
                 bool(UID_PATTERN.match(uid)),
                 f"{item_id}: uid {uid!r} doesn't match https://alexandr-sidorenko.me/(posts|creativity)/<slug>, no trailing slash",
             )
-            if uid in uids:
-                errors.append(
-                    f"{item_id}: uid {uid!r} duplicates {uids[uid]}"
-                )
-            else:
-                uids[uid] = path
+            if uid in seen:
+                errors.append(f"{item_id}: uid {uid!r} duplicates {seen[uid]}")
+                continue
+            seen[uid] = path
+            if is_draft(path):
+                continue
+            uids[uid] = path
             permalinks[uid] = f"{SITE_ORIGIN}{section}/{path.stem}"
 
     rss = rss_guids(public_dir)
