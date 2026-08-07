@@ -21,7 +21,7 @@ theme fallback can't know to use.
         {{ if or $creativeType $tags }}
         <p class="dc-list__meta">
           {{ with $creativeType }}
-          <span class="dc-list__type">{{ with index hugo.Data.creative_types . }}{{ . }}{{ else }}{{ . }}{{ end }}</span>
+          <span class="dc-list__type">{{ partial "publication/creative-type-label.html" (dict "type" . "page" $page) }}</span>
           {{ else }}
           {{ with $tags }}<span class="dc-list__type">{{ index . 0 }}</span>{{ end }}
           {{ end }}
@@ -29,7 +29,14 @@ theme fallback can't know to use.
         </p>
         {{ end }}
         <h2 class="dc-list__title"><a class="u-url p-name" href="{{ $page.RelPermalink }}">{{ $page.Title }}</a></h2>
-        {{ range $page.Params.authors }}{{ with index hugo.Data.authors . }}<data class="p-author" value="{{ .name }}" hidden></data>{{ end }}{{ end }}
+        {{ range $page.Params.authors }}
+          {{ $authorKey := . }}
+          {{ with index hugo.Data.authors $authorKey }}
+          <data class="p-author" value="{{ .name }}" hidden></data>
+          {{ else }}
+          {{ errorf "%s: unknown author key %q (see data/authors.yaml)" $page.File.Path $authorKey }}
+          {{ end }}
+        {{ end }}
         <time class="dc-list__date dt-published" datetime="{{ $page.Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ $page.Date | time.Format ":date_long" }}</time>
         <p class="dc-list__excerpt p-summary">{{ partial "publication/summary.txt" $page }}</p>
       </li>

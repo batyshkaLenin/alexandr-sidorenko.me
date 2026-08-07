@@ -1,0 +1,17 @@
+{{- /*
+Resolves a creative_type key to its Russian label (data/creative_types.yaml).
+Input: dict "type" <raw creative_type value, may be empty> "page" <the page,
+for the error message>. Returns "" if type is empty (creative_type is
+optional); errorf's on a non-empty, unrecognized value rather than silently
+printing the raw key (T35 — schema.html/section.html/home.html previously
+all fell back to the raw value on a typo).
+*/ -}}
+{{- $type := .type -}}
+{{- $page := .page -}}
+{{- with $type -}}
+  {{- with index hugo.Data.creative_types . -}}
+    {{- . -}}
+  {{- else -}}
+    {{- errorf "%s: unknown creative_type %q (see data/creative_types.yaml)" $page.File.Path . -}}
+  {{- end -}}
+{{- end -}}

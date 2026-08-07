@@ -1,7 +1,13 @@
+{{- $page := . }}
 {{- with .Params.content_warnings }}
 <ul class="content-warnings">
   {{- range . }}
-  <li>{{ with index hugo.Data.content_warnings . }}{{ . }}{{ else }}{{ . }}{{ end }}</li>
+  {{- $key := . }}
+  {{- with index hugo.Data.content_warnings $key }}
+  <li>{{ . }}</li>
+  {{- else }}
+  {{- errorf "%s: unknown content_warnings key %q (see data/content_warnings.yaml)" $page.File.Path $key }}
+  {{- end }}
   {{- end }}
 </ul>
 {{- end }}

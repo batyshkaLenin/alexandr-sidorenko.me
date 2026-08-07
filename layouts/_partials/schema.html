@@ -1,7 +1,10 @@
 {{ $author := dict "@type" "Person" "name" .Site.Params.author "url" .Site.BaseURL }}
 {{ with .Params.authors }}
-  {{ with index hugo.Data.authors (index . 0) }}
+  {{ $authorKey := index . 0 }}
+  {{ with index hugo.Data.authors $authorKey }}
   {{ $author = dict "@type" "Person" "name" .name "url" ($.Site.BaseURL) }}
+  {{ else }}
+  {{ errorf "%s: unknown author key %q (see data/authors.yaml)" $.File.Path $authorKey }}
   {{ end }}
 {{ end }}
 {{ if .IsHome }}

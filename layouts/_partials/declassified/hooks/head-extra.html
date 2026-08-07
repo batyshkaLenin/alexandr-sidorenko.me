@@ -8,6 +8,13 @@ overrides win by cascade order (documented in the theme README).
 */ -}}
 {{ $title := cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title) }}
 {{ $description := cond (ne .Description "") .Description .Site.Params.description }}
+{{ with .Params.cover }}
+  {{ if hasPrefix . "/" }}
+    {{ if not (os.FileExists (printf "static%s" .)) }}
+      {{ errorf "%s: cover file %s does not exist" $.File.Path . }}
+    {{ end }}
+  {{ end }}
+{{ end }}
 {{ $image := cond (ne (.Params.cover | default "") "") (.Params.cover | absURL) (absURL "/avatar.jpg") }}
 <meta name="description" content="{{ $description }}">
 <link rel="canonical" href="{{ .Permalink }}">

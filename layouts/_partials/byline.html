@@ -1,8 +1,12 @@
+{{ $page := . }}
 {{ range .Params.authors }}
-  {{ with index hugo.Data.authors . }}
+  {{ $key := . }}
+  {{ with index hugo.Data.authors $key }}
   <p class="byline p-author h-card">
     {{ with .avatar }}<img class="u-photo" src="{{ . | absURL }}" alt="" width="32" height="32" loading="lazy" decoding="async">{{ end }}
     <a class="p-name u-url" href="{{ "/" | absURL }}">{{ .name }}</a>{{ with .username }} <span class="username">@{{ . }}</span>{{ end }}
   </p>
+  {{ else }}
+  {{ errorf "%s: unknown author key %q (see data/authors.yaml)" $page.File.Path $key }}
   {{ end }}
 {{ end }}
