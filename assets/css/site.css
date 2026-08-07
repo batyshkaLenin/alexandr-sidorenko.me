@@ -241,6 +241,56 @@
   padding: 0 5px;
 }
 
+.dc-audio {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 18px;
+}
+
+.dc-audio__label {
+  color: var(--dc-primary);
+  font-size: 11.5px;
+}
+
+/* Paper keeps the address instead of a dead control (research B8). */
+.dc-audio__print {
+  display: none;
+  font-size: 12px;
+}
+
+@media print {
+  /* The "$ play" label is interface too — on paper the fallback line below
+     already names the track and its address. */
+  .dc-audio audio,
+  .dc-audio__label,
+  .dc-section-feeds {
+    display: none;
+  }
+
+  .dc-audio__print {
+    display: block;
+  }
+}
+
+.dc-updated {
+  margin: 22px 0 0;
+  border-top: 1px dashed var(--dc-border);
+  padding-top: 10px;
+  color: var(--dc-faint);
+  font-size: 12px;
+}
+
+.dc-404__home {
+  margin-top: 12px;
+}
+
+.dc-404__sections {
+  margin-top: 22px;
+  border-top: 1px dashed var(--dc-border);
+  padding-top: 14px;
+}
+
 /* Section heading and its feed badges sit on one line, wrapping instead of
    overflowing on narrow viewports. */
 .dc-section-head {

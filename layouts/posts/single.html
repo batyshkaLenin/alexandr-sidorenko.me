@@ -19,11 +19,11 @@ author put in the Markdown body itself, same as the legacy site.
   <a class="u-url" href="{{ partial "canonical-url.html" .Permalink }}">
     <time class="dc-list__date dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date | time.Format ":date_long" }}</time>
   </a>
-  {{ with .Lastmod }}<time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>{{ end }}
   {{ partial "byline.html" . }}
   <div class="dc-prose e-content">
     {{ .Content }}
   </div>
+  {{ partial "publication/updated.html" . }}
   {{ with .Params.tags }}
   <ul class="tags">
     {{ range . }}<li class="p-category">{{ . }}</li>{{ end }}

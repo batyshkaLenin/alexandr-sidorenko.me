@@ -21,7 +21,6 @@ same as the legacy site.
     <a class="u-url" href="{{ partial "canonical-url.html" .Permalink }}">
       <time class="dc-list__date dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date | time.Format ":date_long" }}</time>
     </a>
-    {{ with .Lastmod }}<time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>{{ end }}
     {{ with .Params.creative_type }} · {{ partial "publication/creative-type-label.html" (dict "type" . "page" $) }}{{ end }}
     {{ with .Params.created }} · создано {{ (. | time.AsTime) | time.Format ":date_long" }}{{ end }}
   </p>
@@ -39,5 +38,6 @@ same as the legacy site.
   {{ partial "publication/audio-player.html" . }}
   <div class="dc-prose e-content">{{ .Content }}</div>
   {{ end }}
+  {{ partial "publication/updated.html" . }}
 </article>
 {{ end }}

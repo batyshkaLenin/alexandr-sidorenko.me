@@ -1,0 +1,14 @@
+{{- /*
+"Updated" is only true when it is true: a lastmod equal to the publication
+date says nothing and would read as a revision that never happened. When the
+dates differ the visible line carries dt-updated itself, so an h-entry never
+ends up with two of them.
+*/ -}}
+{{- with .Lastmod -}}
+{{- $changed := ne (.Format "2006-01-02") ($.Date.Format "2006-01-02") -}}
+{{- if $changed }}
+<p class="dc-updated"># updated: <time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}">{{ . | time.Format ":date_long" }}</time></p>
+{{- else }}
+<time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>
+{{- end }}
+{{- end -}}

@@ -1,5 +1,19 @@
-{{- range partial "publication/audio.html" . }}
-<p><audio controls preload="none" src="{{ .url }}">
-  <a href="{{ .url }}">{{ .url }}</a>
-</audio></p>
+{{- /*
+The player is labelled from the publication's own data — the entry's `label`
+if it has one, otherwise the file's base name; the template never invents a
+track title. The print line carries the same label plus the address, because
+a paper copy of a music publication otherwise keeps no trace of the audio at
+all (research B8).
+*/ -}}
+{{- $attachments := partial "publication/audio.html" . -}}
+{{- range $i, $entry := .Params.audio }}
+{{- $url := (index $attachments $i).url }}
+{{- $label := $entry.label | default (path.BaseName $entry.src) }}
+<p class="dc-audio">
+  <span class="dc-audio__label">$ play {{ $label }}</span>
+  <audio controls preload="none" src="{{ $url }}">
+    <a href="{{ $url }}">{{ $url }}</a>
+  </audio>
+  <span class="dc-audio__print">аудио: {{ $label }} — {{ $url }}</span>
+</p>
 {{- end }}

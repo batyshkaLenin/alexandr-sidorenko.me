@@ -1,0 +1,24 @@
+{{- /*
+Site override of the theme's generic 404: same not-found contract (Kind
+"404", no content/404.md, no canonical/OG/JSON-LD, noindex — T39), different
+composition. The section list is built from the main menu so it can't drift
+away from the navigation.
+*/ -}}
+{{ define "main" }}
+<section class="dc-panel dc-panel--detail">
+  {{ partial "declassified/panel-label.html" (i18n "notFoundPanelLabel") }}
+  <h1 class="dc-title dc-404__command">{{ i18n "notFoundCommand" }}</h1>
+  <a class="dc-back dc-404__home" href="{{ partial "canonical-url.html" ("/" | relLangURL) }}">{{ i18n "notFoundHome" }}</a>
+
+  {{ with .Site.Menus.main }}
+  <div class="dc-404__sections">
+    <p class="dc-filetree__label">{{ i18n "notFoundSectionsLabel" }}</p>
+    <ul class="dc-filetree">
+      {{ range . }}
+      <li><a href="{{ partial "canonical-url.html" .URL }}">{{ .Name }}</a></li>
+      {{ end }}
+    </ul>
+  </div>
+  {{ end }}
+</section>
+{{ end }}

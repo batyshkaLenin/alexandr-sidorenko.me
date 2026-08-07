@@ -30,6 +30,16 @@ This project has no public releases yet, so entries are tracked under
 
 ### Changed
 
+- Printing a publication now yields the publication: no shell header with its
+  live clock, no navigation, no footer, no command labels. A page with audio
+  prints the track name and its address in place of the dead player control,
+  and a content warning left closed keeps its body off the paper — opening the
+  disclosure before printing includes it.
+- The 404 response speaks the site's own language: `$ cd ./unknown`,
+  `404: bash: cd: no such file or directory`, and a `$ ls /` list of the root
+  sections built from the main menu.
+- A publication shows `# updated: …` when its `lastmod` differs from its
+  publication date, and stays silent when it doesn't.
 - Section pages carry a visible heading with links to their own RSS and JSON
   Feed, and list cards name the content warning's category ("18+", "религия")
   instead of an unlabeled `cw` badge. Blog cards gained a `read →` affordance
