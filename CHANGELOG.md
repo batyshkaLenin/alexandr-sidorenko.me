@@ -72,6 +72,10 @@ This project has no public releases yet, so entries are tracked under
 
 ### Fixed
 
+- The home page biography lost its closing paragraph in the migration and now
+  carries the original text again. Its outgoing link does not come back:
+  `blur.tech` is no longer a registered domain, so Blurred Technologies is
+  named in plain text rather than linked to whoever registers it next.
 - Migrated poetry, lyrics, link lists, and bibliography entries now preserve
   their authored line breaks consistently in page HTML and in feeds where the
   publication body is permitted.
