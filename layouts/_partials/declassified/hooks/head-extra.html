@@ -58,6 +58,12 @@ card, webmention, and JSON-LD (schema.html only emits for IsHome/Kind
 <meta name="twitter:creator" content="@batyshkaLenin">
 
 <link rel="webmention" href="https://webmention.io/alexandr-sidorenko.me/webmention">
+
+{{/* T40: full approved identity set — footer no longer shows any of these
+as visible <a>, so all of data/links.yaml needs a head-only <link> here. */}}
+{{ range hugo.Data.links }}
+<link rel="me" href="{{ .url }}">
+{{ end }}
 {{ end }}
 
 {{ partial "schema.html" . }}

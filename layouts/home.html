@@ -72,20 +72,6 @@ creativity+status — all real site data, no invented dynamic state.
     </div>
   </section>
 
-  <section class="dc-panel">
-    {{ partial "declassified/panel-label.html" "$ cat links.md" }}
-    <div class="dc-panel__body">
-      {{ $links := where hugo.Data.links "footer" true }}
-      <ul class="dc-list">
-        {{ range $links }}
-        <li class="dc-list__item">
-          <a href="{{ .url }}" rel="me">→ {{ .label }}</a>
-        </li>
-        {{ end }}
-      </ul>
-    </div>
-  </section>
-
 </div>
 
 <div class="dc-home-row dc-home-row--creativity">

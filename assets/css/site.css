@@ -52,14 +52,16 @@ img {
   grid-template-columns: 240px 1fr 300px;
 }
 
-.dc-home-row--posts,
+.dc-home-row--posts {
+  grid-template-columns: 1fr;
+}
+
 .dc-home-row--creativity {
   grid-template-columns: 1fr 280px;
 }
 
 @media (max-width: 860px) {
   .dc-home-row--identity,
-  .dc-home-row--posts,
   .dc-home-row--creativity {
     grid-template-columns: 1fr;
   }
