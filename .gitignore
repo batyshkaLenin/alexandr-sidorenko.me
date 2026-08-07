@@ -9,6 +9,7 @@ tmp/
 .claude
 .codex
 .codebase-memory
+.playwright-mcp/
 
 # Hugo
 /public/

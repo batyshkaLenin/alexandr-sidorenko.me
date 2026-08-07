@@ -147,6 +147,24 @@ img {
   color: var(--dc-primary);
   font-size: 28px;
   line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.dc-hero-name__part {
+  display: block;
+}
+
+.dc-hero-meta {
+  margin: 10px 0 0;
+  color: var(--dc-faint);
+  font-size: 12px;
+}
+
+/* The mockup separates the two comments by a wide gap rather than
+   punctuation; a span keeps that out of the text content. */
+.dc-hero-meta__gap {
+  display: inline-block;
+  width: 1.5em;
 }
 
 .dc-roles {

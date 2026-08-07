@@ -2,6 +2,9 @@
 title: "Александр Сидоренко"
 description: "Блог и творчество Александра Сидоренко: заметки и статьи о разработке, музыке и жизни."
 roles: "developer · poet · hacker"
+status: "building & writing"
+location: "где-то в сети"
+since: "2020"
 portrait_quote: "Код — это структура.<br>Стихи — это свобода."
 ---
 
