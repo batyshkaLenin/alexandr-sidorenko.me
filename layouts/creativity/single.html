@@ -23,9 +23,7 @@ fallback can't know about.
     {{ with .Params.created }} · создано {{ (. | time.AsTime) | time.Format ":date_long" }}{{ end }}
   </p>
   {{ partial "byline.html" . }}
-  {{ with .Params.cover }}
-  <img class="u-photo" src="{{ . }}" alt="" width="1200" height="630" loading="lazy" decoding="async">
-  {{ end }}
+  {{ partial "publication/cover.html" . }}
 
   {{ $warnings := .Params.content_warnings }}
   {{ if $warnings }}

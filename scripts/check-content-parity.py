@@ -19,6 +19,7 @@ from pathlib import Path
 
 SITE_ORIGIN = "https://alexandr-sidorenko.me/"
 HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+LEADING_COVER_DUPLICATE = re.compile(r"\A\s*!\[[^\]]*\]\([^)]*\)[ \t]*\n+")
 HARD_BREAK = re.compile(r"(?: {2,}|\\)\n")
 BR = re.compile(r"<br\s*/?>", re.IGNORECASE)
 HARD_WRAPS_ENABLED = re.compile(r"^\s*hardWraps\s*=\s*true\s*(?:#.*)?$", re.MULTILINE)
@@ -79,6 +80,14 @@ def body(markdown: str) -> str:
 
 def normalized_body(markdown: str) -> str:
     value = HTML_COMMENT.sub("", body(markdown))
+    # T34: cover images now render once from front matter (with real
+    # intrinsic dimensions and an approved alt), not a second time as a
+    # leading inline body image duplicating it. The legacy source still
+    # opens with that now-redundant image line; stripping a leading
+    # standalone image (present on either side, a no-op otherwise) keeps
+    # this comparison about the actual prose, not the header-image
+    # mechanism. See tests/README.md "Reviewed intentional differences".
+    value = LEADING_COVER_DUPLICATE.sub("", value, count=1)
     value = value.replace(SITE_ORIGIN, "/")
     value = HARD_BREAK.sub("\n", value)
     return " ".join(value.split())

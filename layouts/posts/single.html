@@ -18,9 +18,7 @@ generic theme fallback doesn't and can't know about.
   </a>
   {{ with .Lastmod }}<time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>{{ end }}
   {{ partial "byline.html" . }}
-  {{ with .Params.cover }}
-  <img class="u-photo" src="{{ . }}" alt="" width="1200" height="630" loading="lazy" decoding="async">
-  {{ end }}
+  {{ partial "publication/cover.html" . }}
   <div class="dc-prose e-content">
     {{ .Content }}
   </div>

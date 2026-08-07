@@ -7,6 +7,9 @@ lastmod: 2022-09-02
 authors: ["batyshkaLenin"]
 creative_type: "story"
 cover: "/assets/creativity/skver/skver.jpg"
+cover_width: 2560
+cover_height: 1920
+cover_alt: "Тот самый сквер"
 content_warnings: ["addict"]
 draft: false
 uid: "https://alexandr-sidorenko.me/creativity/skver"
@@ -19,8 +22,6 @@ URL больше не публикуется и не перенаправляе�
 только как read-only provenance в
 tmp/old_project/_content/creativity/en/skver.md.
 -->
-
-![Тот самый сквер](/assets/creativity/skver/skver.jpg)
 
 После школы нужно было где-то засесть и обстоятельно покурить.
 Одну за другой, чтобы компенсировать каждый отсиженный урок и каждую перемену между ними.

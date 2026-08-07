@@ -1,0 +1,18 @@
+{{- /*
+Renders a publication's cover image with its real intrinsic dimensions (no
+fake fixed ratio — that causes layout shift when the actual file has a
+different aspect ratio) and an author-approved alt text. cover_width/
+cover_height/cover_alt are required front matter alongside cover: fail the
+build rather than silently reintroduce the old fake-1200x630/empty-alt bug
+(T34). Call sites must not also duplicate this image as the first body
+image — that duplication is a content-authoring bug the archetype comment
+warns about, not something this partial can detect at render time.
+*/ -}}
+{{ with .Params.cover }}
+{{ $width := $.Params.cover_width }}
+{{ $height := $.Params.cover_height }}
+{{ if or (not $width) (not $height) }}
+{{ errorf "%s: 'cover' is set but 'cover_width'/'cover_height' are missing (see T34 — real intrinsic dimensions required, not a guessed fixed ratio)" $.File.Path }}
+{{ end }}
+<img class="u-photo" src="{{ . }}" alt="{{ $.Params.cover_alt | default "" }}" width="{{ $width }}" height="{{ $height }}" loading="lazy" decoding="async">
+{{ end }}

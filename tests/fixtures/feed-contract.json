@@ -44,7 +44,6 @@
       "warning": false,
       "body_marker": "Замечали, скажешь человеку слово",
       "expected_urls": [
-        "https://alexandr-sidorenko.me/assets/posts/bluredu-new-teachers/blurred-technologies.jpg",
         "https://hackclub.com/"
       ]
     },
