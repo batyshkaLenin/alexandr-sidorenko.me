@@ -1,0 +1,19 @@
+{{- /*
+Returns a BreadcrumbList for any page below the home page: the trail comes from
+.Ancestors, so it follows the real content tree instead of a hand-written path.
+Every "item" is an absolute URL in the site's canonical form (T56).
+*/ -}}
+{{- $trail := .Ancestors.Reverse | append . -}}
+{{- $items := slice -}}
+{{- range $i, $p := $trail -}}
+  {{- $items = $items | append (dict
+    "@type" "ListItem"
+    "position" (add $i 1)
+    "name" (cond $p.IsHome $p.Site.Title $p.Title)
+    "item" (partial "canonical-url.html" $p.Permalink)
+  ) -}}
+{{- end -}}
+{{- return dict
+  "@context" "https://schema.org"
+  "@type" "BreadcrumbList"
+  "itemListElement" $items -}}

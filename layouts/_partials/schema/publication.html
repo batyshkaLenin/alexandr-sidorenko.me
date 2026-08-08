@@ -1,0 +1,32 @@
+{{- /*
+Returns the schema.org node for one publication, without "@context": used both
+standalone on the publication page and nested in a section's list, so the two
+never drift apart. "@id" is the front-matter uid (ADR redesign-stable-uid-contract),
+"url"/"mainEntityOfPage" are the location URL in the site's canonical form.
+*/ -}}
+{{- $author := dict "@type" "Person" "name" .Site.Params.author "url" .Site.BaseURL -}}
+{{- with .Params.authors -}}
+  {{- $authorKey := index . 0 -}}
+  {{- with index hugo.Data.authors $authorKey -}}
+    {{- $author = dict "@type" "Person" "name" .name "url" ($.Site.BaseURL) -}}
+  {{- else -}}
+    {{- errorf "%s: unknown author key %q (see data/authors.yaml)" $.File.Path $authorKey -}}
+  {{- end -}}
+{{- end -}}
+{{- $url := partial "canonical-url.html" .Permalink -}}
+{{- $json := dict
+  "@type" (cond (eq .Section "posts") "BlogPosting" "CreativeWork")
+  "@id" .Params.uid
+  "headline" .Title
+  "name" .Title
+  "description" .Description
+  "url" $url
+  "mainEntityOfPage" $url
+  "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")
+  "author" $author
+-}}
+{{- with .Lastmod }}{{ $json = merge $json (dict "dateModified" (.Format "2006-01-02T15:04:05Z07:00")) }}{{ end -}}
+{{- with .Params.created }}{{ $json = merge $json (dict "dateCreated" ((. | time.AsTime).Format "2006-01-02T15:04:05Z07:00")) }}{{ end -}}
+{{- with .Params.cover }}{{ $json = merge $json (dict "image" (. | absURL)) }}{{ end -}}
+{{- with .Params.tags }}{{ $json = merge $json (dict "keywords" (delimit . ", ")) }}{{ end -}}
+{{- return $json -}}

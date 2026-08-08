@@ -34,6 +34,15 @@ This project has no public releases yet, so entries are tracked under
   JavaScript and no external script), colored with the mockup's token palette.
 - Heading anchors in publication bodies: reachable by keyboard, named for a
   screen reader, revealed on hover or focus.
+- Structured data for every indexable page kind, not just the home page and
+  the publications: the sections, the tag list and each tag now describe
+  themselves (`Blog`/`CollectionPage`) and embed the same publications, in the
+  same order, that their visible list shows. Everything below the home page
+  also carries a `BreadcrumbList` with absolute URLs.
+- A schema.org contract check that verifies the built site against a fixture of
+  the expected nodes and against a committed copy of the schema.org vocabulary,
+  so a page losing — or silently growing — structured data fails a test rather
+  than a search engine's crawl.
 
 ### Changed
 

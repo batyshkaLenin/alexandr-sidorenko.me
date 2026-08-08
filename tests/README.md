@@ -11,6 +11,7 @@ python3 scripts/check-uid-contract.py
 python3 scripts/check-404-contract.py
 python3 scripts/check-rel-me-contract.py
 python3 scripts/check-url-contract.py
+python3 scripts/check-schema-contract.py
 ```
 
 The checker normalizes front matter, HTML provenance comments, Markdown hard-break
@@ -65,6 +66,25 @@ It doesn't check the HTTP status itself; that's a property of the static
 host (Cloudflare Workers Static Assets `not_found_handling: "404-page"`,
 verified manually with `wrangler dev` — an unmapped path returns a real
 404, not 200).
+
+The schema.org contract check (T46) covers what a green validator does not:
+that each page carries *exactly* the nodes it should. `schema-contract.json`
+states them page by page — the expected block types in order, the section/tag
+list property and its member URLs, the breadcrumb trail, and the properties
+that must be present — so a publication quietly losing its `BlogPosting`, or a
+page growing a node nobody asked for, fails the check. The embedded list is
+also compared with the visible one: same links, same order.
+
+Validity itself is checked against a committed copy of the schema.org
+vocabulary (`schema-org-vocabulary.json`, refreshed by
+`scripts/fetch-schema-vocabulary.py`, which is the only part that needs
+network access): every type and property must exist, every property must be
+allowed on the type it sits on, and every value must match the property's
+range, with site URLs additionally required in the canonical no-trailing-slash
+form. Verified by breaking each rule in turn — a dropped `headline`, an
+invented property name, `blogPost` on a `CollectionPage`, a list sorted the
+other way, a missing `BreadcrumbList`, an undescribed page, a trailing slash —
+each one fails and names the page and place.
 
 The rel=me contract check (T40) parses `data/links.yaml` for the full
 approved URL set and asserts it appears as `rel=me` — a head-only `<link>`

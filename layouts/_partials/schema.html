@@ -1,12 +1,18 @@
-{{ $author := dict "@type" "Person" "name" .Site.Params.author "url" .Site.BaseURL }}
-{{ with .Params.authors }}
-  {{ $authorKey := index . 0 }}
-  {{ with index hugo.Data.authors $authorKey }}
-  {{ $author = dict "@type" "Person" "name" .name "url" ($.Site.BaseURL) }}
-  {{ else }}
-  {{ errorf "%s: unknown author key %q (see data/authors.yaml)" $.File.Path $authorKey }}
-  {{ end }}
-{{ end }}
+{{- /*
+JSON-LD for every indexable page kind: the home page, the two sections, the tag
+list and each tag, and the publications. Everything below the home page also
+gets a BreadcrumbList; the home page doesn't, since a trail of one entry
+pointing at itself says nothing. Emitted as separate <script> blocks rather
+than one @graph so each type stays independently readable.
+
+Publication fields come from schema/publication.html — the same node the lists
+embed, so a list and a publication page can't disagree. The 404 kind is
+excluded here as well as in head-extra.html: it has no content identity (T39).
+
+No SiteNavigationElement, which the old site put on its menu (T46): the menu is
+already a semantic <nav> with aria-current, and search engines stopped using
+that vocabulary for navigation long ago.
+*/ -}}
 {{ if .IsHome }}
 {{ $json := dict
   "@context" "https://schema.org"
@@ -20,23 +26,31 @@
   )
 }}
 <script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>
-{{ else if eq .Kind "page" }}
-{{ $type := cond (eq .Section "posts") "BlogPosting" "CreativeWork" }}
+{{ else if in (slice "section" "taxonomy" "term") .Kind }}
+{{/* Same selection and order as the HTML list in section/taxonomy/term.html. */}}
+{{ $parts := slice }}
+{{ if eq .Kind "taxonomy" }}
+{{ range .Pages }}
+{{ $parts = $parts | append (dict "@type" "CollectionPage" "name" .Title "url" (partial "canonical-url.html" .Permalink)) }}
+{{ end }}
+{{ else }}
+{{ range .Pages.ByDate.Reverse }}
+{{ $parts = $parts | append (partial "schema/publication.html" .) }}
+{{ end }}
+{{ end }}
+{{ $isBlog := and (eq .Kind "section") (eq .Section "posts") }}
 {{ $json := dict
   "@context" "https://schema.org"
-  "@type" $type
-  "@id" .Params.uid
-  "headline" .Title
+  "@type" (cond $isBlog "Blog" "CollectionPage")
   "name" .Title
-  "description" .Description
   "url" (partial "canonical-url.html" .Permalink)
-  "mainEntityOfPage" (partial "canonical-url.html" .Permalink)
-  "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")
-  "author" $author
 }}
-{{ with .Lastmod }}{{ $json = merge $json (dict "dateModified" (.Format "2006-01-02T15:04:05Z07:00")) }}{{ end }}
-{{ with .Params.created }}{{ $json = merge $json (dict "dateCreated" ((. | time.AsTime).Format "2006-01-02T15:04:05Z07:00")) }}{{ end }}
-{{ with .Params.cover }}{{ $json = merge $json (dict "image" (. | absURL)) }}{{ end }}
-{{ with .Params.tags }}{{ $json = merge $json (dict "keywords" (delimit . ", ")) }}{{ end }}
+{{ with .Description }}{{ $json = merge $json (dict "description" .) }}{{ end }}
+{{ with $parts }}{{ $json = merge $json (dict (cond $isBlog "blogPost" "hasPart") .) }}{{ end }}
 <script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>
+<script type="application/ld+json">{{ partial "schema/breadcrumb.html" . | jsonify (dict "indent" "  ") | safeJS }}</script>
+{{ else if eq .Kind "page" }}
+{{ $json := merge (dict "@context" "https://schema.org") (partial "schema/publication.html" .) }}
+<script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>
+<script type="application/ld+json">{{ partial "schema/breadcrumb.html" . | jsonify (dict "indent" "  ") | safeJS }}</script>
 {{ end }}
