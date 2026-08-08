@@ -116,6 +116,17 @@ This project has no public releases yet, so entries are tracked under
   point at that same node by `@id` instead of repeating twelve profile links
   on every page and in every section list.
 
+### Removed
+
+- Camera metadata from the published photographs. One of them announced the
+  device its author owned, the camera application and the minute the shutter
+  was pressed — `OPPO A54`, `MediaTek Camera Application`,
+  `2021:11:20 16:44:59` — in 41KB that rode along with every request for a
+  2.9MB file. The visible pixels are bit-identical: nothing is re-encoded, only
+  the metadata segments are dropped. `scripts/check-image-metadata.py` now
+  fails a build that carries Exif, XMP or IPTC, and refuses to pass an image
+  format it cannot parse rather than skipping it quietly.
+
 ### Fixed
 
 - Images in publication bodies now declare their real dimensions, so the text
