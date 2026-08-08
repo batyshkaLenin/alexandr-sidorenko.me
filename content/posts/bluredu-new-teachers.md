@@ -7,6 +7,7 @@ lastmod: 2020-09-30
 authors: ["batyshkaLenin"]
 tags: ["Статья"]
 cover: "/assets/posts/bluredu-new-teachers/blurred-technologies.jpg"
+cover_alt: "Blurred Technologies - the future is now"
 draft: false
 uid: "https://alexandr-sidorenko.me/posts/bluredu-new-teachers"
 ---

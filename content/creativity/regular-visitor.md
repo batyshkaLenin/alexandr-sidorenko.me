@@ -7,6 +7,7 @@ lastmod: 2022-11-03
 authors: ["ppn"]
 creative_type: "single"
 cover: "/assets/creativity/regular-visitor/mattew-with-yamaha-46yo.jpg"
+cover_alt: "Крупный план: человек играет на акустической гитаре в баре"
 audio:
   - src: "/assets/creativity/regular-visitor/Постоянщик.mp3"
     type: "audio/mpeg"

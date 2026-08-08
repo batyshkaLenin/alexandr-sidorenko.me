@@ -41,7 +41,23 @@ for that.
     {{ end }}
   {{ end }}
 {{ end }}
-{{ $image := cond (ne (.Params.cover | default "") "") (.Params.cover | absURL) (absURL "/avatar.jpg") }}
+{{/* The avatar's alternative text lives with the avatar itself, in
+     data/authors.yaml; the site owner is the author whose name matches
+     params.author. A cover describes itself through `cover_alt` — required,
+     so a new publication can't ship a preview image nobody can read. */}}
+{{ $avatarAlt := "" }}
+{{ range $key, $author := hugo.Data.authors }}
+  {{ if eq $author.name $.Site.Params.author }}{{ $avatarAlt = $author.avatar_alt }}{{ end }}
+{{ end }}
+{{ if eq $avatarAlt "" }}
+  {{ errorf "no author in data/authors.yaml matches params.author %q, so the avatar has no alternative text" .Site.Params.author }}
+{{ end }}
+{{ $hasCover := ne (.Params.cover | default "") "" }}
+{{ if and $hasCover (eq (.Params.cover_alt | default "") "") }}
+  {{ errorf "%s: cover is set without cover_alt" .File.Path }}
+{{ end }}
+{{ $image := cond $hasCover (.Params.cover | absURL) (absURL "/avatar.jpg") }}
+{{ $imageAlt := cond $hasCover .Params.cover_alt $avatarAlt }}
 <meta name="description" content="{{ $description }}">
 {{ if $isNotFound }}
 <meta name="robots" content="noindex">
@@ -59,8 +75,12 @@ for that.
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/logo192.png">
 <link rel="manifest" href="/site.webmanifest">
+<meta name="application-name" content="{{ .Site.Title }}">
+<meta name="apple-mobile-web-app-title" content="{{ .Site.Title }}">
 
 {{ if not $isNotFound }}
+<link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+
 <meta property="og:type" content="{{ if eq .Kind "page" }}article{{ else }}website{{ end }}">
 <meta property="og:site_name" content="{{ .Site.Title }}">
 <meta property="og:locale" content="ru_RU">
@@ -68,15 +88,24 @@ for that.
 <meta property="og:description" content="{{ $description }}">
 <meta property="og:url" content="{{ partial "canonical-url.html" .Permalink }}">
 <meta property="og:image" content="{{ $image }}">
+<meta property="og:image:alt" content="{{ $imageAlt }}">
 
-<meta name="twitter:card" content="summary_large_image">
+{{/* A square avatar in a large card is mostly empty space: the wide card is
+     only honest when the page actually has a cover. */}}
+<meta name="twitter:card" content="{{ cond $hasCover "summary_large_image" "summary" }}">
 <meta name="twitter:title" content="{{ $title }}">
 <meta name="twitter:description" content="{{ $description }}">
 <meta name="twitter:image" content="{{ $image }}">
+<meta name="twitter:image:alt" content="{{ $imageAlt }}">
 <meta name="twitter:site" content="@batyshkaLenin">
 <meta name="twitter:creator" content="@batyshkaLenin">
 
 <link rel="webmention" href="https://webmention.io/alexandr-sidorenko.me/webmention">
+
+{{/* Sign-in by domain name, delegated to IndieAuth (T47). The other endpoints
+     the old site announced are not back: see the Task for which and why. */}}
+<link rel="authorization_endpoint" href="https://indieauth.com/auth">
+<link rel="token_endpoint" href="https://tokens.indieauth.com/token">
 
 {{/* T40: full approved identity set — footer no longer shows any of these
 as visible <a>, so all of data/links.yaml needs a head-only <link> here. */}}

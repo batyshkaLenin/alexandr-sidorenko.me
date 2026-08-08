@@ -43,9 +43,20 @@ This project has no public releases yet, so entries are tracked under
   the expected nodes and against a committed copy of the schema.org vocabulary,
   so a page losing — or silently growing — structured data fails a test rather
   than a search engine's crawl.
+- Sign-in by domain name is announced again (`authorization_endpoint`,
+  `token_endpoint`), alongside a `rel=sitemap` link, `application-name` and
+  `apple-mobile-web-app-title`.
+- Preview images now carry alternative text (`og:image:alt`,
+  `twitter:image:alt`), and a publication that sets a cover without describing
+  it fails the build instead of shipping an unreadable preview.
 
 ### Changed
 
+- A page announces the wide preview card (`summary_large_image`) only when it
+  actually has a cover; everything else asks for `summary` rather than framing
+  a square avatar in a wide card.
+- The manifest's `theme_color` and `background_color` now match the colour the
+  page itself declares (`#05080a`) instead of the previous theme's `#070707`.
 - Content warnings no longer gate the publication behind a disclosure the
   reader must open. The body renders open and the gate is laid over it, so
   without JavaScript the publication simply reads — the way the old site

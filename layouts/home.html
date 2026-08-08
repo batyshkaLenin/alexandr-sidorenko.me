@@ -63,7 +63,13 @@ creativity+status — all real site data, no invented dynamic state.
   <section class="dc-panel">
     {{ partial "declassified/panel-label.html" "$ render --style=duotone" }}
     <div class="dc-panel__body dc-portrait-body">
-      <img class="u-photo dc-portrait dc-duotone" src="{{ "/avatar.jpg" | absURL }}" alt="{{ .Site.Params.author }}" width="200" height="200" loading="lazy" decoding="async">
+      {{/* The alternative text describes the photograph, not just who is in
+           it; it comes from the same data/authors.yaml entry the head uses. */}}
+      {{ $alt := .Site.Params.author }}
+      {{ range $key, $author := hugo.Data.authors }}
+        {{ if eq $author.name $.Site.Params.author }}{{ $alt = $author.avatar_alt }}{{ end }}
+      {{ end }}
+      <img class="u-photo dc-portrait dc-duotone" src="{{ "/avatar.jpg" | absURL }}" alt="{{ $alt }}" width="200" height="200" loading="lazy" decoding="async">
       {{ with .Params.portrait_quote }}<p class="dc-portrait-quote">{{ . | safeHTML }}</p>{{ end }}
     </div>
   </section>

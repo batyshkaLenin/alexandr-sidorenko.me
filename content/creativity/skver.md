@@ -7,6 +7,7 @@ lastmod: 2022-09-02
 authors: ["batyshkaLenin"]
 creative_type: "story"
 cover: "/assets/creativity/skver/skver.jpg"
+cover_alt: "Тот самый сквер"
 content_warnings: ["addict"]
 draft: false
 uid: "https://alexandr-sidorenko.me/creativity/skver"
