@@ -25,11 +25,21 @@ fallback would make the whole check optional.
 {{- with $config -}}
   {{- $size = printf `width="%d" height="%d"` .Width .Height | safeHTMLAttr -}}
 {{- end -}}
+{{- /*
+The first body image is the one that can be the LCP element on a wide screen,
+and lazy loading hides it from the preload scanner until layout is done (T64).
+Every later image keeps deferring — they are below the fold by construction.
+
+Rendered content is cached and reused for .Summary in lists, so the attribute
+cannot depend on which page is being written out — that would make the same
+image eager or lazy depending on build order.
+*/ -}}
+{{- $loading := cond (eq .Ordinal 0) `fetchpriority="high"` `loading="lazy"` | safeHTMLAttr -}}
 {{ if .Title }}
 <figure class="dc-figure">
-  <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ $size }} loading="lazy" decoding="async">
+  <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ $size }} {{ $loading }} decoding="async">
   <figcaption>{{ .Title }}</figcaption>
 </figure>
 {{ else }}
-<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ $size }} loading="lazy" decoding="async">
+<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ $size }} {{ $loading }} decoding="async">
 {{ end }}
