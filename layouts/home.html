@@ -42,14 +42,18 @@ creativity+status — all real site data, no invented dynamic state.
     </div>
   </section>
 
+  {{ $owner := partial "authors/owner.html" . }}
   <section class="dc-panel h-card">
     {{ partial "declassified/panel-label.html" "$ cat about.md" }}
     <div class="dc-panel__body dc-prose">
       {{/* Two visual lines, one name: the parts stay separate elements so
            uppercase is CSS-only and a microformats parser still reads
            "Александр Сидоренко" in its authored case. */}}
-      <h2 class="dc-hero-name p-name">{{ range $i, $part := split .Site.Params.author " " }}{{ if $i }} {{ end }}<span class="dc-hero-name__part">{{ $part }}</span>{{ end }}</h2>
-      <a class="u-url" rel="me" href="{{ .Site.BaseURL }}">{{ .Site.BaseURL }}</a>
+      <h2 class="dc-hero-name p-name">{{ range $i, $part := split $owner.name " " }}{{ if $i }} {{ end }}<span class="dc-hero-name__part">{{ $part }}</span>{{ end }}</h2>
+      <a class="u-url" rel="me" href="{{ absURL $owner.url }}">{{ absURL $owner.url }}</a>
+      {{/* The portrait below sits in its own panel, outside this h-card root,
+           so a parser would never read it as the card's photo (T13). */}}
+      <data class="u-photo" value="{{ $owner.avatar | relURL }}" hidden></data>
       {{ with .Params.roles }}<p class="dc-roles">{{ . }}</p>{{ end }}
       <div class="p-note">
         {{ .Content }}
@@ -65,11 +69,7 @@ creativity+status — all real site data, no invented dynamic state.
     <div class="dc-panel__body dc-portrait-body">
       {{/* The alternative text describes the photograph, not just who is in
            it; it comes from the same data/authors.yaml entry the head uses. */}}
-      {{ $alt := .Site.Params.author }}
-      {{ range $key, $author := hugo.Data.authors }}
-        {{ if eq $author.name $.Site.Params.author }}{{ $alt = $author.avatar_alt }}{{ end }}
-      {{ end }}
-      <img class="u-photo dc-portrait dc-duotone" src="{{ "/avatar.jpg" | relURL }}" alt="{{ $alt }}" width="200" height="200" loading="lazy" decoding="async">
+      <img class="dc-portrait dc-duotone" src="{{ $owner.avatar | relURL }}" alt="{{ $owner.avatar_alt }}" width="200" height="200" loading="lazy" decoding="async">
       {{ with .Params.portrait_quote }}<p class="dc-portrait-quote">{{ . | safeHTML }}</p>{{ end }}
     </div>
   </section>

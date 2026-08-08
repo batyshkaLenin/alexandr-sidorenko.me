@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Verify warning, embedded URL, and audio metadata contracts in generated feeds."""
+"""Verify warning, embedded URL, audio and author contracts in generated feeds.
+
+The author part is deliberately cross-surface (T13): one publication is named
+by its byline h-card, by the hidden p-author of its section card, by RSS
+dc:creator and by the JSON Feed author object, and all four are built from
+data/authors.yaml. Checking them against one fixture value is what stops the
+four from drifting apart again.
+"""
 
 from __future__ import annotations
 
@@ -14,6 +21,7 @@ from urllib.parse import quote, urljoin
 
 SITE_ORIGIN = "https://alexandr-sidorenko.me/"
 CONTENT_NS = "{http://purl.org/rss/1.0/modules/content/}encoded"
+CREATOR_NS = "{http://purl.org/dc/elements/1.1/}creator"
 EMBEDDED_URL = re.compile(r"(?:href|src)=[\"']([^\"']+)", re.IGNORECASE)
 
 
@@ -21,6 +29,7 @@ class CardParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.cards: dict[str, str] = {}
+        self.authors: dict[str, str] = {}
         self._card: dict[str, str] | None = None
         self._summary: list[str] | None = None
 
@@ -31,6 +40,8 @@ class CardParser(HTMLParser):
             self._card = {}
         elif self._card is not None and tag == "a" and "p-name" in classes:
             self._card["href"] = attributes.get("href") or ""
+        elif self._card is not None and tag == "data" and "p-author" in classes:
+            self._card["author"] = attributes.get("value") or ""
         elif self._card is not None and tag == "p" and "p-summary" in classes:
             self._summary = []
 
@@ -45,7 +56,9 @@ class CardParser(HTMLParser):
         elif tag == "li" and self._card is not None:
             href = self._card.get("href")
             if href:
-                self.cards[urljoin(SITE_ORIGIN, href)] = self._card.get("summary", "")
+                url = urljoin(SITE_ORIGIN, href)
+                self.cards[url] = self._card.get("summary", "")
+                self.authors[url] = self._card.get("author", "")
             self._card = None
 
 
@@ -97,6 +110,34 @@ class WarningTextParser(HTMLParser):
             self._labels = None
 
 
+class BylineParser(HTMLParser):
+    """Reads the author name(s) from a publication page's byline h-card."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.names: list[str] = []
+        self._in_byline = False
+        self._name: list[str] | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        classes = (dict(attrs).get("class") or "").split()
+        if "byline" in classes:
+            self._in_byline = True
+        elif self._in_byline and "p-name" in classes:
+            self._name = []
+
+    def handle_data(self, data: str) -> None:
+        if self._name is not None:
+            self._name.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if self._name is not None and tag in ("a", "span"):
+            self.names.append(" ".join("".join(self._name).split()))
+            self._name = None
+        elif self._in_byline and tag == "p":
+            self._in_byline = False
+
+
 def normalized(value: str) -> str:
     return " ".join(value.split())
 
@@ -115,6 +156,7 @@ def rss_items(public_dir: Path) -> dict[str, dict[str, object]]:
             result[url] = {
                 "summary": item.findtext("description") or "",
                 "content": item.findtext(CONTENT_NS) or "",
+                "author": item.findtext(CREATOR_NS) or "",
                 "enclosures": [element.attrib for element in item.findall("enclosure")],
             }
     return result
@@ -125,11 +167,11 @@ def json_items(public_dir: Path) -> dict[str, dict[str, object]]:
     return {item["url"]: item for item in feed["items"]}
 
 
-def card_summaries(public_dir: Path) -> dict[str, str]:
+def section_cards(public_dir: Path) -> CardParser:
     parser = CardParser()
     for section in ("posts", "creativity"):
         parser.feed((public_dir / section / "index.html").read_text())
-    return parser.cards
+    return parser
 
 
 def expected_audio(root: Path, audio: dict[str, str]) -> dict[str, object]:
@@ -162,7 +204,8 @@ def main() -> int:
     warning_summary = fixture["warning_summary"]
     rss = rss_items(public_dir)
     json_feed = json_items(public_dir)
-    cards = card_summaries(public_dir)
+    card_parser = section_cards(public_dir)
+    cards = card_parser.cards
     errors: list[str] = []
 
     check(errors, len(rss) == len(fixture["items"]), "RSS item count changed")
@@ -193,6 +236,22 @@ def main() -> int:
             str(rss_item["summary"]) == str(json_item["summary"]) == cards.get(url),
             f"{item_id}: feed and card summaries differ",
         )
+
+        if expected_author := item.get("author"):
+            byline = BylineParser()
+            byline.feed((public_dir / item["html"]).read_text())
+            surfaces = {
+                "byline": byline.names,
+                "section card": [card_parser.authors.get(url, "")],
+                "RSS dc:creator": [str(rss_item["author"])],
+                "JSON Feed": [a.get("name") for a in json_item.get("authors", [])],
+            }
+            for surface, names in surfaces.items():
+                check(
+                    errors,
+                    names == [expected_author],
+                    f"{item_id}: {surface} names {names} != [{expected_author!r}]",
+                )
 
         if item["warning"]:
             page_html = (public_dir / item["html"]).read_text()

@@ -14,16 +14,12 @@ already a semantic <nav> with aria-current, and search engines stopped using
 that vocabulary for navigation long ago.
 */ -}}
 {{ if .IsHome }}
+{{ $owner := partial "authors/owner.html" . }}
+{{ $person := partial "schema/author.html" (dict "key" $owner.key "full" true) }}
 {{ $json := dict
   "@context" "https://schema.org"
   "@type" "ProfilePage"
-  "mainEntity" (dict
-    "@type" "Person"
-    "name" .Site.Params.author
-    "url" .Site.BaseURL
-    "description" .Site.Params.description
-    "image" (absURL "/avatar.jpg")
-  )
+  "mainEntity" (merge $person (dict "description" .Site.Params.description))
 }}
 <script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>
 {{ else if in (slice "section" "taxonomy" "term") .Kind }}

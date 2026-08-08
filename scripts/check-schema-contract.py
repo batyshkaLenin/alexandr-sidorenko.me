@@ -232,6 +232,12 @@ def check_page(vocab: Vocabulary, public: Path, page: dict) -> list[str]:
         if prop not in main:
             errors.append(f"{page['html']}: у {expected_types[0]} нет обязательного {prop!r}")
 
+    if expected_author := page.get("author"):
+        actual_author = main.get("author") or main.get("mainEntity") or {}
+        stated = {key: actual_author.get(key) for key in expected_author}
+        if stated != expected_author:
+            errors.append(f"{page['html']}: автор {stated} вместо ожидаемого {expected_author}")
+
     if "list" in page:
         spec = page["list"]
         items = main.get(spec["property"]) or []

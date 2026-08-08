@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
 <channel>
   <title>{{ if .IsHome }}{{ .Site.Title | htmlEscape }}{{ else }}{{ .Title | htmlEscape }} — {{ .Site.Title | htmlEscape }}{{ end }}</title>
   <link>{{ partial "canonical-url.html" .Permalink }}</link>
@@ -17,6 +17,13 @@
     <link>{{ partial "canonical-url.html" .Permalink }}</link>
     <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" }}</pubDate>
     <guid isPermaLink="false">{{ .Params.uid }}</guid>
+    {{- /* RSS <author> is defined as an email address, which this site does not
+           publish; dc:creator is the name-only form readers actually parse. */}}
+    {{- range .Params.authors }}
+    {{- with index hugo.Data.authors . }}
+    <dc:creator>{{ .name | htmlEscape }}</dc:creator>
+    {{- end }}
+    {{- end }}
     <description>{{ partial "publication/summary.txt" . | htmlEscape }}</description>
     <content:encoded><![CDATA[{{ partial "publication/feed-content.html" . }}]]></content:encoded>
     {{- range partial "publication/audio.html" . }}

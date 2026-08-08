@@ -3,7 +3,10 @@
   {{- $authors := slice }}
   {{- range .Params.authors }}
     {{- with index hugo.Data.authors . }}
-      {{- $authors = $authors | append (dict "name" .name) }}
+      {{- $author := dict "name" .name }}
+      {{- with .url }}{{ $author = merge $author (dict "url" (absURL .)) }}{{ end }}
+      {{- with .avatar }}{{ $author = merge $author (dict "avatar" (absURL .)) }}{{ end }}
+      {{- $authors = $authors | append $author }}
     {{- end }}
   {{- end }}
   {{- $attachments := partial "publication/audio.html" . }}

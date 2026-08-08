@@ -4,12 +4,13 @@
 The approved identity set in data/links.yaml must appear as rel=me exactly
 once each (as a head-only <link> or a visible <a>, never both for the same
 URL) on every page, with no missing or unapproved extra beyond the site's
-own documented self-reference.
+own documented self-reference, and as the sameAs of the home page's author.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from html.parser import HTMLParser
@@ -64,6 +65,38 @@ def check_page(errors: list[str], approved: set[str], public_dir: Path, path: st
     check(errors, not unexpected, f"{path}: unapproved/unexpected rel=me URL(s): {sorted(unexpected)}")
 
 
+def check_same_as(errors: list[str], approved: set[str], public_dir: Path) -> None:
+    """The home Person node claims the same identity set as rel=me (T13).
+
+    rel=me and schema.org sameAs are read by different consumers — IndieAuth
+    against the first, search engines against the second — so an identity added
+    to data/links.yaml has to reach both or the site says two different things
+    about who its author is.
+    """
+    html = (public_dir / "index.html").read_text()
+    blocks = re.findall(
+        r'<script type=["\']?application/ld\+json["\']?>(.*?)</script>', html, re.S
+    )
+    for block in blocks:
+        try:
+            node = json.loads(block)
+        except json.JSONDecodeError as error:
+            errors.append(f"index.html: JSON-LD block does not parse ({error})")
+            return
+        person = node.get("mainEntity")
+        if not isinstance(person, dict):
+            continue
+        same_as = set(person.get("sameAs") or [])
+        check(
+            errors,
+            same_as == approved,
+            f"index.html: JSON-LD sameAs differs from data/links.yaml; "
+            f"missing {sorted(approved - same_as)}, extra {sorted(same_as - approved)}",
+        )
+        return
+    errors.append("index.html: no JSON-LD node with mainEntity, can't check sameAs")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -76,6 +109,7 @@ def main() -> int:
     approved = approved_urls(root)
     errors: list[str] = []
     check(errors, len(approved) > 0, "no approved URLs parsed from data/links.yaml")
+    check_same_as(errors, approved, public_dir)
 
     # Document-level: check home and a representative section/detail page,
     # not just home.

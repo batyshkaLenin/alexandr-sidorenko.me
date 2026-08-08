@@ -9,7 +9,13 @@
       ],
       "required_properties": [
         "mainEntity"
-      ]
+      ],
+      "author": {
+        "@id": "https://alexandr-sidorenko.me/#batyshkaLenin",
+        "@type": "Person",
+        "name": "Александр Сидоренко",
+        "url": "https://alexandr-sidorenko.me/"
+      }
     },
     {
       "html": "posts/index.html",
@@ -215,7 +221,13 @@
           "Мы поступили в универ — и сами показали преподам, как учить студентов. Теперь собираем самые большие аудитории",
           "https://alexandr-sidorenko.me/posts/bluredu-new-teachers"
         ]
-      ]
+      ],
+      "author": {
+        "@id": "https://alexandr-sidorenko.me/#batyshkaLenin",
+        "@type": "Person",
+        "name": "Александр Сидоренко",
+        "url": "https://alexandr-sidorenko.me/"
+      }
     },
     {
       "html": "posts/philosophy-of-freedom/index.html",
@@ -250,7 +262,13 @@
           "Философия свободы",
           "https://alexandr-sidorenko.me/posts/philosophy-of-freedom"
         ]
-      ]
+      ],
+      "author": {
+        "@id": "https://alexandr-sidorenko.me/#batyshkaLenin",
+        "@type": "Person",
+        "name": "Александр Сидоренко",
+        "url": "https://alexandr-sidorenko.me/"
+      }
     },
     {
       "html": "creativity/23/index.html",
@@ -285,7 +303,13 @@
           "23",
           "https://alexandr-sidorenko.me/creativity/23"
         ]
-      ]
+      ],
+      "author": {
+        "@id": "https://alexandr-sidorenko.me/#batyshkaLenin",
+        "@type": "Person",
+        "name": "Александр Сидоренко",
+        "url": "https://alexandr-sidorenko.me/"
+      }
     },
     {
       "html": "creativity/humility-and-open-mindedness/index.html",
@@ -320,7 +344,13 @@
           "Смирение и непредвзятость",
           "https://alexandr-sidorenko.me/creativity/humility-and-open-mindedness"
         ]
-      ]
+      ],
+      "author": {
+        "@id": "https://alexandr-sidorenko.me/#batyshkaLenin",
+        "@type": "Person",
+        "name": "Александр Сидоренко",
+        "url": "https://alexandr-sidorenko.me/"
+      }
     },
     {
       "html": "creativity/regular-visitor/index.html",
@@ -355,7 +385,13 @@
           "Постоянщик",
           "https://alexandr-sidorenko.me/creativity/regular-visitor"
         ]
-      ]
+      ],
+      "author": {
+        "@id": "https://alexandr-sidorenko.me/#ppn",
+        "@type": "MusicGroup",
+        "name": "ППН",
+        "url": null
+      }
     },
     {
       "html": "creativity/skver/index.html",
@@ -390,7 +426,13 @@
           "Сквер",
           "https://alexandr-sidorenko.me/creativity/skver"
         ]
-      ]
+      ],
+      "author": {
+        "@id": "https://alexandr-sidorenko.me/#batyshkaLenin",
+        "@type": "Person",
+        "name": "Александр Сидоренко",
+        "url": "https://alexandr-sidorenko.me/"
+      }
     }
   ],
   "pages_without_structured_data": [

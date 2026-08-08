@@ -2,9 +2,14 @@
 {{ range .Params.authors }}
   {{ $key := . }}
   {{ with index hugo.Data.authors $key }}
+  {{ $author := . }}
+  {{/* An author without an address of its own stays a plain p-name: a u-url
+       pointing at the site root would tell a microformats parser that this is
+       where the author lives (T13). */}}
   <p class="byline p-author h-card">
-    {{ with .avatar }}<img class="u-photo" src="{{ . | relURL }}" alt="" width="32" height="32" loading="lazy" decoding="async">{{ end }}
-    <a class="p-name u-url" href="{{ "/" | relURL }}">{{ .name }}</a>{{ with .username }} <span class="username">@{{ . }}</span>{{ end }}
+    {{ with $author.avatar }}<img class="u-photo" src="{{ . | relURL }}" alt="" width="32" height="32" loading="lazy" decoding="async">{{ end }}
+    {{- with $author.url }}<a class="p-name u-url" href="{{ . | relURL }}">{{ $author.name }}</a>{{ else }}<span class="p-name">{{ $author.name }}</span>{{ end }}
+    {{- with $author.username }} <span class="username">@{{ . }}</span>{{ end }}
   </p>
   {{ else }}
   {{ errorf "%s: unknown author key %q (see data/authors.yaml)" $page.File.Path $key }}

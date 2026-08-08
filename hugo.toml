@@ -15,8 +15,8 @@ enableRobotsTXT = true
 theme = 'declassified'
 
 [params]
+  # The author lives in data/authors.yaml, on the entry flagged `site_owner`.
   description = 'Блог и творчество Александра Сидоренко: заметки и статьи о разработке, музыке и жизни.'
-  author = 'Александр Сидоренко'
 
 [[menus.main]]
   name = 'Главная'

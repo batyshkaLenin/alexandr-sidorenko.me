@@ -1,0 +1,30 @@
+{{- /*
+Returns the schema.org node for one author key from data/authors.yaml, used by
+every publication and by the home ProfilePage, so the two can't disagree.
+
+Both identities get a stable "@id" on the site's own origin. The full profile —
+image and the rel=me set from data/links.yaml — is emitted once, on the home
+page (dict "full" true); publications reference the same "@id" and stay small,
+which matters because a section list embeds one node per publication.
+
+An empty url/avatar in the data is an approved absence (T13) and is omitted
+rather than defaulted: "ППН" is a music project with no photo and no address of
+its own, and pointing it at the personal site would claim otherwise.
+*/ -}}
+{{- $key := .key -}}
+{{- $full := .full -}}
+{{- $author := index hugo.Data.authors $key -}}
+{{- if not $author }}{{ errorf "unknown author key %q (see data/authors.yaml)" $key }}{{ end -}}
+{{- $node := dict
+  "@type" $author.schema_type
+  "@id" (printf "%s#%s" (absURL "/") $key)
+  "name" $author.name
+-}}
+{{- with $author.url }}{{ $node = merge $node (dict "url" (absURL .)) }}{{ end -}}
+{{- if $full -}}
+  {{- with $author.avatar }}{{ $node = merge $node (dict "image" (absURL .)) }}{{ end -}}
+  {{- $sameAs := slice -}}
+  {{- range hugo.Data.links }}{{ if eq .rel "me" }}{{ $sameAs = $sameAs | append .url }}{{ end }}{{ end -}}
+  {{- with $sameAs }}{{ $node = merge $node (dict "sameAs" .) }}{{ end -}}
+{{- end -}}
+{{- return $node -}}

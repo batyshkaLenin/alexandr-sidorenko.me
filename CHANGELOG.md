@@ -99,6 +99,13 @@ This project has no public releases yet, so entries are tracked under
   comfortable line length the way a fixed pixel width didn't), base font
   size raised for long-form reading, `prefers-reduced-motion` respected,
   and the print stylesheet no longer hides collapsed content-warning text.
+- Both author identities now have one approved public form, and every surface
+  reads it from the same place: the byline and its h-card, the section card,
+  RSS (which named no author at all before, and now carries `dc:creator`),
+  JSON Feed (now with the author's address and avatar) and JSON-LD. The home
+  page's Person node carries the full `rel=me` set as `sameAs`; publications
+  point at that same node by `@id` instead of repeating twelve profile links
+  on every page and in every section list.
 
 ### Fixed
 
@@ -123,6 +130,13 @@ This project has no public releases yet, so entries are tracked under
   other deployment — a preview build, a local server — fetched them across
   origins, down to a multi-megabyte audio file. Feed enclosures, preview
   images and structured data keep the absolute form they require.
+- The music project "ППН" was described to machines as a person living at the
+  site owner's own address: its structured data said `Person` and its byline
+  linked to the personal home page. It is a `MusicGroup` now, with no address
+  of its own — an approved absence rather than a default.
+- The home page's h-card never carried the portrait. The photo sits in a
+  neighbouring panel, outside the card, so a microformats parser saw a card
+  with no photo at all.
 
 ### Removed
 

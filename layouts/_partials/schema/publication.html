@@ -4,15 +4,12 @@ standalone on the publication page and nested in a section's list, so the two
 never drift apart. "@id" is the front-matter uid (ADR redesign-stable-uid-contract),
 "url"/"mainEntityOfPage" are the location URL in the site's canonical form.
 */ -}}
-{{- $author := dict "@type" "Person" "name" .Site.Params.author "url" .Site.BaseURL -}}
-{{- with .Params.authors -}}
-  {{- $authorKey := index . 0 -}}
-  {{- with index hugo.Data.authors $authorKey -}}
-    {{- $author = dict "@type" "Person" "name" .name "url" ($.Site.BaseURL) -}}
-  {{- else -}}
-    {{- errorf "%s: unknown author key %q (see data/authors.yaml)" $.File.Path $authorKey -}}
-  {{- end -}}
+{{- $authorKey := "" -}}
+{{- with .Params.authors }}{{ $authorKey = index . 0 }}{{ else }}{{ $authorKey = (partial "authors/owner.html" $).key }}{{ end -}}
+{{- if not (index hugo.Data.authors $authorKey) -}}
+  {{- errorf "%s: unknown author key %q (see data/authors.yaml)" $.File.Path $authorKey -}}
 {{- end -}}
+{{- $author := partial "schema/author.html" (dict "key" $authorKey) -}}
 {{- $url := partial "canonical-url.html" .Permalink -}}
 {{- $json := dict
   "@type" (cond (eq .Section "posts") "BlogPosting" "CreativeWork")

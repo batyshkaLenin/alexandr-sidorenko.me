@@ -1,0 +1,15 @@
+{{- /*
+Returns the data/authors.yaml entry marked `site_owner: true`, with its key
+added as "key". Exactly one entry may carry the flag: the site speaks for one
+person, and a silent second owner would make the home h-card and the avatar's
+alternative text disagree with the byline.
+*/ -}}
+{{- $owner := false -}}
+{{- range $key, $author := hugo.Data.authors -}}
+  {{- if $author.site_owner -}}
+    {{- if $owner }}{{ errorf "data/authors.yaml: more than one entry has site_owner: true" }}{{ end -}}
+    {{- $owner = merge $author (dict "key" $key) -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $owner }}{{ errorf "data/authors.yaml: no entry has site_owner: true" }}{{ end -}}
+{{- return $owner -}}
