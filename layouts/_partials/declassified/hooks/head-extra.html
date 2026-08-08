@@ -64,7 +64,7 @@ for that.
 {{ else }}
 <link rel="canonical" href="{{ partial "canonical-url.html" .Permalink }}">
 {{ end }}
-{{ with (resources.Get "css/site.css") | fingerprint }}
+{{ with (resources.Get "css/site.css") | minify | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
 {{ if or .IsHome (eq .Kind "section") }}
