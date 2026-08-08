@@ -35,9 +35,13 @@ theme fallback can't know to use.
           {{ end }}
           {{/* Name the category, never the plot: labels come from
                data/content_warnings.yaml, whose full text stays the source for
-               the publication page and feeds (T36). */}}
-          {{ range $page.Params.content_warnings }}
-          {{- with index hugo.Data.content_warnings . }}<span class="dc-list__cw">cw: {{ .label }}</span>{{ end }}
+               the publication page and feeds (T36). One caption per card, the
+               same way the publication page frames them (T81) — a badge per
+               category repeated the "cw" prefix up to three times in a row. */}}
+          {{ with $page.Params.content_warnings }}
+          {{- $labels := slice }}
+          {{- range . }}{{ with index hugo.Data.content_warnings . }}{{ $labels = $labels | append .label }}{{ end }}{{ end }}
+          {{- with $labels }}<span class="dc-list__cw">cw: {{ delimit . ", " }}</span>{{ end }}
           {{- end }}
         </p>
         {{ end }}

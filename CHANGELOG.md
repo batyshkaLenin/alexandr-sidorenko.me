@@ -99,6 +99,10 @@ This project has no public releases yet, so entries are tracked under
   comfortable line length the way a fixed pixel width didn't), base font
   size raised for long-form reading, `prefers-reduced-motion` respected,
   and the print stylesheet no longer hides collapsed content-warning text.
+- A list card names its content warnings in one caption — `cw: 18+, религия,
+  зависимости` — instead of a separate badge per category, each repeating the
+  `cw` prefix. This is how the publication page has framed them since the
+  warning block was drawn to the mockup.
 - Both author identities now have one approved public form, and every surface
   reads it from the same place: the byline and its h-card, the section card,
   RSS (which named no author at all before, and now carries `dc:creator`),
