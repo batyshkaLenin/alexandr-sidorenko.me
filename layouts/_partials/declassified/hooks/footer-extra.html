@@ -1,3 +1,3 @@
 {{- /* Site override of the theme's empty footer-extra hook. See T40. */ -}}
 <a href="https://github.com/batyshkaLenin/alexandr-sidorenko.me">Source: GitHub</a>
-{{ with .Site.GetPage "/" }}{{ with .OutputFormats.Get "rss" }}<a href="{{ .Permalink }}">RSS</a>{{ end }}{{ end }}
+{{ with .Site.GetPage "/" }}{{ with .OutputFormats.Get "rss" }}<a href="{{ partial "canonical-url.html" .RelPermalink }}">RSS</a>{{ end }}{{ end }}

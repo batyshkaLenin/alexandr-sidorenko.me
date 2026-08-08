@@ -4,6 +4,8 @@
   {{- $type := .type -}}
   {{- if not $src }}{{ errorf "audio entry on %s is missing src" $.Path }}{{ end -}}
   {{- if not $type }}{{ errorf "audio entry %s on %s is missing type" $src $.Path }}{{ end -}}
+  {{- /* Absolute on purpose: this is the feed enclosure. The on-page player
+       builds its own relative address from the same entry (T65). */ -}}
   {{- $attachment := dict "url" ($src | absURL) "mime_type" $type -}}
   {{- if hasPrefix $src "/" -}}
     {{- $file := os.Stat (printf "static%s" $src) -}}

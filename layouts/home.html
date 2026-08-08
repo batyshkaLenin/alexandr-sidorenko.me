@@ -69,7 +69,7 @@ creativity+status — all real site data, no invented dynamic state.
       {{ range $key, $author := hugo.Data.authors }}
         {{ if eq $author.name $.Site.Params.author }}{{ $alt = $author.avatar_alt }}{{ end }}
       {{ end }}
-      <img class="u-photo dc-portrait dc-duotone" src="{{ "/avatar.jpg" | absURL }}" alt="{{ $alt }}" width="200" height="200" loading="lazy" decoding="async">
+      <img class="u-photo dc-portrait dc-duotone" src="{{ "/avatar.jpg" | relURL }}" alt="{{ $alt }}" width="200" height="200" loading="lazy" decoding="async">
       {{ with .Params.portrait_quote }}<p class="dc-portrait-quote">{{ . | safeHTML }}</p>{{ end }}
     </div>
   </section>

@@ -112,6 +112,11 @@ This project has no public releases yet, so entries are tracked under
 - Byline username text failed WCAG AA contrast in light mode (~4:1) due
   to two stacked `opacity` values multiplying; now a single flat value
   with contrast well above 4.5:1 in both themes.
+- A page now loads its avatar, audio and internal links from the address the
+  reader actually opened. They were pinned to the production domain, so any
+  other deployment — a preview build, a local server — fetched them across
+  origins, down to a multi-megabyte audio file. Feed enclosures, preview
+  images and structured data keep the absolute form they require.
 
 ### Removed
 

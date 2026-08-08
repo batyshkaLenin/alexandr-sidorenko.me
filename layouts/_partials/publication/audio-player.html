@@ -5,9 +5,11 @@ track title. The print line carries the same label plus the address, because
 a paper copy of a music publication otherwise keeps no trace of the audio at
 all (research B8).
 */ -}}
-{{- $attachments := partial "publication/audio.html" . -}}
-{{- range $i, $entry := .Params.audio }}
-{{- $url := (index $attachments $i).url }}
+{{- /* The player stays on the origin the reader opened: an absolute address
+     here makes a preview build pull the file from the production domain
+     (T65). The feed enclosure keeps its absolute form in audio.html. */ -}}
+{{- range $entry := .Params.audio }}
+{{- $url := $entry.src | relURL }}
 {{- $label := $entry.label | default (path.BaseName $entry.src) }}
 <p class="dc-audio">
   <span class="dc-audio__label">$ play {{ $label }}</span>
