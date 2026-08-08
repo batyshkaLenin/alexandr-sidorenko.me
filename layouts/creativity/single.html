@@ -32,8 +32,7 @@ same as the legacy site.
   {{ $warnings := .Params.content_warnings }}
   {{ if $warnings }}
   <div class="dc-warned" data-dc-warned>
-    {{ partial "publication/warnings.html" . }}
-    <button class="dc-warned__reveal" type="button" data-dc-reveal>{{ i18n "revealWarnedText" }}</button>
+    {{ partial "publication/warning-box.html" . }}
     <div class="dc-warned__body">
       {{ partial "publication/audio-player.html" . }}
       <div class="dc-prose e-content">{{ .Content }}</div>

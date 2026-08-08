@@ -1,0 +1,17 @@
+{{- /*
+The warning block as the mockup draws it (Sidorenko TUI.dc.html, lines 261–267):
+a framed box holding the short categories, the full disclaimers and the reveal
+control. Only the page uses it — feeds keep the bare list from warnings.html, so
+the T36 feed contract stays untouched.
+*/ -}}
+{{- $page := . -}}
+{{- with .Params.content_warnings }}
+<div class="dc-warning">
+  <p class="dc-warning__labels">⚠ {{ i18n "warningsContains" }}: {{ range $i, $key := . }}{{ if $i }}, {{ end }}
+    {{- with index hugo.Data.content_warnings $key }}{{ .label }}
+    {{- else }}{{ errorf "%s: unknown content_warnings key %q (see data/content_warnings.yaml)" $page.File.Path $key }}{{ end }}
+  {{- end }}</p>
+  {{ partial "publication/warnings.html" $page }}
+  <button class="dc-warned__reveal" type="button" data-dc-reveal>{{ i18n "revealWarnedText" }}</button>
+</div>
+{{- end }}

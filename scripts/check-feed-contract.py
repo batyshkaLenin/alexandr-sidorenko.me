@@ -50,30 +50,41 @@ class CardParser(HTMLParser):
 
 
 class WarningTextParser(HTMLParser):
-    """Collects the full disclaimers rendered by publication/warnings.html.
+    """Collects the warning block as the page renders it.
 
     Until T50 the gate was a native <details>, and this parser read its
     <summary>. The gate is a scripted blur now (owner's decision, 2026-08-07):
     the body renders open and the warnings are always visible above it, so what
     has to be asserted is the presence of the warning texts themselves.
+
+    Since T61 the page frames those texts in a .dc-warning box that also names
+    the short categories; feeds keep the bare list. Both parts are collected
+    here, so the page has to carry the categories *and* the disclaimers while
+    the feed check below still sees only the disclaimers.
     """
 
     def __init__(self) -> None:
         super().__init__()
         self.warnings: list[str] = []
+        self.labels = ""
         self._depth = 0
         self._current: list[str] | None = None
+        self._labels: list[str] | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         classes = (dict(attrs).get("class") or "").split()
         if tag == "ul" and "content-warnings" in classes:
             self._depth = 1
+        elif tag == "p" and "dc-warning__labels" in classes:
+            self._labels = []
         elif self._depth and tag == "li":
             self._current = []
 
     def handle_data(self, data: str) -> None:
         if self._current is not None:
             self._current.append(data)
+        if self._labels is not None:
+            self._labels.append(data)
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "li" and self._current is not None:
@@ -81,6 +92,9 @@ class WarningTextParser(HTMLParser):
             self._current = None
         elif tag == "ul" and self._depth:
             self._depth = 0
+        elif tag == "p" and self._labels is not None:
+            self.labels = " ".join("".join(self._labels).split())
+            self._labels = None
 
 
 def normalized(value: str) -> str:
@@ -214,6 +228,12 @@ def main() -> int:
                 errors,
                 warning_parser.warnings == expected_warnings,
                 f"{item_id}: page warnings {warning_parser.warnings} != {expected_warnings}",
+            )
+            expected_labels = item.get("warning_labels", "")
+            check(
+                errors,
+                warning_parser.labels == expected_labels,
+                f"{item_id}: page warning categories {warning_parser.labels!r} != {expected_labels!r}",
             )
             check(
                 errors,

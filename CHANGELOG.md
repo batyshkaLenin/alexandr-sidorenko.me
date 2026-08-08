@@ -52,6 +52,10 @@ This project has no public releases yet, so entries are tracked under
 
 ### Changed
 
+- A content warning now reads as one framed block: the short categories on the
+  first line, the full disclaimers below them, and the reveal control inside
+  the same frame — the way the mockup draws it. Feeds are unaffected: they keep
+  the plain list of disclaimers.
 - A page announces the wide preview card (`summary_large_image`) only when it
   actually has a cover; everything else asks for `summary` rather than framing
   a square avatar in a wide card.
