@@ -141,6 +141,9 @@ This project has no public releases yet, so entries are tracked under
   text and then hid the control itself, so a reader who opened a publication
   could not put it back under the blur — and, since the blur also decides what
   prints, could not keep it off the paper either.
+- The main menu no longer wraps onto a second row on a phone, which had doubled
+  the height of the header before any content was visible. A menu item is also
+  a full-height tap target there now, rather than a 19px line of text.
 
 ### Removed
 
