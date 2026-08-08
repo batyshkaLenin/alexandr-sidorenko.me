@@ -14,12 +14,6 @@
    Every fallback needs its own family name: several @font-face rules sharing
    one name override each other instead of falling through. */
 @font-face {
-  font-family: "Fira Code Fallback L";
-  src: local("Liberation Mono");
-  size-adjust: 100%;
-}
-
-@font-face {
   font-family: "Fira Code Fallback M";
   src: local("Menlo"), local("DejaVu Sans Mono");
   size-adjust: 99.7%;
@@ -47,9 +41,11 @@
 }
 
 :root {
-  --dc-font: "Fira Code", "Fira Code Fallback L", "Fira Code Fallback M",
+  /* Liberation Mono needs no adjusting — it already matches Fira Code — but it
+     has to come before ui-monospace, which resolves to a narrower font. */
+  --dc-font: "Fira Code", "Liberation Mono", "Fira Code Fallback M",
     "Fira Code Fallback C", ui-monospace, "SFMono-Regular", Menlo, Consolas,
-    "Liberation Mono", monospace;
+    monospace;
   /* Georgia stays unadjusted before them: measured 99.99% of PT Serif. */
   --dc-font-prose: "PT Serif", Georgia, "PT Serif Fallback T",
     "PT Serif Fallback N", "Times New Roman", serif;
