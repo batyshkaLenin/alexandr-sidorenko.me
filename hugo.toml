@@ -45,7 +45,7 @@ theme = 'declassified'
   lastmod = ['lastmod', ':git', ':default']
 
 [outputs]
-  home = ['html', 'rss', 'jsonfeed']
+  home = ['html', 'rss', 'jsonfeed', 'llms']
   section = ['html', 'rss', 'jsonfeed']
   page = ['html']
   taxonomy = ['html']
@@ -64,6 +64,14 @@ theme = 'declassified'
   baseName = 'feed'
   isPlainText = true
   rel = 'alternate'
+
+# /llms.txt (T67). Markdown body served as text/plain, which is what the
+# convention asks for and what a reader gets when they open it in a browser.
+# Home only: the file is one map of the whole site, not a per-section feed.
+[outputFormats.llms]
+  mediaType = 'text/plain'
+  baseName = 'llms'
+  isPlainText = true
 
 [minify]
   disableXML = true

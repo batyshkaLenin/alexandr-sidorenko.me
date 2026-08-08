@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
@@ -207,6 +208,19 @@ def main() -> int:
                 checked_urls += 1
                 check(errors, not has_trailing_slash(url), f"{name}: JSON-LD {location} {url!r} has a trailing slash")
 
+    # /llms.txt is Markdown, so its addresses live in link syntax rather than in
+    # markup a parser would find above (T67). Without this the map would be the
+    # one representation free to publish a trailing slash.
+    llms_path = public_dir / "llms.txt"
+    llms_urls: set[str] = set()
+    if llms_path.exists():
+        for url in re.findall(r"\]\((https?://[^)]+)\)", llms_path.read_text()):
+            if not is_internal(url):
+                continue
+            llms_urls.add(url)
+            checked_urls += 1
+            check(errors, not has_trailing_slash(url), f"llms.txt: {url!r} has a trailing slash")
+
     sitemap_locs: set[str] = set()
     sitemap_path = public_dir / "sitemap.xml"
     check(errors, sitemap_path.exists(), "missing sitemap.xml")
@@ -274,6 +288,8 @@ def main() -> int:
             check(errors, parsed.u_url == expected, f"{name}: u-url {parsed.u_url!r} != {expected!r}")
             check(errors, expected in all_rss_links, f"{name}: {expected!r} missing from RSS <link>")
             check(errors, expected in all_json_feed_urls, f"{name}: {expected!r} missing from JSON Feed url")
+            if llms_path.exists():
+                check(errors, expected in llms_urls, f"{name}: {expected!r} missing from llms.txt")
 
     if errors:
         print("URL contract check failed:", file=sys.stderr)

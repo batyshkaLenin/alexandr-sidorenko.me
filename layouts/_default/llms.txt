@@ -1,0 +1,32 @@
+{{- /*
+/llms.txt (T67) — the site as one Markdown map, in the shape llmstxt.org
+describes: a single H1, a blockquote summary, then sections of links.
+
+A map, not a second feed. Bodies stay out of it: a reader that wants the text
+already has the HTML page, RSS and JSON Feed, and repeating it here would mean
+a fourth place for the content-warning contract (T36) to be got wrong. What
+each entry carries is the same summary the cards and the feeds show — which for
+a warned publication is the warning, never the plot — plus its categories.
+
+Addresses go through canonical-url.html like every other representation, so
+this file cannot become the one place that publishes a trailing slash.
+*/ -}}
+{{- $sections := slice (site.GetPage "/posts") (site.GetPage "/creativity") -}}
+# {{ site.Title }}
+
+> {{ site.Params.description }}
+
+{{/* .Plain drops the tags but leaves the typographer's &ldquo;/&rdquo; behind,
+     and this file is read as plain text, not parsed as HTML. */}}
+{{- with site.GetPage "/" }}{{ .Plain | htmlUnescape | strings.TrimSpace | replaceRE `\s+` " " }}{{ end }}
+{{ range $sections }}
+## {{ .Title }}
+{{ range .Pages.ByDate.Reverse }}
+- [{{ .Title }}]({{ partial "canonical-url.html" .Permalink }}){{ with partial "publication/summary.txt" . }}: {{ . }}{{ end }}
+  {{- with .Params.content_warnings }}
+  {{- $labels := slice }}
+  {{- range . }}{{ with index hugo.Data.content_warnings . }}{{ $labels = $labels | append .label }}{{ end }}{{ end }}
+  {{- with $labels }} (предупреждения: {{ delimit . ", " }}){{ end }}
+  {{- end }}
+{{- end }}
+{{ end -}}

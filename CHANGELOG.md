@@ -56,6 +56,16 @@ This project has no public releases yet, so entries are tracked under
   `twitter:image:alt`), and a publication that sets a cover without describing
   it fails the build instead of shipping an unreadable preview.
 
+### Added
+
+- `/llms.txt`: the site as one Markdown map — a heading, a short description
+  and a linked list of every publication with its summary — so a language model
+  can read the structure in a single request instead of walking the sections.
+  It is a map, not a second feed: bodies stay out, and a publication behind a
+  content warning is listed by title, warning and categories exactly as the
+  feeds list it. The URL contract check reads the file too, so the map cannot
+  become the one place that publishes an address in the wrong form.
+
 ### Changed
 
 - A content warning now reads as one framed block: the short categories on the
