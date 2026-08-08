@@ -20,6 +20,10 @@ The no-trailing-slash policy is this site's ADR, not a theme concern.
       </li>
       {{ end }}
     </ul>
+    {{- /* Hidden until the enhance hook actually registers the key handler:
+    the hint must not promise behaviour that never arrives (T54). It sits
+    inside the nav row, so revealing it does not change the row's height. */ -}}
+    <p class="dc-nav__hint" id="dc-nav-hint" hidden>{{ i18n "navKeysHint" }}</p>
   </nav>
   {{ end }}
 </header>

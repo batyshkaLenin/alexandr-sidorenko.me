@@ -53,4 +53,46 @@ contract.
     })(buttons[i]);
   }
 })();
+
+/* Keyboard navigation (T54). The digits mirror the [1]/[2]/[3] indices the nav
+   already draws, and Esc goes to the parent section rather than through
+   history — going "back" from an external link would leave the site. The hint
+   in the nav is revealed only once the handler is attached, so a blocked or
+   broken script leaves no promise of shortcuts that do not work. */
+(function () {
+  "use strict";
+  var links = document.querySelectorAll(".dc-nav__link");
+  if (!links.length) return;
+  {{- $parent := "" }}
+  {{- with .Parent }}{{ $parent = partial "canonical-url.html" .RelPermalink }}{{ end }}
+  var parentUrl = {{ $parent }};
+
+  function isTyping(node) {
+    if (!node || !node.tagName) return false;
+    return node.isContentEditable
+      || node.tagName === "INPUT"
+      || node.tagName === "TEXTAREA"
+      || node.tagName === "SELECT";
+  }
+
+  document.addEventListener("keydown", function (event) {
+    // Let the browser keep its own chords and in-page find.
+    if (event.ctrlKey || event.metaKey || event.altKey || isTyping(event.target)) return;
+    // event.key.length guards the empty string, which indexOf would report at 0
+    // and turn into a jump to the first section.
+    var index = event.key.length === 1 ? "123".indexOf(event.key) : -1;
+    if (index !== -1 && index < links.length) {
+      event.preventDefault();
+      window.location.assign(links[index].href);
+      return;
+    }
+    if (event.key === "Escape" && parentUrl) {
+      event.preventDefault();
+      window.location.assign(parentUrl);
+    }
+  });
+
+  var hint = document.getElementById("dc-nav-hint");
+  if (hint) hint.hidden = false;
+})();
 </script>

@@ -73,6 +73,32 @@
   color: var(--dc-accent);
 }
 
+/* Keyboard hint (T54). It shares the nav's row, so revealing it costs no
+   height and the page does not move. Below the dashboard breakpoint it is
+   dropped entirely: there it would wrap onto a line of its own and push the
+   page down, and a viewport that narrow rarely has a physical keyboard.
+   Deliberately sets no display, so the markup's `hidden` keeps working until
+   the handler is attached. */
+.dc-nav {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.dc-nav__hint {
+  margin: 0;
+  padding: 14px 32px;
+  color: var(--dc-faint);
+  font-size: 12px;
+}
+
+@media (max-width: 860px) {
+  .dc-nav__hint {
+    display: none;
+  }
+}
+
 /* Empty by default — filled by the enhance hook's script with the
    visitor's own local time. Stays empty and invisible with JS off.
 
@@ -83,6 +109,16 @@
   min-height: 1.5em;
   color: var(--dc-muted);
   font-size: 13px;
+}
+
+/* min-height reserves the clock's height but not its width, so on a narrow
+   top bar the empty element still fits beside the prompt while the filled one
+   wraps — and the page moves when the script runs. Give it a row of its own
+   below the breakpoint, which is where it ends up anyway once filled. */
+@media (max-width: 860px) {
+  .dc-clock {
+    flex-basis: 100%;
+  }
 }
 
 /* Home page: three rows mirror the accepted Sidorenko TUI mockup layout

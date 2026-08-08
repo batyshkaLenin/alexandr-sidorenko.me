@@ -17,3 +17,5 @@ warningsContains:
   other: "содержит"
 headingAnchor:
   other: "Ссылка на этот раздел"
+navKeysHint:
+  other: "1/2/3 — разделы · Esc — назад"

@@ -6,7 +6,9 @@ locale = 'ru-RU'
 # (audit finding A16, confirmed while wiring the theme in T26).
 defaultContentLanguage = 'ru'
 title = 'Александр Сидоренко'
-copyright = '© Александр Сидоренко'
+# Literal range, never a computed year (audit-only A05): a static page must not
+# claim a year the build happened to run in.
+copyright = '© 2020–2026 · Александр Сидоренко'
 enableGitInfo = true
 enableEmoji = false
 enableRobotsTXT = true

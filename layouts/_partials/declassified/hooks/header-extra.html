@@ -2,13 +2,14 @@
 Site override of the theme's empty header-extra hook: a short identity line
 inside <header>, above the theme-owned nav. Full biography/h-card lives in
 the home about panel (layouts/home.html), not here — this is just the
-top-bar prompt. The "~ $ whoami" suffix and blinking cursor are decorative
-prompt flavor, not live/dynamic state — no data or JS involved.
+top-bar prompt. "owner", the "~ $ whoami" suffix and the blinking cursor are all
+decorative prompt flavor, not live/dynamic state and not an identity
+field — no data or JS involved (T54).
 
 #dc-clock is empty markup only: optional progressive enhancement (see the
 enhance hook) fills it with the *visitor's own* local clock via
 Intl.DateTimeFormat — never a claimed author timezone. No JS/blocked JS
 means no clock text at all, not a stale placeholder.
 */ -}}
-<p class="dc-identity">{{ .Site.Params.author }}<span class="dc-identity__sep">@{{ strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) }} ~ $ </span>whoami<span class="dc-blink dc-identity__cursor" aria-hidden="true">_</span></p>
+<p class="dc-identity">owner<span class="dc-identity__sep">@{{ strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) }} ~ $ </span>whoami<span class="dc-blink dc-identity__cursor" aria-hidden="true">_</span></p>
 <p class="dc-clock" id="dc-clock" aria-hidden="true"></p>
