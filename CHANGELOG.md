@@ -137,6 +137,10 @@ This project has no public releases yet, so entries are tracked under
 - The home page's h-card never carried the portrait. The photo sits in a
   neighbouring panel, outside the card, so a microformats parser saw a card
   with no photo at all.
+- The content-warning control is a toggle again: pressing it once revealed the
+  text and then hid the control itself, so a reader who opened a publication
+  could not put it back under the blur — and, since the blur also decides what
+  prints, could not keep it off the paper either.
 
 ### Removed
 

@@ -12,6 +12,10 @@ the T36 feed contract stays untouched.
     {{- else }}{{ errorf "%s: unknown content_warnings key %q (see data/content_warnings.yaml)" $page.File.Path $key }}{{ end }}
   {{- end }}</p>
   {{ partial "publication/warnings.html" $page }}
-  <button class="dc-warned__reveal" type="button" data-dc-reveal>{{ i18n "revealWarnedText" }}</button>
+  {{/* Both labels travel with the control so the toggle stays translatable
+       from i18n rather than from a string baked into the script. */}}
+  <button class="dc-warned__reveal" type="button" data-dc-reveal
+    data-label-reveal="{{ i18n "revealWarnedText" }}"
+    data-label-hide="{{ i18n "hideWarnedText" }}">{{ i18n "revealWarnedText" }}</button>
 </div>
 {{- end }}

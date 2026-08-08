@@ -13,6 +13,8 @@ notFoundSectionsLabel:
   other: "$ ls /"
 revealWarnedText:
   other: "показать текст"
+hideWarnedText:
+  other: "скрыть текст"
 warningsContains:
   other: "содержит"
 headingAnchor:
