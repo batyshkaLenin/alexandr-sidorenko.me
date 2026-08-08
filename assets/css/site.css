@@ -73,6 +73,44 @@
   color: var(--dc-accent);
 }
 
+/* Moves between neighbours (T55). Sizes and colours reuse the panel's existing
+   .dc-back / .dc-panel__more scale instead of introducing another one. */
+.dc-adjacent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  /* Sits outside the panel, so it has to line up with it on its own. */
+  max-width: var(--dc-detail-width);
+  margin: 24px auto 0;
+  padding: 0 26px;
+}
+
+.dc-adjacent__link {
+  display: flex;
+  flex: 1 1 240px;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--dc-muted);
+  font-size: 13px;
+}
+
+/* Keeps the pair at opposite edges even when one side is missing. */
+.dc-adjacent__link--next {
+  margin-left: auto;
+  text-align: right;
+}
+
+.dc-adjacent__dir {
+  color: var(--dc-faint);
+  font-size: 12px;
+}
+
+@media print {
+  .dc-adjacent {
+    display: none;
+  }
+}
+
 /* Keyboard hint (T54). It shares the nav's row, so revealing it costs no
    height and the page does not move. Below the dashboard breakpoint it is
    dropped entirely: there it would wrap onto a line of its own and push the
