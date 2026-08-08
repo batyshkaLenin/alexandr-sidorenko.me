@@ -99,6 +99,11 @@ This project has no public releases yet, so entries are tracked under
   comfortable line length the way a fixed pixel width didn't), base font
   size raised for long-form reading, `prefers-reduced-motion` respected,
   and the print stylesheet no longer hides collapsed content-warning text.
+- The top bar's clock reads as a machine timestamp — ISO 8601 with the
+  visitor's own offset — and counts the seconds it shows, rather than printing
+  a human date that refreshed every thirty seconds. It is gone entirely below
+  the top bar's breakpoint, where it had cost a whole row on a phone before any
+  content was visible, and it stops counting whenever it is not on screen.
 - A list card names its content warnings in one caption — `cw: 18+, религия,
   зависимости` — instead of a separate badge per category, each repeating the
   `cw` prefix. This is how the publication page has framed them since the
@@ -148,6 +153,9 @@ This project has no public releases yet, so entries are tracked under
 - The main menu no longer wraps onto a second row on a phone, which had doubled
   the height of the header before any content was visible. A menu item is also
   a full-height tap target there now, rather than a 19px line of text.
+- A visitor on a timezone that is not a whole number of hours from UTC saw it
+  written as a decimal: Kathmandu read `UTC+5.75`. The clock now prints the
+  offset the way the rest of the world writes it, `+05:45`.
 
 ### Removed
 

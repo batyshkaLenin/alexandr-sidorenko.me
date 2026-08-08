@@ -149,13 +149,13 @@
   font-size: 13px;
 }
 
-/* min-height reserves the clock's height but not its width, so on a narrow
-   top bar the empty element still fits beside the prompt while the filled one
-   wraps — and the page moves when the script runs. Give it a row of its own
-   below the breakpoint, which is where it ends up anyway once filled. */
+/* On a phone the clock cost a whole row of the top bar before any content was
+   visible, and the owner asked for that row back (T82). display:none is also
+   what the script reads to decide whether to tick at all, so the breakpoint
+   stays defined here and in one place. */
 @media (max-width: 860px) {
   .dc-clock {
-    flex-basis: 100%;
+    display: none;
   }
 }
 

@@ -1,35 +1,61 @@
 {{- /*
 Site override of the theme's empty enhance hook, rendered just before
 </body>. Fills #dc-clock (empty markup from header-extra.html) with the
-*visitor's own* local clock — Intl.DateTimeFormat with no explicit
-timeZone reads the browser's own system timezone, so this never claims to
-know or publish the site owner's location/timezone (the theme audit
-flagged that as dishonest — see 09-sidorenko-tui-design-contract). No
-aria-live: the element is aria-hidden and only ticks visually, so it can't
-spam a screen reader with updates. If this script is blocked or fails,
-#dc-clock stays empty — no stale/misleading placeholder — and all
-content/navigation remain fully usable regardless, per the theme's hook
-contract.
+*visitor's own* local clock — every field is read from the browser's own
+Date, so this never claims to know or publish the site owner's
+location/timezone (the theme audit flagged that as dishonest — see
+09-sidorenko-tui-design-contract). No aria-live: the element is aria-hidden
+and only ticks visually, so it can't spam a screen reader with updates. If
+this script is blocked or fails, #dc-clock stays empty — no stale/misleading
+placeholder — and all content/navigation remain fully usable regardless, per
+the theme's hook contract.
+
+The format is ISO 8601 with the visitor's own offset (T82): the register the
+whole site is drawn in, fixed-width in a monospace face so a ticking second
+never reflows the bar, and honest about offsets that are not whole hours —
+the previous form printed Kathmandu as "UTC+5.75".
+
+Seconds are shown, so seconds are what it counts. CSS hides the clock below
+the top bar's breakpoint, and the script reads that rather than repeating the
+breakpoint: an invisible clock stops ticking instead of waking a phone once a
+second for nothing.
 */ -}}
 <script>
 (function () {
   "use strict";
   var el = document.getElementById("dc-clock");
   if (!el) return;
-  var fmt = new Intl.DateTimeFormat(undefined, {
-    weekday: "short",
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-  function render() {
-    var offsetHours = -(new Date().getTimezoneOffset() / 60);
-    var sign = offsetHours >= 0 ? "+" : "";
-    el.textContent = fmt.format(new Date()) + " · UTC" + sign + offsetHours;
+
+  function pad(value) {
+    return (value < 10 ? "0" : "") + value;
   }
-  render();
-  setInterval(render, 30000);
+
+  function render() {
+    var now = new Date();
+    var offset = -now.getTimezoneOffset();
+    var sign = offset < 0 ? "-" : "+";
+    var absolute = Math.abs(offset);
+    el.textContent =
+      now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()) +
+      "T" + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds()) +
+      sign + pad(Math.floor(absolute / 60)) + ":" + pad(absolute % 60);
+  }
+
+  var timer = null;
+  function sync() {
+    var shown = el.offsetParent !== null;
+    if (shown && timer === null) {
+      render();
+      timer = setInterval(render, 1000);
+    } else if (!shown && timer !== null) {
+      clearInterval(timer);
+      timer = null;
+      el.textContent = "";
+    }
+  }
+
+  sync();
+  window.addEventListener("resize", sync);
 })();
 
 /* Content-warning gate. The body is already open in the markup; CSS blurs it
