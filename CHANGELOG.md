@@ -96,6 +96,9 @@ This project has no public releases yet, so entries are tracked under
 
 ### Fixed
 
+- Images in publication bodies now declare their real dimensions, so the text
+  below them no longer jumps while they load. A body image pointing at a file
+  that isn't there fails the build instead of shipping without them.
 - The home page biography lost its closing paragraph in the migration and now
   carries the original text again. Its outgoing link does not come back:
   `blur.tech` is no longer a registered domain, so Blurred Technologies is

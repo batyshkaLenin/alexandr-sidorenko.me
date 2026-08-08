@@ -195,7 +195,7 @@ code {
 
 ## Изображение
 
-![Альтернативное описание изображения](/images/typography-test.webp "Подпись при наведении")
+![Команда Blurred Technologies в аудитории](/assets/posts/bluredu-new-teachers/core-team.jpg "Подпись при наведении")
 
 *Подпись под изображением, оформленная обычным курсивом.*
 

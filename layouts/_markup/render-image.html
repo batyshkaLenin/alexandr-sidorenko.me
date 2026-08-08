@@ -1,0 +1,35 @@
+{{- /*
+Site override of the theme's generic image hook: same markup, plus the real
+width/height so nothing below the image moves while it loads (T57).
+
+Images live in static/ and never enter Hugo's resource pipeline (the /assets
+URLs are a migration contract), so the dimensions are read straight from the
+file with images.Config. A body image pointing at a missing file fails the
+build here rather than shipping an <img> without dimensions — a silent
+fallback would make the whole check optional.
+*/ -}}
+{{- $src := .Destination -}}
+{{- $external := or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "//") -}}
+{{- $config := false -}}
+{{- if not $external -}}
+  {{- if not (hasPrefix $src "/") -}}
+    {{- errorf "%s: image %q must be a root-relative path — this site keeps images in static/, not in page bundles" .Page.File.Path $src -}}
+  {{- end -}}
+  {{- $file := printf "static%s" $src -}}
+  {{- if not (os.FileExists $file) -}}
+    {{- errorf "%s: image file %s does not exist" .Page.File.Path $file -}}
+  {{- end -}}
+  {{- $config = images.Config $file -}}
+{{- end -}}
+{{- $size := "" -}}
+{{- with $config -}}
+  {{- $size = printf `width="%d" height="%d"` .Width .Height | safeHTMLAttr -}}
+{{- end -}}
+{{ if .Title }}
+<figure class="dc-figure">
+  <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ $size }} loading="lazy" decoding="async">
+  <figcaption>{{ .Title }}</figcaption>
+</figure>
+{{ else }}
+<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ $size }} loading="lazy" decoding="async">
+{{ end }}
