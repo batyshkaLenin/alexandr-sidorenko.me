@@ -18,3 +18,6 @@ tmp/
 
 # Wrangler
 .wrangler/
+
+# Python
+__pycache__/
