@@ -43,6 +43,12 @@ This project has no public releases yet, so entries are tracked under
   the expected nodes and against a committed copy of the schema.org vocabulary,
   so a page losing — or silently growing — structured data fails a test rather
   than a search engine's crawl.
+- A repeatable Lighthouse run (`scripts/run-lighthouse.py`) over the
+  representative pages in both form factors, with per-form-factor budgets and
+  an option to blackhole the font CDN. It refuses to report a run that was
+  collected wrong — snapshot mode, a mobile label without screen emulation, or
+  a browser profile that let extensions in — because each of those produces
+  numbers that look like the site and are not.
 - Sign-in by domain name is announced again (`authorization_endpoint`,
   `token_endpoint`), alongside a `rel=sitemap` link, `application-name` and
   `apple-mobile-web-app-title`.

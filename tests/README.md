@@ -91,3 +91,22 @@ approved URL set and asserts it appears as `rel=me` — a head-only `<link>`
 or a visible `<a>`, never both for the same URL — on every representative
 page (home, section, detail), with no missing entries and no unapproved
 extras beyond the home page's own documented self rel=me.
+
+## Lighthouse
+
+`scripts/run-lighthouse.py` is not part of the list above: it needs the
+network and a Chrome binary, and takes minutes. Run it deliberately, against
+a deployed origin:
+
+```sh
+python3 scripts/run-lighthouse.py                      # preview, 5 pages × 2 form factors
+python3 scripts/run-lighthouse.py --fonts blocked      # with the font CDN blackholed
+python3 scripts/run-lighthouse.py --base-url https://alexandr-sidorenko.me --indexable
+```
+
+Reports land in `tmp/lighthouse/<UTC timestamp>/`, and the script prints a
+table plus every budget violation. It also fails when the run itself was
+collected wrong — snapshot mode, a mobile form factor without screen
+emulation, or a browser profile that let extensions in — because each of
+those silently invalidated the 8 August 2026 baseline. Findings and the
+reference numbers: `.ai/research/lighthouse-preview-baseline.md`.
