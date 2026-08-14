@@ -151,6 +151,7 @@ def main() -> int:
 
     rss, json_feed = feed_contents(public_dir)
     legacy_checked = 0
+    redacted = 0
     classes: set[str] = set()
 
     for publication in fixture["publications"]:
@@ -173,8 +174,20 @@ def main() -> int:
             publication["source_hard_breaks"],
         )
 
+        # A redacted body is deliberately no longer the old site's body: S17
+        # removes the carrier of a legal risk from the published text. The
+        # snapshot above still pins it, so an accidental edit is still caught;
+        # only the old/current equality is waived, and only with a recorded
+        # reason naming the ledger entries.
+        redaction_reason = publication.get("redacted_from_legacy")
         legacy_path = root / publication["legacy_source"]
-        if legacy_path.exists():
+        if redaction_reason:
+            redacted += 1
+            if not redaction_reason.strip():
+                errors.append(
+                    f"{publication_id} redacted_from_legacy is present but empty"
+                )
+        elif legacy_path.exists():
             legacy_checked += 1
             check_equal(
                 errors,
@@ -222,7 +235,8 @@ def main() -> int:
 
     print(
         f"OK: {len(fixture['publications'])} body snapshots; "
-        f"{legacy_checked} legacy comparisons; HTML, RSS and JSON Feed line breaks"
+        f"{legacy_checked} legacy comparisons; {redacted} redacted bodies exempt "
+        "from the legacy comparison; HTML, RSS and JSON Feed line breaks"
     )
     return 0
 

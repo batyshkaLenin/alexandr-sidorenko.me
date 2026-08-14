@@ -21,8 +21,6 @@ cover: ""
 #     - src: "/assets/creativity/slug/track.mp3"
 #       type: "audio/mpeg"
 audio: []
-# Zero or more of: 18, religion, addict, deepl (data/content_warnings.yaml).
-content_warnings: []
 uid: "{{ .Site.BaseURL }}creativity/{{ .Name }}"
 draft: true
 ---

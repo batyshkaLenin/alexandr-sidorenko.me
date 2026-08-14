@@ -38,7 +38,7 @@ PREVIEW_ORIGIN = "https://alexandr-sidorenko-me.auroragamesproject.workers.dev"
 PRODUCTION_ORIGIN = "https://alexandr-sidorenko.me"
 
 # One page per template that renders differently: home, section list,
-# post detail, creativity list, creativity detail with audio and a warning.
+# post detail, creativity list, creativity detail with audio.
 DEFAULT_PATHS = (
     "/",
     "/posts",

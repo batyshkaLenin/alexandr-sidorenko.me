@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify warning, embedded URL, audio and author contracts in generated feeds.
+"""Verify body, embedded URL, audio and author contracts in generated feeds.
 
 The author part is deliberately cross-surface (T13): one publication is named
 by its byline h-card, by the hidden p-author of its section card, by RSS
@@ -60,54 +60,6 @@ class CardParser(HTMLParser):
                 self.cards[url] = self._card.get("summary", "")
                 self.authors[url] = self._card.get("author", "")
             self._card = None
-
-
-class WarningTextParser(HTMLParser):
-    """Collects the warning block as the page renders it.
-
-    Until T50 the gate was a native <details>, and this parser read its
-    <summary>. The gate is a scripted blur now (owner's decision, 2026-08-07):
-    the body renders open and the warnings are always visible above it, so what
-    has to be asserted is the presence of the warning texts themselves.
-
-    Since T61 the page frames those texts in a .dc-warning box that also names
-    the short categories; feeds keep the bare list. Both parts are collected
-    here, so the page has to carry the categories *and* the disclaimers while
-    the feed check below still sees only the disclaimers.
-    """
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.warnings: list[str] = []
-        self.labels = ""
-        self._depth = 0
-        self._current: list[str] | None = None
-        self._labels: list[str] | None = None
-
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        classes = (dict(attrs).get("class") or "").split()
-        if tag == "ul" and "content-warnings" in classes:
-            self._depth = 1
-        elif tag == "p" and "dc-warning__labels" in classes:
-            self._labels = []
-        elif self._depth and tag == "li":
-            self._current = []
-
-    def handle_data(self, data: str) -> None:
-        if self._current is not None:
-            self._current.append(data)
-        if self._labels is not None:
-            self._labels.append(data)
-
-    def handle_endtag(self, tag: str) -> None:
-        if tag == "li" and self._current is not None:
-            self.warnings.append(" ".join("".join(self._current).split()))
-            self._current = None
-        elif tag == "ul" and self._depth:
-            self._depth = 0
-        elif tag == "p" and self._labels is not None:
-            self.labels = " ".join("".join(self._labels).split())
-            self._labels = None
 
 
 class BylineParser(HTMLParser):
@@ -201,7 +153,6 @@ def main() -> int:
     )
     fixture_path = args.fixture if args.fixture.is_absolute() else root / args.fixture
     fixture = json.loads(fixture_path.read_text())
-    warning_summary = fixture["warning_summary"]
     rss = rss_items(public_dir)
     json_feed = json_items(public_dir)
     card_parser = section_cards(public_dir)
@@ -253,73 +204,26 @@ def main() -> int:
                     f"{item_id}: {surface} names {names} != [{expected_author!r}]",
                 )
 
-        if item["warning"]:
-            page_html = (public_dir / item["html"]).read_text()
-            warning_parser = WarningTextParser()
-            warning_parser.feed(page_html)
-            check(
-                errors,
-                item["body_marker"] not in rss_content,
-                f"{item_id}: gated body leaked into RSS",
-            )
-            check(
-                errors,
-                item["body_marker"] not in json_content,
-                f"{item_id}: gated body leaked into JSON Feed",
-            )
-            check(
-                errors,
-                item["body_marker"] in page_html,
-                f"{item_id}: gated body missing from page HTML",
-            )
-            check(
-                errors,
-                warning_summary in rss_content,
-                f"{item_id}: RSS warning missing",
-            )
-            check(
-                errors,
-                warning_summary in json_content,
-                f"{item_id}: JSON Feed warning missing",
-            )
-            expected_warnings = item.get("warning_texts", [])
-            check(
-                errors,
-                warning_parser.warnings == expected_warnings,
-                f"{item_id}: page warnings {warning_parser.warnings} != {expected_warnings}",
-            )
-            expected_labels = item.get("warning_labels", "")
-            check(
-                errors,
-                warning_parser.labels == expected_labels,
-                f"{item_id}: page warning categories {warning_parser.labels!r} != {expected_labels!r}",
-            )
-            check(
-                errors,
-                cards.get(url) == warning_summary,
-                f"{item_id}: card leaks its editorial summary",
-            )
-            if item.get("audio"):
-                body_start = page_html.find('class="dc-warned__body"')
-                if body_start == -1:
-                    body_start = page_html.find("class=dc-warned__body")
-                audio_start = page_html.find("<audio")
-                check(
-                    errors,
-                    body_start != -1 and body_start < audio_start,
-                    f"{item_id}: HTML audio sits outside the gated body",
-                )
-        else:
-            check(
-                errors,
-                item["body_marker"] in rss_content,
-                f"{item_id}: full RSS body missing",
-            )
-            check(
-                errors,
-                item["body_marker"] in json_content,
-                f"{item_id}: full JSON Feed body missing",
-            )
+        check(
+            errors,
+            item["body_marker"] in rss_content,
+            f"{item_id}: full RSS body missing",
+        )
+        check(
+            errors,
+            item["body_marker"] in json_content,
+            f"{item_id}: full JSON Feed body missing",
+        )
+        check(
+            errors,
+            item["body_marker"] in (public_dir / item["html"]).read_text(),
+            f"{item_id}: body missing from page HTML",
+        )
+        check(
+            errors,
+            cards.get(url) == item["card_summary"],
+            f"{item_id}: card summary drifted from the publication description",
+        )
 
         for content_name, content in (
             ("RSS", rss_content),
@@ -372,7 +276,7 @@ def main() -> int:
         return 1
 
     print(
-        f"OK: {len(fixture['items'])} feed items; warning, URL, audio, XML and JSON contracts"
+        f"OK: {len(fixture['items'])} feed items; body, URL, audio, XML and JSON contracts"
     )
     return 0
 

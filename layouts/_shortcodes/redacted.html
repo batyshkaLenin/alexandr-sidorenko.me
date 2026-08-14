@@ -1,0 +1,26 @@
+{{- /*
+A redaction (S17). Real U+2588 characters stand where the fragment was: the
+original reaches neither the page, nor the feeds, nor /llms.txt — and it is
+not in the publication source either, only in Git history.
+
+Parameters are named and deliberately exclude the original:
+  id   — key of the entry in data/redactions.yaml;
+  len  — how many characters were redacted;
+  rule — the ground, from .agents/skills/redaction/references/rules.md.
+
+A screen reader gets the single word «вымарано» instead of a run of "full
+block": role="img" replaces the element's contents with its name. The blocks
+are marked aria-hidden on top of that, since some engines announce both the
+name and the contents.
+*/ -}}
+{{- $id := .Get "id" -}}
+{{- $len := int (.Get "len") -}}
+{{- $rule := .Get "rule" -}}
+{{- if or (not $id) (not $rule) -}}
+  {{- errorf "%s: shortcode redacted requires id and rule" .Position -}}
+{{- end -}}
+{{- if lt $len 1 -}}
+  {{- errorf "%s: shortcode redacted needs len >= 1, got %q" .Position (.Get "len") -}}
+{{- end -}}
+{{- $blocks := strings.Repeat $len "█" -}}
+<span class="dc-redacted" role="img" aria-label="вымарано" data-redaction="{{ $id }}" data-redaction-rule="{{ $rule }}"><span aria-hidden="true">{{ $blocks }}</span></span>

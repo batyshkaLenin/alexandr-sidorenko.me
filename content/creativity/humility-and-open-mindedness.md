@@ -8,7 +8,6 @@ authors: ["batyshkaLenin"]
 creative_type: "poetry"
 cover: "/assets/creativity/humility-and-open-mindedness/man-with-gun.jpg"
 cover_alt: "Рука держит пистолет и наручники на фоне цветочных обоев с маками"
-content_warnings: ["18", "religion", "addict"]
 draft: false
 uid: "https://alexandr-sidorenko.me/creativity/humility-and-open-mindedness"
 ---
@@ -40,7 +39,7 @@ uid: "https://alexandr-sidorenko.me/creativity/humility-and-open-mindedness"
 Можете и дальше верить в Иисуса и других фентезийных лгунов,\
 А я утоплю их в имперце, не взирая на чины "божьих сынов".
 
-Не дождусь момента, когда пьяный буду заедать обезбол снегом,\
+Не дождусь момента, когда пьяный буду {{< redacted id="humility-01" len="22" rule="П2" >}},\
 А сугроб мне представится тёплым и мягким ночлегом.\
 Не удивляйтесь, если исчезну в этой сибирской столице.\
 Ведь спирт растворитель и я в нём растворился.

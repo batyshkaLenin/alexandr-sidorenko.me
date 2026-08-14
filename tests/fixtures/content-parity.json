@@ -32,10 +32,11 @@
       "current_source": "content/creativity/humility-and-open-mindedness.md",
       "html": "creativity/humility-and-open-mindedness/index.html",
       "url_path": "/creativity/humility-and-open-mindedness",
-      "normalized_sha256": "8cebb42c24855a2ab6030973ae3c0f66a4821bc1a628b0fc0e44c64ffd00e99d",
+      "normalized_sha256": "8bccebe2cd26ff78e39acfc529c1903c6a826fb0c2ea04b5204d0f6be9869c67",
       "source_hard_breaks": 58,
       "html_breaks": 58,
-      "feed_breaks": 0
+      "feed_breaks": 58,
+      "redacted_from_legacy": "S17: вымарка humility-01 (П2) убрала из тела сочетание условий; тело намеренно не совпадает со старым сайтом."
     },
     {
       "id": "creativity/regular-visitor",
@@ -47,7 +48,7 @@
       "normalized_sha256": "2b50cf22cad3bd2bbc1abcbfdd4f960ad0580d45c223c29d3e3d6d4033b4e1fe",
       "source_hard_breaks": 13,
       "html_breaks": 13,
-      "feed_breaks": 0
+      "feed_breaks": 13
     },
     {
       "id": "posts/bluredu-new-teachers",
@@ -80,10 +81,11 @@
       "current_source": "content/creativity/skver.md",
       "html": "creativity/skver/index.html",
       "url_path": "/creativity/skver",
-      "normalized_sha256": "5ccdba846a0e74cf066564d99c421d9e29cd5694e0cec7678bde1cc12aa15cb7",
+      "normalized_sha256": "46a7d55f387daf79740b7358f755bf531a0c98132a400d4aa0e17788a0dd7d30",
       "source_hard_breaks": 0,
       "html_breaks": 0,
-      "feed_breaks": 0
+      "feed_breaks": 0,
+      "redacted_from_legacy": "S17: вымарка skver-01 по поводу П1 убрала из тела инструмент употребления; тело намеренно не совпадает со старым сайтом."
     }
   ]
 }

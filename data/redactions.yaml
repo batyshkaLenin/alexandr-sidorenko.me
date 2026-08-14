@@ -1,0 +1,119 @@
+# Ledger of redaction decisions (S17). Written by the `redaction` skill, one
+# entry per fragment the owner has ruled on, so a later pass asks only about
+# what is new.
+#
+# Keys are Russian because this file is read by the owner far more often than
+# by a template; nothing in the build depends on it.
+#
+# редакция_правил — which edition of
+# .agents/skills/redaction/references/rules.md the decision was made under.
+# When the rules get a new edition, old entries stay as they are: they record
+# what was decided then, not what the current rules would say.
+#
+# Entry fields:
+#   id             — matches the `id` of the {{< redacted >}} shortcode
+#                    (решение: вымарано) or names the kept fragment.
+#   файл           — path of the publication.
+#   поле           — `тело`, `description` or `cover_alt`.
+#   повод          — П1…П4 from the rulebook.
+#   решение        — `вымарано` or `оставлено`.
+#   длина          — characters redacted (решение: вымарано only).
+#   фрагмент       — the text left in place, verbatim (решение: оставлено
+#                    only). A redacted original is never written here: it
+#                    would defeat the whole point of removing it.
+#   основание      — one line on why, in the owner's terms.
+#   дата_проверки  — when the decision was made.
+#
+# The redacted original itself lives only in the private vault, in
+# .ai/redactions/originals.md — never here and never in this repository.
+#
+записи:
+  - id: skver-01
+    файл: content/creativity/skver.md
+    поле: тело
+    повод: П1
+    решение: вымарано
+    длина: 45
+    основание: >-
+      Назван инструмент употребления и признак подготовки. Владелец выбрал
+      самую узкую вымарку, убирающую носитель целиком; сцена с дворником и
+      причина не ходить в тот двор остались.
+    дата_проверки: 2026-08-14
+    редакция_правил: 2
+
+  - id: humility-01
+    файл: content/creativity/humility-and-open-mindedness.md
+    поле: тело
+    повод: П2
+    решение: вымарано
+    длина: 22
+    основание: >-
+      Сочетание условий по критериям приказа Роспотребнадзора № 79, поданное
+      с предвкушением. Вымарано сочетание, строка про сугроб оставлена как
+      образ.
+    дата_проверки: 2026-08-14
+    редакция_правил: 2
+
+  - id: humility-02
+    файл: content/creativity/humility-and-open-mindedness.md
+    поле: тело
+    повод: П1
+    решение: оставлено
+    фрагмент: "шурша тихонько фольгой"
+    основание: >-
+      Инструмент назван, но режим метафорический, вещество и действие
+      отсутствуют, воспроизводимость нулевая.
+    дата_проверки: 2026-08-14
+    редакция_правил: 2
+
+  - id: humility-03
+    файл: content/creativity/humility-and-open-mindedness.md
+    поле: тело
+    повод: П1
+    решение: оставлено
+    фрагмент: "Нет хуже наркомана чем тот, кто шарит за аптеку."
+    основание: >-
+      Канал приобретения обозначен, но ни вещество, ни место, ни способ не
+      названы: по этим строкам ничего нельзя найти.
+    дата_проверки: 2026-08-14
+    редакция_правил: 2
+
+  - id: humility-04
+    файл: content/creativity/humility-and-open-mindedness.md
+    поле: тело
+    повод: П2
+    решение: оставлено
+    фрагмент: "то давно бы уже удавился."
+    основание: >-
+      Способ назван словом, но в сослагательном наклонении, без
+      последовательности действий, условий и одобрения.
+    дата_проверки: 2026-08-14
+    редакция_правил: 2
+
+  - id: 23-01
+    файл: content/creativity/23.md
+    поле: cover_alt
+    повод: П3
+    решение: вымарано
+    длина: 5
+    основание: >-
+      Владелец выбрал вымарать только слур. Призывная часть надписи остаётся в
+      alt, и надпись остаётся на самой фотографии — по своду это неполная
+      вымарка, решение принято сознательно.
+    дата_проверки: 2026-08-14
+    редакция_правил: 2
+
+  - id: humility-05
+    файл: content/creativity/humility-and-open-mindedness.md
+    поле: тело
+    повод: П4
+    решение: оставлено
+    фрагмент: "в Иисуса и других фентезийных лгунов"
+    основание: >-
+      Пограничный случай: уничижительно характеризуется предмет веры, но есть
+      обращение на «вы», а цель оскорбить — признак, который свод оценивать не
+      вправе. Владелец сначала выбрал вымарать, затем в тот же день вернул
+      строку: за это стихотворение он получил грамоту Новосибирского
+      театрального союза, и вымарывать награждённую строку он не намерен.
+    дата_проверки: 2026-08-14
+    редакция_правил: 2

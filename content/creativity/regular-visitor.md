@@ -11,7 +11,6 @@ cover_alt: "Крупный план: человек играет на акуст
 audio:
   - src: "/assets/creativity/regular-visitor/Постоянщик.mp3"
     type: "audio/mpeg"
-content_warnings: ["addict"]
 draft: false
 uid: "https://alexandr-sidorenko.me/creativity/regular-visitor"
 ---

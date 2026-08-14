@@ -4,7 +4,9 @@ emits charset/viewport/<title>/its own CSS link/theme-color — this only adds
 site-owned output contract: description, canonical, feed discovery,
 favicons/manifest, Open Graph/Twitter, webmention, JSON-LD (schema.html),
 and the site's own stylesheet loaded after the theme's so its --dc-*
-overrides win by cascade order (documented in the theme README).
+overrides win by cascade order (documented in the theme README). No blocking
+script runs here: the one that used to mark the document as scripted existed
+only for the content-warning blur, which T92 removed.
 
 The 404 kind is not a real, indexable resource (T39): it gets noindex
 instead of a canonical (there is no canonical URL for a page that doesn't
@@ -21,15 +23,6 @@ the connection under CORS. display=swap keeps text visible while they load.
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap">
-
-{{- /*
-Marks the document as scripted before the first paint. The warning gate is a
-progressive enhancement laid over content that is open by default (T50), so
-the blur may only appear when JS is actually available — and it has to appear
-without the body flashing readable first. A script after </body> is too late
-for that.
-*/ -}}
-<script>document.documentElement.classList.add("dc-js")</script>
 
 {{ $isNotFound := eq .Kind "404" }}
 {{ $title := cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title) }}

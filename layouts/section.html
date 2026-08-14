@@ -1,8 +1,8 @@
 {{- /*
 Site override of the theme's generic section.html: preserves the h-feed/
 h-entry MF2 output contract (T30/T36) and swaps the theme's plain .Summary
-for the warning-safe publication/summary.txt partial, which the generic
-theme fallback can't know to use.
+for the publication/summary.txt partial, which the generic theme fallback
+can't know to use.
 */ -}}
 {{ define "main" }}
 <section class="dc-panel dc-panel--doc">
@@ -33,16 +33,6 @@ theme fallback can't know to use.
           {{ else }}
           {{ with $tags }}<span class="dc-list__type">{{ index . 0 }}</span>{{ end }}
           {{ end }}
-          {{/* Name the category, never the plot: labels come from
-               data/content_warnings.yaml, whose full text stays the source for
-               the publication page and feeds (T36). One caption per card, the
-               same way the publication page frames them (T81) — a badge per
-               category repeated the "cw" prefix up to three times in a row. */}}
-          {{ with $page.Params.content_warnings }}
-          {{- $labels := slice }}
-          {{- range . }}{{ with index hugo.Data.content_warnings . }}{{ $labels = $labels | append .label }}{{ end }}{{ end }}
-          {{- with $labels }}<span class="dc-list__cw">cw: {{ delimit . ", " }}</span>{{ end }}
-          {{- end }}
         </p>
         {{ end }}
         <h2 class="dc-list__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a></h2>

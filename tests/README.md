@@ -21,10 +21,10 @@ read-only `tmp/old_project` checkout is present, it also performs a live normali
 old/current body comparison.
 
 The rendered snapshot counts `<br>` boundaries independently in page HTML, RSS,
-and JSON Feed. Warning-gated publications retain their boundaries in page HTML
-but intentionally expose no body breaks in feeds. The snapshot covers poem,
-poetry collection, lyrics, prose link list, bibliography, and ordinary prose
-soft-wrap fixtures. Global Goldmark `hardWraps` must remain disabled.
+and JSON Feed. Since T92 removed content warnings, every publication carries the
+same count in all three: nothing is held back from a feed any more. The snapshot
+covers poem, poetry collection, lyrics, prose link list, bibliography, and
+ordinary prose soft-wrap fixtures. Global Goldmark `hardWraps` must remain disabled.
 
 Reviewed intentional differences:
 
@@ -32,11 +32,21 @@ Reviewed intentional differences:
 - `creativity/skver`: the source-only provenance comment is excluded from the body
   comparison; it records that the legacy English source remains read-only and its
   former URL is neither published nor redirected.
+- `creativity/skver` and `creativity/humility-and-open-mindedness`: their bodies
+  are no longer the old site's bodies. S17 redacted the carrier of a legal risk
+  out of each — the instrument of use in one, the combination of conditions in
+  the other — and the redaction is what the reader now sees, as U+2588 blocks.
+  Both carry `redacted_from_legacy` in the fixture with the reason and the
+  ledger id, which waives the live old/current comparison for them and nothing
+  else: the committed body snapshot still pins each body, so an unintended edit
+  still fails the check. What was removed is recorded in the private vault
+  (`.ai/redactions/originals.md`) and never in this repository; the decisions
+  themselves are in `data/redactions.yaml`.
 
-The feed contract check parses RSS and JSON Feed, verifies that warning-gated
-bodies are absent while page HTML retains them, compares warning-safe card/feed
-summaries, rejects root-relative embedded URLs, and checks audio MIME and byte
-length against the referenced static file. Plain publications remain full-text.
+The feed contract check parses RSS and JSON Feed, verifies that every body
+reaches both feeds and the page, compares each card summary against the
+publication's own description, rejects root-relative embedded URLs, and checks
+audio MIME and byte length against the referenced static file.
 
 The UID contract check (see ADR `redesign-stable-uid-contract`) verifies every
 publication's front-matter `uid` is unique and correctly formatted, and that

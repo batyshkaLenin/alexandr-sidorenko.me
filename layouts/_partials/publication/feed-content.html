@@ -1,11 +1,10 @@
-{{- if .Params.content_warnings -}}
-<p>{{ partial "publication/summary.txt" . }}</p>
-{{ partial "publication/warnings.html" . }}
-<p><a href="{{ partial "canonical-url.html" .Permalink }}">Открыть публикацию на сайте</a></p>
-{{- else -}}
-  {{- $baseURL := strings.TrimSuffix "/" .Site.BaseURL -}}
-  {{- $content := .Content -}}
-  {{- $content = replaceRE `href="/([^/])` (printf `href="%s/${1}` $baseURL) $content -}}
-  {{- $content = replaceRE `src="/([^/])` (printf `src="%s/${1}` $baseURL) $content -}}
-  {{- $content | safeHTML -}}
-{{- end -}}
+{{- /*
+Feed body. Internal asset addresses are root-relative in the source and have
+to become absolute before they leave the site, or a reader resolves them
+against the feed reader's own host.
+*/ -}}
+{{- $baseURL := strings.TrimSuffix "/" .Site.BaseURL -}}
+{{- $content := .Content -}}
+{{- $content = replaceRE `href="/([^/])` (printf `href="%s/${1}` $baseURL) $content -}}
+{{- $content = replaceRE `src="/([^/])` (printf `src="%s/${1}` $baseURL) $content -}}
+{{- $content | safeHTML -}}

@@ -385,85 +385,6 @@
   }
 }
 
-/* Content-warning block (T61), colored from the mockup (Sidorenko TUI.dc.html
-   lines 261–267). Measured on the block's own background #140a0c: the category
-   line and the control read at 7.0:1, the disclaimers at 8.1:1 — both past AA.
-   The frame is deliberately quiet (1.3:1); it groups the block rather than
-   carrying information, and the control is identified by its label. */
-.dc-warning {
-  margin: 0 0 18px;
-  border: 1px solid #3a1f24;
-  border-radius: 2px;
-  background: #140a0c;
-  padding: 10px 12px;
-}
-
-.dc-warning__labels {
-  margin: 0 0 6px;
-  color: #ff6b6b;
-  font-size: 12px;
-}
-
-.dc-warning .content-warnings {
-  margin: 0 0 10px;
-  padding: 0;
-  list-style: none;
-  color: #93ad9f;
-  font-size: 12.5px;
-}
-
-.dc-warning .content-warnings li + li {
-  margin-top: 6px;
-}
-
-/* Content-warning gate (T50). Everything here is scoped to .dc-js: with no
-   JavaScript the publication is simply open, which is what the old site did
-   and what the owner chose. The block above stays visible either way — only
-   the control appears when JavaScript can back it. */
-.dc-warned__reveal {
-  display: none;
-}
-
-.dc-js .dc-warned__reveal {
-  display: inline-block;
-  margin: 0;
-  border: 1px solid #3a1f24;
-  border-radius: 2px;
-  background: none;
-  padding: 4px 10px;
-  color: #ff6b6b;
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.dc-js .dc-warned__reveal:hover,
-.dc-js .dc-warned__reveal:focus-visible {
-  border-color: #ff6b6b;
-}
-
-.dc-js .dc-warned:not([data-revealed]) .dc-warned__body {
-  filter: blur(4px);
-  user-select: none;
-}
-
-/* Paper follows the reader's decision, same rule as the old <details> gate
-   (owner, 2026-08-08): text left unrevealed doesn't print, and revealed text
-   prints unblurred. The control itself is never printed — nobody can press it. */
-@media print {
-  .dc-warned:not([data-revealed]) .dc-warned__body {
-    display: none;
-  }
-
-  .dc-warned[data-revealed] .dc-warned__body {
-    filter: none !important;
-  }
-
-  .dc-warned__reveal {
-    display: none !important;
-  }
-}
-
 /* Code highlighting (T50). Chroma classes, colored with the mockup's token
    palette (Sidorenko TUI.dc.html lines 27–33). Every color measures at least
    4.8:1 on the code background, so the palette carries AA as-is. */
@@ -665,16 +586,18 @@
   text-transform: uppercase;
 }
 
-.dc-list__cw {
-  color: #ff5555;
-  font-size: 9.5px;
-  border: 1px solid #3a1f24;
-  padding: 0 4px;
-}
-
 .dc-list__date {
   display: block;
   color: var(--dc-faint);
   font-size: 12px;
   margin-bottom: 4px;
+}
+
+/* Redactions (S17): a long run of U+2588 carries no break opportunity and
+   would otherwise push past the column. It keeps the body text colour on
+   purpose — a redaction is part of the text, not decoration, and it prints
+   exactly as it reads. */
+.dc-redacted {
+  overflow-wrap: anywhere;
+  letter-spacing: -0.5px;
 }

@@ -58,39 +58,6 @@ second for nothing.
   window.addEventListener("resize", sync);
 })();
 
-/* Content-warning gate. The body is already open in the markup; CSS blurs it
-   only while .dc-js is set and the container is not yet revealed, so this
-   script only has to flip that state. If it never runs, the reader still gets
-   the publication — the head script that sets .dc-js and this one live or die
-   together.
-
-   The control is a toggle, not a one-way door (T78): a reader who opened the
-   text can put it back under the blur, which also decides what prints. */
-(function () {
-  "use strict";
-  var buttons = document.querySelectorAll("[data-dc-reveal]");
-  for (var i = 0; i < buttons.length; i++) {
-    (function (button) {
-      var container = button.closest("[data-dc-warned]");
-      if (!container) return;
-      function apply(revealed) {
-        if (revealed) {
-          container.setAttribute("data-revealed", "");
-        } else {
-          container.removeAttribute("data-revealed");
-        }
-        button.setAttribute("aria-expanded", revealed ? "true" : "false");
-        var label = button.getAttribute(revealed ? "data-label-hide" : "data-label-reveal");
-        if (label) button.textContent = label;
-      }
-      apply(container.hasAttribute("data-revealed"));
-      button.addEventListener("click", function () {
-        apply(!container.hasAttribute("data-revealed"));
-      });
-    })(buttons[i]);
-  }
-})();
-
 /* Keyboard navigation (T54). The digits mirror the [1]/[2]/[3] indices the nav
    already draws, and Esc goes to the parent section rather than through
    history — going "back" from an external link would leave the site. The hint
