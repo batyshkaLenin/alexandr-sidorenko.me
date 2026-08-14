@@ -91,7 +91,7 @@ main() {
   # keep it out of search indexes until Фаза 7 cutover switches this to
   # an explicit production build.
   echo "Building the project (environment: preview)..."
-  hugo build --gc --minify --environment preview
+  hugo build --gc --minify --cleanDestinationDir --environment preview
 }
 
 main "$@"
