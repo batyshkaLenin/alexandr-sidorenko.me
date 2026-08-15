@@ -18,19 +18,39 @@ which silently invalidated the 8 August 2026 baseline (see
 
 Runs are sequential on purpose: parallel Lighthouse processes compete for CPU
 and skew every timing they produce.
+
+A single run proves nothing about a timing. Three consecutive runs of one page
+have produced 2323, 4217 and 4348 ms — a spread wider than any change this site
+has ever made to itself, and wider than the distance to the budget. So `--runs`
+takes several measurements, reports the median with its spread, and holds the
+budget against the median; every raw report is kept next to the aggregate.
+
+Measure the built site with `--public-dir public`, which serves it here rather
+than pointing at somebody else's server. `hugo server` is deliberately not the
+answer: it renders to disk by default and serves *unminified* HTML, so it
+measures an artifact the site never ships, and it overwrites `public/` with its
+own baseURL, after which the contract checks fail on canonical addresses.
 """
 
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
+import os
 import shutil
+import statistics
 import subprocess
 import sys
 import tempfile
+import threading
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from functools import partial
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.parse import urlsplit
 
 LIGHTHOUSE_VERSION = "13.4.1"
 
@@ -61,6 +81,70 @@ BUDGETS = {
 # A preview build serves `Disallow: /` on purpose, so this audit fails by
 # design there and says nothing about the site's SEO.
 PREVIEW_EXPECTED_FAILURES = frozenset({"is-crawlable"})
+
+
+class CanonicalHandler(SimpleHTTPRequestHandler):
+    """Static files served the way this site's URLs are actually shaped.
+
+    Hugo writes `<route>/index.html`, and the canonical address of that route
+    carries no trailing slash (ADR redesign-canonical-url-policy, enforced by
+    `check-url-contract.py`). `SimpleHTTPRequestHandler` does the opposite: it
+    answers a directory request without a slash with a 301 *to* the slash form,
+    and there is no setting that turns it off. Measuring through that redirect
+    would mean measuring a URL shape the site does not use.
+
+    So a directory request is rewritten to its `index.html` before the parent
+    sees it — the file is served straight, and the redirect branch is never
+    reached — while the slash form redirects to the canonical one, which is the
+    direction Cloudflare will answer once T4 sets `drop-trailing-slash`.
+    """
+
+    def send_head(self):
+        path = urlsplit(self.path).path
+        if path != "/" and path.endswith("/"):
+            target = path.rstrip("/")
+            self.send_response(301)
+            self.send_header("Location", target)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return None
+        local = self.translate_path(path)
+        if os.path.isdir(local) and os.path.exists(os.path.join(local, "index.html")):
+            self.path = path.rstrip("/") + "/index.html"
+        return super().send_head()
+
+    def log_message(self, *args) -> None:
+        """Silent: a Lighthouse run makes dozens of requests per page."""
+
+
+@contextmanager
+def serve(directory: Path):
+    """Serve `directory` on a free port for as long as the block runs.
+
+    Port 0 lets the OS pick, so two measurements can run side by side and
+    neither collides with whatever else is listening on 1313.
+    """
+    if not (directory / "index.html").exists():
+        sys.exit(f"{directory}: no index.html — build the site first (`hugo build --minify`)")
+    server = ThreadingHTTPServer(("127.0.0.1", 0), partial(CanonicalHandler, directory=str(directory)))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield f"http://127.0.0.1:{server.server_address[1]}"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+@contextmanager
+def contextlib_serve(directory: Path | None):
+    """`serve(directory)` when there is one, otherwise a no-op yielding None."""
+    if directory is None:
+        yield None
+        return
+    with serve(directory) as origin:
+        yield origin
 
 
 @dataclass(frozen=True)
@@ -145,6 +229,31 @@ def category_scores(report: dict) -> dict[str, float | None]:
     return {key: value.get("score") for key, value in report.get("categories", {}).items()}
 
 
+def aggregate(values: list[float | None]) -> tuple[float | None, float | None]:
+    """(median, spread) over the runs that produced a number.
+
+    The median rather than the mean: one run that hit a garbage-collection
+    pause should not drag the reported figure, and with an even number of runs
+    the two middle values are what the machine actually managed twice.
+
+    Spread is max minus min — the honest width of the measurement, not a
+    standard deviation that would imply more runs than anyone does here. A
+    single run has no spread, which is exactly the thing it fails to tell you.
+    """
+    present = [value for value in values if value is not None]
+    if not present:
+        return None, None
+    return statistics.median(present), (max(present) - min(present) if len(present) > 1 else None)
+
+
+def metric_series(reports: list[dict], audit_id: str) -> list[float | None]:
+    return [numeric(report, audit_id) for report in reports]
+
+
+def score_series(reports: list[dict], key: str) -> list[float | None]:
+    return [category_scores(report).get(key) for report in reports]
+
+
 def failed_audits(report: dict, allowed: frozenset[str]) -> list[str]:
     """Binary audits that failed, minus the ones this environment expects.
 
@@ -198,60 +307,118 @@ def methodology_problems(run: Run, report: dict) -> list[str]:
     return problems
 
 
-def check_budget(run: Run, report: dict) -> list[str]:
+BUDGET_METRICS = (
+    ("largest-contentful-paint", "lcp_ms", "ms"),
+    ("total-blocking-time", "tbt_ms", "ms"),
+    ("cumulative-layout-shift", "cls", ""),
+)
+
+
+def check_budget(run: Run, reports: list[dict]) -> list[str]:
+    """Budgets are held against the median, never against one run.
+
+    A single unlucky run must not fail the build, and a single lucky one must
+    not pass it. Where the spread is wide enough that the answer depends on
+    which run you look at, that is said out loud rather than hidden behind a
+    verdict.
+    """
     budget = BUDGETS[run.form_factor]
     violations = []
 
-    performance = category_scores(report).get("performance")
+    performance, _ = aggregate(score_series(reports, "performance"))
     if performance is not None and performance < budget["performance"]:
-        violations.append(f"performance {performance:.2f} < {budget['performance']:.2f}")
+        violations.append(f"performance {performance:.2f} < {budget['performance']:.2f} (median)")
 
-    for audit_id, key, unit in (
-        ("largest-contentful-paint", "lcp_ms", "ms"),
-        ("total-blocking-time", "tbt_ms", "ms"),
-        ("cumulative-layout-shift", "cls", ""),
-    ):
-        value = numeric(report, audit_id)
-        if value is not None and value > budget[key]:
-            violations.append(f"{audit_id} {value:.0f}{unit} > {budget[key]}{unit}")
+    for audit_id, key, unit in BUDGET_METRICS:
+        series = metric_series(reports, audit_id)
+        value, width = aggregate(series)
+        if value is None:
+            continue
+        limit = budget[key]
+        if value > limit:
+            violations.append(f"{audit_id} median {value:.0f}{unit} > {limit}{unit}")
+        elif width is not None and max(v for v in series if v is not None) > limit:
+            violations.append(
+                f"{audit_id} median {value:.0f}{unit} is within {limit}{unit}, but the runs "
+                f"spread {width:.0f}{unit} and at least one crossed it — the budget is not "
+                f"settled by this measurement"
+            )
 
     return violations
 
 
-def format_score(scores: dict[str, float | None], key: str) -> str:
-    value = scores.get(key)
-    return "  —  " if value is None else f"{value:5.2f}"
+def format_aggregate(value: float | None, fmt: str, width: int) -> str:
+    return "—".rjust(width) if value is None else format(value, fmt)
 
 
-def format_metric(report: dict, audit_id: str, fmt: str) -> str:
-    value = numeric(report, audit_id)
-    return "     —" if value is None else format(value, fmt)
-
-
-def summarize(rows: list[tuple[Run, dict]], allowed: frozenset[str]) -> tuple[str, list[str]]:
-    header = f"{'page':<34} {'form':<8} {'perf':>5} {'a11y':>5} {'bp':>5} {'seo':>5} {'LCP':>7} {'TBT':>6} {'CLS':>6}"
+def summarize(
+    rows: list[tuple[Run, list[dict]]], allowed: frozenset[str]
+) -> tuple[str, list[str], list[dict]]:
+    header = (
+        f"{'page':<34} {'form':<8} {'perf':>5} {'a11y':>5} {'bp':>5} {'seo':>5} "
+        f"{'LCP':>7} {'±':>6} {'TBT':>6} {'CLS':>6} {'n':>3}"
+    )
     lines = [header, "-" * len(header)]
     problems: list[str] = []
+    records: list[dict] = []
 
-    for run, report in rows:
-        scores = category_scores(report)
+    for run, reports in rows:
+        lcp, lcp_spread = aggregate(metric_series(reports, "largest-contentful-paint"))
+        tbt, _ = aggregate(metric_series(reports, "total-blocking-time"))
+        cls, _ = aggregate(metric_series(reports, "cumulative-layout-shift"))
+        scores = {key: aggregate(score_series(reports, key))[0] for key in
+                  ("performance", "accessibility", "best-practices", "seo")}
+
         lines.append(
             f"{run.slug:<34} {run.form_factor:<8} "
-            f"{format_score(scores, 'performance')} {format_score(scores, 'accessibility')} "
-            f"{format_score(scores, 'best-practices')} {format_score(scores, 'seo')} "
-            f"{format_metric(report, 'largest-contentful-paint', '7.0f')} "
-            f"{format_metric(report, 'total-blocking-time', '6.0f')} "
-            f"{format_metric(report, 'cumulative-layout-shift', '6.3f')}"
+            f"{format_aggregate(scores['performance'], '5.2f', 5)} "
+            f"{format_aggregate(scores['accessibility'], '5.2f', 5)} "
+            f"{format_aggregate(scores['best-practices'], '5.2f', 5)} "
+            f"{format_aggregate(scores['seo'], '5.2f', 5)} "
+            f"{format_aggregate(lcp, '7.0f', 7)} "
+            f"{format_aggregate(lcp_spread, '6.0f', 6)} "
+            f"{format_aggregate(tbt, '6.0f', 6)} "
+            f"{format_aggregate(cls, '6.3f', 6)} "
+            f"{len(reports):>3}"
         )
 
-        for problem in methodology_problems(run, report):
-            problems.append(f"{run.slug}: {problem}")
-        for failure in failed_audits(report, allowed):
-            problems.append(f"{run.slug}: failed audit {failure}")
-        for violation in check_budget(run, report):
+        records.append(
+            {
+                "page": run.path,
+                "slug": run.slug,
+                "form_factor": run.form_factor,
+                "fonts_blocked": run.fonts_blocked,
+                "runs": len(reports),
+                "scores": {key: {"median": value} for key, value in scores.items()},
+                "metrics": {
+                    audit_id: {
+                        "values": metric_series(reports, audit_id),
+                        "median": aggregate(metric_series(reports, audit_id))[0],
+                        "spread": aggregate(metric_series(reports, audit_id))[1],
+                    }
+                    for audit_id, _, _ in BUDGET_METRICS
+                },
+            }
+        )
+
+        # Methodology and binary audits are per-run facts: one bad run means one
+        # bad measurement, whatever the others did. Deduplicated so a five-run
+        # measurement does not print the same sentence five times.
+        seen: list[str] = []
+        for index, report in enumerate(reports, start=1):
+            for problem in methodology_problems(run, report):
+                if problem not in seen:
+                    seen.append(problem)
+                    problems.append(f"{run.slug}: {problem} (run {index})")
+            for failure in failed_audits(report, allowed):
+                marker = f"failed audit {failure}"
+                if marker not in seen:
+                    seen.append(marker)
+                    problems.append(f"{run.slug}: {marker}")
+        for violation in check_budget(run, reports):
             problems.append(f"{run.slug}: {violation}")
 
-    return "\n".join(lines), problems
+    return "\n".join(lines), problems, records
 
 
 def self_test() -> None:
@@ -272,8 +439,53 @@ def self_test() -> None:
     assert failed_audits(report, PREVIEW_EXPECTED_FAILURES) == ["canonical"], "self-test: allowance ignored"
     assert extension_noise(report) == 1, "self-test: extension requests not counted"
     run = Run("/posts", "mobile", False)
-    assert any("largest-contentful-paint" in v for v in check_budget(run, report)), "self-test: budget not enforced"
+    assert any("largest-contentful-paint" in v for v in check_budget(run, [report])), "self-test: budget not enforced"
     assert Run("/", "desktop", True).slug == "home-desktop-nofonts", "self-test: slug"
+
+    # Aggregation: the median must survive an outlier, and the spread must be
+    # the real width rather than a comforting average.
+    assert aggregate([2323.0, 4217.0, 4348.0]) == (4217.0, 2025.0), "self-test: median/spread"
+    assert aggregate([1500.0]) == (1500.0, None), "self-test: one run has no spread"
+    assert aggregate([None, 2.0, None]) == (2.0, None), "self-test: missing values not counted"
+    assert aggregate([None, None]) == (None, None), "self-test: no values at all"
+
+    def timed(lcp: float) -> dict:
+        return {"audits": {"largest-contentful-paint": {"numericValue": lcp}}, "categories": {}}
+
+    # A median inside the budget while a run crossed it is not a pass: that is
+    # the exact shape of the noise this runner exists to expose.
+    unsettled = check_budget(run, [timed(1000), timed(2400), timed(4000)])
+    assert any("not settled" in v for v in unsettled), "self-test: straddling budget reported as clean"
+    assert not check_budget(run, [timed(1000), timed(1100), timed(1200)]), "self-test: quiet runs flagged"
+    over = check_budget(run, [timed(3000), timed(3100), timed(3200)])
+    assert any("median" in v and ">" in v for v in over), "self-test: median over budget missed"
+
+    # The server must answer the site's own URL shape, not the one
+    # SimpleHTTPRequestHandler prefers.
+    with tempfile.TemporaryDirectory(prefix="lighthouse-serve-") as raw:
+        root = Path(raw)
+        (root / "index.html").write_text("<!doctype html>root", encoding="utf-8")
+        (root / "creativity" / "skver").mkdir(parents=True)
+        (root / "creativity" / "skver" / "index.html").write_text("<!doctype html>page", encoding="utf-8")
+        (root / "feed.xml").write_text("<rss/>", encoding="utf-8")
+        with serve(root) as origin:
+            host = urlsplit(origin).netloc
+
+            def status(path: str) -> tuple[int, str | None]:
+                connection = http.client.HTTPConnection(host, timeout=5)
+                try:
+                    connection.request("GET", path)
+                    response = connection.getresponse()
+                    response.read()
+                    return response.status, response.getheader("Location")
+                finally:
+                    connection.close()
+
+            assert status("/")[0] == 200, "self-test: root not served"
+            assert status("/creativity/skver")[0] == 200, "self-test: canonical form not served directly"
+            assert status("/creativity/skver/") == (301, "/creativity/skver"), "self-test: slash form not redirected"
+            assert status("/feed.xml")[0] == 200, "self-test: plain file not served"
+            assert status("/nothing-here")[0] == 404, "self-test: missing path not 404"
 
     # The three ways the 8 August 2026 baseline went wrong must each be caught.
     broken = {
@@ -300,7 +512,23 @@ def main() -> int:
         "--base-url",
         default=PREVIEW_ORIGIN,
         help=f"origin to measure (default: preview, {PREVIEW_ORIGIN}); "
-        f"use {PRODUCTION_ORIGIN} for production or http://localhost:1313 for `hugo server`",
+        f"use {PRODUCTION_ORIGIN} for production. To measure a local build use "
+        f"--public-dir, not `hugo server` — see its help",
+    )
+    parser.add_argument(
+        "--public-dir",
+        type=Path,
+        help="serve this build directory here and measure it instead of --base-url. "
+        "This is how a local measurement is done: `hugo server` renders unminified HTML "
+        "and overwrites public/ with its own baseURL, so it measures an artifact the site "
+        "never ships",
+    )
+    parser.add_argument(
+        "--runs",
+        type=int,
+        default=1,
+        help="repeat every measurement N times and report the median with its spread; "
+        "one run cannot tell a real change from noise (default: 1)",
     )
     parser.add_argument("--path", action="append", dest="paths", help="page path to measure; repeatable")
     parser.add_argument(
@@ -342,6 +570,9 @@ def main() -> int:
 
     self_test()
 
+    if args.runs < 1:
+        sys.exit("--runs must be at least 1")
+
     base_url = args.base_url.rstrip("/")
     paths = args.paths or list(DEFAULT_PATHS)
     form_factors = ("desktop", "mobile") if args.form_factor == "both" else (args.form_factor,)
@@ -367,38 +598,72 @@ def main() -> int:
         for blocked in font_modes
     ]
 
-    print(f"Lighthouse: {' '.join(command)}")
-    print(f"Origin:     {base_url}")
-    print(f"Reports:    {out_dir}")
-    print(f"Runs:       {len(runs)} (sequential)\n")
+    with contextlib_serve(args.public_dir) as served_origin:
+        if served_origin:
+            base_url = served_origin
+        print(f"Lighthouse: {' '.join(command)}")
+        print(f"Origin:     {base_url}" + (f"  (serving {args.public_dir})" if served_origin else ""))
+        print(f"Reports:    {out_dir}")
+        print(f"Runs:       {len(runs)} page(s) x {args.runs} (sequential)\n")
 
-    rows: list[tuple[Run, dict]] = []
-    with tempfile.TemporaryDirectory(prefix="lighthouse-profile-") as profile:
-        for index, run in enumerate(runs, start=1):
-            url = base_url + run.path
-            out_path = out_dir / f"{run.slug}.json"
-            print(f"[{index}/{len(runs)}] {run.form_factor:<7} {url}", flush=True)
+        rows: list[tuple[Run, list[dict]]] = []
+        total = len(runs) * args.runs
+        step = 0
+        with tempfile.TemporaryDirectory(prefix="lighthouse-profile-") as profile:
+            for run in runs:
+                url = base_url + run.path
+                reports: list[dict] = []
+                for repeat in range(1, args.runs + 1):
+                    step += 1
+                    out_path = out_dir / f"{run.slug}-run{repeat}.json"
+                    print(f"[{step}/{total}] {run.form_factor:<7} {url}", flush=True)
 
-            completed = subprocess.run(
-                command + build_args(run, url, out_path, Path(profile), not args.no_headless),
-                check=False,
-            )
-            if completed.returncode != 0:
-                print(f"  lighthouse exited with {completed.returncode}", file=sys.stderr)
-                print(
-                    f"  if it rejected a category, this build expects Lighthouse {LIGHTHOUSE_VERSION} "
-                    f"({', '.join(CATEGORIES)})",
-                    file=sys.stderr,
-                )
-                return 1
-            if not out_path.exists():
-                print(f"  no report written to {out_path}", file=sys.stderr)
-                return 1
+                    completed = subprocess.run(
+                        command + build_args(run, url, out_path, Path(profile), not args.no_headless),
+                        check=False,
+                    )
+                    if completed.returncode != 0:
+                        print(f"  lighthouse exited with {completed.returncode}", file=sys.stderr)
+                        print(
+                            f"  if it rejected a category, this build expects Lighthouse "
+                            f"{LIGHTHOUSE_VERSION} ({', '.join(CATEGORIES)})",
+                            file=sys.stderr,
+                        )
+                        return 1
+                    if not out_path.exists():
+                        print(f"  no report written to {out_path}", file=sys.stderr)
+                        return 1
 
-            rows.append((run, json.loads(out_path.read_text(encoding="utf-8"))))
+                    reports.append(json.loads(out_path.read_text(encoding="utf-8")))
+                rows.append((run, reports))
 
-    table, problems = summarize(rows, allowed)
+    table, problems, records = summarize(rows, allowed)
+
+    # The aggregate is written next to the raw reports so a measurement can be
+    # quoted without re-reading every file — and so a note citing it can point
+    # at one artifact instead of a directory listing.
+    (out_dir / "summary.json").write_text(
+        json.dumps(
+            {
+                "measured": datetime.now(timezone.utc).isoformat(),
+                "origin": base_url if not args.public_dir else f"served:{args.public_dir}",
+                "runs_per_page": args.runs,
+                "lighthouse": " ".join(command),
+                "budgets": BUDGETS,
+                "pages": records,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
     print("\n" + table)
+    if args.runs == 1:
+        print(
+            "\nsingle run: the ± column is empty because one measurement has no spread. "
+            "Pass --runs 5 before believing a timing."
+        )
 
     if not args.indexable:
         print("\nis-crawlable failures ignored (preview serves Disallow: / by design)")
