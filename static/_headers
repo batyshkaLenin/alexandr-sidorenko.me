@@ -60,23 +60,36 @@
 
 # Feeds and machine-readable maps: fresh enough for a reader's client to notice
 # a new publication the same day.
+#
+# Content-Type is set here because the platform derives it from the file
+# extension and lands on application/xml and application/json — the generic
+# types, not the feed ones Hugo declares. A feed reader is entitled to the
+# specific type (T4). Setting the header replaces the platform's value; no
+# removal line is needed, and repeated names are only joined between separate
+# matching rules.
 /feed.xml
   Cache-Control: public, max-age=3600
+  Content-Type: application/rss+xml; charset=utf-8
 
 /feed.json
   Cache-Control: public, max-age=3600
+  Content-Type: application/feed+json; charset=utf-8
 
 /posts/feed.xml
   Cache-Control: public, max-age=3600
+  Content-Type: application/rss+xml; charset=utf-8
 
 /posts/feed.json
   Cache-Control: public, max-age=3600
+  Content-Type: application/feed+json; charset=utf-8
 
 /creativity/feed.xml
   Cache-Control: public, max-age=3600
+  Content-Type: application/rss+xml; charset=utf-8
 
 /creativity/feed.json
   Cache-Control: public, max-age=3600
+  Content-Type: application/feed+json; charset=utf-8
 
 /sitemap.xml
   Cache-Control: public, max-age=3600

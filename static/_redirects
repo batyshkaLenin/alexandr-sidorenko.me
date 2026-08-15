@@ -1,0 +1,3 @@
+# Trailing-slash form is not canonical (ADR redesign-canonical-url-policy).
+# html_handling only issues a temporary 307; this states the move is permanent.
+/*/ /:splat 301

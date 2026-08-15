@@ -156,6 +156,27 @@ Verified by breaking each rule in turn — a changed `max-age`, `Cache-Control`
 added to `/*`, `immutable` given to the fonts, a deleted feed rule, HSTS added
 early — each fails and names the rule.
 
+The HTTP matrix check (T4) is different from the rest: it probes a *running*
+origin, because the URL form a host serves, the redirect it issues and the media
+types it attaches exist only there. The build directory can say what Hugo
+generated — that is `check-url-contract.py` — but not what Cloudflare answers.
+
+```sh
+python3 scripts/check-http-matrix.py --base-url https://<preview-host>
+```
+
+It asserts that the no-trailing-slash form answers `200`, that the slash form
+makes exactly one *permanent* redirect to it without a chain, that the address a
+page declares as its own `canonical` answers `200` rather than a redirect, that
+feeds, sitemap, robots, the manifest, `sw.js` and audio carry their expected
+media types, and that absent and legacy URLs (`/ru/...`, `/en`, `.amp`) return a
+real `404`. Every request carries a cache-buster: Cloudflare caches redirects,
+and a stale `307` made the first run of this look like the setting had not
+applied at all.
+
+Run without `--base-url` it prints a skip and exits `0`, so the review gate can
+run it alongside the build-directory checks.
+
 ## Lighthouse
 
 `scripts/run-lighthouse.py` is not part of the list above: it needs the

@@ -7,6 +7,11 @@
   },
   "assets": {
     "directory": "./public",
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+    // Canonical URLs carry no trailing slash (ADR redesign-canonical-url-policy).
+    // The platform default is the opposite — auto-trailing-slash, which answered
+    // /creativity with a 307 to /creativity/ and made every canonical link a
+    // redirect (T4).
+    "html_handling": "drop-trailing-slash"
   }
 }

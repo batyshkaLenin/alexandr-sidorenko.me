@@ -70,6 +70,18 @@ EXPECTED_CACHE = {
     "/sw.js": REVALIDATE,
 }
 
+# Feeds also carry a media type: the platform derives Content-Type from the file
+# extension and lands on the generic application/xml and application/json, so the
+# specific feed types are stated in _headers (T4).
+EXPECTED_CONTENT_TYPE = {
+    "/feed.xml": "application/rss+xml; charset=utf-8",
+    "/feed.json": "application/feed+json; charset=utf-8",
+    "/posts/feed.xml": "application/rss+xml; charset=utf-8",
+    "/posts/feed.json": "application/feed+json; charset=utf-8",
+    "/creativity/feed.xml": "application/rss+xml; charset=utf-8",
+    "/creativity/feed.json": "application/feed+json; charset=utf-8",
+}
+
 # HTML deliberately has no rule: the platform default is already the contract's
 # value, and a rule on /* would be joined with every other Cache-Control by
 # comma instead of replacing it.
@@ -149,11 +161,18 @@ def check_rules(errors: list[str], rules: dict[str, dict[str, str]], order: list
         if "immutable" in headers.get("Cache-Control", "") and pattern not in CONTENT_ADDRESSED:
             errors.append(f"{pattern}: immutable on a URL that is not content-addressed")
 
+    for path, expected in EXPECTED_CONTENT_TYPE.items():
+        actual = rules.get(path, {}).get("Content-Type")
+        if actual != expected:
+            errors.append(f"{path}: Content-Type is {actual!r}, ADR says {expected!r}")
+
 
 def check_coverage(errors: list[str], rules: dict[str, dict[str, str]], public_dir: Path) -> None:
     """Every built file should land in a class the contract knows about."""
     for path in sorted(public_dir.rglob("*")):
-        if not path.is_file() or path.name == "_headers":
+        # `_headers` and `_redirects` are consumed by the platform, not served:
+        # both answer 404 on the deployed origin, so no cache class applies.
+        if not path.is_file() or path.name in ("_headers", "_redirects"):
             continue
         url = "/" + path.relative_to(public_dir).as_posix()
         if url.endswith(".html"):
