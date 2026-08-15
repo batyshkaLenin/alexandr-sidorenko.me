@@ -286,7 +286,16 @@ def main() -> int:
     errors: list[str] = []
     described = {page["html"] for page in contract["pages"]}
     described |= set(contract["pages_without_structured_data"])
-    built = {str(path.relative_to(public)) for path in public.rglob("*.html")}
+    # `perf/` holds copies of one page that differ only in how fonts arrive
+    # (scripts/make-perf-pages.py, T69). They are measurement scaffolding, not
+    # pages of the site: each carries `noindex` and no canonical, and none is
+    # linked from anywhere. Describing them in the fixture would state that the
+    # site has three more publications than it does.
+    built = {
+        str(path.relative_to(public))
+        for path in public.rglob("*.html")
+        if not str(path.relative_to(public)).startswith("perf/")
+    }
     for missing in sorted(built - described):
         errors.append(f"{missing}: страница собрана, но её нет в фикстуре")
     for extra in sorted(described - built):

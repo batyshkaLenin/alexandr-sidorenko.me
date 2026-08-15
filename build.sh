@@ -92,6 +92,18 @@ main() {
   # an explicit production build.
   echo "Building the project (environment: preview)..."
   hugo build --gc --minify --cleanDestinationDir --environment preview
+
+  # Opt-in measurement scaffolding (T69). `wrangler deploy` runs this script
+  # itself and rebuilds public/ from scratch, so anything generated beforehand
+  # is thrown away — which is why this hook exists here rather than as a step
+  # someone remembers to run first.
+  #
+  # PERF_PAGES holds the directory with the woff2 files and their faces.json.
+  # Unset — the default, and what production does — nothing is generated.
+  if [[ -n "${PERF_PAGES:-}" ]]; then
+    echo "Generating font-arm pages from ${PERF_PAGES}..."
+    python3 scripts/make-perf-pages.py --fonts "${PERF_PAGES}"
+  fi
 }
 
 main "$@"
