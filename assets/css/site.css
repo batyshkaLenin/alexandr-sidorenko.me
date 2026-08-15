@@ -575,6 +575,14 @@
   text-decoration: underline;
 }
 
+/* The track itself carries the panel: it is the one line a reader came here
+   for, so it stays in the body colour while the timestamp below stays muted
+   (T96). */
+.dc-lastfm-track {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+
 .dc-lastfm-note {
   margin: 0 0 8px;
   color: var(--dc-muted);

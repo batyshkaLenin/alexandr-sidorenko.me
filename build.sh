@@ -90,6 +90,15 @@ main() {
   # not the production custom domain (see .ai/adr/redesign-hosting-cloudflare.md) —
   # keep it out of search indexes until Фаза 7 cutover switches this to
   # an explicit production build.
+  # Last scrobbled track (T96). Opt-in: without the key nothing runs and the
+  # committed snapshot is used as it is, so a fork or a local build needs no
+  # credentials. The script never fails the build either — Last.fm being down
+  # leaves the previous snapshot in place, exactly like the Webmention import.
+  if [[ -n "${LASTFM_API_KEY:-}" ]]; then
+    echo "Refreshing the last played track..."
+    python3 scripts/fetch-lastfm.py
+  fi
+
   echo "Building the project (environment: preview)..."
   hugo build --gc --minify --cleanDestinationDir --environment preview
 

@@ -126,10 +126,26 @@ creativity+status — all real site data, no invented dynamic state.
     </div>
   </section>
 
+  {{- /* Last scrobbled track, not "now playing" (T96). Scrobbles arrive in
+  batches when the phone syncs by hand, so what this shows is a past event with
+  the time it happened — never a claim about the present. The snapshot in
+  data/lastfm.json is written by scripts/fetch-lastfm.py during the build; when
+  it is empty, because the fetch failed or has never run, the panel falls back
+  to the plain link it has always been. */ -}}
+  {{ $track := (index (default dict hugo.Data.lastfm) "track") }}
   <section class="dc-panel">
     {{ partial "declassified/panel-label.html" "$ lastfm-cli --last-played" }}
     <div class="dc-panel__body">
+      {{- with $track }}
+      <p class="dc-lastfm-track">
+        <a href="{{ .url }}" target="_blank" rel="noopener">{{ .artist }} — {{ .name }}</a>
+      </p>
+      <p class="dc-lastfm-note">
+        слушал <time datetime="{{ .played_at }}">{{ (.played_at | time.AsTime) | time.Format ":date_long" }}</time>, по данным Last.fm
+      </p>
+      {{- else }}
       <p class="dc-lastfm-note">{{ i18n "nothingHereYet" }}</p>
+      {{- end }}
       <a class="dc-lastfm-link" href="https://www.last.fm/user/batyshkaLenin" target="_blank" rel="noopener">last.fm/batyshkaLenin →</a>
     </div>
   </section>
