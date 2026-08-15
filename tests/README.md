@@ -13,6 +13,7 @@ python3 scripts/check-rel-me-contract.py
 python3 scripts/check-url-contract.py
 python3 scripts/check-schema-contract.py
 python3 scripts/check-webmention-contract.py
+python3 scripts/check-headers-contract.py
 ```
 
 The checker normalizes front matter, HTML provenance comments, Markdown hard-break
@@ -131,6 +132,29 @@ brings back lands in the gitignored inbox, so an unreviewed stranger's text is
 never committed. `send` reads the built site, skips `rel=nofollow` links (which
 is what keeps mention sources out of outbound notifications) and journals
 delivered pairs in `data/webmentions-sent.json` so reruns are cheap.
+
+The headers contract check (T72, ADR `redesign-headers-and-cache-contract`)
+reads `_headers` out of the build and compares every rule with the decision:
+the five security headers on `/*` byte for byte, the `Cache-Control` of each
+class, and the rule that `immutable` may appear only on content-addressed URLs.
+It also checks coverage in both directions — every built file falls into a
+class, and no rule sets `Cache-Control` on HTML, which must keep the platform
+default. Two structural traps are checked explicitly, because Cloudflare merges
+matching rules and joins repeated header names with a comma: `Cache-Control` on
+`/*` fails, and so does an HSTS header, which the ADR defers until after
+cutover.
+
+With `--base-url` it additionally asks a running origin for one representative
+of each class and compares what is actually served:
+
+```sh
+npx wrangler dev --port 8791
+python3 scripts/check-headers-contract.py --base-url http://127.0.0.1:8791
+```
+
+Verified by breaking each rule in turn — a changed `max-age`, `Cache-Control`
+added to `/*`, `immutable` given to the fonts, a deleted feed rule, HSTS added
+early — each fails and names the rule.
 
 ## Lighthouse
 

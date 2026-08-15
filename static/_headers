@@ -1,0 +1,93 @@
+# Header contract for Workers Static Assets (T72).
+# Values come from .ai/adr/redesign-headers-and-cache-contract.md — this file
+# implements that decision and does not make its own.
+#
+# Cloudflare applies *every* matching rule and joins repeated header names with
+# a comma, so Cache-Control is never set on /* — a page would end up with two
+# joined policies. HTML therefore keeps the platform default
+# (public, max-age=0, must-revalidate), which is exactly what the contract asks
+# for, and only the classes that need something else are listed below.
+#
+# immutable appears only on content-addressed URLs, where changing the bytes
+# changes the URL. Fonts and audio live at stable addresses, so they get a week
+# with revalidation instead of a year without it.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  Cross-Origin-Resource-Policy: same-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()
+
+# Content-addressed: the hash is in the file name.
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/avatar_hu_*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+# Stable addresses: a week, revalidated.
+/fonts/*
+  Cache-Control: public, max-age=604800
+
+/assets/*.mp3
+  Cache-Control: public, max-age=604800
+
+# Icons and manifest change rarely but keep their addresses.
+/favicon.ico
+  Cache-Control: public, max-age=86400
+
+/logo192.png
+  Cache-Control: public, max-age=86400
+
+/logo512.png
+  Cache-Control: public, max-age=86400
+
+/site.webmanifest
+  Cache-Control: public, max-age=86400
+
+# Feeds and machine-readable maps: fresh enough for a reader's client to notice
+# a new publication the same day.
+/feed.xml
+  Cache-Control: public, max-age=3600
+
+/feed.json
+  Cache-Control: public, max-age=3600
+
+/posts/feed.xml
+  Cache-Control: public, max-age=3600
+
+/posts/feed.json
+  Cache-Control: public, max-age=3600
+
+/creativity/feed.xml
+  Cache-Control: public, max-age=3600
+
+/creativity/feed.json
+  Cache-Control: public, max-age=3600
+
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+
+/robots.txt
+  Cache-Control: public, max-age=3600
+
+/llms.txt
+  Cache-Control: public, max-age=3600
+
+# The cleanup worker unregisters stale service workers, so a visitor must not
+# be stuck with a cached copy of it (T38, T59).
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
