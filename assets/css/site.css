@@ -308,6 +308,28 @@
   font-size: 12px;
 }
 
+/* Below the breakpoint the two 240px columns cannot share a row, so they wrap —
+   and a right-aligned "next" under a left-aligned "prev" reads as a ragged
+   staircase with a hole in the middle. On a phone the pair is a plain
+   left-aligned stack instead. */
+@media (max-width: 860px) {
+  .dc-adjacent {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* The 240px basis is a column width in a row; in a column it would become a
+     240px *height* and blow the block up to half a screen. */
+  .dc-adjacent__link {
+    flex: 0 0 auto;
+  }
+
+  .dc-adjacent__link--next {
+    margin-left: 0;
+    text-align: left;
+  }
+}
+
 @media print {
   .dc-adjacent {
     display: none;
