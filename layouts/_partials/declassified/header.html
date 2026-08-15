@@ -8,7 +8,11 @@ The no-trailing-slash policy is this site's ADR, not a theme concern.
     {{ partial "declassified/hooks/header-extra.html" . }}
   </div>
   {{ with .Site.Menus.main }}
-  <nav class="dc-nav" aria-label="{{ $.Site.Title }}">
+  {{- /* Esc leads here, and the enhance script reads the address from this
+  attribute rather than having it printed into its body — that is what keeps
+  the script identical on every page, and `script-src 'self'` free of hashes
+  (T95). Absent on pages without a parent, where Esc then does nothing. */ -}}
+  <nav class="dc-nav" aria-label="{{ $.Site.Title }}"{{ with $.Parent }} data-parent-url="{{ partial "canonical-url.html" .RelPermalink }}"{{ end }}>
     <ul class="dc-nav__list">
       {{ range $i, $item := . }}
       <li>

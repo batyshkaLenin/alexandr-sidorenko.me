@@ -1,0 +1,99 @@
+/*
+Optional progressive enhancement, loaded as one fingerprinted file from this
+origin (T95). It used to be an inline <script>, which forced a hash into
+script-src — and five of them, because the template printed the parent section
+URL into the body and every page kind produced a different script. The URL now
+arrives as a data attribute on the nav, so one file serves every page and
+`script-src 'self'` covers it (ADR redesign-headers-and-cache-contract).
+
+If this file is blocked or fails to load, #dc-clock stays empty — no stale
+placeholder — the keyboard hint stays hidden, and all content and navigation
+remain fully usable.
+*/
+(function () {
+  "use strict";
+
+  /* The clock shows the *visitor's own* local time — every field is read from
+     the browser's own Date, so the site never claims to know or publish the
+     owner's location or timezone (the theme audit flagged that as dishonest).
+     ISO 8601 with the visitor's own offset (T82): fixed-width in a monospace
+     face, so a ticking second never reflows the bar, and honest about offsets
+     that are not whole hours — the previous form printed Kathmandu as
+     "UTC+5.75". */
+  var el = document.getElementById("dc-clock");
+  if (el) {
+    var timer = null;
+
+    var pad = function (value) {
+      return (value < 10 ? "0" : "") + value;
+    };
+
+    var render = function () {
+      var now = new Date();
+      var offset = -now.getTimezoneOffset();
+      var sign = offset < 0 ? "-" : "+";
+      var absolute = Math.abs(offset);
+      el.textContent =
+        now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()) +
+        "T" + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds()) +
+        sign + pad(Math.floor(absolute / 60)) + ":" + pad(absolute % 60);
+    };
+
+    /* CSS hides the clock below the top bar's breakpoint, and this reads that
+       rather than repeating the breakpoint: an invisible clock stops ticking
+       instead of waking a phone once a second for nothing. */
+    var sync = function () {
+      var shown = el.offsetParent !== null;
+      if (shown && timer === null) {
+        render();
+        timer = setInterval(render, 1000);
+      } else if (!shown && timer !== null) {
+        clearInterval(timer);
+        timer = null;
+        el.textContent = "";
+      }
+    };
+
+    sync();
+    window.addEventListener("resize", sync);
+  }
+
+  /* Keyboard navigation (T54). The digits mirror the [1]/[2]/[3] indices the
+     nav already draws, and Esc goes to the parent section rather than through
+     history — going "back" from an external link would leave the site. The
+     hint is revealed only once the handler is attached, so a blocked or broken
+     script leaves no promise of shortcuts that do not work. */
+  var nav = document.querySelector(".dc-nav");
+  var links = nav ? nav.querySelectorAll(".dc-nav__link") : [];
+  if (!links.length) return;
+
+  var parentUrl = nav.getAttribute("data-parent-url") || "";
+
+  var isTyping = function (node) {
+    if (!node || !node.tagName) return false;
+    return node.isContentEditable
+      || node.tagName === "INPUT"
+      || node.tagName === "TEXTAREA"
+      || node.tagName === "SELECT";
+  };
+
+  document.addEventListener("keydown", function (event) {
+    // Let the browser keep its own chords and in-page find.
+    if (event.ctrlKey || event.metaKey || event.altKey || isTyping(event.target)) return;
+    // event.key.length guards the empty string, which indexOf would report at 0
+    // and turn into a jump to the first section.
+    var index = event.key.length === 1 ? "123".indexOf(event.key) : -1;
+    if (index !== -1 && index < links.length) {
+      event.preventDefault();
+      window.location.assign(links[index].href);
+      return;
+    }
+    if (event.key === "Escape" && parentUrl) {
+      event.preventDefault();
+      window.location.assign(parentUrl);
+    }
+  });
+
+  var hint = document.getElementById("dc-nav-hint");
+  if (hint) hint.hidden = false;
+})();
