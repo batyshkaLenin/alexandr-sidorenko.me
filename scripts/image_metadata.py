@@ -25,6 +25,17 @@ PNG — removed: tEXt, zTXt, iTXt, eXIf, tIME.
 PNG — kept: everything else, including sRGB/gAMA/pHYs/cHRM/iCCP, which are
 colour and scale rather than a statement about the author.
 
+WebP — removed: EXIF and `XMP ` RIFF chunks, and the VP8X flag bits that
+announce them, so the container does not keep claiming metadata it no longer
+holds.
+WebP — kept: VP8/VP8L/ALPH/ANIM/ANMF (the pixels) and ICCP (colour), matching
+the JPEG and PNG rules above.
+
+The site publishes WebP because responsive derivatives are encoded to it (T66).
+Hugo's encoder does not copy source metadata into a derivative, so in practice
+these chunks are absent — but the check exists to verify that rather than to
+assume it, and a source WebP added later goes through the same policy.
+
 Both operations copy compressed data byte for byte and never re-encode, so the
 visible pixels cannot change — which is what `check-content-parity.py` and the
 task's own acceptance criterion demand.
@@ -37,16 +48,23 @@ from pathlib import Path
 
 JPEG_STRIP_MARKERS = {0xE1: "APP1 (Exif/XMP)", 0xED: "APP13 (Photoshop/IPTC)", 0xFE: "COM"}
 PNG_STRIP_CHUNKS = {b"tEXt", b"zTXt", b"iTXt", b"eXIf", b"tIME"}
+WEBP_STRIP_CHUNKS = {b"EXIF", b"XMP "}
+
+# VP8X advertises what an extended-format file contains. Dropping a chunk
+# without clearing its bit leaves a container that promises metadata no reader
+# can find. Bit order is MSB-first: Rsv Rsv ICC Alpha EXIF XMP Anim Rsv.
+VP8X_FLAG_BITS = {b"EXIF": 0x08, b"XMP ": 0x04}
 
 JPEG_SUFFIXES = {".jpg", ".jpeg"}
-IMAGE_SUFFIXES = JPEG_SUFFIXES | {".png"}
+WEBP_SUFFIXES = {".webp"}
+IMAGE_SUFFIXES = JPEG_SUFFIXES | WEBP_SUFFIXES | {".png"}
 
-# Formats this module cannot read yet. They are listed rather than ignored:
-# a WebP arriving through the asset pipeline (T66) carries its metadata in RIFF
-# chunks this parser knows nothing about, and silently passing it would be
-# worse than failing — the check would claim a guarantee it never made.
+# Formats this module cannot read. They are listed rather than ignored:
+# metadata sits in container structures this parser knows nothing about, and
+# silently passing such a file would be worse than failing — the check would
+# claim a guarantee it never made.
 UNSUPPORTED_SUFFIXES = {
-    ".webp", ".avif", ".heic", ".heif", ".jxl", ".gif",
+    ".avif", ".heic", ".heif", ".jxl", ".gif",
     ".tif", ".tiff", ".bmp", ".svg",
 }
 
@@ -144,17 +162,64 @@ def png_stripped(data: bytes) -> bytes:
     return bytes(out)
 
 
+def webp_chunks(data: bytes):
+    """(fourcc, start, end) for every RIFF chunk, with the odd-size pad byte
+    counted in `end` — a chunk always begins on an even offset."""
+    offset = 12
+    while offset + 8 <= len(data):
+        kind = data[offset : offset + 4]
+        length = struct.unpack("<I", data[offset + 4 : offset + 8])[0]
+        end = offset + 8 + length + (length & 1)
+        yield kind, offset, end
+        offset = end
+
+
+def is_webp(data: bytes) -> bool:
+    return data[:4] == b"RIFF" and data[8:12] == b"WEBP"
+
+
+def webp_findings(data: bytes) -> list[tuple[bytes, int]]:
+    if not is_webp(data):
+        return []
+    return [
+        (kind, end - start)
+        for kind, start, end in webp_chunks(data)
+        if kind in WEBP_STRIP_CHUNKS
+    ]
+
+
+def webp_stripped(data: bytes) -> bytes:
+    if not is_webp(data):
+        return data
+    body = bytearray()
+    cleared = 0
+    for kind, start, end in webp_chunks(data):
+        if kind in WEBP_STRIP_CHUNKS:
+            cleared |= VP8X_FLAG_BITS[kind]
+            continue
+        body += data[start:end]
+    if cleared and body[:4] == b"VP8X":
+        body[8] &= ~cleared & 0xFF
+    return b"RIFF" + struct.pack("<I", len(body) + 4) + b"WEBP" + bytes(body)
+
+
 def findings(path: Path) -> list[tuple[str, int]]:
     """Disallowed metadata in one file, as (description, bytes) pairs."""
     data = path.read_bytes()
-    if path.suffix.lower() in JPEG_SUFFIXES:
+    suffix = path.suffix.lower()
+    if suffix in JPEG_SUFFIXES:
         return [(name, size) for _, name, size in jpeg_findings(data)]
+    if suffix in WEBP_SUFFIXES:
+        return [(kind.decode("ascii").strip(), size) for kind, size in webp_findings(data)]
     return [(kind.decode("ascii"), size) for kind, size in png_findings(data)]
 
 
 def stripped(path: Path, data: bytes) -> bytes:
-    if path.suffix.lower() in JPEG_SUFFIXES:
+    suffix = path.suffix.lower()
+    if suffix in JPEG_SUFFIXES:
         return jpeg_stripped(data)
+    if suffix in WEBP_SUFFIXES:
+        return webp_stripped(data)
     return png_stripped(data)
 
 

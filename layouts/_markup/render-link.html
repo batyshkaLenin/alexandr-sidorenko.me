@@ -1,0 +1,34 @@
+{{/*
+Site override of the theme's link hook. It keeps the theme's rule — a link
+leaving this host gets target="_blank" rel="noopener" so a new tab cannot reach
+back through window.opener — and adds one thing the theme cannot know about:
+where this site's photographs actually live.
+
+Several publications link a photograph rather than embedding it ("в батиной
+странной шапке"). Those addresses used to resolve because the file sat in
+`static/` and was published verbatim. Since T66 the pipeline publishes resized
+derivatives and never the source, so a bare `/assets/…/x.jpg` href would now
+be a 404 — the one place where moving images out of `static/` really does break
+an address rather than merely rename it.
+
+The link is pointed at the widest derivative the body ladder already builds, so
+following it costs no additional file for an image the page also shows. A
+link-only photograph gets that one derivative built for it.
+
+Audio is untouched: `.mp3` keeps its verbatim `static/` address, which the feed
+enclosure contract depends on.
+*/}}
+{{ $dest := .Destination }}
+{{ $destHost := (urls.Parse $dest).Host }}
+{{ $siteHost := (urls.Parse .Page.Site.BaseURL).Host }}
+{{ $external := and $destHost (ne $destHost $siteHost) }}
+{{ if and (not $external) (hasPrefix $dest "/assets/") (in (slice ".jpg" ".jpeg" ".png") (lower (path.Ext $dest))) }}
+  {{ $resource := partial "image-resource.html" (dict "path" $dest "context" .Page.File.Path) }}
+  {{ $width := cond (lt $resource.Width 1140) $resource.Width 1140 }}
+  {{ $dest = ($resource.Process (printf "resize %dx webp" $width)).RelPermalink }}
+{{ end }}
+{{ if $external }}
+<a href="{{ $dest | safeURL }}" target="_blank" rel="noopener"{{ with .Title }} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
+{{ else }}
+<a href="{{ $dest | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
+{{ end }}

@@ -7,7 +7,17 @@
        pointing at the site root would tell a microformats parser that this is
        where the author lives (T13). */}}
   <p class="byline p-author h-card">
-    {{ with $author.avatar }}<img class="u-photo" src="{{ . | relURL }}" alt="" width="32" height="32" loading="lazy" decoding="async">{{ end }}
+    {{/* A 32px caption icon used to be served as the full 1280x848 original —
+         116 KB for 1024 visible pixels (T66). Fixed box, so the ladder is just
+         1x and 2x and `sizes` is a constant. */}}
+    {{ with $author.avatar }}{{ partial "responsive-image.html" (dict
+         "resource" (partial "image-resource.html" (dict "path" . "context" "data/authors.yaml"))
+         "alt" ""
+         "sizes" "32px"
+         "widths" (slice 32 64)
+         "square" true
+         "class" "u-photo"
+         "attrs" (safeHTMLAttr `loading="lazy"`)) }}{{ end }}
     {{- with $author.url }}<a class="p-name u-url" href="{{ . | relURL }}">{{ $author.name }}</a>{{ else }}<span class="p-name">{{ $author.name }}</span>{{ end }}
     {{- with $author.username }} <span class="username">@{{ . }}</span>{{ end }}
   </p>

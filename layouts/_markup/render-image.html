@@ -1,30 +1,35 @@
 {{- /*
-Site override of the theme's generic image hook: same markup, plus the real
-width/height so nothing below the image moves while it loads (T57).
+Site override of the theme's generic image hook: the same figure, but the file
+the browser downloads is sized for the column it lands in (T66), and it still
+carries the real width/height so nothing below it moves while it loads (T57).
 
-Images live in static/ and never enter Hugo's resource pipeline (the /assets
-URLs are a migration contract), so the dimensions are read straight from the
-file with images.Config. A body image pointing at a missing file fails the
-build here rather than shipping an <img> without dimensions — a silent
-fallback would make the whole check optional.
+Body images are addressed as `/assets/…` in Markdown and resolved to pipeline
+resources under `assets/` — the address does not change, the bytes behind it
+do. An image pointing at a missing file fails the build here rather than
+shipping an <img> without dimensions.
+
+The prose column is `--dc-detail-width: 760px` on a wide screen. Below the
+860px breakpoint it is the viewport minus 86px of fixed chrome — `.dc-main`
+padding, `.dc-panel__body` padding and the panel border — measured at 326 CSS
+px inside a 412 px viewport. Saying `100vw` there would overstate the need by a
+quarter and make the browser fetch one rung too far up the ladder.
+
+The ladder is the common recommendation for a 700-800px article column —
+400/800/1200 — with a 600 added where this layout's own demand actually falls.
+`sizes` describes CSS pixels only; the browser multiplies by the device ratio
+itself, so the upper rungs are what serve a high-density screen:
+
+  326 CSS px @ 1.75x -> 570  takes 600
+  326 CSS px @ 2x    -> 652  takes 800
+  760 CSS px @ 1x    -> 760  takes 800
+  326 CSS px @ 3x    -> 978  takes 1200
+  760 CSS px @ 2x    -> 1520 takes 1200, the one place the ladder is short
+
+Truncating it lower would trade a visible loss on every retina screen for a
+smaller number in the build directory, which is not what the ladder is for.
 */ -}}
 {{- $src := .Destination -}}
 {{- $external := or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "//") -}}
-{{- $config := false -}}
-{{- if not $external -}}
-  {{- if not (hasPrefix $src "/") -}}
-    {{- errorf "%s: image %q must be a root-relative path — this site keeps images in static/, not in page bundles" .Page.File.Path $src -}}
-  {{- end -}}
-  {{- $file := printf "static%s" $src -}}
-  {{- if not (os.FileExists $file) -}}
-    {{- errorf "%s: image file %s does not exist" .Page.File.Path $file -}}
-  {{- end -}}
-  {{- $config = images.Config $file -}}
-{{- end -}}
-{{- $size := "" -}}
-{{- with $config -}}
-  {{- $size = printf `width="%d" height="%d"` .Width .Height | safeHTMLAttr -}}
-{{- end -}}
 {{- /*
 The first body image is the one that can be the LCP element on a wide screen,
 and lazy loading hides it from the preload scanner until layout is done (T64).
@@ -35,11 +40,28 @@ cannot depend on which page is being written out — that would make the same
 image eager or lazy depending on build order.
 */ -}}
 {{- $loading := cond (eq .Ordinal 0) `fetchpriority="high"` `loading="lazy"` | safeHTMLAttr -}}
+{{- $sizes := "(max-width: 860px) calc(100vw - 86px), 760px" -}}
+{{- $widths := slice 400 600 800 1200 -}}
+{{- $image := "" -}}
+{{- if $external -}}
+  {{- $image = printf `<img src="%s" alt="%s" %s decoding="async">` $src .Text $loading | safeHTML -}}
+{{- else -}}
+  {{- if not (hasPrefix $src "/") -}}
+    {{- errorf "%s: image %q must be a root-relative path — this site addresses images the same way it publishes them" .Page.File.Path $src -}}
+  {{- end -}}
+  {{- $resource := partial "image-resource.html" (dict "path" $src "context" .Page.File.Path) -}}
+  {{- $image = partial "responsive-image.html" (dict
+        "resource" $resource
+        "alt" .Text
+        "sizes" $sizes
+        "widths" $widths
+        "attrs" $loading) -}}
+{{- end -}}
 {{ if .Title }}
 <figure class="dc-figure">
-  <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ $size }} {{ $loading }} decoding="async">
+  {{ $image }}
   <figcaption>{{ .Title }}</figcaption>
 </figure>
 {{ else }}
-<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" {{ $size }} {{ $loading }} decoding="async">
+{{ $image }}
 {{ end }}

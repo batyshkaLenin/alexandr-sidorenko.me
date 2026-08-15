@@ -1,0 +1,68 @@
+{{- /*
+One <picture> for a photograph: a WebP ladder for browsers that negotiate, one
+JPEG for those that do not, and never a file wider than the layout shows (T66).
+
+The sources are 800-4160 px wide and used to be published as-is — `avatar.jpg`
+alone shipped 1280x848 into a 32x32 caption icon. Every width below is capped
+at the source width, so a small image is never upscaled into a file bigger than
+the original.
+
+WebP rather than AVIF, measured on this site with Hugo 0.162.1 rather than
+assumed: over the same ladder WebP came out at 1301 KB against AVIF's 1594 KB,
+and a cold build took 2.4 s against 10.7 s. The T66 inventory expected AVIF to
+win by a wide margin, but that measurement came from libavif at a slow encoder
+setting. Hugo caps one image operation at 30 seconds — a limit the `timeout`
+config key does not raise — and every AVIF encoder speed slow enough to compete
+blows through it. Hugo's AVIF at the fastest usable speed barely undercuts its
+own JPEG.
+
+The JPEG is a single fallback width, not a second ladder. Any browser that
+reads `srcset` also reads WebP, so a full JPEG ladder would double the
+published bytes to serve nobody.
+
+`width`/`height` come from that fallback, so they describe the file the browser
+actually lays out. They stay mandatory (T57): with the stylesheet's
+`height: auto` they reserve the right box before a byte arrives, which is what
+holds CLS at zero.
+
+Call with a dict:
+  resource — the image resource (see image-resource.html)
+  alt      — alternative text, may be empty for a decorative image
+  sizes    — the `sizes` attribute
+  widths   — slice of candidate widths, largest last
+  class    — optional class for the <img>
+  attrs    — optional pre-escaped attributes (loading, fetchpriority, …)
+  square   — crop to 1:1 instead of preserving the source proportions
+
+`square` exists because the avatar is a 1280x848 landscape photograph that the
+stylesheet already crops square with `object-fit: cover`. Cropping it at build
+time ships only the visible pixels and makes the declared width/height true
+rather than a hint the CSS overrides.
+*/ -}}
+{{- $resource := .resource -}}
+{{- $square := .square | default false -}}
+{{- $limit := cond $square (math.Min $resource.Width $resource.Height) $resource.Width -}}
+{{- $widths := slice -}}
+{{- range .widths -}}
+  {{- if le . $limit -}}
+    {{- $widths = $widths | append . -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $widths -}}
+  {{- $widths = slice (int $limit) -}}
+{{- end -}}
+{{- $spec := "" -}}
+{{- $webp := slice -}}
+{{- range $widths -}}
+  {{- $spec = cond $square (printf "fill %dx%d webp" . .) (printf "resize %dx webp" .) -}}
+  {{- $webp = $webp | append (printf "%s %dw" ($resource.Process $spec).RelPermalink .) -}}
+{{- end -}}
+{{- /* The fallback is the narrowest candidate: a browser that cannot read
+       <picture> is also one on a small, slow device. */ -}}
+{{- $narrowest := index $widths 0 -}}
+{{- $fallback := $resource.Process (cond $square (printf "fill %dx%d" $narrowest $narrowest) (printf "resize %dx" $narrowest)) -}}
+{{- $class := .class | default "" -}}
+<picture>
+  <source type="image/webp" srcset="{{ delimit $webp ", " }}" sizes="{{ .sizes }}">
+  <img{{ with $class }} class="{{ . }}"{{ end }} src="{{ $fallback.RelPermalink }}" alt="{{ .alt }}" width="{{ $fallback.Width }}" height="{{ $fallback.Height }}" {{ .attrs }} decoding="async">
+</picture>

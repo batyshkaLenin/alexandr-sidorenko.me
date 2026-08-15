@@ -76,6 +76,27 @@ theme = 'declassified'
 [minify]
   disableXML = true
 
+# Every published photograph is a resized derivative, never the source file
+# (T66). Lanczos is the sharpest of Hugo's resample filters and the extra build
+# time is irrelevant for nine images.
+#
+# `exif.disableLatLong` is belt-and-braces: T73 already stripped the camera
+# metadata from the sources, and Hugo's derivatives carry none of it anyway,
+# but nothing here should be able to read a coordinate back out of a source
+# that some future commit adds without running the stripper.
+[imaging]
+  quality = 82
+  resampleFilter = 'Lanczos'
+
+  [imaging.exif]
+    disableLatLong = true
+
+  # No [imaging.avif] block, because nothing here encodes AVIF — see
+  # `layouts/_partials/responsive-image.html` for the measurement that chose
+  # WebP over it.
+  [imaging.webp]
+    quality = 80
+
 [markup.goldmark.renderer]
   unsafe = false
 

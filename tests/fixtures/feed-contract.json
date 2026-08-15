@@ -7,7 +7,7 @@
       "html": "creativity/23/index.html",
       "body_marker": "Жить без последствий.",
       "expected_urls": [
-        "https://alexandr-sidorenko.me/assets/creativity/23/strange-hat.jpg"
+        "https://alexandr-sidorenko.me/assets/creativity/23/strange-hat_hu_"
       ],
       "author": "Александр Сидоренко",
       "card_summary": "Жить без последствий. Жить, будто когда-нибудь станет легче. Ходить в чьём-то мерче и быть живой рекламой детского «Орбита»."
@@ -46,7 +46,7 @@
       "html": "posts/bluredu-new-teachers/index.html",
       "body_marker": "Замечали, скажешь человеку слово",
       "expected_urls": [
-        "https://alexandr-sidorenko.me/assets/posts/bluredu-new-teachers/blurred-technologies.jpg",
+        "https://alexandr-sidorenko.me/assets/posts/bluredu-new-teachers/blurred-technologies_hu_",
         "https://hackclub.com/"
       ],
       "author": "Александр Сидоренко",

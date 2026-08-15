@@ -2,9 +2,18 @@
 Feed body. Internal asset addresses are root-relative in the source and have
 to become absolute before they leave the site, or a reader resolves them
 against the feed reader's own host.
+
+`srcset` is here too since T66: a responsive body image puts several addresses
+in one attribute, and only its first one sits where a `src="/…"` rule could see
+it. The candidates after that are separated by `, ` — the second rule is scoped
+to `/assets/` rather than to any slash so it cannot fire inside prose that
+happens to contain a comma followed by a path.
+
+A reader that ignores <picture> still finds the <img> fallback inside it, which
+is the narrow JPEG — the right file to send to a feed reader anyway.
 */ -}}
 {{- $baseURL := strings.TrimSuffix "/" .Site.BaseURL -}}
 {{- $content := .Content -}}
-{{- $content = replaceRE `href="/([^/])` (printf `href="%s/${1}` $baseURL) $content -}}
-{{- $content = replaceRE `src="/([^/])` (printf `src="%s/${1}` $baseURL) $content -}}
+{{- $content = replaceRE `(href|src|srcset)="/([^/])` (printf `${1}="%s/${2}` $baseURL) $content -}}
+{{- $content = replaceRE `, /assets/` (printf `, %s/assets/` $baseURL) $content -}}
 {{- $content | safeHTML -}}

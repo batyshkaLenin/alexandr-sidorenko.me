@@ -239,6 +239,11 @@ def main() -> int:
                 not relative,
                 f"{item_id}: {content_name} has relative URLs {relative}",
             )
+            # A substring, so an image expectation is pinned to the address up
+            # to Hugo's content hash rather than to the whole filename (T66).
+            # Re-encoding an image changes that hash by design; it must not
+            # change which image the feed points at, and that is what is worth
+            # failing on.
             for expected_url in item.get("expected_urls", []):
                 check(
                     errors,

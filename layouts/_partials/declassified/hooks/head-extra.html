@@ -27,13 +27,6 @@ the connection under CORS. display=swap keeps text visible while they load.
 {{ $isNotFound := eq .Kind "404" }}
 {{ $title := cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title) }}
 {{ $description := cond (ne .Description "") .Description .Site.Params.description }}
-{{ with .Params.cover }}
-  {{ if hasPrefix . "/" }}
-    {{ if not (os.FileExists (printf "static%s" .)) }}
-      {{ errorf "%s: cover file %s does not exist" $.File.Path . }}
-    {{ end }}
-  {{ end }}
-{{ end }}
 {{/* The avatar and its alternative text live together in data/authors.yaml,
      on the entry flagged `site_owner`. A cover describes itself through
      `cover_alt` — required, so a new publication can't ship a preview image
@@ -47,7 +40,10 @@ the connection under CORS. display=swap keeps text visible while they load.
 {{ if and $hasCover (eq (.Params.cover_alt | default "") "") }}
   {{ errorf "%s: cover is set without cover_alt" .File.Path }}
 {{ end }}
-{{ $image := cond $hasCover (.Params.cover | absURL) (absURL $owner.avatar) }}
+{{/* A missing cover file is still a build error — image-resource.html raises
+     it now, from the same place that produces the preview derivative. */}}
+{{ $where := "data/authors.yaml" }}{{ with .File }}{{ $where = .Path }}{{ end }}
+{{ $image := partial "preview-image.html" (dict "path" (cond $hasCover .Params.cover $owner.avatar) "context" $where) }}
 {{ $imageAlt := cond $hasCover .Params.cover_alt $avatarAlt }}
 <meta name="description" content="{{ $description }}">
 {{ if $isNotFound }}

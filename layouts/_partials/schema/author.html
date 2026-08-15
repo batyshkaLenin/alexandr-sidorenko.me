@@ -22,7 +22,7 @@ its own, and pointing it at the personal site would claim otherwise.
 -}}
 {{- with $author.url }}{{ $node = merge $node (dict "url" (absURL .)) }}{{ end -}}
 {{- if $full -}}
-  {{- with $author.avatar }}{{ $node = merge $node (dict "image" (absURL .)) }}{{ end -}}
+  {{- with $author.avatar }}{{ $node = merge $node (dict "image" (partial "preview-image.html" (dict "path" . "context" "data/authors.yaml"))) }}{{ end -}}
   {{- $sameAs := slice -}}
   {{- range hugo.Data.links }}{{ if eq .rel "me" }}{{ $sameAs = $sameAs | append .url }}{{ end }}{{ end -}}
   {{- with $sameAs }}{{ $node = merge $node (dict "sameAs" .) }}{{ end -}}

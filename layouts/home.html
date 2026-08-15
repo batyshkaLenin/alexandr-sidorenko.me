@@ -53,7 +53,7 @@ creativity+status — all real site data, no invented dynamic state.
       <a class="u-url" rel="me" href="{{ absURL $owner.url }}">{{ absURL $owner.url }}</a>
       {{/* The portrait below sits in its own panel, outside this h-card root,
            so a parser would never read it as the card's photo (T13). */}}
-      <data class="u-photo" value="{{ $owner.avatar | relURL }}" hidden></data>
+      <data class="u-photo" value="{{ partial "preview-image.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}" hidden></data>
       {{ with .Params.roles }}<p class="dc-roles">{{ . }}</p>{{ end }}
       <div class="p-note">
         {{ .Content }}
@@ -69,7 +69,17 @@ creativity+status — all real site data, no invented dynamic state.
     <div class="dc-panel__body dc-portrait-body">
       {{/* The alternative text describes the photograph, not just who is in
            it; it comes from the same data/authors.yaml entry the head uses. */}}
-      <img class="dc-portrait dc-duotone" src="{{ $owner.avatar | relURL }}" alt="{{ $owner.avatar_alt }}" width="200" height="200" loading="lazy" decoding="async">
+      {{/* The panel is the 300px column of .dc-home-row--identity; below the
+           860px breakpoint it is the viewport minus 68px of fixed padding,
+           measured at 344 CSS px inside a 412 px viewport (T66). */}}
+      {{ partial "responsive-image.html" (dict
+           "resource" (partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml"))
+           "alt" $owner.avatar_alt
+           "sizes" "(max-width: 860px) calc(100vw - 68px), 300px"
+           "widths" (slice 320 640 848)
+           "square" true
+           "class" "dc-portrait dc-duotone"
+           "attrs" (safeHTMLAttr `loading="lazy"`)) }}
       {{ with .Params.portrait_quote }}<p class="dc-portrait-quote">{{ . | safeHTML }}</p>{{ end }}
     </div>
   </section>

@@ -6,7 +6,7 @@ no re-encode — so the visible pixels are bit-identical afterwards and only the
 metadata segments are gone. The policy it enforces is documented in
 `scripts/image_metadata.py`.
 
-    python3 scripts/strip-image-metadata.py            # static/, in place
+    python3 scripts/strip-image-metadata.py            # assets/ + static/, in place
     python3 scripts/strip-image-metadata.py --dry-run  # report, change nothing
 
 Run it after adding an image; `scripts/check-image-metadata.py` is what fails
@@ -31,13 +31,16 @@ def main() -> int:
         "paths",
         nargs="*",
         type=Path,
-        help="files or directories; defaults to static/",
+        help="files or directories; defaults to assets/ and static/",
     )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
     root = args.root.resolve()
-    targets = args.paths or [root / "static"]
+    # Photographs moved to assets/ so the resource pipeline can resize them
+    # (T66); static/ still holds the icons and the audio. Both are sources,
+    # so both are swept.
+    targets = args.paths or [root / "assets", root / "static"]
 
     candidates: list[Path] = []
     for target in targets:
