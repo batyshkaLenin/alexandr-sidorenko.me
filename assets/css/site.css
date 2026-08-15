@@ -314,6 +314,43 @@
   }
 }
 
+/* Approved incoming Webmentions (T8). Lines up with the panel the same way
+   .dc-adjacent does, and stays visually quieter than the publication itself:
+   these are other people's words about the text, not part of it. */
+.dc-webmentions {
+  max-width: var(--dc-detail-width);
+  margin: 24px auto 0;
+  padding: 0 26px;
+  color: var(--dc-muted);
+  font-size: 13px;
+}
+
+.dc-webmentions__heading {
+  color: var(--dc-faint);
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
+.dc-webmentions__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dc-webmentions__item + .dc-webmentions__item {
+  margin-top: 16px;
+}
+
+.dc-webmentions__date {
+  color: var(--dc-faint);
+  font-size: 12px;
+}
+
+.dc-webmentions__text {
+  margin: 4px 0 0;
+}
+
 /* Keyboard hint (T54). It shares the nav's row, so revealing it costs no
    height and the page does not move. Below the dashboard breakpoint it is
    dropped entirely: there it would wrap onto a line of its own and push the

@@ -1,0 +1,4 @@
+# Источники, чьи упоминания не показываются даже в списке на одобрение.
+# Пополняется через scripts/moderate-webmentions.py --deny-domain.
+domains:
+authors:

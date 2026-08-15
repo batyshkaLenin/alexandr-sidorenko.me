@@ -12,6 +12,7 @@ python3 scripts/check-404-contract.py
 python3 scripts/check-rel-me-contract.py
 python3 scripts/check-url-contract.py
 python3 scripts/check-schema-contract.py
+python3 scripts/check-webmention-contract.py
 ```
 
 The checker normalizes front matter, HTML provenance comments, Markdown hard-break
@@ -101,6 +102,35 @@ approved URL set and asserts it appears as `rel=me` — a head-only `<link>`
 or a visible `<a>`, never both for the same URL — on every representative
 page (home, section, detail), with no missing entries and no unapproved
 extras beyond the home page's own documented self rel=me.
+
+The webmention contract check (T8, ADR
+`redesign-webmention-moderation-contract`) reads `data/webmentions.json` — the
+snapshot that is the only thing readers see — and asserts both halves of the
+contract. Stored entries may carry exactly the eight contract fields and
+nothing else: no avatar, no e-mail, no foreign markup in the author name or the
+text, a canonical no-trailing-slash target, absolute source URLs. Rendering is
+compared with the snapshot in both directions: every approved mention appears
+on its own page, no page grows a webmention section without one, and no image
+is rendered inside a section. Verified by breaking each rule in turn — a
+`<script>` in the text, an added `author_photo`, a target pointing at an
+unpublished page — each fails and names the entry.
+
+Two scripts feed it, and neither runs during a build:
+
+```sh
+python3 scripts/fetch-webmentions.py     # webmention.io → tmp/webmentions-inbox.json
+python3 scripts/moderate-webmentions.py --approve wm-123
+python3 scripts/moderate-webmentions.py --remove wm-123
+python3 scripts/moderate-webmentions.py --deny-domain spam.example
+python3 scripts/send-webmentions.py --dry-run   # outbound, after a deploy
+```
+
+`fetch` needs the network and the built `sitemap.xml` for its target list, and
+no credentials: it queries the public per-target JF2 endpoint. Everything it
+brings back lands in the gitignored inbox, so an unreviewed stranger's text is
+never committed. `send` reads the built site, skips `rel=nofollow` links (which
+is what keeps mention sources out of outbound notifications) and journals
+delivered pairs in `data/webmentions-sent.json` so reruns are cheap.
 
 ## Lighthouse
 

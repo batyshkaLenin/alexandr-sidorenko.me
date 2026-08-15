@@ -29,5 +29,6 @@ same as the legacy site.
   <div class="dc-prose e-content">{{ .Content }}</div>
   {{ partial "publication/updated.html" . }}
 </article>
+{{ partial "publication/webmentions.html" . }}
 {{ partial "publication/adjacent.html" . }}
 {{ end }}
