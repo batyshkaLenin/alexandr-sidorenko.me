@@ -308,25 +308,32 @@
   font-size: 12px;
 }
 
-/* Below the breakpoint the two 240px columns cannot share a row, so they wrap —
-   and a right-aligned "next" under a left-aligned "prev" reads as a ragged
-   staircase with a hole in the middle. On a phone the pair is a plain
-   left-aligned stack instead. */
+/* The pair stays on one line at every width. The 240px basis is what broke it
+   on phones: two of them cannot share a 390px row, so they wrapped and the
+   right-aligned "next" ended up under the left-aligned "prev" with a hole
+   between them. Here each link takes the width it needs, and a long
+   neighbour title is cut with an ellipsis rather than pushing its partner
+   onto the next line. */
 @media (max-width: 860px) {
   .dc-adjacent {
-    flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
 
-  /* The 240px basis is a column width in a row; in a column it would become a
-     240px *height* and blow the block up to half a screen. */
   .dc-adjacent__link {
-    flex: 0 0 auto;
+    /* min-width:0 is what lets a flex item shrink below its content — without
+       it the title refuses to truncate and the row wraps anyway. The half-width
+       cap is what makes truncation happen *before* the wrap: two titles of
+       86px and 195px overflowed a 292px row by a single pixel and jumped to
+       separate lines, which is the whole defect this fixes. */
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: calc(50% - 6px);
   }
 
-  .dc-adjacent__link--next {
-    margin-left: 0;
-    text-align: left;
+  .dc-adjacent__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
