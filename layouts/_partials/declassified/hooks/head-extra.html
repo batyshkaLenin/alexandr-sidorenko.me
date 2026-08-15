@@ -15,15 +15,14 @@ card, webmention, and JSON-LD (schema.html only emits for IsHome/Kind
 "page" anyway, but this keeps the intent explicit here too).
 */ -}}
 {{- /*
-Fonts (T49) per ADR redesign-external-resources-contract: the only external
-resource class this site allows. Both preconnects come before the stylesheet
-link, and the gstatic one must carry crossorigin or the font requests reopen
-the connection under CORS. display=swap keeps text visible while they load.
+No font markup here any more (T93). Fira Code and PT Serif used to arrive as a
+stylesheet from fonts.googleapis.com preceded by two preconnects — the one
+external resource class the ADR allowed. Since 15 August 2026 they are served
+from this origin and declared in `assets/css/site.css`, so nothing needs to be
+announced in the head: the rules ride in a stylesheet the page already fetches.
+That removed the site's last third-party origin along with 437 ms of first
+paint (.ai/research/s15-ab-measurement.md).
 */ -}}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap">
-
 {{ $isNotFound := eq .Kind "404" }}
 {{ $title := cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title) }}
 {{ $description := cond (ne .Description "") .Description .Site.Params.description }}
