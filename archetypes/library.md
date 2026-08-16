@@ -24,6 +24,16 @@ id: "{{ or $id "MISSING-ID-run-scripts/new-material.py" }}"
 type: "{{ or $type "MISSING-TYPE-run-scripts/new-material.py" }}"
 # Topics only. A tag that repeats the type is not a topic.
 tags: []
+# Optional and never complete: declare a relation when it is true, not to fill
+# the field. Keys and their allowed targets are in data/relation_types.yaml;
+# an internal relation names another material by its id, never by its route.
+#   relations:
+#     - rel: part-of
+#       id: "019c2f8e-85d2-7ba1-9b8a-e45c65536e91"
+#     - rel: external-source
+#       url: "https://example.org/article"
+#       title: "Где это вышло впервые"
+relations: []
 # Optional; metadata only (og:image/JSON-LD), never a visible <img> on the
 # page — the visible image is whatever you put in the Markdown body itself.
 # Leave empty or delete the line if there is no cover.

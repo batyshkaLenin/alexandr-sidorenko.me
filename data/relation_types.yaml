@@ -1,0 +1,50 @@
+# Relations a material may declare (content-model ADR §3, design system §4.2).
+#
+# Shape in front matter — a flat list, one entry per relation:
+#
+#   relations:
+#     - rel: part-of
+#       id: "019c2f8e-85d2-7ba1-9b8a-e45c65536e91"
+#     - rel: external-source
+#       url: "https://example.org/article"
+#       title: "Где это вышло впервые"
+#
+# `id` names another material by its Material ID, never by path or slug: the
+# route may change, identity may not. `url` points outside the site. `targets`
+# below says which of the two an entry may carry.
+#
+# Relations are optional by construction. Nothing has to be complete, and a
+# graph is not built retroactively — the design system defers the graph itself
+# and keeps `Related` / `References` / `Part of` as its no-JS equivalent (§6.6).
+#
+# `topic` from the ADR is deliberately absent: topics are the secondary
+# taxonomy and live in `tags`, so a second spelling of the same thing would
+# only be a place for the two to disagree.
+
+series:
+  label: "Часть цикла"
+  targets: internal
+album:
+  label: "Из альбома"
+  targets: internal
+part-of:
+  label: "Входит в"
+  targets: internal
+continues:
+  label: "Продолжает"
+  targets: internal
+related:
+  label: "Связано с"
+  targets: both
+references:
+  label: "Ссылается на"
+  targets: both
+cites:
+  label: "Цитирует"
+  targets: both
+reply-to:
+  label: "Ответ на"
+  targets: external
+external-source:
+  label: "Впервые опубликовано"
+  targets: external
