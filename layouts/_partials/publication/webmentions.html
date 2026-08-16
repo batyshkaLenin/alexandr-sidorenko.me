@@ -36,7 +36,7 @@ heading tells the reader nothing.
         <span class="p-author h-card">{{ .author_name | default .author_url | default "Аноним" }}</span>
       </a>
       {{- with .published }}
-      <time class="dc-webmentions__date dt-published" datetime="{{ . }}">{{ . | time.Format ":date_long" }}</time>
+      {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long" "class" "dc-webmentions__date dt-published") }}
       {{- end }}
       {{- with .content_text }}
       <p class="dc-webmentions__text p-content">{{ . }}</p>

@@ -19,10 +19,10 @@ type only decides the label and whether audio is offered, not the layout.
   <data class="u-uid" value="{{ partial "publication/identity-uri.html" . }}"></data>
   <p>
     <a class="u-url" href="{{ partial "canonical-url.html" .Permalink }}">
-      <time class="dc-list__date dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date | time.Format ":date_long" }}</time>
+      {{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dc-list__date dt-published") }}
     </a>
     {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
-    {{ with .Params.created }} · создано {{ (. | time.AsTime) | time.Format ":date_long" }}{{ end }}
+    {{ with .Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
   </p>
   {{ partial "byline.html" . }}
 

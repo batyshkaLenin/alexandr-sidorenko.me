@@ -7,7 +7,7 @@ ends up with two of them.
 {{- with .Lastmod -}}
 {{- $changed := ne (.Format "2006-01-02") ($.Date.Format "2006-01-02") -}}
 {{- if $changed }}
-<p class="dc-updated"># updated: <time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}">{{ . | time.Format ":date_long" }}</time></p>
+<p class="dc-updated"># updated: {{ partial "publication/date.html" (dict "date" . "form" "long" "class" "dt-updated") }}</p>
 {{- else }}
 <time class="dt-updated" datetime="{{ .Format "2006-01-02T15:04:05Z07:00" }}" hidden></time>
 {{- end }}

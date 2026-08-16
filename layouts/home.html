@@ -129,7 +129,7 @@ system (T116); this is the migrated shape, not the target one.
         <a href="{{ .url }}" target="_blank" rel="noopener">{{ .artist }} — {{ .name }}</a>
       </p>
       <p class="dc-lastfm-note">
-        слушал <time datetime="{{ .played_at }}">{{ (.played_at | time.AsTime) | time.Format ":date_long" }}</time>, по данным Last.fm
+        слушал {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}, по данным Last.fm
       </p>
       {{- else }}
       <p class="dc-lastfm-note">{{ i18n "nothingHereYet" }}</p>

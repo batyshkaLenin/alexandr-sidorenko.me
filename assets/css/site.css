@@ -279,7 +279,7 @@
 
 .dc-identity {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--dc-fs-ui);
   font-weight: 700;
   color: var(--dc-accent);
 }
@@ -311,7 +311,7 @@
   flex-direction: column;
   gap: 4px;
   color: var(--dc-muted);
-  font-size: 13px;
+  font-size: var(--dc-fs-ui);
 }
 
 /* Keeps the pair at opposite edges even when one side is missing. */
@@ -322,7 +322,7 @@
 
 .dc-adjacent__dir {
   color: var(--dc-faint);
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
 }
 
 /* The pair stays on one line at every width. The 240px basis is what broke it
@@ -368,12 +368,12 @@
   margin: 24px auto 0;
   padding: 0 26px;
   color: var(--dc-muted);
-  font-size: 13px;
+  font-size: var(--dc-fs-ui);
 }
 
 .dc-webmentions__heading {
   color: var(--dc-faint);
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
   font-weight: normal;
   text-transform: uppercase;
 }
@@ -390,7 +390,7 @@
 
 .dc-webmentions__date {
   color: var(--dc-faint);
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
 }
 
 .dc-webmentions__text {
@@ -414,7 +414,7 @@
   margin: 0;
   padding: 14px 32px;
   color: var(--dc-faint);
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
 }
 
 @media (max-width: 860px) {
@@ -432,7 +432,7 @@
   margin: 0;
   min-height: 1.5em;
   color: var(--dc-muted);
-  font-size: 13px;
+  font-size: var(--dc-fs-ui);
 }
 
 /* On a phone the clock cost a whole row of the top bar before any content was
@@ -487,7 +487,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--dc-fs-ui);
 }
 
 .dc-filetree a {
@@ -512,7 +512,7 @@
 .dc-filetree__label {
   margin: 0;
   color: var(--dc-primary);
-  font-size: 11px;
+  font-size: var(--dc-fs-pane-title);
 }
 
 .dc-neofetch {
@@ -520,7 +520,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
   color: var(--dc-muted);
 }
 
@@ -541,8 +541,8 @@
 .dc-hero-name {
   margin: 0 0 4px;
   color: var(--dc-primary);
-  font-size: 28px;
-  line-height: 1.15;
+  font-size: var(--dc-fs-title-lg);
+  line-height: var(--dc-lh-tight);
   text-transform: uppercase;
 }
 
@@ -553,7 +553,7 @@
 .dc-hero-meta {
   margin: 10px 0 0;
   color: var(--dc-faint);
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
 }
 
 /* The mockup separates the two comments by a wide gap rather than
@@ -565,7 +565,7 @@
 
 .dc-roles {
   color: var(--dc-primary);
-  font-size: 13px;
+  font-size: var(--dc-fs-ui);
   margin: 10px 0 0;
 }
 
@@ -585,7 +585,7 @@
 .dc-portrait-quote {
   margin: 0;
   color: var(--dc-muted);
-  font-size: 11.5px;
+  font-size: var(--dc-fs-meta);
   font-style: italic;
   border-left: 2px solid var(--dc-accent);
   padding-left: 8px;
@@ -614,7 +614,7 @@
 .dc-creativity-card__title {
   display: block;
   color: var(--dc-text);
-  font-size: 13px;
+  font-size: var(--dc-fs-ui);
   margin-top: 5px;
 }
 
@@ -628,13 +628,13 @@
    (T96). */
 .dc-lastfm-track {
   margin: 0 0 4px;
-  font-size: 13px;
+  font-size: var(--dc-fs-ui);
 }
 
 .dc-lastfm-note {
   margin: 0 0 8px;
   color: var(--dc-muted);
-  font-size: 12.5px;
+  font-size: var(--dc-fs-meta);
 }
 
 .dc-lastfm-link {
@@ -642,7 +642,7 @@
   border: 1px solid var(--dc-border);
   border-radius: 2px;
   padding: 2px 7px;
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
   color: var(--dc-accent);
 }
 
@@ -690,7 +690,7 @@
   border-radius: 2px;
   padding: 12px 14px;
   overflow-x: auto;
-  font-size: 13px;
+  font-size: var(--dc-fs-ui);
 }
 
 .dc-prose .highlight pre {
@@ -783,13 +783,13 @@
 
 .dc-audio__label {
   color: var(--dc-primary);
-  font-size: 11.5px;
+  font-size: var(--dc-fs-meta);
 }
 
 /* Paper keeps the address instead of a dead control (research B8). */
 .dc-audio__print {
   display: none;
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
 }
 
 @media print {
@@ -811,7 +811,7 @@
   border-top: 1px dashed var(--dc-border);
   padding-top: 10px;
   color: var(--dc-faint);
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
 }
 
 .dc-404__home {
@@ -837,7 +837,7 @@
 .dc-section-title {
   margin: 0;
   color: var(--dc-primary);
-  font-size: 20px;
+  font-size: var(--dc-fs-lead);
   font-weight: 700;
 }
 
@@ -851,7 +851,7 @@
   border: 1px solid var(--dc-border);
   padding: 0 5px;
   color: var(--dc-muted);
-  font-size: 10.5px;
+  font-size: var(--dc-fs-meta);
   text-decoration: none;
   text-transform: uppercase;
 }
@@ -866,7 +866,7 @@
   display: block;
   margin-top: 6px;
   color: var(--dc-accent);
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
 }
 
 .dc-list__meta {
@@ -878,7 +878,7 @@
 
 .dc-list__type {
   color: var(--dc-primary);
-  font-size: 10.5px;
+  font-size: var(--dc-fs-meta);
   text-transform: uppercase;
 }
 
@@ -899,7 +899,7 @@
 .dc-list__date {
   display: block;
   color: var(--dc-faint);
-  font-size: 12px;
+  font-size: var(--dc-fs-meta);
   margin-bottom: 4px;
 }
 

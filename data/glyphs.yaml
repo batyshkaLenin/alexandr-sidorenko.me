@@ -1,0 +1,64 @@
+# The closed set of signs the interface uses (§18.5). One sign, one meaning,
+# site-wide — the vocabulary exists so the TUI language does not sprawl.
+#
+# Three rules hold for every entry:
+#   1. a sign is never the only carrier of meaning — text, aria-label or title
+#      always says the same thing;
+#   2. box-drawing is decoration and stays hidden from assistive technology;
+#   3. ASCII is preferred where Unicode may not render (`>`, `<>`, `$`).
+#
+# `text` is what a reader gets instead of the sign when the sign cannot speak
+# for itself. Capability markers are rendered by the library row (T117); their
+# text form doubles as the filter name (`has:audio`).
+
+navigation:
+  ">":
+    meaning: "текущий или выбранный элемент списка"
+    text: "текущий"
+  "←":
+    meaning: "возврат в родительский контекст"
+    text: "назад"
+  "→":
+    meaning: "переход дальше: открыть, оригинал, скачать"
+    text: "открыть"
+  "↗":
+    meaning: "внешняя ссылка, уводит с сайта"
+    text: "внешняя ссылка"
+
+structure:
+  "│ ├":
+    meaning: "декор дерева"
+    text: ""
+    decorative: true
+  "●":
+    meaning: "событие на таймлайне"
+    text: ""
+    decorative: true
+  "·":
+    meaning: "разделитель метаданных"
+    text: ""
+    decorative: true
+  "$":
+    meaning: "prompt: дальше идёт команда"
+    text: ""
+    decorative: true
+  "/":
+    meaning: "поиск (улучшение, появляется только с JavaScript)"
+    text: "поиск"
+
+capabilities:
+  "♪":
+    meaning: "есть аудио"
+    text: "has:audio"
+  "ƒ":
+    meaning: "есть математика"
+    text: "has:math"
+  "<>":
+    meaning: "есть код"
+    text: "has:code"
+  "▣":
+    meaning: "есть изображения или галерея"
+    text: "has:image"
+  "▶":
+    meaning: "есть видео"
+    text: "has:video"
