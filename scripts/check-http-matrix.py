@@ -23,6 +23,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 UA = {"User-Agent": "alexandr-sidorenko.me http matrix check"}
 CANONICAL_HOST = "https://alexandr-sidorenko.me"
@@ -43,6 +44,14 @@ MEDIA_TYPES = {
     "/site.webmanifest": "application/manifest+json",
     "/assets/library/regular-visitor/Постоянщик.mp3": "audio/mpeg",
 }
+
+# Material Identity URIs resolve with 303 to the material's current address
+# (ADR redesign-material-identity-serialization-and-resolver). The pairs are
+# read from the generated _redirects, so this checks what the site actually
+# ships rather than a second hand-kept list.
+IDENTITY_RULE = re.compile(r"^(/id/[0-9a-f-]{36})\s+(\S+)\s+303$")
+# An identity that no material carries must not resolve anywhere.
+UNKNOWN_IDENTITY = "/id/00000000-0000-7000-8000-000000000000"
 
 # Nothing here may resurrect: the site ships no legacy redirects (ADR
 # redesign-no-backward-compat).
@@ -142,6 +151,33 @@ def main() -> int:
         actual = headers.get("content-type", "")
         check(errors, actual.startswith(expected), f"{path}: expected {expected}, got {actual!r}")
 
+    identity_rules = []
+    redirects = Path(args.public_dir or "public") / "_redirects"
+    if redirects.exists():
+        for line in redirects.read_text(encoding="utf-8").splitlines():
+            if match := IDENTITY_RULE.match(line.strip()):
+                identity_rules.append((match.group(1), match.group(2)))
+    check(errors, bool(identity_rules), "_redirects carries no /id/ rules")
+
+    for identity, target in identity_rules:
+        status, headers = request(base + identity)
+        check(errors, status == 303, f"{identity}: expected 303, got {status}")
+        # The cache-bust query rides along into Location; the address is the
+        # part being checked.
+        location = headers.get("location", "").split("?", 1)[0].rstrip("/")
+        check(
+            errors,
+            location in (target, f"{CANONICAL_HOST}{target}"),
+            f"{identity}: Location {location!r} is not {target!r}",
+        )
+
+    status, _ = request(base + UNKNOWN_IDENTITY)
+    check(
+        errors,
+        status == 404,
+        f"{UNKNOWN_IDENTITY}: an identity nothing carries must 404, got {status}",
+    )
+
     for path in MUST_BE_404:
         status, headers = request(base + path)
         check(errors, status == 404, f"{path}: expected 404, got {status}")
@@ -159,7 +195,8 @@ def main() -> int:
 
     print(
         f"OK: {len(HTML_ROUTES)} HTML routes canonical without a trailing slash, "
-        f"{len(MEDIA_TYPES)} media types, {len(MUST_BE_404)} absent URLs answering 404"
+        f"{len(MEDIA_TYPES)} media types, {len(identity_rules)} identity URIs "
+        f"resolving 303, {len(MUST_BE_404)} absent URLs answering 404"
     )
     return 0
 

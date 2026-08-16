@@ -44,7 +44,7 @@ theme = 'declassified'
   lastmod = ['lastmod', ':git', ':default']
 
 [outputs]
-  home = ['html', 'rss', 'jsonfeed', 'llms']
+  home = ['html', 'rss', 'jsonfeed', 'llms', 'redirects']
   section = ['html', 'rss', 'jsonfeed']
   page = ['html']
   taxonomy = ['html']
@@ -52,6 +52,12 @@ theme = 'declassified'
 
 [mediaTypes.'application/feed+json']
   suffixes = ['json']
+
+# Cloudflare wants a file named exactly `_redirects`, no extension, so the
+# media type carries no suffix at all.
+[mediaTypes.'text/netlify']
+  suffixes = []
+  delimiter = ''
 
 [outputFormats.rss]
   mediaType = 'application/rss+xml'
@@ -71,6 +77,15 @@ theme = 'declassified'
   mediaType = 'text/plain'
   baseName = 'llms'
   isPlainText = true
+
+# /_redirects (T144): the identity resolver plus the canonical-slash rule.
+# Generated rather than kept in static/, because one rule per material has to
+# follow the materials.
+[outputFormats.redirects]
+  mediaType = 'text/netlify'
+  baseName = '_redirects'
+  isPlainText = true
+  notAlternative = true
 
 [minify]
   disableXML = true
