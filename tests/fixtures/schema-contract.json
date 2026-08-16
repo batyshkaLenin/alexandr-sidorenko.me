@@ -449,6 +449,26 @@
           "https://alexandr-sidorenko.me/library/table"
         ]
       ]
+    },
+    {
+      "html": "library/music/index.html",
+      "blocks": [
+        "BreadcrumbList"
+      ],
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
+        ],
+        [
+          "Музыка",
+          "https://alexandr-sidorenko.me/library/music"
+        ]
+      ]
     }
   ],
   "pages_without_structured_data": [

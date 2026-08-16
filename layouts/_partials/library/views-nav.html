@@ -20,6 +20,9 @@ apart from the two primary views (§6.2).
     </li>
   </ul>
   <ul class="dc-library__views-list dc-library__views-list--secondary">
+    <li{{ if eq $current "music" }} class="dc-library__view--current"{{ end }}>
+      <a href="{{ partial "canonical-url.html" ("/library/music" | relLangURL) }}"{{ if eq $current "music" }} aria-current="page"{{ end }}>music</a>
+    </li>
     <li{{ if eq $current "types" }} class="dc-library__view--current"{{ end }}>
       <a href="{{ partial "canonical-url.html" ("/library/types" | relLangURL) }}"{{ if eq $current "types" }} aria-current="page"{{ end }}>types</a>
     </li>

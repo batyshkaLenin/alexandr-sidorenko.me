@@ -16,7 +16,19 @@ MaterialRow.
     <h1 class="dc-section-title">{{ .Title }}</h1>
     {{ with .Content }}<div class="dc-panel__body dc-prose">{{ . }}</div>{{ end }}
     <div class="dc-panel__body">
-      {{ if eq .Params.view "timeline" }}
+      {{ if eq .Params.view "music" }}
+        {{- /* Music Library (§26.1, direction C): a local library, not a
+        release page — a list with the current state, and no buttons for
+        services this material does not have. */ -}}
+        {{ $tracks := where $materials "Params.type" "track" }}
+        <ul class="dc-material-list dc-music-list h-feed">
+          {{ range $tracks.ByDate.Reverse }}
+          {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+          {{ else }}
+          <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+          {{ end }}
+        </ul>
+      {{ else if eq .Params.view "timeline" }}
         {{- /* Timeline T2 (§10): the year is a large grouping label, the date
         lives on the left rail and is not repeated in the row's metadata, and
         the title stays the most prominent text. Every type flows together —

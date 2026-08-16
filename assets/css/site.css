@@ -1744,3 +1744,63 @@ body:has(.dc-statusbar) {
 .dc-collection__contents a {
   color: var(--dc-muted);
 }
+
+/*
+ * Track Detail (§26.2). Lyrics-first: the head is quiet, the player sits under
+ * the year, and the words are the page. There is no cover slot at all — a
+ * track without an image must not look like one whose image failed (§26.2).
+ */
+.dc-track__head {
+  text-align: center;
+}
+
+/* The player block is a column (label above the control), so centring it means
+   centring its items across that column, not along it. */
+.dc-track__head .dc-audio {
+  align-items: center;
+}
+
+.dc-track__year {
+  margin: 6px 0 14px;
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-faint);
+}
+
+.dc-track__lyrics {
+  max-width: 46ch;
+  margin-inline: auto;
+  line-height: 1.95;
+}
+
+.dc-track__extra {
+  max-width: 46ch;
+  margin: 28px auto 0;
+}
+
+.dc-track__extra-title {
+  margin: 0 0 8px;
+  font-size: var(--dc-fs-meta);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dc-faint);
+}
+
+.dc-track__chords {
+  margin: 0;
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-muted);
+  white-space: pre-wrap;
+}
+
+.dc-track__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 32px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--dc-border);
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-faint);
+}

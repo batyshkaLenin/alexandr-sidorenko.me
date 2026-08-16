@@ -1,0 +1,52 @@
+{{- /*
+Track Detail (§26.2, direction A). Lyrics-first and calm: the title, the year,
+the player, then the words. Chords and notation appear only when the material
+has them — most tracks do not, and empty headings for absent material are the
+thing §26 warns about.
+
+There is no cover slot. §26.2 is explicit: a track without an image must not
+look like a page whose cover failed to load, so the layout simply has no place
+where one would be missing.
+
+File metadata sits at the end, quietly: it is true and occasionally useful, but
+it is not what a reader came for.
+*/ -}}
+{{ define "main" }}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-track">
+  {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
+  <div class="dc-track__head">
+    {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
+    <p class="dc-track__year">{{ partial "publication/date.html" (dict "date" .Date "form" "year") }}</p>
+    {{ partial "publication/audio-player.html" (dict "page" . "label" false) }}
+  </div>
+  <div class="dc-prose e-content dc-track__lyrics">
+    {{ .Content }}
+  </div>
+  {{ with .Params.chords }}
+  <section class="dc-track__extra">
+    <h2 class="dc-track__extra-title">Аккорды</h2>
+    <pre class="dc-track__chords">{{ . }}</pre>
+  </section>
+  {{ end }}
+  {{ with .Params.notation }}
+  <section class="dc-track__extra">
+    <h2 class="dc-track__extra-title">Нотация</h2>
+    <p>{{ . }}</p>
+  </section>
+  {{ end }}
+  <footer class="dc-track__meta">
+    {{ range .Params.audio }}
+    {{- $file := os.Stat (printf "static%s" .src) -}}
+    {{- /* The extension, not the MIME subtype: a reader knows what MP3 is,
+    "MPEG" only looks like a mistake. */ -}}
+    <span class="dc-track__file">{{ upper (strings.TrimPrefix "." (path.Ext .src)) }} · {{ lang.FormatNumber 1 (div (float $file.Size) 1048576) }} МБ</span>
+    {{ end }}
+    <span class="dc-track__published">{{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}</span>
+    {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
+    {{ with .Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
+  </footer>
+  {{ partial "publication/tail.html" . }}
+</article>
+{{ partial "publication/webmentions.html" . }}
+{{ partial "publication/adjacent.html" . }}
+{{ end }}
