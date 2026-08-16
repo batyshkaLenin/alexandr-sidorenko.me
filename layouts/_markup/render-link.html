@@ -27,8 +27,11 @@ enclosure contract depends on.
   {{ $width := cond (lt $resource.Width 1140) $resource.Width 1140 }}
   {{ $dest = ($resource.Process (printf "resize %dx webp" $width)).RelPermalink }}
 {{ end }}
-{{ if $external }}
+{{- /* No stray newlines around the anchor: a line break here renders as a
+space, and the punctuation that follows a link ends up detached from it —
+"…шапке ." instead of "…шапке." (found in T124). */ -}}
+{{- if $external -}}
 <a href="{{ $dest | safeURL }}" target="_blank" rel="noopener"{{ with .Title }} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
-{{ else }}
+{{- else -}}
 <a href="{{ $dest | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
-{{ end }}
+{{- end -}}

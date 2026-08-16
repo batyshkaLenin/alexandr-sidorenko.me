@@ -1005,6 +1005,15 @@
   overflow-wrap: anywhere;
   letter-spacing: -0.5px;
   color: var(--dc-redaction-flat);
+  /*
+   * A U+2588 is wider than the average letter of the serif face around it, so
+   * a run standing for 34 characters measured 459px where the text measured
+   * 418px — enough to push a whole redacted line of verse onto a second line
+   * and add a line to the stanza (§24.7). Scaling the run brings the two
+   * within a few pixels. The real primitive (T128) sets a width instead of
+   * counting characters, and this compensation goes away with it.
+   */
+  font-size: 0.9em;
 }
 
 /*
@@ -1632,4 +1641,55 @@ body:has(.dc-statusbar) {
   border-top: 1px solid var(--dc-border);
   font-size: var(--dc-fs-meta);
   color: var(--dc-faint);
+}
+
+/*
+ * Poetry Reader (§24). The line is the unit: it never justifies, never hyphenates
+ * and never gets rewrapped for tidiness — a wrapped line is the author's line
+ * continued, so it is indented rather than started afresh.
+ */
+.dc-poem__head {
+  text-align: center;
+}
+
+.dc-poem__body {
+  max-width: 46ch;
+  margin-inline: auto;
+  text-wrap: pretty;
+  hyphens: none;
+}
+
+.dc-poem__body p {
+  margin: 0 0 1.6em;
+}
+
+/*
+ * No hanging indent for wrapped lines: it can only be applied to the first
+ * line of a paragraph, and a poem is one paragraph of <br>-separated lines —
+ * so it indented the poem's opening line and left every wrap looking exactly
+ * like a new line of verse. Telling the two apart needs per-line markup, which
+ * is a change to how poems are authored, not a stylesheet decision.
+ */
+
+/* Short poem: more air per line, the whole thing sits as one composition
+   (§24.5). Long poem: tighter lines, the stanza carries the rhythm. */
+.dc-poem--short .dc-poem__body {
+  line-height: 2.1;
+}
+
+.dc-poem--long .dc-poem__body {
+  line-height: 1.75;
+}
+
+.dc-poem--long .dc-poem__body p {
+  margin-bottom: 2em;
+}
+
+.dc-poem__colophon {
+  margin: 32px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--dc-border);
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-faint);
+  text-align: center;
 }

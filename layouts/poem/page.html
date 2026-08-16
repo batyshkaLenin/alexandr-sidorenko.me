@@ -1,0 +1,35 @@
+{{- /*
+Poetry Reader (§24). "The application for a poem is often at its best through
+the near-total absence of an application": air, serif, the author's own line
+and stanza breaks, and almost no metadata beside the text.
+
+Audio, when the poem has a reading, sits in the title block (§24.2) — the page
+is still the poem, not a player page. Everything technical (dates, type, topics)
+waits below the work.
+
+Rhythm follows length (§24.5): a short poem gets more air per line and a
+composition centred in the column; a long one tightens the line and leans on
+the gap between stanzas. One renderer, two rhythms — not two templates.
+*/ -}}
+{{ define "main" }}
+{{- $lines := add 1 (len (findRE `<br` .Content)) -}}
+{{- $short := le $lines 20 -}}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-poem{{ if $short }} dc-poem--short{{ else }} dc-poem--long{{ end }}">
+  {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
+  <div class="dc-poem__head">
+    {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
+    {{ partial "publication/audio-player.html" . }}
+  </div>
+  <div class="dc-prose e-content dc-poem__body">
+    {{ .Content }}
+  </div>
+  <footer class="dc-poem__colophon">
+    {{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}
+    {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
+    {{ with .Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
+  </footer>
+  {{ partial "publication/tail.html" . }}
+</article>
+{{ partial "publication/webmentions.html" . }}
+{{ partial "publication/adjacent.html" . }}
+{{ end }}
