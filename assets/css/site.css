@@ -996,24 +996,95 @@
   margin-bottom: 4px;
 }
 
-/* Redactions (S17): a long run of U+2588 carries no break opportunity and
-   would otherwise push past the column. The colour comes from the redaction
-   family (§17.5), which sits above the background and below muted text — a
-   redaction is part of the text, not an alarm. The surface itself is still
-   Unicode blocks; T128 replaces them with a real textured primitive. */
-.dc-redacted {
-  overflow-wrap: anywhere;
-  letter-spacing: -0.5px;
-  color: var(--dc-redaction-flat);
-  /*
-   * A U+2588 is wider than the average letter of the serif face around it, so
-   * a run standing for 34 characters measured 459px where the text measured
-   * 418px — enough to push a whole redacted line of verse onto a second line
-   * and add a line to the stanza (§24.7). Scaling the run brings the two
-   * within a few pixels. The real primitive (T128) sets a width instead of
-   * counting characters, and this compensation goes away with it.
-   */
-  font-size: 0.9em;
+/*
+ * Redaction (§27.6). A quiet, ordered, dither-like surface — not a character,
+ * not a bar of ink, and never the original text hidden by CSS: the fragment is
+ * absent from the document entirely, and what stands in its place is drawn.
+ *
+ * The texture is a pixel-anchored grid (--dc-redaction-grid): tying it to `em`
+ * makes it shimmer at small sizes. Colour comes from the redaction family
+ * (§17.5), which sits above the background and below muted text — a redaction
+ * is part of the text, not an alarm.
+ *
+ * No states: this element is not interactive, so there is no hover, no focus
+ * styling, no pointer cursor and no reveal of any kind.
+ */
+.dc-redaction {
+  /* The wrapper is inline so the run sits in the flow of the sentence and can
+     break between its segments like any other run of text. */
+  display: inline;
+}
+
+.dc-redaction__surface,
+.dc-redaction__line {
+  display: inline-block;
+  height: var(--dc-redaction-height);
+  min-width: var(--dc-redaction-min-width);
+  border-radius: var(--dc-redaction-radius);
+  vertical-align: baseline;
+  /* Sits on the baseline without moving it: the surface is shorter than the
+     line box, so line-height is untouched (§27.6). */
+  margin-bottom: -0.06em;
+  background-color: var(--dc-redaction-surface);
+  /* Vertical, not diagonal: a run is cut into segments so it can wrap, and a
+     45° pattern restarts its phase in every segment, drawing a visible seam at
+     each join. A vertical repeat with a pixel step keeps the texture
+     continuous across them. */
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      var(--dc-redaction-pattern) 0,
+      var(--dc-redaction-pattern) 1px,
+      transparent 1px,
+      transparent var(--dc-redaction-grid)
+    );
+}
+
+/* A line redaction stands alone in the verse: it keeps the approximate length
+   of the line it replaced and is never stretched to the full measure (§24.7). */
+.dc-redaction--line .dc-redaction__surface {
+  height: 0.8em;
+}
+
+/* A block keeps the shape of what it replaced: the number of lines and their
+   relative lengths, not one monolithic rectangle (§27.6). Percentages, so a
+   narrow screen scales it instead of overflowing. */
+.dc-redaction--block {
+  display: block;
+  margin: 0.4em 0;
+}
+
+.dc-redaction--block .dc-redaction__line {
+  display: block;
+  height: 0.9em;
+  margin-bottom: 0.35em;
+}
+
+/*
+ * Print: the redaction must survive, and it must be obvious in grayscale —
+ * but a page of solid black is neither necessary nor kind to a printer, so the
+ * texture flattens to a light fill with a rule around it (§27.6 print).
+ */
+@media print {
+  .dc-redaction__surface,
+  .dc-redaction__line {
+    background-image: none;
+    background-color: #d9d9d9;
+    outline: 1px solid #555;
+  }
+}
+
+/*
+ * Forced colors: the texture is decoration and may go, the covered area may
+ * not. A system-coloured fill keeps the fact of the removal visible.
+ */
+@media (forced-colors: active) {
+  .dc-redaction__surface,
+  .dc-redaction__line {
+    background-image: none;
+    forced-color-adjust: none;
+    background-color: CanvasText;
+  }
 }
 
 /*

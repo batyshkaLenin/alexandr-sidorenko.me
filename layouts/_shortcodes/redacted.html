@@ -1,39 +1,80 @@
 {{- /*
-A redaction (S17). Real U+2588 characters stand where the fragment was: the
-original reaches neither the page, nor the feeds, nor /llms.txt — and it is
-not in the publication source either, only in Git history.
+A redaction (§27.6). The removed fragment is not in the page, the feeds or
+/llms.txt — and not in the publication source either, only in Git history.
 
-Parameters are named and deliberately exclude the original:
-  id   — key of the entry in data/redactions.yaml;
-  len  — how many characters were redacted;
-  rule — the ground, from .agents/skills/redaction/references/rules.md.
+Parameters, named, and deliberately excluding the original:
+  id       — key of the entry in data/redactions.yaml;
+  len      — how many characters were removed; the width comes from it;
+  rule     — the ground, from .agents/skills/redaction/references/rules.md;
+  geometry — inline (default) | line | block;
+  lines    — for geometry=block: relative line lengths, e.g. "0.9,0.7,0.85";
+  mode     — preserve (default) | normalized.
 
-A screen reader gets the single word «вымарано» instead of a run of "full
-block": role="img" replaces the element's contents with its name. The blocks
-are marked aria-hidden on top of that, since some engines announce both the
-name and the contents.
+The surface is drawn by CSS, never by characters: §47.24 rejects the U+2588
+implementation outright. What ships is an empty visual element plus an
+accessible replacement, so the fragment is absent from the DOM, the clipboard,
+the accessibility tree and any search index.
+
+The replacement is real text rather than an aria-label, and that matters beyond
+screen readers: a feed reader applies no stylesheet, so the visually hidden
+words are what it shows. With a label the sentence would simply close over the
+gap, and the fact of the redaction would vanish from RSS, JSON Feed and
+/llms.txt.
+
+Width follows the fragment (`preserve`), because a redaction replaces the
+typographic space of what was removed, not just the count of characters. The
+run is cut into segments with break opportunities between them: a redaction is
+allowed to wrap like the text around it — a run that can only sit unbroken
+pushes itself onto the next line and leaves a hole behind. Punctuation that
+follows stays attached, because the last segment carries no break after it.
+
+`normalized` gives up the width in exchange for hiding the fragment's length:
+three fixed sizes, same surface, same semantics.
 */ -}}
 {{- $id := .Get "id" -}}
-{{- $len := int (.Get "len") -}}
 {{- $rule := .Get "rule" -}}
+{{- $geometry := default "inline" (.Get "geometry") -}}
+{{- $mode := default "preserve" (.Get "mode") -}}
 {{- if or (not $id) (not $rule) -}}
   {{- errorf "%s: shortcode redacted requires id and rule" .Position -}}
 {{- end -}}
-{{- if lt $len 1 -}}
-  {{- errorf "%s: shortcode redacted needs len >= 1, got %q" .Position (.Get "len") -}}
+{{- if not (in (slice "inline" "line" "block") $geometry) -}}
+  {{- errorf "%s: shortcode redacted has unknown geometry %q (inline, line, block)" .Position $geometry -}}
 {{- end -}}
-{{- /*
-The run carries the length of what was removed, not its shape, so it must be
-allowed to break across lines like the text around it: a redaction that can
-only sit unbroken pushes itself onto the next line and leaves a hole behind.
-<wbr> gives break opportunities without adding a single pixel of width.
-*/ -}}
-{{- $group := 4 -}}
-{{- $out := "" -}}
-{{- range $i := seq 1 $len -}}
-  {{- $out = printf "%s█" $out -}}
-  {{- if and (eq (mod $i $group) 0) (lt $i $len) -}}
-    {{- $out = printf "%s<wbr>" $out -}}
+{{- if not (in (slice "preserve" "normalized") $mode) -}}
+  {{- errorf "%s: shortcode redacted has unknown mode %q (preserve, normalized)" .Position $mode -}}
+{{- end -}}
+
+{{- if eq $geometry "block" -}}
+  {{- $lines := split (default "1,0.8,0.9" (.Get "lines")) "," -}}
+  <span class="dc-redaction dc-redaction--block" data-redaction="{{ $id }}" data-redaction-rule="{{ $rule }}">
+  {{- range $lines -}}
+    {{- $share := float (strings.TrimSpace .) -}}
+    <span class="dc-redaction__line" aria-hidden="true" style="width: {{ mul $share 100 }}%"></span>
   {{- end -}}
+    <span class="dc-visually-hidden">[вымаран фрагмент текста]</span>
+  </span>
+{{- else -}}
+  {{- $len := int (.Get "len") -}}
+  {{- if and (eq $mode "preserve") (lt $len 1) -}}
+    {{- errorf "%s: shortcode redacted needs len >= 1, got %q" .Position (.Get "len") -}}
+  {{- end -}}
+  {{- /* 0.5em per character is the measured average of this serif at its
+  reading size; the point is the rhythm of the line, not pixel fidelity. */ -}}
+  {{- $width := mul $len 0.5 -}}
+  {{- if eq $mode "normalized" -}}
+    {{- $width = cond (lt $len 12) 4.0 (cond (lt $len 30) 9.0 16.0) -}}
+  {{- end -}}
+  {{- $segment := 4.0 -}}
+  {{- $count := int (math.Ceil (div $width $segment)) -}}
+  {{- $label := cond (eq $geometry "line") "[вымарана строка]" "[вымарано]" -}}
+  <span class="dc-redaction dc-redaction--{{ $geometry }}" data-redaction="{{ $id }}" data-redaction-rule="{{ $rule }}">
+  {{- range $i := seq $count -}}
+    {{- $last := eq $i $count -}}
+    {{- $w := cond $last (sub $width (mul (sub $count 1) $segment)) $segment -}}
+    <span class="dc-redaction__surface" aria-hidden="true" style="width: {{ $w }}em"></span>
+    {{- if not $last }}<wbr>{{ end -}}
+  {{- end -}}
+    <span class="dc-visually-hidden">{{ $label }}</span>
+  </span>
 {{- end -}}
-<span class="dc-redacted" role="img" aria-label="вымарано" data-redaction="{{ $id }}" data-redaction-rule="{{ $rule }}"><span aria-hidden="true">{{ $out | safeHTML }}</span></span>
