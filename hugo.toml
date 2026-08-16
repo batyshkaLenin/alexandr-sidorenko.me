@@ -18,20 +18,17 @@ theme = 'declassified'
   # The author lives in data/authors.yaml, on the entry flagged `site_owner`.
   description = 'Блог и творчество Александра Сидоренко: заметки и статьи о разработке, музыке и жизни.'
 
+# Home and Library are the whole of the navigation (content-model ADR). The
+# shell wording follows in T110; these are the addresses that exist.
 [[menus.main]]
   name = 'Главная'
   pageRef = '/'
   weight = -1
 
 [[menus.main]]
-  name = 'Блог'
-  pageRef = '/posts'
+  name = 'Библиотека'
+  pageRef = '/library'
   weight = 1
-
-[[menus.main]]
-  name = 'Творчество'
-  pageRef = '/creativity'
-  weight = 2
 
 [taxonomies]
   tag = 'tags'

@@ -241,11 +241,16 @@ def check_page(vocab: Vocabulary, public: Path, page: dict) -> list[str]:
     if "list" in page:
         spec = page["list"]
         items = main.get(spec["property"]) or []
+        # A list may hold more than one node type: the library is not a section
+        # and does not decide what kind of material it holds (T106).
+        expected_item_types = spec["item_type"]
+        if isinstance(expected_item_types, str):
+            expected_item_types = [expected_item_types]
         item_types = sorted({item.get("@type") for item in items})
-        if item_types != [spec["item_type"]]:
+        if item_types != sorted(expected_item_types):
             errors.append(
                 f"{page['html']}: элементы {spec['property']!r} имеют типы {item_types} "
-                f"вместо [{spec['item_type']!r}]"
+                f"вместо {sorted(expected_item_types)}"
             )
         urls = [item.get("url") for item in items]
         if urls != spec["urls"]:

@@ -1,8 +1,13 @@
 {{- /*
 Returns the schema.org node for one publication, without "@context": used both
 standalone on the publication page and nested in a section's list, so the two
-never drift apart. "@id" is the front-matter uid (ADR redesign-stable-uid-contract),
-"url"/"mainEntityOfPage" are the location URL in the site's canonical form.
+never drift apart. "@id" is the Material Identity URI (ADR
+redesign-material-identity-serialization-and-resolver), "url"/"mainEntityOfPage"
+are the location URL in the site's canonical form.
+
+The type mapping keeps what the sections used to say — what lived in posts is a
+BlogPosting, what lived in creativity is a CreativeWork. Saying more precisely
+what a paper or a track is belongs with the renderer families (S21).
 */ -}}
 {{- $authorKey := "" -}}
 {{- with .Params.authors }}{{ $authorKey = index . 0 }}{{ else }}{{ $authorKey = (partial "authors/owner.html" $).key }}{{ end -}}
@@ -12,8 +17,8 @@ never drift apart. "@id" is the front-matter uid (ADR redesign-stable-uid-contra
 {{- $author := partial "schema/author.html" (dict "key" $authorKey) -}}
 {{- $url := partial "canonical-url.html" .Permalink -}}
 {{- $json := dict
-  "@type" (cond (eq .Section "posts") "BlogPosting" "CreativeWork")
-  "@id" .Params.uid
+  "@type" (cond (in (slice "note" "article" "paper") .Params.type) "BlogPosting" "CreativeWork")
+  "@id" (partial "publication/identity-uri.html" .)
   "headline" .Title
   "name" .Title
   "description" .Description

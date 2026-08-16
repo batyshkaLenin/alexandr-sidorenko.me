@@ -34,7 +34,9 @@ that vocabulary for navigation long ago.
 {{ $parts = $parts | append (partial "schema/publication.html" .) }}
 {{ end }}
 {{ end }}
-{{ $isBlog := and (eq .Kind "section") (eq .Section "posts") }}
+{{/* The library holds every kind of material, so it is a CollectionPage; the
+     Blog node disappeared with the posts section (T106). */}}
+{{ $isBlog := false }}
 {{ $json := dict
   "@context" "https://schema.org"
   "@type" (cond $isBlog "Blog" "CollectionPage")

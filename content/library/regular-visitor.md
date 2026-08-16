@@ -5,14 +5,14 @@ date: 2022-11-03
 created: 2021-11-27
 lastmod: 2022-11-03
 authors: ["ppn"]
-creative_type: "single"
-cover: "/assets/creativity/regular-visitor/mattew-with-yamaha-46yo.jpg"
+id: "01a00aea-44dc-74e0-8834-895f0068f8d3"
+type: "track"
+cover: "/assets/library/regular-visitor/mattew-with-yamaha-46yo.jpg"
 cover_alt: "Крупный план: человек играет на акустической гитаре в баре"
 audio:
-  - src: "/assets/creativity/regular-visitor/Постоянщик.mp3"
+  - src: "/assets/library/regular-visitor/Постоянщик.mp3"
     type: "audio/mpeg"
 draft: false
-uid: "https://alexandr-sidorenko.me/creativity/regular-visitor"
 ---
 Это грустный угол, мы здесь сидим:\
 Кто-то пьёт воду, а кто-то пьёт спирт.\

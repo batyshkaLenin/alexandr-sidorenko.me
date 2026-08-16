@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Verify the stable-UID identity contract (see ADR redesign-stable-uid-contract).
+"""Verify the material identity contract (ADR
+redesign-material-identity-serialization-and-resolver).
 
-Location URL (.Permalink/canonical/u-url) and persistent UID (front matter
-`uid` -> u-uid/RSS guid/JSON Feed id/JSON-LD @id) stay separate sources:
-every publication needs a unique, correctly formatted uid, and every identity
-output must agree with it independently of the current permalink.
+Location URL (.Permalink/canonical/u-url) and Material Identity URI (front
+matter `id` -> https://alexandr-sidorenko.me/id/<uuid>, serialized into
+u-uid/RSS guid/JSON Feed id/JSON-LD @id) are separate sources: every material
+needs a unique id, and every identity output must carry the same URI byte for
+byte, independent of the current permalink.
 
-Since T56 both use the same no-trailing-slash form, so their current values
-match byte for byte. The uid is still authored front matter that survives a
-move, not something derived from the current location.
+T106 moved this off the old `uid` field and the two-section layout. The build
+invariants that make a duplicate or malformed id fatal are T107's job; this
+script checks what the built site says.
 """
 
 from __future__ import annotations
@@ -23,9 +25,9 @@ from pathlib import Path
 
 SITE_ORIGIN = "https://alexandr-sidorenko.me/"
 UID_PATTERN = re.compile(
-    r"^https://alexandr-sidorenko\.me/(posts|creativity)/[^/]+$"
+    r"^https://alexandr-sidorenko\.me/id/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 )
-UID_LINE = re.compile(r'^uid:\s*"([^"]*)"\s*$')
+UID_LINE = re.compile(r'^id:\s*"([^"]*)"\s*$')
 DRAFT_LINE = re.compile(r"^draft:\s*true\s*$")
 
 
@@ -42,7 +44,7 @@ def is_draft(path: Path) -> bool:
 
 
 def front_matter_uid(path: Path) -> str | None:
-    """Pull just the `uid` value out of the front matter block — no YAML
+    """Pull just the `id` value out of the front matter block — no YAML
     dependency needed for a single scalar field, matching this toolkit's
     standard-library-only convention (see the other scripts/check-*.py)."""
     lines = path.read_text().splitlines()
@@ -158,19 +160,22 @@ def main() -> int:
     uids: dict[str, Path] = {}  # published only: these must agree with the output
     permalinks: dict[str, str] = {}
 
-    for section in ("posts", "creativity"):
-        for path in sorted((root / "content" / section).glob("*.md")):
+    section = "library"
+    material_files = sorted((root / "content" / section).glob("*.md"))
+    check(errors, bool(material_files), f"no materials found in content/{section}")
+    for path in material_files:
             if path.name == "_index.md":
                 continue
-            uid = front_matter_uid(path)
+            material_id = front_matter_uid(path)
             item_id = f"{section}/{path.stem}"
-            check(errors, bool(uid), f"{item_id}: missing 'uid' front matter")
-            if not uid:
+            check(errors, bool(material_id), f"{item_id}: missing 'id' front matter")
+            if not material_id:
                 continue
+            uid = f"{SITE_ORIGIN}id/{material_id}"
             check(
                 errors,
                 bool(UID_PATTERN.match(uid)),
-                f"{item_id}: uid {uid!r} doesn't match https://alexandr-sidorenko.me/(posts|creativity)/<slug>, no trailing slash",
+                f"{item_id}: id {material_id!r} is not a lowercase UUID",
             )
             if uid in seen:
                 errors.append(f"{item_id}: uid {uid!r} duplicates {seen[uid]}")

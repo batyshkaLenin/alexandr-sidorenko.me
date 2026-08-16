@@ -113,7 +113,7 @@ def main() -> int:
 
     # Document-level: check home and a representative section/detail page,
     # not just home.
-    for path in ("index.html", "posts/index.html", "posts/philosophy-of-freedom/index.html"):
+    for path in ("index.html", "library/index.html", "library/philosophy-of-freedom/index.html"):
         check_page(errors, approved, public_dir, path)
 
     if errors:

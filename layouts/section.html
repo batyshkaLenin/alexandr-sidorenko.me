@@ -23,16 +23,11 @@ can't know to use.
     <ul class="dc-list h-feed">
       {{ range .Pages.ByDate.Reverse }}
       {{ $page := . }}
-      {{ $creativeType := $page.Params.creative_type }}
-      {{ $tags := $page.Params.tags }}
+      {{ $type := $page.Params.type }}
       <li class="dc-list__item h-entry">
-        {{ if or $creativeType $tags }}
+        {{ with $type }}
         <p class="dc-list__meta">
-          {{ with $creativeType }}
-          <span class="dc-list__type">{{ partial "publication/creative-type-label.html" (dict "type" . "page" $page) }}</span>
-          {{ else }}
-          {{ with $tags }}<span class="dc-list__type">{{ index . 0 }}</span>{{ end }}
-          {{ end }}
+          <span class="dc-list__type">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>
         </p>
         {{ end }}
         <h2 class="dc-list__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a></h2>
@@ -49,7 +44,7 @@ can't know to use.
         {{/* Visual affordance only: the title above is already the link, and a
              second anchor to the same address just repeats itself to a screen
              reader. */}}
-        {{ if eq $.Section "posts" }}<span class="dc-list__read" aria-hidden="true">read →</span>{{ end }}
+        <span class="dc-list__read" aria-hidden="true">read →</span>
       </li>
       {{ else }}
       <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>

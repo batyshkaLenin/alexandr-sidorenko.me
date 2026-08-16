@@ -60,10 +60,8 @@ EXPECTED_CACHE = {
     "/site.webmanifest": DAY,
     "/feed.xml": HOUR,
     "/feed.json": HOUR,
-    "/posts/feed.xml": HOUR,
-    "/posts/feed.json": HOUR,
-    "/creativity/feed.xml": HOUR,
-    "/creativity/feed.json": HOUR,
+    "/library/feed.xml": HOUR,
+    "/library/feed.json": HOUR,
     "/sitemap.xml": HOUR,
     "/robots.txt": HOUR,
     "/llms.txt": HOUR,
@@ -76,10 +74,8 @@ EXPECTED_CACHE = {
 EXPECTED_CONTENT_TYPE = {
     "/feed.xml": "application/rss+xml; charset=utf-8",
     "/feed.json": "application/feed+json; charset=utf-8",
-    "/posts/feed.xml": "application/rss+xml; charset=utf-8",
-    "/posts/feed.json": "application/feed+json; charset=utf-8",
-    "/creativity/feed.xml": "application/rss+xml; charset=utf-8",
-    "/creativity/feed.json": "application/feed+json; charset=utf-8",
+    "/library/feed.xml": "application/rss+xml; charset=utf-8",
+    "/library/feed.json": "application/feed+json; charset=utf-8",
 }
 
 # HTML deliberately has no rule: the platform default is already the contract's

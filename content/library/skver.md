@@ -5,11 +5,11 @@ date: 2022-09-02
 created: 2022-08-16
 lastmod: 2022-09-02
 authors: ["batyshkaLenin"]
-creative_type: "story"
-cover: "/assets/creativity/skver/skver.jpg"
+id: "01a00aea-44dc-74e0-8834-8960ccf9d4e8"
+type: "fiction"
+cover: "/assets/library/skver/skver.jpg"
 cover_alt: "Тот самый сквер"
 draft: false
-uid: "https://alexandr-sidorenko.me/creativity/skver"
 ---
 
 <!--
@@ -20,7 +20,7 @@ URL больше не публикуется и не перенаправляе�
 tmp/old_project/_content/creativity/en/skver.md.
 -->
 
-![Тот самый сквер](/assets/creativity/skver/skver.jpg)
+![Тот самый сквер](/assets/library/skver/skver.jpg)
 
 После школы нужно было где-то засесть и обстоятельно покурить.
 Одну за другой, чтобы компенсировать каждый отсиженный урок и каждую перемену между ними.

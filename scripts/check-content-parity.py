@@ -67,6 +67,13 @@ class ContentParser(HTMLParser):
             self._content_depth -= 1
 
 
+# Media moved with its material when the sections were dropped (T106):
+# /assets/posts/… and /assets/creativity/… became /assets/library/…. Parity is
+# about the text of a publication, not the address of its files, so both sides
+# are compared without that segment.
+MEDIA_SECTION = re.compile(r"/assets/(?:posts|creativity|library)/")
+
+
 def body(markdown: str) -> str:
     lines = markdown.splitlines(keepends=True)
     if not lines or lines[0].strip() != "---":
@@ -80,6 +87,7 @@ def body(markdown: str) -> str:
 def normalized_body(markdown: str) -> str:
     value = HTML_COMMENT.sub("", body(markdown))
     value = value.replace(SITE_ORIGIN, "/")
+    value = MEDIA_SECTION.sub("/assets/", value)
     value = HARD_BREAK.sub("\n", value)
     return " ".join(value.split())
 
@@ -218,7 +226,7 @@ def main() -> int:
             publication["feed_breaks"],
         )
 
-    skver = (root / "content/creativity/skver.md").read_text()
+    skver = (root / "content/library/skver.md").read_text()
     for statement in fixture["required_skver_provenance"]:
         if statement not in skver:
             errors.append(f"skver provenance is missing {statement!r}")

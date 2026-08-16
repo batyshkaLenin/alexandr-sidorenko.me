@@ -1,6 +1,12 @@
+# Material types (content-model ADR). The key is what front matter stores,
+# kebab-case; the label is what a reader sees. `ARTICLE` and friends are the
+# machine spelling used in design documents, not a storage format.
+#
+# `album` is absent on purpose: it is a future type with no material behind it.
+note: "Заметка"
+article: "Статья"
+paper: "Научная работа"
+fiction: "Проза"
 poem: "Стих"
-poetry: "Подборка стихов"
-story: "Рассказ"
-single: "Сингл"
-ep: "EP"
-album: "Альбом"
+poetry-collection: "Подборка стихов"
+track: "Трек"

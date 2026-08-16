@@ -28,27 +28,25 @@ UA = {"User-Agent": "alexandr-sidorenko.me http matrix check"}
 CANONICAL_HOST = "https://alexandr-sidorenko.me"
 
 # HTML routes: the no-slash form is canonical, the slash form redirects to it.
-HTML_ROUTES = ["/", "/posts", "/posts/philosophy-of-freedom", "/creativity", "/creativity/skver", "/tags"]
+HTML_ROUTES = ["/", "/library", "/library/philosophy-of-freedom", "/library/skver", "/tags"]
 
 # path -> expected media type prefix
 MEDIA_TYPES = {
     "/feed.xml": "application/rss+xml",
     "/feed.json": "application/feed+json",
-    "/posts/feed.xml": "application/rss+xml",
-    "/posts/feed.json": "application/feed+json",
-    "/creativity/feed.xml": "application/rss+xml",
-    "/creativity/feed.json": "application/feed+json",
+    "/library/feed.xml": "application/rss+xml",
+    "/library/feed.json": "application/feed+json",
     "/sitemap.xml": "application/xml",
     "/robots.txt": "text/plain",
     "/llms.txt": "text/plain",
     "/sw.js": "text/javascript",
     "/site.webmanifest": "application/manifest+json",
-    "/assets/creativity/regular-visitor/Постоянщик.mp3": "audio/mpeg",
+    "/assets/library/regular-visitor/Постоянщик.mp3": "audio/mpeg",
 }
 
 # Nothing here may resurrect: the site ships no legacy redirects (ADR
 # redesign-no-backward-compat).
-MUST_BE_404 = ["/nonexistent-page", "/ru/posts/philosophy-of-freedom", "/en", "/posts/philosophy-of-freedom.amp"]
+MUST_BE_404 = ["/nonexistent-page", "/ru/library/philosophy-of-freedom", "/en", "/library/philosophy-of-freedom.amp", "/posts/philosophy-of-freedom", "/creativity/skver"]
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):

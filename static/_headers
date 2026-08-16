@@ -75,19 +75,11 @@
   Cache-Control: public, max-age=3600
   Content-Type: application/feed+json; charset=utf-8
 
-/posts/feed.xml
+/library/feed.xml
   Cache-Control: public, max-age=3600
   Content-Type: application/rss+xml; charset=utf-8
 
-/posts/feed.json
-  Cache-Control: public, max-age=3600
-  Content-Type: application/feed+json; charset=utf-8
-
-/creativity/feed.xml
-  Cache-Control: public, max-age=3600
-  Content-Type: application/rss+xml; charset=utf-8
-
-/creativity/feed.json
+/library/feed.json
   Cache-Control: public, max-age=3600
   Content-Type: application/feed+json; charset=utf-8
 

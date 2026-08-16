@@ -18,46 +18,13 @@
       }
     },
     {
-      "html": "posts/index.html",
-      "blocks": [
-        "Blog",
-        "BreadcrumbList"
-      ],
-      "name": "Блог",
-      "url": "https://alexandr-sidorenko.me/posts",
-      "required_properties": [
-        "blogPost",
-        "description",
-        "name",
-        "url"
-      ],
-      "list": {
-        "property": "blogPost",
-        "item_type": "BlogPosting",
-        "urls": [
-          "https://alexandr-sidorenko.me/posts/bluredu-new-teachers",
-          "https://alexandr-sidorenko.me/posts/philosophy-of-freedom"
-        ]
-      },
-      "breadcrumb": [
-        [
-          "Александр Сидоренко",
-          "https://alexandr-sidorenko.me/"
-        ],
-        [
-          "Блог",
-          "https://alexandr-sidorenko.me/posts"
-        ]
-      ]
-    },
-    {
-      "html": "creativity/index.html",
+      "html": "library/index.html",
       "blocks": [
         "CollectionPage",
         "BreadcrumbList"
       ],
-      "name": "Творчество",
-      "url": "https://alexandr-sidorenko.me/creativity",
+      "name": "Библиотека",
+      "url": "https://alexandr-sidorenko.me/library",
       "required_properties": [
         "description",
         "hasPart",
@@ -66,12 +33,17 @@
       ],
       "list": {
         "property": "hasPart",
-        "item_type": "CreativeWork",
+        "item_type": [
+          "BlogPosting",
+          "CreativeWork"
+        ],
         "urls": [
-          "https://alexandr-sidorenko.me/creativity/regular-visitor",
-          "https://alexandr-sidorenko.me/creativity/23",
-          "https://alexandr-sidorenko.me/creativity/humility-and-open-mindedness",
-          "https://alexandr-sidorenko.me/creativity/skver"
+          "https://alexandr-sidorenko.me/library/regular-visitor",
+          "https://alexandr-sidorenko.me/library/23",
+          "https://alexandr-sidorenko.me/library/humility-and-open-mindedness",
+          "https://alexandr-sidorenko.me/library/skver",
+          "https://alexandr-sidorenko.me/library/bluredu-new-teachers",
+          "https://alexandr-sidorenko.me/library/philosophy-of-freedom"
         ]
       },
       "breadcrumb": [
@@ -80,8 +52,8 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Творчество",
-          "https://alexandr-sidorenko.me/creativity"
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
         ]
       ]
     },
@@ -103,7 +75,6 @@
         "property": "hasPart",
         "item_type": "CollectionPage",
         "urls": [
-          "https://alexandr-sidorenko.me/tags/%D1%81%D1%82%D0%B0%D1%82%D1%8C%D1%8F",
           "https://alexandr-sidorenko.me/tags/%D1%84%D0%B8%D0%BB%D0%BE%D1%81%D0%BE%D1%84%D0%B8%D1%8F"
         ]
       },
@@ -115,41 +86,6 @@
         [
           "Теги",
           "https://alexandr-sidorenko.me/tags"
-        ]
-      ]
-    },
-    {
-      "html": "tags/статья/index.html",
-      "blocks": [
-        "CollectionPage",
-        "BreadcrumbList"
-      ],
-      "name": "Статья",
-      "url": "https://alexandr-sidorenko.me/tags/%D1%81%D1%82%D0%B0%D1%82%D1%8C%D1%8F",
-      "required_properties": [
-        "name",
-        "url",
-        "hasPart"
-      ],
-      "list": {
-        "property": "hasPart",
-        "item_type": "BlogPosting",
-        "urls": [
-          "https://alexandr-sidorenko.me/posts/bluredu-new-teachers"
-        ]
-      },
-      "breadcrumb": [
-        [
-          "Александр Сидоренко",
-          "https://alexandr-sidorenko.me/"
-        ],
-        [
-          "Теги",
-          "https://alexandr-sidorenko.me/tags"
-        ],
-        [
-          "Статья",
-          "https://alexandr-sidorenko.me/tags/%D1%81%D1%82%D0%B0%D1%82%D1%8C%D1%8F"
         ]
       ]
     },
@@ -170,7 +106,7 @@
         "property": "hasPart",
         "item_type": "BlogPosting",
         "urls": [
-          "https://alexandr-sidorenko.me/posts/philosophy-of-freedom"
+          "https://alexandr-sidorenko.me/library/philosophy-of-freedom"
         ]
       },
       "breadcrumb": [
@@ -189,14 +125,14 @@
       ]
     },
     {
-      "html": "posts/bluredu-new-teachers/index.html",
+      "html": "library/bluredu-new-teachers/index.html",
       "blocks": [
         "BlogPosting",
         "BreadcrumbList"
       ],
       "name": "Мы поступили в универ — и сами показали преподам, как учить студентов. Теперь собираем самые большие аудитории",
-      "url": "https://alexandr-sidorenko.me/posts/bluredu-new-teachers",
-      "id": "https://alexandr-sidorenko.me/posts/bluredu-new-teachers",
+      "url": "https://alexandr-sidorenko.me/library/bluredu-new-teachers",
+      "id": "https://alexandr-sidorenko.me/id/01a00aea-44da-718c-ab39-e1200764c2af",
       "required_properties": [
         "@id",
         "@type",
@@ -214,12 +150,12 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Блог",
-          "https://alexandr-sidorenko.me/posts"
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
         ],
         [
           "Мы поступили в универ — и сами показали преподам, как учить студентов. Теперь собираем самые большие аудитории",
-          "https://alexandr-sidorenko.me/posts/bluredu-new-teachers"
+          "https://alexandr-sidorenko.me/library/bluredu-new-teachers"
         ]
       ],
       "author": {
@@ -230,14 +166,14 @@
       }
     },
     {
-      "html": "posts/philosophy-of-freedom/index.html",
+      "html": "library/philosophy-of-freedom/index.html",
       "blocks": [
         "BlogPosting",
         "BreadcrumbList"
       ],
       "name": "Философия свободы",
-      "url": "https://alexandr-sidorenko.me/posts/philosophy-of-freedom",
-      "id": "https://alexandr-sidorenko.me/posts/philosophy-of-freedom",
+      "url": "https://alexandr-sidorenko.me/library/philosophy-of-freedom",
+      "id": "https://alexandr-sidorenko.me/id/01a00aea-44db-7086-9b1c-c38ed88a383d",
       "required_properties": [
         "@id",
         "@type",
@@ -255,12 +191,12 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Блог",
-          "https://alexandr-sidorenko.me/posts"
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
         ],
         [
           "Философия свободы",
-          "https://alexandr-sidorenko.me/posts/philosophy-of-freedom"
+          "https://alexandr-sidorenko.me/library/philosophy-of-freedom"
         ]
       ],
       "author": {
@@ -271,14 +207,14 @@
       }
     },
     {
-      "html": "creativity/23/index.html",
+      "html": "library/23/index.html",
       "blocks": [
         "CreativeWork",
         "BreadcrumbList"
       ],
       "name": "23",
-      "url": "https://alexandr-sidorenko.me/creativity/23",
-      "id": "https://alexandr-sidorenko.me/creativity/23",
+      "url": "https://alexandr-sidorenko.me/library/23",
+      "id": "https://alexandr-sidorenko.me/id/01a00aea-44db-7086-9b1c-c390069e6407",
       "required_properties": [
         "@id",
         "@type",
@@ -296,12 +232,12 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Творчество",
-          "https://alexandr-sidorenko.me/creativity"
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
         ],
         [
           "23",
-          "https://alexandr-sidorenko.me/creativity/23"
+          "https://alexandr-sidorenko.me/library/23"
         ]
       ],
       "author": {
@@ -312,14 +248,14 @@
       }
     },
     {
-      "html": "creativity/humility-and-open-mindedness/index.html",
+      "html": "library/humility-and-open-mindedness/index.html",
       "blocks": [
         "CreativeWork",
         "BreadcrumbList"
       ],
       "name": "Смирение и непредвзятость",
-      "url": "https://alexandr-sidorenko.me/creativity/humility-and-open-mindedness",
-      "id": "https://alexandr-sidorenko.me/creativity/humility-and-open-mindedness",
+      "url": "https://alexandr-sidorenko.me/library/humility-and-open-mindedness",
+      "id": "https://alexandr-sidorenko.me/id/01a00aea-44dc-74e0-8834-895ef7a6c708",
       "required_properties": [
         "@id",
         "@type",
@@ -337,12 +273,12 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Творчество",
-          "https://alexandr-sidorenko.me/creativity"
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
         ],
         [
           "Смирение и непредвзятость",
-          "https://alexandr-sidorenko.me/creativity/humility-and-open-mindedness"
+          "https://alexandr-sidorenko.me/library/humility-and-open-mindedness"
         ]
       ],
       "author": {
@@ -353,14 +289,14 @@
       }
     },
     {
-      "html": "creativity/regular-visitor/index.html",
+      "html": "library/regular-visitor/index.html",
       "blocks": [
         "CreativeWork",
         "BreadcrumbList"
       ],
       "name": "Постоянщик",
-      "url": "https://alexandr-sidorenko.me/creativity/regular-visitor",
-      "id": "https://alexandr-sidorenko.me/creativity/regular-visitor",
+      "url": "https://alexandr-sidorenko.me/library/regular-visitor",
+      "id": "https://alexandr-sidorenko.me/id/01a00aea-44dc-74e0-8834-895f0068f8d3",
       "required_properties": [
         "@id",
         "@type",
@@ -378,12 +314,12 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Творчество",
-          "https://alexandr-sidorenko.me/creativity"
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
         ],
         [
           "Постоянщик",
-          "https://alexandr-sidorenko.me/creativity/regular-visitor"
+          "https://alexandr-sidorenko.me/library/regular-visitor"
         ]
       ],
       "author": {
@@ -394,14 +330,14 @@
       }
     },
     {
-      "html": "creativity/skver/index.html",
+      "html": "library/skver/index.html",
       "blocks": [
         "CreativeWork",
         "BreadcrumbList"
       ],
       "name": "Сквер",
-      "url": "https://alexandr-sidorenko.me/creativity/skver",
-      "id": "https://alexandr-sidorenko.me/creativity/skver",
+      "url": "https://alexandr-sidorenko.me/library/skver",
+      "id": "https://alexandr-sidorenko.me/id/01a00aea-44dc-74e0-8834-8960ccf9d4e8",
       "required_properties": [
         "@id",
         "@type",
@@ -419,12 +355,12 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Творчество",
-          "https://alexandr-sidorenko.me/creativity"
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
         ],
         [
           "Сквер",
-          "https://alexandr-sidorenko.me/creativity/skver"
+          "https://alexandr-sidorenko.me/library/skver"
         ]
       ],
       "author": {

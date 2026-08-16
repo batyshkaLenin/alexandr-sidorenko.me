@@ -5,11 +5,11 @@ date: 2022-09-04
 created: 2021-12-01
 lastmod: 2022-09-04
 authors: ["batyshkaLenin"]
-creative_type: "poetry"
-cover: "/assets/creativity/humility-and-open-mindedness/man-with-gun.jpg"
+id: "01a00aea-44dc-74e0-8834-895ef7a6c708"
+type: "poetry-collection"
+cover: "/assets/library/humility-and-open-mindedness/man-with-gun.jpg"
 cover_alt: "Рука держит пистолет и наручники на фоне цветочных обоев с маками"
 draft: false
-uid: "https://alexandr-sidorenko.me/creativity/humility-and-open-mindedness"
 ---
 
 Я мечтал чтобы жизнь измерялась в байтах, а суки измеряют её в долларах.\

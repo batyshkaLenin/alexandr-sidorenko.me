@@ -11,7 +11,7 @@
   {{- end }}
   {{- $attachments := partial "publication/audio.html" . }}
   {{- $item := dict
-    "id" .Params.uid
+    "id" (partial "publication/identity-uri.html" .)
     "url" (partial "canonical-url.html" .Permalink)
     "title" .Title
     "content_html" (partial "publication/feed-content.html" . | string)

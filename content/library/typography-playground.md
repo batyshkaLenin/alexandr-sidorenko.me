@@ -5,8 +5,9 @@ date: 2026-08-01
 lastmod: 2026-08-01
 draft: true
 authors: ["batyshkaLenin"]
-tags: ["Статья"]
-uid: "https://alexandr-sidorenko.me/posts/typography-playground"
+id: "01a00aea-44db-7086-9b1c-c38f325632b6"
+type: "article"
+tags: []
 ---
 
 Короткий лид статьи. Здесь проверяются **полужирное начертание**, *курсив*, ***полужирный курсив***, ~~зачёркнутый текст~~, `inline code` и [обычная ссылка](https://gohugo.io/).
@@ -195,7 +196,7 @@ code {
 
 ## Изображение
 
-![Команда Blurred Technologies в аудитории](/assets/posts/bluredu-new-teachers/core-team.jpg "Подпись при наведении")
+![Команда Blurred Technologies в аудитории](/assets/library/bluredu-new-teachers/core-team.jpg "Подпись при наведении")
 
 *Подпись под изображением, оформленная обычным курсивом.*
 

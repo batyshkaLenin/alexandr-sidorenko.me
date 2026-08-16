@@ -5,11 +5,12 @@ date: 2018-11-30
 created: 2018-10-22
 lastmod: 2018-11-30
 authors: ["batyshkaLenin"]
+id: "01a00aea-44db-7086-9b1c-c38ed88a383d"
+type: "paper"
 tags: ["Философия"]
-cover: "/assets/posts/philosophy-of-freedom/lenin.jpg"
+cover: "/assets/library/philosophy-of-freedom/lenin.jpg"
 cover_alt: "Мавзолей Ленина на Красной площади в Москве"
 draft: false
-uid: "https://alexandr-sidorenko.me/posts/philosophy-of-freedom"
 ---
 
 Статья для конференции «Наука. Технологии. Инновации. 2018».

@@ -1,0 +1,15 @@
+{{- /*
+The Material Identity URI of a page: https://alexandr-sidorenko.me/id/<uuid>.
+
+One string, used byte for byte in every identity-bearing output — RSS guid,
+JSON Feed id, mf2 u-uid, JSON-LD @id — while the document's address stays
+/library/<slug> (ADR redesign-material-identity-serialization-and-resolver).
+
+A material without an id fails the build here: an identity that silently
+defaults is worse than a broken one.
+*/ -}}
+{{- $id := .Params.id -}}
+{{- if not $id -}}
+  {{- errorf "%s: missing required 'id' front matter — create materials with scripts/new-material.py" .File.Path -}}
+{{- end -}}
+{{- return printf "%sid/%s" site.BaseURL $id -}}

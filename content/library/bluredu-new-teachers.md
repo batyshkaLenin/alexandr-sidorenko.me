@@ -5,14 +5,15 @@ date: 2020-09-30
 created: 2020-09-30
 lastmod: 2020-09-30
 authors: ["batyshkaLenin"]
-tags: ["Статья"]
-cover: "/assets/posts/bluredu-new-teachers/blurred-technologies.jpg"
+id: "01a00aea-44da-718c-ab39-e1200764c2af"
+type: "article"
+tags: []
+cover: "/assets/library/bluredu-new-teachers/blurred-technologies.jpg"
 cover_alt: "Blurred Technologies - the future is now"
 draft: false
-uid: "https://alexandr-sidorenko.me/posts/bluredu-new-teachers"
 ---
 
-![Blurred Technologies - the future is now](/assets/posts/bluredu-new-teachers/blurred-technologies.jpg)
+![Blurred Technologies - the future is now](/assets/library/bluredu-new-teachers/blurred-technologies.jpg)
 
 Замечали, скажешь человеку слово “универ”, как он сразу погружается в душные воспоминания? Там он тратил свою молодость на бесполезные предметы. Там он получал устаревшие знания, и там обитали преподы, давно слившиеся с учебниками, но ничего не понимающие в современной IT-индустрии.
 
@@ -68,7 +69,7 @@ uid: "https://alexandr-sidorenko.me/posts/bluredu-new-teachers"
 
 Мы пустились во все тяжкие: приглашали ребят из [FP Community](https://t.me/fpspecialty_ru), эйчаров, боссов из компаний. Студенты не отлипали от нас с вопросами и идеями. Над одной из лекций нам не хватило расставленных стульев, мы расставили дополнительные, и они тоже кончились. Мы достали пыльные стулья со склада и только тогда усадили свои две сотни человек.
 
-![Many students](/assets/posts/bluredu-new-teachers/many-students.jpg)
+![Many students](/assets/library/bluredu-new-teachers/many-students.jpg)
 
 Мы били наши же рекорды, старались выпускать по два мероприятия в неделю. Втроем мы пилили столько ивентов, сколько не снилось другим ребятам-участникам программы HackClub. Когда мы прислали первые фотографии и цифры парню из первого состава, он охренел. Это было правда круто.
 
@@ -86,7 +87,7 @@ uid: "https://alexandr-sidorenko.me/posts/bluredu-new-teachers"
 
 Просто предметы, которые преподают в универе, не всегда имеют такую связность, которая позволяет понять, зачем вообще это учить. Студенты изо дня в день мучают целый ворох учебников, но связь между предметами не всегда очевидна, либо совсем отсутствует. Поэтому чаще эффект от обучения не такой суперский, каким он мог быть. Каким он должен быть. И дело не в хреновых преподах. В образовании есть очень крутые ребята (привет, Брагилевский Виталий Николаевич, Москвин Денис Николаевич, Романов Евгений Леонидович и Мищенко Полина Валерьевна) — они сильно мотивируют учиться дальше.
 
-![Core Team](/assets/posts/bluredu-new-teachers/core-team.jpg)
+![Core Team](/assets/library/bluredu-new-teachers/core-team.jpg)
 
 Но самым важным и стоящим в универе всегда будет сообщество: люди, которые живут с тобой в одной комнате общежития или учатся с тобой в одной группе.
 

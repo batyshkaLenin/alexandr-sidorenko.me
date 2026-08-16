@@ -121,7 +121,7 @@ def json_items(public_dir: Path) -> dict[str, dict[str, object]]:
 
 def section_cards(public_dir: Path) -> CardParser:
     parser = CardParser()
-    for section in ("posts", "creativity"):
+    for section in ("library",):
         parser.feed((public_dir / section / "index.html").read_text())
     return parser
 

@@ -5,8 +5,10 @@ set/order/personal data is site's job, not theme config — see
 .ai/projects/redesign/07-declassified-theme-reassessment). Overrides the
 theme's generic home.html entirely. Three rows mirror the accepted
 Sidorenko TUI mockup composition (.ai/projects/redesign/09-sidorenko-tui-
-design-contract): identity (filesystem/about/portrait), posts+links,
-creativity+status — all real site data, no invented dynamic state.
+design-contract): identity (filesystem/about/portrait), recent materials,
+last played track — all real site data, no invented dynamic state. The
+composition itself is replaced by the Home Workspace of the new design
+system (T116); this is the migrated shape, not the target one.
 */ -}}
 {{ define "main" }}
 <h1 class="dc-visually-hidden">{{ .Site.Title }}</h1>
@@ -18,8 +20,7 @@ creativity+status — all real site data, no invented dynamic state.
        T43/T11 make those addresses exist — the tree never links nowhere. */}}
   {{ $tree := slice
     (dict "icon" "&gt;" "label" "about.md" "current" true)
-    (dict "icon" "📁" "label" "blog/" "url" ("/posts" | relLangURL))
-    (dict "icon" "📁" "label" "creativity/" "url" ("/creativity" | relLangURL))
+    (dict "icon" "📁" "label" "library/" "url" ("/library" | relLangURL))
   }}
   <section class="dc-panel">
     {{ partial "declassified/panel-label.html" (printf "$ ls -la ~/site (%d)" (len $tree)) }}
@@ -89,10 +90,10 @@ creativity+status — all real site data, no invented dynamic state.
 <div class="dc-home-row dc-home-row--posts">
 
   <section class="dc-panel">
-    {{ partial "declassified/panel-label.html" "$ tail -n2 ~/posts/*.md" }}
+    {{ partial "declassified/panel-label.html" "$ tail -n3 ~/library/*.md" }}
     <div class="dc-panel__body">
       <ul class="dc-list">
-        {{ range (.Site.GetPage "/posts").Pages.ByDate.Reverse | first 3 }}
+        {{ range (.Site.GetPage "/library").Pages.ByDate.Reverse | first 3 }}
         <li class="dc-list__item">
           <h3 class="dc-list__title"><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></h3>
           <div class="dc-list__excerpt">{{ partial "publication/summary.txt" . }}</div>
@@ -101,7 +102,7 @@ creativity+status — all real site data, no invented dynamic state.
         <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
         {{ end }}
       </ul>
-      <a class="dc-panel__more" href="{{ "/posts" | relLangURL }}">Блог →</a>
+      <a class="dc-panel__more" href="{{ "/library" | relLangURL }}">Библиотека →</a>
     </div>
   </section>
 
@@ -109,23 +110,9 @@ creativity+status — all real site data, no invented dynamic state.
 
 <div class="dc-home-row dc-home-row--creativity">
 
-  <section class="dc-panel">
-    {{ partial "declassified/panel-label.html" "$ ls ~/creativity | head -4" }}
-    <div class="dc-panel__body">
-      <div class="dc-creativity-grid">
-        {{ range (.Site.GetPage "/creativity").Pages.ByDate.Reverse | first 4 }}
-        <a class="dc-creativity-card" href="{{ partial "canonical-url.html" .RelPermalink }}">
-          <span class="dc-list__type">{{ partial "publication/creative-type-label.html" (dict "type" .Params.creative_type "page" .) }}</span>
-          <span class="dc-creativity-card__title">{{ .Title }}</span>
-        </a>
-        {{ else }}
-        <p class="dc-list__empty">{{ i18n "nothingHereYet" }}</p>
-        {{ end }}
-      </div>
-      <a class="dc-panel__more" href="{{ "/creativity" | relLangURL }}">Творчество →</a>
-    </div>
-  </section>
-
+  {{- /* The second panel used to list the other section. With one library it
+  would only repeat the panel above, so it is gone until Home is composed
+  properly (T116). */ -}}
   {{- /* Last scrobbled track, not "now playing" (T96). Scrobbles arrive in
   batches when the phone syncs by hand, so what this shows is a past event with
   the time it happened — never a claim about the present. The snapshot in
