@@ -1,0 +1,41 @@
+{{- /*
+Poetry Collection Reader (§25). A collection is a node of its own, and each poem
+inside it stays visually autonomous: a large gap between works, an anchor per
+work, and a list of them at the start when the collection is long.
+
+Boundaries come from the material: an `h2` starts a new poem. A collection
+written as one continuous text — as the existing one is — renders as one, with
+the rhythm of a long poem. The renderer does not guess where a work ends.
+
+§25.1: a redaction inside a line stays part of the line. It gets no heading, no
+counter and no frame at the level of the collection — the hierarchy is
+collection → poem → stanza → line → redaction, and nothing about a redaction
+climbs it.
+*/ -}}
+{{ define "main" }}
+{{- $works := len (findRE `<h2` .Content) -}}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-collection">
+  {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
+  <div class="dc-poem__head">
+    {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
+    {{ partial "publication/audio-player.html" . }}
+  </div>
+  {{ if ge $works 3 }}
+  {{- /* Only a long collection gets a list: with two works it is furniture. */ -}}
+  <nav class="dc-collection__contents" aria-label="Произведения подборки">
+    {{ .TableOfContents }}
+  </nav>
+  {{ end }}
+  <div class="dc-prose e-content dc-poem__body dc-collection__body">
+    {{ .Content }}
+  </div>
+  <footer class="dc-poem__colophon">
+    {{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}
+    {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
+    {{ with .Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
+  </footer>
+  {{ partial "publication/tail.html" . }}
+</article>
+{{ partial "publication/webmentions.html" . }}
+{{ partial "publication/adjacent.html" . }}
+{{ end }}

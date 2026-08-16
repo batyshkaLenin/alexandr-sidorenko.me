@@ -1693,3 +1693,54 @@ body:has(.dc-statusbar) {
   color: var(--dc-faint);
   text-align: center;
 }
+
+/*
+ * Poetry Collection (§25). Works are separated by air, not by rules: a large
+ * gap and a quiet title are enough to say "this is a different poem". The
+ * separator glyph of the design system (· · ·) is decorative and hidden from
+ * assistive technology — the heading already announces the work.
+ */
+.dc-collection__body {
+  line-height: 1.9;
+}
+
+.dc-collection__body h2 {
+  margin: 3.2em 0 1.2em;
+  font-family: var(--dc-font-prose);
+  font-size: var(--dc-fs-ui-strong);
+  font-weight: 400;
+  text-align: center;
+  color: var(--dc-muted);
+}
+
+.dc-collection__body h2::before {
+  content: "· · ·";
+  display: block;
+  margin-bottom: 1.6em;
+  color: var(--dc-border);
+}
+
+.dc-collection__body h2:first-child {
+  margin-top: 0;
+}
+
+.dc-collection__body h2:first-child::before {
+  content: none;
+}
+
+.dc-collection__contents {
+  margin: 18px auto 0;
+  max-width: 46ch;
+  font-size: var(--dc-fs-meta);
+}
+
+.dc-collection__contents ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+
+.dc-collection__contents a {
+  color: var(--dc-muted);
+}
