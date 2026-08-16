@@ -1,0 +1,36 @@
+{{- /*
+The <img> for a dithered image, and nothing around it (T129, §30).
+
+The derivatives come from `scripts/dither-images.py` and are recorded in
+`data/dither.json`: one dithered PNG per rung of the ladder the layout that
+asks for the image publishes it at. They are published as they are — no resize,
+no WebP. A dither pattern is made of single pixels, so resampling or lossy
+compression destroys exactly the thing that was built.
+
+That is also why each rung is dithered from the source separately rather than
+scaled from another rung: the browser picks a rung close to what it needs, and
+whatever residual scaling remains stays gentle. `image-rendering` is left alone
+deliberately — `pixelated` sharpens an upscale but tears a downscale, and these
+images downscale far more often than they upscale.
+
+Call with a dict:
+  entry — the manifest entry for the image
+  alt   — alternative text
+  sizes — the `sizes` attribute
+  class — optional class for the <img>
+  attrs — optional pre-escaped attributes (loading, fetchpriority, …)
+*/ -}}
+{{- $entry := .entry -}}
+{{- $srcset := slice -}}
+{{- range $entry.variants -}}
+  {{- $resource := resources.Get .path -}}
+  {{- if not $resource -}}
+    {{- errorf "dithered image %q is in data/dither.json but not on disk — run scripts/dither-images.py" .path -}}
+  {{- end -}}
+  {{- $srcset = $srcset | append (printf "%s %dw" $resource.RelPermalink (int .width)) -}}
+{{- end -}}
+{{- /* The narrowest rung is the fallback, for the same reason as in
+       responsive-image.html: a browser without srcset is a small, slow one. */ -}}
+{{- $fallback := index $entry.variants 0 -}}
+{{- $class := .class | default "" -}}
+<img{{ with $class }} class="{{ . }}"{{ end }} src="{{ (resources.Get $fallback.path).RelPermalink }}" srcset="{{ delimit $srcset ", " }}" sizes="{{ .sizes }}" alt="{{ .alt }}" width="{{ int $fallback.width }}" height="{{ int $fallback.height }}" {{ .attrs }} decoding="async">

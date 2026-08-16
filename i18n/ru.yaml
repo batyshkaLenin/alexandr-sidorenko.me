@@ -30,3 +30,5 @@ minutesCount:
   few: "минуты"
   many: "минут"
   other: "минуты"
+imageOriginal:
+  other: "оригинал →"

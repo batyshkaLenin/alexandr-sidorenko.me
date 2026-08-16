@@ -79,22 +79,36 @@ system (T116); this is the migrated shape, not the target one.
   </section>
 
   <section class="dc-panel dc-panel--utility">
-    {{ partial "declassified/panel-label.html" "$ render --style=duotone" }}
+    {{ partial "declassified/panel-label.html" "$ render --style=dither" }}
     <div class="dc-panel__body dc-portrait-body">
       {{/* The alternative text describes the photograph, not just who is in
            it; it comes from the same data/authors.yaml entry the head uses. */}}
       {{/* The panel is the 300px column of .dc-home-row--identity; below the
            860px breakpoint it is the viewport minus 68px of fixed padding,
            measured at 344 CSS px inside a 412 px viewport (T66). */}}
-      {{ partial "responsive-image.html" (dict
-           "resource" (partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml"))
+      {{/* The portrait is dithered like any other photograph (§30.3), and by
+           the same pipeline rather than by a CSS filter: `.dc-duotone` came
+           from the sidorenko-tui mockup and made the treatment a decoration
+           applied on top of the image, which §30 exists to replace. The
+           derivatives are cropped square at build time, as the previous
+           `square` variants were, so the frame crops nothing twice. */}}
+      {{ $portrait := index hugo.Data.dither $owner.avatar }}
+      {{ if not $portrait }}
+        {{ errorf "portrait %q has no dithered derivative — run scripts/dither-images.py" $owner.avatar }}
+      {{ end }}
+      {{ partial "dithered-img.html" (dict
+           "entry" $portrait
            "alt" $owner.avatar_alt
            "sizes" "(max-width: 860px) calc(100vw - 68px), 300px"
-           "widths" (slice 320 640 848)
-           "square" true
-           "class" "dc-portrait dc-duotone"
+           "class" "dc-portrait"
            "attrs" (safeHTMLAttr `loading="lazy"`)) }}
       {{ with .Params.portrait_quote }}<p class="dc-portrait-quote">{{ . | safeHTML }}</p>{{ end }}
+      {{/* Same rule as in the prose column: a dithered image always has its
+           original one plain link away (§30.5). */}}
+      {{ $source := partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}
+      <p class="dc-portrait-original">
+        <a class="dc-figure__original" href="{{ ($source.Process "fill 848x848").RelPermalink }}">{{ i18n "imageOriginal" }}</a>
+      </p>
     </div>
   </section>
 

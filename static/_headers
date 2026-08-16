@@ -29,6 +29,11 @@
 /avatar_hu_*
   Cache-Control: public, max-age=31536000, immutable
 
+# The dithered portrait carries the digest of the photograph it came from, so
+# replacing the photograph replaces the address (T129).
+/avatar.dither-*
+  Cache-Control: public, max-age=31536000, immutable
+
 /assets/*.webp
   Cache-Control: public, max-age=31536000, immutable
 

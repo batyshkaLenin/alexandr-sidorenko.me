@@ -42,7 +42,25 @@ image eager or lazy depending on build order.
 {{- $loading := cond (eq .Ordinal 0) `fetchpriority="high"` `loading="lazy"` | safeHTMLAttr -}}
 {{- $sizes := "(max-width: 860px) calc(100vw - 86px), 760px" -}}
 {{- $widths := slice 400 600 800 1200 -}}
+{{- /*
+`image_style` (§30.4) is declared once per material and governs its images:
+
+  auto     — dither photographs, leave graphics as they are (§30.3)
+  dither   — dither everything, including what looks like a diagram
+  original — publish the photographs themselves
+
+`auto` needs no hand-labelling: scripts/dither-images.py measures how flat each
+image's colour field is and records `photo` or `graphic` in data/dither.json.
+An image the measurement gets wrong is what the other two values are for.
+*/ -}}
+{{- $style := default "auto" .Page.Params.image_style -}}
+{{- if not (in (slice "auto" "dither" "original") $style) -}}
+  {{- errorf "%s: image_style %q is not auto, dither or original" .Page.File.Path $style -}}
+{{- end -}}
 {{- $image := "" -}}
+{{- /* A dithered image brings its own <figure>, because the link to the
+       original belongs in the caption whether or not there is a caption. */ -}}
+{{- $wrapped := false -}}
 {{- if $external -}}
   {{- $image = printf `<img src="%s" alt="%s" %s decoding="async">` $src .Text $loading | safeHTML -}}
 {{- else -}}
@@ -50,14 +68,34 @@ image eager or lazy depending on build order.
     {{- errorf "%s: image %q must be a root-relative path — this site addresses images the same way it publishes them" .Page.File.Path $src -}}
   {{- end -}}
   {{- $resource := partial "image-resource.html" (dict "path" $src "context" .Page.File.Path) -}}
-  {{- $image = partial "responsive-image.html" (dict
-        "resource" $resource
-        "alt" .Text
-        "sizes" $sizes
-        "widths" $widths
-        "attrs" $loading) -}}
+  {{- $entry := index hugo.Data.dither $src -}}
+  {{- if and (eq $style "dither") (not $entry) -}}
+    {{- errorf "%s: image %q asks for dithering but has no derivative — run scripts/dither-images.py" .Page.File.Path $src -}}
+  {{- end -}}
+  {{- $dither := and $entry (or (eq $style "dither") (and (eq $style "auto") (eq $entry.kind "photo"))) -}}
+  {{- if $dither -}}
+    {{- /* The original opens at the top of the ladder rather than at the
+           source's full size: it is the same photograph, not an archive
+           master, and it is fetched only when someone asks for it. */ -}}
+    {{- $limit := math.Min $resource.Width (index (last 1 $widths) 0) -}}
+    {{- $image = partial "dithered-image.html" (dict
+          "entry" $entry
+          "alt" .Text
+          "sizes" $sizes
+          "attrs" $loading
+          "caption" .Title
+          "original" ($resource.Process (printf "resize %dx" (int $limit))).RelPermalink) -}}
+    {{- $wrapped = true -}}
+  {{- else -}}
+    {{- $image = partial "responsive-image.html" (dict
+          "resource" $resource
+          "alt" .Text
+          "sizes" $sizes
+          "widths" $widths
+          "attrs" $loading) -}}
+  {{- end -}}
 {{- end -}}
-{{ if .Title }}
+{{ if and .Title (not $wrapped) }}
 <figure class="dc-figure">
   {{ $image }}
   <figcaption>{{ .Title }}</figcaption>

@@ -1,0 +1,262 @@
+{
+  "/assets/library/23/die-asshole.jpg": {
+    "source": "2f909f6614b6338e",
+    "family": "amber",
+    "kind": "photo",
+    "variants": [
+      {
+        "width": 400,
+        "height": 300,
+        "path": "assets/library/23/die-asshole.dither-400.2f909f6614b6338e.png"
+      },
+      {
+        "width": 600,
+        "height": 451,
+        "path": "assets/library/23/die-asshole.dither-600.2f909f6614b6338e.png"
+      },
+      {
+        "width": 800,
+        "height": 601,
+        "path": "assets/library/23/die-asshole.dither-800.2f909f6614b6338e.png"
+      },
+      {
+        "width": 1200,
+        "height": 901,
+        "path": "assets/library/23/die-asshole.dither-1200.2f909f6614b6338e.png"
+      }
+    ]
+  },
+  "/assets/library/23/strange-hat.jpg": {
+    "source": "96bea0215188ce9d",
+    "family": "amber",
+    "kind": "photo",
+    "variants": [
+      {
+        "width": 400,
+        "height": 290,
+        "path": "assets/library/23/strange-hat.dither-400.96bea0215188ce9d.png"
+      },
+      {
+        "width": 600,
+        "height": 436,
+        "path": "assets/library/23/strange-hat.dither-600.96bea0215188ce9d.png"
+      },
+      {
+        "width": 800,
+        "height": 581,
+        "path": "assets/library/23/strange-hat.dither-800.96bea0215188ce9d.png"
+      }
+    ]
+  },
+  "/assets/library/bluredu-new-teachers/blurred-technologies.jpg": {
+    "source": "a0d149ac64325873",
+    "family": "neutral",
+    "kind": "photo",
+    "variants": [
+      {
+        "width": 400,
+        "height": 242,
+        "path": "assets/library/bluredu-new-teachers/blurred-technologies.dither-400.a0d149ac64325873.png"
+      },
+      {
+        "width": 600,
+        "height": 363,
+        "path": "assets/library/bluredu-new-teachers/blurred-technologies.dither-600.a0d149ac64325873.png"
+      },
+      {
+        "width": 800,
+        "height": 484,
+        "path": "assets/library/bluredu-new-teachers/blurred-technologies.dither-800.a0d149ac64325873.png"
+      },
+      {
+        "width": 1200,
+        "height": 726,
+        "path": "assets/library/bluredu-new-teachers/blurred-technologies.dither-1200.a0d149ac64325873.png"
+      }
+    ]
+  },
+  "/assets/library/bluredu-new-teachers/core-team.jpg": {
+    "source": "ae349b63798fc569",
+    "family": "warm",
+    "kind": "photo",
+    "variants": [
+      {
+        "width": 400,
+        "height": 225,
+        "path": "assets/library/bluredu-new-teachers/core-team.dither-400.ae349b63798fc569.png"
+      },
+      {
+        "width": 600,
+        "height": 338,
+        "path": "assets/library/bluredu-new-teachers/core-team.dither-600.ae349b63798fc569.png"
+      },
+      {
+        "width": 800,
+        "height": 450,
+        "path": "assets/library/bluredu-new-teachers/core-team.dither-800.ae349b63798fc569.png"
+      },
+      {
+        "width": 1200,
+        "height": 675,
+        "path": "assets/library/bluredu-new-teachers/core-team.dither-1200.ae349b63798fc569.png"
+      }
+    ]
+  },
+  "/assets/library/bluredu-new-teachers/many-students.jpg": {
+    "source": "3cf6b7511ce2a6be",
+    "family": "warm",
+    "kind": "photo",
+    "variants": [
+      {
+        "width": 400,
+        "height": 250,
+        "path": "assets/library/bluredu-new-teachers/many-students.dither-400.3cf6b7511ce2a6be.png"
+      },
+      {
+        "width": 600,
+        "height": 375,
+        "path": "assets/library/bluredu-new-teachers/many-students.dither-600.3cf6b7511ce2a6be.png"
+      },
+      {
+        "width": 800,
+        "height": 499,
+        "path": "assets/library/bluredu-new-teachers/many-students.dither-800.3cf6b7511ce2a6be.png"
+      },
+      {
+        "width": 1200,
+        "height": 749,
+        "path": "assets/library/bluredu-new-teachers/many-students.dither-1200.3cf6b7511ce2a6be.png"
+      }
+    ]
+  },
+  "/assets/library/humility-and-open-mindedness/man-with-gun.jpg": {
+    "source": "135132dcf01e9568",
+    "family": "amber",
+    "kind": "photo",
+    "variants": [
+      {
+        "width": 400,
+        "height": 300,
+        "path": "assets/library/humility-and-open-mindedness/man-with-gun.dither-400.135132dcf01e9568.png"
+      },
+      {
+        "width": 600,
+        "height": 450,
+        "path": "assets/library/humility-and-open-mindedness/man-with-gun.dither-600.135132dcf01e9568.png"
+      },
+      {
+        "width": 800,
+        "height": 600,
+        "path": "assets/library/humility-and-open-mindedness/man-with-gun.dither-800.135132dcf01e9568.png"
+      },
+      {
+        "width": 1200,
+        "height": 900,
+        "path": "assets/library/humility-and-open-mindedness/man-with-gun.dither-1200.135132dcf01e9568.png"
+      }
+    ]
+  },
+  "/assets/library/philosophy-of-freedom/lenin.jpg": {
+    "source": "9de212c3dd70f771",
+    "family": "sky",
+    "kind": "photo",
+    "variants": [
+      {
+        "width": 400,
+        "height": 300,
+        "path": "assets/library/philosophy-of-freedom/lenin.dither-400.9de212c3dd70f771.png"
+      },
+      {
+        "width": 600,
+        "height": 450,
+        "path": "assets/library/philosophy-of-freedom/lenin.dither-600.9de212c3dd70f771.png"
+      },
+      {
+        "width": 800,
+        "height": 600,
+        "path": "assets/library/philosophy-of-freedom/lenin.dither-800.9de212c3dd70f771.png"
+      },
+      {
+        "width": 1200,
+        "height": 900,
+        "path": "assets/library/philosophy-of-freedom/lenin.dither-1200.9de212c3dd70f771.png"
+      }
+    ]
+  },
+  "/assets/library/regular-visitor/mattew-with-yamaha-46yo.jpg": {
+    "source": "c20bbba165be0818",
+    "family": "amber",
+    "kind": "photo",
+    "variants": [
+      {
+        "width": 400,
+        "height": 300,
+        "path": "assets/library/regular-visitor/mattew-with-yamaha-46yo.dither-400.c20bbba165be0818.png"
+      },
+      {
+        "width": 600,
+        "height": 450,
+        "path": "assets/library/regular-visitor/mattew-with-yamaha-46yo.dither-600.c20bbba165be0818.png"
+      },
+      {
+        "width": 800,
+        "height": 600,
+        "path": "assets/library/regular-visitor/mattew-with-yamaha-46yo.dither-800.c20bbba165be0818.png"
+      },
+      {
+        "width": 1200,
+        "height": 900,
+        "path": "assets/library/regular-visitor/mattew-with-yamaha-46yo.dither-1200.c20bbba165be0818.png"
+      }
+    ]
+  },
+  "/assets/library/skver/skver.jpg": {
+    "source": "5116b63bf24a3d03",
+    "family": "amber",
+    "kind": "photo",
+    "variants": [
+      {
+        "width": 400,
+        "height": 300,
+        "path": "assets/library/skver/skver.dither-400.5116b63bf24a3d03.png"
+      },
+      {
+        "width": 600,
+        "height": 450,
+        "path": "assets/library/skver/skver.dither-600.5116b63bf24a3d03.png"
+      },
+      {
+        "width": 800,
+        "height": 600,
+        "path": "assets/library/skver/skver.dither-800.5116b63bf24a3d03.png"
+      },
+      {
+        "width": 1200,
+        "height": 900,
+        "path": "assets/library/skver/skver.dither-1200.5116b63bf24a3d03.png"
+      }
+    ]
+  },
+  "/avatar.jpg": {
+    "source": "0d11c07de6221a0a",
+    "family": "amber",
+    "kind": "photo",
+    "variants": [
+      {
+        "width": 320,
+        "height": 320,
+        "path": "avatar.dither-320.0d11c07de6221a0a.png"
+      },
+      {
+        "width": 640,
+        "height": 640,
+        "path": "avatar.dither-640.0d11c07de6221a0a.png"
+      },
+      {
+        "width": 848,
+        "height": 848,
+        "path": "avatar.dither-848.0d11c07de6221a0a.png"
+      }
+    ]
+  }
+}

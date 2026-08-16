@@ -114,6 +114,13 @@ theme = 'declassified'
 [markup.goldmark.renderer]
   unsafe = false
 
+# An image alone on its line is a figure, and a <figure> inside a <p> is markup
+# no parser accepts: the browser closes the paragraph early and leaves an empty
+# one behind. Off, the hook receives .IsBlock = true and owns the block itself
+# (T129).
+[markup.goldmark.parser]
+  wrapStandAloneImageWithinParagraph = false
+
 # Chroma emits classes instead of inline style attributes. The default
 # (noClasses = true) would put a style="" on every token and force
 # 'unsafe-inline' into style-src — a wider CSP hole than the fonts

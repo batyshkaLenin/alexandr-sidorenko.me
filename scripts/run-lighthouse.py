@@ -465,8 +465,8 @@ def self_test() -> None:
     with tempfile.TemporaryDirectory(prefix="lighthouse-serve-") as raw:
         root = Path(raw)
         (root / "index.html").write_text("<!doctype html>root", encoding="utf-8")
-        (root / "creativity" / "skver").mkdir(parents=True)
-        (root / "creativity" / "skver" / "index.html").write_text("<!doctype html>page", encoding="utf-8")
+        (root / "library" / "skver").mkdir(parents=True)
+        (root / "library" / "skver" / "index.html").write_text("<!doctype html>page", encoding="utf-8")
         (root / "feed.xml").write_text("<rss/>", encoding="utf-8")
         with serve(root) as origin:
             host = urlsplit(origin).netloc

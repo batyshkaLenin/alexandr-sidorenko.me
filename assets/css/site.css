@@ -1088,6 +1088,75 @@
 }
 
 /*
+ * Figures and dithered images (§30). The image is a block in the prose column,
+ * and the caption line under it carries both the caption and the link to the
+ * full-colour original — the same line whether or not there is a caption, so
+ * the link always sits in one predictable place.
+ *
+ * Nothing here changes the box the image occupies: width and height come from
+ * the markup and `height: auto` from the theme, which is what keeps the
+ * dithered version from shifting anything as it loads (§45.3).
+ */
+.dc-figure {
+  /* Shrink to the image rather than to the column: a caption line stretched to
+     the full measure under a narrower image reads as belonging to the page,
+     not to the picture. */
+  width: fit-content;
+  max-width: 100%;
+  margin: 1.6em 0;
+}
+
+.dc-figure figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1em;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 0.5em;
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-muted);
+}
+
+/* `sizes` already gives the browser the layout width, so the image needs no
+   width of its own — only to stop being an inline box with a text baseline
+   under it. */
+.dc-image--dithered {
+  display: block;
+}
+
+/* The link is the only interactive part of a figure, so it reads as a command
+   rather than as a caption that happens to be blue. */
+.dc-figure__original {
+  flex: none;
+  margin-inline-start: auto;
+  color: var(--dc-primary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.dc-figure__original:hover,
+.dc-figure__original:focus-visible {
+  border-bottom-color: currentColor;
+}
+
+/* In the identity panel the link is the caption line of a figure that has no
+   caption: same type, same colour, same right edge. */
+.dc-portrait-original {
+  margin: 0;
+  font-size: var(--dc-fs-meta);
+  text-align: right;
+}
+
+@media print {
+  /* On paper the link goes nowhere, and the URL after it would be a line of
+     noise under every photograph. */
+  .dc-figure__original,
+  .dc-portrait-original {
+    display: none;
+  }
+}
+
+/*
  * Status Bar (§13.1). Pinned to the bottom edge, not scrolling with the
  * document — and paid for in layout, not stolen from it: the body reserves the
  * bar's height so the last line of a publication is never hidden underneath.

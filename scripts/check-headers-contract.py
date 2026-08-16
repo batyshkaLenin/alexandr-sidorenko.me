@@ -49,6 +49,7 @@ EXPECTED_CACHE = {
     "/css/*": IMMUTABLE,
     "/js/*": IMMUTABLE,
     "/avatar_hu_*": IMMUTABLE,
+    "/avatar.dither-*": IMMUTABLE,
     "/assets/*.webp": IMMUTABLE,
     "/assets/*.jpg": IMMUTABLE,
     "/assets/*.png": IMMUTABLE,
@@ -84,7 +85,17 @@ EXPECTED_CONTENT_TYPE = {
 HTML_EXPECTED = REVALIDATE
 
 # A URL may only claim immutable when its name carries a content hash.
-CONTENT_ADDRESSED = ("/css/*", "/js/*", "/avatar_hu_*", "/assets/*.webp", "/assets/*.jpg", "/assets/*.png")
+# A dithered derivative carries the digest of its source in the file name, so
+# the address changes with the photograph behind it (T129).
+CONTENT_ADDRESSED = (
+    "/css/*",
+    "/js/*",
+    "/avatar_hu_*",
+    "/avatar.dither-*",
+    "/assets/*.webp",
+    "/assets/*.jpg",
+    "/assets/*.png",
+)
 
 
 def parse_headers_file(text: str) -> tuple[dict[str, dict[str, str]], list[str]]:
