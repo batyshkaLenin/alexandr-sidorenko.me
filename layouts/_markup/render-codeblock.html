@@ -1,0 +1,67 @@
+{{- /*
+Both forms of code in a publication (§28.1, §28.2) are described here, so a
+fence decides which one it is by what it declares:
+
+  ```ts                      simple snippet — the code and nothing else
+  ```ts {file="src/user.ts"} rich block — file name, line numbers, language
+
+`caption` alone is enough to make a block rich too; a block that names itself
+in prose deserves the same frame as one that names a file.
+
+Highlighting stays server-side with Chroma classes (T50): the hook passes the
+author's own options through and only adds the numbering the rich form owes.
+Numbers go in a table so the column stays put while a long line scrolls under
+it — the scroll lives on the code cell, see `.dc-code__body` in site.css.
+*/ -}}
+{{- $file := .Attributes.file -}}
+{{- $caption := .Attributes.caption -}}
+{{- $rich := or $file $caption -}}
+{{- $options := .Options -}}
+{{- if $rich -}}
+  {{- $options = merge (dict "lineNos" true "lineNumbersInTable" true) $options -}}
+{{- end -}}
+{{- $code := transform.Highlight .Inner .Type $options -}}
+{{- /* A fence with no language, or one Chroma has no lexer for, comes back as
+       a bare <pre> — no container to frame, and in the rich form no numbers.
+       Rendering it as plain text gives both forms the same shape. */ -}}
+{{- if not (hasPrefix (string $code) `<div class="highlight">`) -}}
+  {{- $code = transform.Highlight .Inner "text" $options -}}
+{{- end -}}
+{{- if not $rich -}}
+{{ $code }}
+{{- else -}}
+{{- /* Chroma names lexers, but not in a form a reader wants to see; unknown
+       languages fall back to what the author wrote on the fence. */ -}}
+{{- $languages := dict
+      "bash" "Bash"
+      "css" "CSS"
+      "diff" "Diff"
+      "go" "Go"
+      "go-html-template" "Go HTML template"
+      "html" "HTML"
+      "javascript" "JavaScript"
+      "js" "JavaScript"
+      "json" "JSON"
+      "python" "Python"
+      "shell" "Shell"
+      "toml" "TOML"
+      "ts" "TypeScript"
+      "typescript" "TypeScript"
+      "yaml" "YAML" -}}
+{{- $language := index $languages (lower .Type) | default .Type -}}
+{{- $lines := len (split (strings.TrimRight "\n" .Inner) "\n") -}}
+{{- /* A <figure> takes one <figcaption>, and it belongs to the author's
+       caption; the file name is a header of the block itself. */ -}}
+<figure class="dc-code">
+  {{- with $file }}
+  <div class="dc-code__file">{{ . }}</div>
+  {{- end }}
+  <div class="dc-code__body">{{ $code }}</div>
+  <div class="dc-code__meta">
+    <span>{{ with $language }}{{ . }} · {{ end }}{{ $lines }}&nbsp;{{ i18n "linesCount" $lines }}</span>
+  </div>
+  {{- with $caption }}
+  <figcaption class="dc-code__caption">{{ . }}</figcaption>
+  {{- end }}
+</figure>
+{{- end -}}

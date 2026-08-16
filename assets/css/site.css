@@ -256,17 +256,29 @@
   /*
    * Site-level colour tokens (T111). The theme owns the base palette and the
    * type and redaction families; these are the values only this site uses.
-   * The syntax hues are today's values moved out of the rules verbatim —
-   * §28.3 rebalances them in T130, and naming them is what makes that a
-   * change in one place instead of forty.
+   *
+   * The syntax hues follow §28.3: every class the section names is told apart
+   * by hue, and none of them borrows the two colours the shell already spends
+   * — system green and link pink. Measured on --dc-bg, the lowest of them is
+   * the comment at 5.0:1, so the set carries AA at code size.
    */
   --syntax-comment: #6a8578;
-  --syntax-string: #39ff88;
-  --syntax-keyword: #ff2f6e;
+  --syntax-string: #6fc8a5;
+  --syntax-keyword: #d98fa6;
+  --syntax-type: #7aa7d4;
   --syntax-function: #93ad9f;
-  --syntax-number: #ff6b6b;
-  --syntax-punctuation: #6a8578;
+  --syntax-number: #d9a441;
+  --syntax-punctuation: #8fa89a;
   --syntax-property: #d7e6dc;
+
+  /* Diff carries neither of those colours either (§28.4), so the two states
+     are told apart by the +/- the source already has, by a rule in the gutter
+     and by backgrounds that stay distinct once the hue is gone: the inserted
+     line is about three times as light as the deleted one. */
+  --syntax-deleted-bg: #0f1412;
+  --syntax-deleted-rule: #40514a;
+  --syntax-inserted-bg: #1c2622;
+  --syntax-inserted-rule: #9ab4a6;
 
   --portrait-frame: #2a1420;
 }
@@ -774,9 +786,10 @@
   }
 }
 
-/* Code highlighting (T50). Chroma classes, colored with the mockup's token
-   palette (Sidorenko TUI.dc.html lines 27–33). Every color measures at least
-   4.8:1 on the code background, so the palette carries AA as-is. */
+/* Code (§28). A fence with no attributes is the simple snippet below; one that
+   names a file or carries a caption is the rich block further down. Both are
+   highlighted by Chroma on the build with classes, never inline styles (T50).
+   The two forms share the token colours and nothing else. */
 .dc-prose .highlight {
   background: var(--dc-bg);
   border: 1px solid var(--dc-border);
@@ -826,16 +839,20 @@
 .dc-prose .chroma .kd,
 .dc-prose .chroma .kn,
 .dc-prose .chroma .kp,
-.dc-prose .chroma .kr,
-.dc-prose .chroma .kt {
+.dc-prose .chroma .kr {
   color: var(--syntax-keyword);
 }
 
-/* function, class name */
-.dc-prose .chroma .nf,
-.dc-prose .chroma .fm,
+/* type, class, namespace */
+.dc-prose .chroma .kt,
 .dc-prose .chroma .nc,
 .dc-prose .chroma .nn {
+  color: var(--syntax-type);
+}
+
+/* function */
+.dc-prose .chroma .nf,
+.dc-prose .chroma .fm {
   color: var(--syntax-function);
 }
 
@@ -865,6 +882,180 @@
 .dc-prose .chroma .py,
 .dc-prose .chroma .nb {
   color: var(--syntax-property);
+}
+
+/* Diff (§28.4). The inline span covers the text; `:has()` carries the same
+   state across the rest of the line where the browser supports it, and where
+   it does not the line is still marked — by its own +/- and by the span. */
+.dc-prose .chroma .gd {
+  background: var(--syntax-deleted-bg);
+  box-shadow: -0.6em 0 0 0 var(--syntax-deleted-bg);
+}
+
+.dc-prose .chroma .gi {
+  background: var(--syntax-inserted-bg);
+  box-shadow: -0.6em 0 0 0 var(--syntax-inserted-bg);
+}
+
+.dc-prose .chroma .line:has(.gd),
+.dc-prose .chroma .line:has(.gi) {
+  display: block;
+  margin-inline: -0.6em;
+  padding-inline: 0.6em;
+  border-inline-start: 2px solid transparent;
+}
+
+.dc-prose .chroma .line:has(.gd) {
+  background: var(--syntax-deleted-bg);
+  border-inline-start-color: var(--syntax-deleted-rule);
+}
+
+.dc-prose .chroma .line:has(.gi) {
+  background: var(--syntax-inserted-bg);
+  border-inline-start-color: var(--syntax-inserted-rule);
+}
+
+/* Hunk header: neither state, and not code either. */
+.dc-prose .chroma .gu,
+.dc-prose .chroma .gh {
+  color: var(--syntax-comment);
+}
+
+/* A rich code block (§28.2) states the file it came from, numbers its lines
+   and signs itself with the language. The frame belongs to the figure, so the
+   highlight inside it drops the border and padding of the simple form. */
+.dc-prose .dc-code {
+  margin: 1.6em 0;
+  border: 1px solid var(--dc-border);
+  border-radius: 2px;
+  background: var(--dc-bg);
+}
+
+.dc-code__file,
+.dc-code__meta {
+  padding: 6px 12px;
+  font-family: var(--dc-font);
+  font-size: var(--dc-fs-meta);
+  line-height: var(--dc-lh-ui);
+  color: var(--dc-muted);
+}
+
+.dc-code__file {
+  border-bottom: 1px solid var(--dc-border);
+}
+
+/* The copy button is an enhancement the theme adds later (S23); the row is
+   laid out for it, and without JavaScript nothing sits in the empty half. */
+.dc-code__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1em;
+  align-items: baseline;
+  justify-content: space-between;
+  border-top: 1px solid var(--dc-border);
+  color: var(--dc-faint);
+}
+
+.dc-prose .dc-code .highlight {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: none;
+  overflow: visible;
+}
+
+/* Fixed layout keeps the numbers in their own column: the code cell takes the
+   rest and scrolls inside itself, so a long line moves under the numbers
+   instead of dragging them off the screen. */
+.dc-code .lntable {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.dc-code .lntable td {
+  padding: 10px 0;
+  vertical-align: top;
+}
+
+.dc-code .lntable td:first-child {
+  width: calc(4ch + 24px);
+  padding-inline: 12px;
+  border-right: 1px solid var(--dc-border);
+}
+
+.dc-code .lntable td:last-child pre {
+  padding-inline: 12px;
+  overflow-x: auto;
+}
+
+.dc-code .lnt {
+  color: var(--dc-faint);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.dc-code__caption {
+  margin: 0;
+  padding: 8px 12px;
+  border-top: 1px solid var(--dc-border);
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-muted);
+}
+
+@media print {
+  /* Paper is white and prints no backgrounds, so the screen's token colours
+     would arrive as pale ink on white. Code prints black, and the diff keeps
+     the two signals that never depended on colour: its own +/- and the rule
+     in the margin. */
+  .dc-prose .dc-code,
+  .dc-prose .highlight,
+  .dc-prose .dc-code__file,
+  .dc-prose .dc-code__meta,
+  .dc-prose .dc-code__caption,
+  .dc-prose .dc-code .lntable td:first-child {
+    border-color: #000;
+    color: #000;
+  }
+
+  /* The attribute selector is only here to outweigh the token rules above. */
+  .dc-prose .chroma span[class] {
+    color: #000;
+  }
+
+  /* Paper has no scrollbar to offer, so a long line wraps instead of being
+     cut off at the edge of a container nobody can move. Wrapping is why the
+     numbers go: they are a separate column, and one wrapped line would push
+     every number below it against the wrong line of code. */
+  .dc-prose .highlight,
+  .dc-code .lntable td:last-child pre {
+    overflow: visible;
+  }
+
+  .dc-code .lntable td:first-child {
+    display: none;
+  }
+
+  .dc-prose .highlight pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .dc-prose .chroma .gd,
+  .dc-prose .chroma .gi {
+    background: none;
+    box-shadow: none;
+  }
+
+  .dc-prose .chroma .line:has(.gd),
+  .dc-prose .chroma .line:has(.gi) {
+    background: none;
+    border-inline-start-color: #000;
+  }
+
+  .dc-prose .chroma .line:has(.gd) {
+    border-inline-start-style: dashed;
+  }
 }
 
 .dc-audio {

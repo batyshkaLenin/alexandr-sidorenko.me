@@ -109,6 +109,10 @@ English text checks Latin glyphs, punctuation, kerning, ligatures, and combinati
 
 Встроенный код: `const answer: number = 42;`.
 
+Код существует в двух видах (§28). Простой фрагмент — только код; подробный блок
+объявляет на ограде имя файла или подпись и получает имя файла сверху, номера
+строк и подпись языка внизу.
+
 ### TypeScript
 
 ```typescript
@@ -192,6 +196,34 @@ code {
 Этот блок не должен получать языковую подсветку.
 Он нужен для проверки фона, рамки, отступов и горизонтального скролла.
 Очень-длинная-строка-без-пробелов-для-проверки-overflow-x-и-поведения-контейнера-кода.
+```
+
+### Подробный блок
+
+```typescript {file="src/user.ts" caption="Подпись подробного блока: она нужна не всегда, а имя файла — почти всегда."}
+type User = {
+  id: string;
+  roles: readonly string[];
+};
+
+async function loadUser(id: string): Promise<User> {
+  const response = await fetch(`/api/users/${encodeURIComponent(id)}?include=roles&expand=permissions&locale=ru-RU`);
+
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+
+  return response.json() as Promise<User>;
+}
+```
+
+### Diff
+
+```diff
+ const value = items.filter(Boolean);
+-const result = oldFunction(value);
++const result = newFunction(value);
+ return result;
 ```
 
 ## Изображение

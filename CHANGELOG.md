@@ -60,7 +60,14 @@ is folded into the entry describing the finished behaviour rather than listed as
 - A cleanup service worker (`/sw.js`) that unregisters the old Workbox
   worker for returning visitors without touching Cache Storage.
 - Server-side syntax highlighting for code blocks (Hugo's own Chroma, no client
-  JavaScript and no external script), colored with the mockup's token palette.
+  JavaScript and no external script), colored so that every kind of token is
+  told apart without turning the block into a rainbow, and without borrowing
+  the two colours the interface already spends on system state and links. Code
+  comes in two forms: a plain snippet, and — when the fence names a file or
+  carries a caption — a block that shows the file name, numbers its lines and
+  signs itself with the language, with the numbers staying in place while a
+  long line scrolls under them. Added and removed lines of a diff are readable
+  in grayscale, by their own `+`/`-` and by a rule in the margin.
 - Heading anchors in publication bodies: reachable by keyboard, named for a
   screen reader, revealed on hover or focus.
 - A clock in the top bar, reading as a machine timestamp: ISO 8601 with the
