@@ -81,6 +81,8 @@ class UrlHtmlParser(HTMLParser):
         self.canonical: str | None = None
         self.og_url: str | None = None
         self.u_url: str | None = None
+        # Identity marker: only a publication carries one (T117).
+        self.u_uid: str | None = None
         self.json_ld: list[dict] = []
         self._in_json_ld = False
         self._json_ld_text: list[str] = []
@@ -106,6 +108,8 @@ class UrlHtmlParser(HTMLParser):
         # its own u-url (the author's homepage), not the entry's location.
         if tag == "a" and "u-url" in classes and self.u_url is None:
             self.u_url = attributes.get("href")
+        if tag == "data" and "u-uid" in classes and self.u_uid is None:
+            self.u_uid = attributes.get("value")
         if tag == "script" and attributes.get("type") == "application/ld+json":
             self._in_json_ld = True
             self._json_ld_text = []
@@ -283,7 +287,13 @@ def main() -> int:
         check(errors, expected in sitemap_locs, f"{name}: {expected!r} missing from sitemap.xml")
 
         section = name.parts[0] if len(name.parts) > 1 else ""
-        is_publication = section in PUBLICATION_SECTIONS and len(name.parts) == 3
+        # Identity, not location, says what a publication is: /library/all and
+        # /library/types are views of the library and carry no u-uid (T117).
+        is_publication = (
+            section in PUBLICATION_SECTIONS
+            and len(name.parts) == 3
+            and parsed.u_uid is not None
+        )
         if is_publication:
             check(errors, parsed.u_url == expected, f"{name}: u-url {parsed.u_url!r} != {expected!r}")
             check(errors, expected in all_rss_links, f"{name}: {expected!r} missing from RSS <link>")

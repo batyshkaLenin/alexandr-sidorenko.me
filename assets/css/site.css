@@ -1090,3 +1090,178 @@ body:has(.dc-statusbar) {
     object-position: center 30%;
   }
 }
+
+/*
+ * Library layout L4 → L5 → phone (§8). One arrangement of the same parts: on a
+ * wide screen the view list is a narrow rail beside the content, on a tablet it
+ * becomes a row of tabs above it, on a phone the same row wraps and the list
+ * stacks. The rail is deliberately light — §8.1 says it must never carry more
+ * visual weight than the content it filters.
+ */
+.dc-library {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.dc-library__views {
+  font-size: var(--dc-fs-meta);
+}
+
+.dc-library__views-list {
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Types and Topics are secondary (§6.2): same list, quieter. */
+.dc-library__views-list--secondary {
+  color: var(--dc-faint);
+  border-top: 1px solid var(--dc-border);
+  padding-top: 12px;
+}
+
+.dc-library__views a {
+  color: var(--dc-muted);
+  text-decoration: none;
+}
+
+.dc-library__views a:hover,
+.dc-library__views a:focus-visible {
+  color: var(--dc-text);
+  text-decoration: underline;
+}
+
+.dc-library__view--current a {
+  color: var(--dc-primary);
+}
+
+.dc-library__view--current::before {
+  content: "> ";
+  color: var(--dc-primary);
+}
+
+.dc-library__group {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 22px 0 8px;
+  font-size: var(--dc-fs-ui);
+  font-weight: 400;
+}
+
+.dc-library__count {
+  color: var(--dc-faint);
+  font-size: var(--dc-fs-meta);
+}
+
+@media (max-width: 1100px) {
+  .dc-library {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .dc-library__views {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 20px;
+  }
+
+  .dc-library__views-list {
+    flex-direction: row;
+    gap: 16px;
+    margin-bottom: 0;
+  }
+
+  .dc-library__views-list--secondary {
+    border-top: none;
+    border-inline-start: 1px solid var(--dc-border);
+    padding-top: 0;
+    padding-inline-start: 20px;
+  }
+}
+
+/*
+ * MaterialRow (§9). The title is the row: it is the largest text and the only
+ * link, and everything else sits under it in metadata size. Density changes
+ * what is shown, not the hierarchy — a dense row simply drops the excerpt.
+ */
+.dc-material-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dc-material {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--dc-border);
+}
+
+.dc-material:last-child {
+  border-bottom: none;
+}
+
+.dc-material__title {
+  margin: 0;
+  font-size: var(--dc-fs-ui-strong);
+  font-weight: 400;
+  line-height: var(--dc-lh-ui);
+}
+
+.dc-material__title a {
+  color: var(--dc-text);
+  text-decoration: none;
+}
+
+.dc-material__title a:hover,
+.dc-material__title a:focus-visible {
+  color: var(--dc-accent);
+  text-decoration: underline;
+}
+
+.dc-material__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 4px 0 0;
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-faint);
+}
+
+.dc-material__sep {
+  color: var(--dc-border);
+}
+
+.dc-material__marker {
+  color: var(--dc-muted);
+}
+
+.dc-material__excerpt {
+  margin: 6px 0 0;
+  color: var(--dc-muted);
+  font-size: var(--dc-fs-meta);
+  line-height: var(--dc-lh-ui);
+}
+
+/*
+ * A phone gets real tap targets: §44.3 asks for about 44×44 CSS px, and a
+ * 25px-tall link in a list of six is a miss waiting to happen. The title link
+ * becomes a block so its whole line is tappable, with padding making up the
+ * height difference.
+ */
+@media (max-width: 640px) {
+  .dc-material {
+    padding: 8px 0;
+  }
+
+  .dc-material__title a {
+    display: block;
+    padding: 10px 0;
+    min-height: 44px;
+  }
+}

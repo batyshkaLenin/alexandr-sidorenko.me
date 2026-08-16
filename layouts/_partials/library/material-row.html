@@ -1,0 +1,56 @@
+{{- /*
+MaterialRow — one material in a list. Title first, always (§9): the name is what
+a person scans for, and putting the date or the type ahead of it inverts the
+hierarchy the design system is explicit about.
+
+    {{ partial "library/material-row.html" (dict "page" $page "density" "rich") }}
+
+    rich   title, type, date, excerpt — Home recent, Library Recent, topic pages
+    dense  title, type, date, markers on one line — for scanning many at once
+
+One primitive, two densities, not two templates: the difference is what is
+shown, not how it is built.
+
+Capability markers come from the computed set (T108) and their glyphs from the
+symbol vocabulary (data/glyphs.yaml). No more than three appear — §18.5 asks for
+two or three, and only those useful to notice in advance. Each marker keeps a
+text name for the screen reader, because a sign is never the only carrier.
+
+Lives with the site rather than the theme for one reason: it reads the site's
+own content model (type families, capabilities). Moving it into the theme is a
+mechanical change once the theme owns that vocabulary too.
+*/ -}}
+{{- $page := .page -}}
+{{- $density := default "rich" .density -}}
+{{- $capabilities := partialCached "publication/capabilities.html" $page $page.RelPermalink -}}
+<li class="dc-material dc-material--{{ $density }} h-entry">
+  <h3 class="dc-material__title">
+    <a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
+  </h3>
+  <p class="dc-material__meta">
+    {{- with $page.Params.type -}}
+    <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>
+    {{- end -}}
+    <span class="dc-material__sep" aria-hidden="true">·</span>
+    {{ partial "publication/date.html" (dict "date" $page.Date "form" (cond (eq $density "dense") "iso" "long") "class" "dc-material__date dt-published") }}
+    {{- $shown := 0 -}}
+    {{- range $capabilities -}}
+      {{- $glyph := index (index hugo.Data.glyphs "capabilities") . -}}
+      {{- if and $glyph (lt $shown 3) -}}
+        {{- $shown = add $shown 1 -}}
+        <span class="dc-material__marker" title="{{ index $glyph "meaning" }}"><span aria-hidden="true">{{ index $glyph "glyph" }}</span><span class="dc-visually-hidden">{{ index $glyph "text" }}</span></span>
+      {{- end -}}
+    {{- end -}}
+  </p>
+  {{- range $page.Params.authors }}
+    {{- $authorKey := . -}}
+    {{- with index hugo.Data.authors $authorKey }}
+    <data class="p-author" value="{{ .name }}" hidden></data>
+    {{- else }}
+    {{- errorf "%s: unknown author key %q (see data/authors.yaml)" $page.File.Path $authorKey -}}
+    {{- end }}
+  {{- end }}
+  {{- if eq $density "rich" }}
+  <p class="dc-material__excerpt p-summary">{{ partial "publication/summary.txt" $page }}</p>
+  {{- end }}
+</li>

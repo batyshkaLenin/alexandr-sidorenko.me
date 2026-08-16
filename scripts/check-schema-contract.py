@@ -54,7 +54,10 @@ class PageParser(HTMLParser):
         if tag == "script" and attributes.get("type") == "application/ld+json":
             self._in_ld = True
             self.blocks.append("")
-        elif tag == "h2" and "dc-list__title" in (attributes.get("class") or ""):
+        elif tag in ("h2", "h3") and any(
+            marker in (attributes.get("class") or "")
+            for marker in ("dc-list__title", "dc-material__title")
+        ):
             self._list_title_depth = 1
         elif tag == "a" and self._list_title_depth:
             self.list_links.append(attributes.get("href") or "")
@@ -62,7 +65,7 @@ class PageParser(HTMLParser):
     def handle_endtag(self, tag: str) -> None:
         if tag == "script":
             self._in_ld = False
-        elif tag == "h2":
+        elif tag in ("h2", "h3"):
             self._list_title_depth = 0
 
     def handle_data(self, data: str) -> None:

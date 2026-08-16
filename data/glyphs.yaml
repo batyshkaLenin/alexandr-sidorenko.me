@@ -47,18 +47,29 @@ structure:
     text: "поиск"
 
 capabilities:
-  "♪":
+  # Keyed by the capability itself (T108 computes those names), so a row can go
+  # from "this material has audio" to its marker without a second lookup table.
+  audio:
+    glyph: "♪"
     meaning: "есть аудио"
     text: "has:audio"
-  "ƒ":
+  math:
+    glyph: "ƒ"
     meaning: "есть математика"
     text: "has:math"
-  "<>":
+  code:
+    glyph: "<>"
     meaning: "есть код"
     text: "has:code"
-  "▣":
-    meaning: "есть изображения или галерея"
+  image:
+    glyph: "▣"
+    meaning: "есть изображения"
     text: "has:image"
-  "▶":
+  gallery:
+    glyph: "▣"
+    meaning: "есть галерея"
+    text: "has:gallery"
+  video:
+    glyph: "▶"
     meaning: "есть видео"
     text: "has:video"

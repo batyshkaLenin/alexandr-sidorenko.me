@@ -369,6 +369,46 @@
         "name": "Александр Сидоренко",
         "url": "https://alexandr-sidorenko.me/"
       }
+    },
+    {
+      "html": "library/all/index.html",
+      "blocks": [
+        "BreadcrumbList"
+      ],
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
+        ],
+        [
+          "Все материалы",
+          "https://alexandr-sidorenko.me/library/all"
+        ]
+      ]
+    },
+    {
+      "html": "library/types/index.html",
+      "blocks": [
+        "BreadcrumbList"
+      ],
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
+        ],
+        [
+          "Типы",
+          "https://alexandr-sidorenko.me/library/types"
+        ]
+      ]
     }
   ],
   "pages_without_structured_data": [

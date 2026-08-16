@@ -25,6 +25,12 @@ shortcuts have no keyboard to come from (§13.3).
   {{- if eq .Section "library" -}}
     {{- $mode = cond (eq .Params.type "track") "PLAY" "READ" -}}
     {{- $state = partial "publication/type-label.html" (dict "type" .Params.type "page" .) -}}
+  {{- else if .Params.view -}}
+    {{- /* A Library view counts what it lists — the same static fact the
+    section itself reports (§13.4). */ -}}
+    {{- $materials := where site.RegularPages "Section" "library" -}}
+    {{- $mode = cond (eq .Params.view "types") "TYPES" "INDEX" -}}
+    {{- $state = printf "%d %s" (len $materials) (i18n "materialsCount" (len $materials)) -}}
   {{- end -}}
 {{- else if and (eq .Kind "section") (eq .Section "library") -}}
   {{- $mode = "LIBRARY" -}}

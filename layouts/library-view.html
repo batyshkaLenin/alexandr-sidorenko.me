@@ -1,0 +1,43 @@
+{{- /*
+A Library view (§6.2). Recent lives on /library itself; All and Types are their
+own addresses, because a view a visitor can link to is worth an address — and
+because switching them without JavaScript means following a link.
+
+The view chooses the density: All is for scanning (dense), Types groups the
+same rows under headings. Neither invents its own row markup — both call
+MaterialRow.
+*/ -}}
+{{ define "main" }}
+{{ $materials := where site.RegularPages "Section" "library" }}
+<div class="dc-library">
+  {{ partial "library/views-nav.html" . }}
+  <section class="dc-panel dc-panel--primary dc-panel--doc">
+    {{ partial "declassified/panel-label.html" (printf "$ ls ~/library --%s" .Params.view) }}
+    <h1 class="dc-section-title">{{ .Title }}</h1>
+    {{ with .Content }}<div class="dc-panel__body dc-prose">{{ . }}</div>{{ end }}
+    <div class="dc-panel__body">
+      {{ if eq .Params.view "types" }}
+        {{ range $materials.GroupByParam "type" }}
+        {{ $type := .Key }}
+        {{ $group := .Pages }}
+        <h2 class="dc-library__group">
+          <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" $type }}">{{ partial "publication/type-label.html" (dict "type" $type "page" (index $group 0)) }}</span>
+          <span class="dc-library__count">{{ len $group }}</span>
+        </h2>
+        <ul class="dc-material-list dc-material-list--dense h-feed">
+          {{ range $group.ByDate.Reverse }}
+          {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+          {{ end }}
+        </ul>
+        {{ end }}
+      {{ else }}
+        <ul class="dc-material-list dc-material-list--dense h-feed">
+          {{ range $materials.ByDate.Reverse }}
+          {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+          {{ end }}
+        </ul>
+      {{ end }}
+    </div>
+  </section>
+</div>
+{{ end }}

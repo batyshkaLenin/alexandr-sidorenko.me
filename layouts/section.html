@@ -5,51 +5,37 @@ for the publication/summary.txt partial, which the generic theme fallback
 can't know to use.
 */ -}}
 {{ define "main" }}
-<section class="dc-panel dc-panel--primary dc-panel--doc">
-  {{ partial "declassified/panel-label.html" (printf "$ ls ~/%s" .Section) }}
-  {{/* Feed paths come from .OutputFormats, never written out by hand, so the
-       section's own feeds stay correct if an output format is renamed. */}}
-  <div class="dc-section-head">
-    <h1 class="dc-section-title">{{ .Title }}</h1>
-    <p class="dc-section-feeds">
-      {{- with .OutputFormats.Get "rss" }}<a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">rss</a>{{ end }}
-      {{- with .OutputFormats.Get "jsonfeed" }}<a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">json feed</a>{{ end }}
-    </p>
-  </div>
-  {{ with .Content }}
-  <div class="dc-panel__body dc-prose">{{ . }}</div>
-  {{ end }}
-  <div class="dc-panel__body">
-    <ul class="dc-list h-feed">
-      {{ range .Pages.ByDate.Reverse }}
-      {{ $page := . }}
-      {{ $type := $page.Params.type }}
-      <li class="dc-list__item h-entry">
-        {{ with $type }}
-        <p class="dc-list__meta">
-          <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>
-        </p>
+{{- /*
+Library, Recent view (§6.2, §9.1). The rich list: title first, then type, date
+and markers, then an excerpt where it helps. The other views live at their own
+addresses and share the same MaterialRow — the density changes, the hierarchy
+does not.
+*/ -}}
+<div class="dc-library">
+  {{ partial "library/views-nav.html" . }}
+  <section class="dc-panel dc-panel--primary dc-panel--doc">
+    {{ partial "declassified/panel-label.html" (printf "$ ls ~/%s" .Section) }}
+    {{/* Feed paths come from .OutputFormats, never written out by hand, so the
+         section's own feeds stay correct if an output format is renamed. */}}
+    <div class="dc-section-head">
+      <h1 class="dc-section-title">{{ .Title }}</h1>
+      <p class="dc-section-feeds">
+        {{- with .OutputFormats.Get "rss" }}<a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">rss</a>{{ end }}
+        {{- with .OutputFormats.Get "jsonfeed" }}<a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">json feed</a>{{ end }}
+      </p>
+    </div>
+    {{ with .Content }}
+    <div class="dc-panel__body dc-prose">{{ . }}</div>
+    {{ end }}
+    <div class="dc-panel__body">
+      <ul class="dc-material-list h-feed">
+        {{ range .Pages.ByDate.Reverse }}
+        {{ partial "library/material-row.html" (dict "page" . "density" "rich") }}
+        {{ else }}
+        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
         {{ end }}
-        <h2 class="dc-list__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a></h2>
-        {{ range $page.Params.authors }}
-          {{ $authorKey := . }}
-          {{ with index hugo.Data.authors $authorKey }}
-          <data class="p-author" value="{{ .name }}" hidden></data>
-          {{ else }}
-          {{ errorf "%s: unknown author key %q (see data/authors.yaml)" $page.File.Path $authorKey }}
-          {{ end }}
-        {{ end }}
-        {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-list__date dt-published") }}
-        <p class="dc-list__excerpt p-summary">{{ partial "publication/summary.txt" $page }}</p>
-        {{/* Visual affordance only: the title above is already the link, and a
-             second anchor to the same address just repeats itself to a screen
-             reader. */}}
-        <span class="dc-list__read" aria-hidden="true">read →</span>
-      </li>
-      {{ else }}
-      <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
-      {{ end }}
-    </ul>
-  </div>
-</section>
+      </ul>
+    </div>
+  </section>
+</div>
 {{ end }}

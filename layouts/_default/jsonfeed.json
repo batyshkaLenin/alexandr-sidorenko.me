@@ -1,5 +1,5 @@
 {{- $items := slice }}
-{{- range .RegularPagesRecursive.ByDate.Reverse }}
+{{- range (where .RegularPagesRecursive "Section" "library").ByDate.Reverse }}
   {{- $authors := slice }}
   {{- range .Params.authors }}
     {{- with index hugo.Data.authors . }}

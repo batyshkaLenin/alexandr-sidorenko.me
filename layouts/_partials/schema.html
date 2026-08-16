@@ -47,8 +47,12 @@ that vocabulary for navigation long ago.
 {{ with $parts }}{{ $json = merge $json (dict (cond $isBlog "blogPost" "hasPart") .) }}{{ end }}
 <script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>
 <script type="application/ld+json">{{ partial "schema/breadcrumb.html" . | jsonify (dict "indent" "  ") | safeJS }}</script>
-{{ else if eq .Kind "page" }}
+{{ else if and (eq .Kind "page") (eq .Section "library") }}
 {{ $json := merge (dict "@context" "https://schema.org") (partial "schema/publication.html" .) }}
 <script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>
+<script type="application/ld+json">{{ partial "schema/breadcrumb.html" . | jsonify (dict "indent" "  ") | safeJS }}</script>
+{{ else if eq .Kind "page" }}
+{{/* A Library view is a page about the library, not a publication: it has no
+identity of its own and no author, so it gets the trail and nothing else. */}}
 <script type="application/ld+json">{{ partial "schema/breadcrumb.html" . | jsonify (dict "indent" "  ") | safeJS }}</script>
 {{ end }}
