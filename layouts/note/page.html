@@ -10,6 +10,7 @@ other family is the frame: title block, body, tail (§5.3).
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry">
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
   {{ partial "publication/title-block.html" (dict "page" . "created" false) }}
+  {{ partial "publication/audio-block.html" . }}
   <div class="dc-prose e-content">
     {{ .Content }}
   </div>

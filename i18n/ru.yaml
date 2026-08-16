@@ -32,3 +32,7 @@ minutesCount:
   other: "минуты"
 imageOriginal:
   other: "оригинал →"
+audioReading:
+  other: "Авторское чтение"
+videoCaptions:
+  other: "Субтитры"

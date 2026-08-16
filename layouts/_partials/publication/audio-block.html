@@ -1,0 +1,57 @@
+{{- /*
+An attached recording, in the two voices the design system gives it (T131).
+
+  form "reading"  §27.4 — the author reading inside a publication: one quiet
+                  line, `▶ Авторское чтение · 02:18`, and the native control
+                  below it, narrow enough not to outshout the text.
+  form "track"    §26.2 — the recording *is* the material, so the control gets
+                  the width of the column and the name comes from the
+                  Application Bar above it.
+
+Native controls are the baseline (§44.6) and nothing here autoplays. The custom
+transport of the mockups is `dc-audio-player`, an enhancement that belongs to
+S23; it can upgrade this markup without changing it.
+
+The player stays on the origin the reader opened: an absolute address here
+makes a preview build pull the file from the production domain (T65). The feed
+enclosure keeps its absolute form in audio.html.
+
+Call with a page, or with a dict:
+  page — the page whose `audio` entries to render
+  form — "reading" (default) or "track"
+*/ -}}
+{{- $page := . -}}
+{{- $form := "reading" -}}
+{{- if reflect.IsMap . -}}
+  {{- $page = .page -}}
+  {{- $form = default "reading" .form -}}
+{{- end -}}
+{{- range $index, $entry := $page.Params.audio }}
+{{- $url := $entry.src | relURL }}
+{{- /* The label is the publication's own: the entry's `label` if it has one,
+     otherwise the name §27.4 gives the block. The template never invents a
+     track title — on a Track Detail the material's own title is already
+     overhead, which is why that form shows no label at all. */ -}}
+{{- $label := $entry.label | default (cond (eq $form "track") $page.Title (i18n "audioReading")) }}
+{{- $meta := index hugo.Data.audio $entry.src }}
+{{- if not $meta }}
+  {{- errorf "%s: audio %q has no entry in data/audio.json — run scripts/audio-metadata.py" $page.File.Path $entry.src }}
+{{- end }}
+{{- $id := printf "dc-audio-%d" (add $index 1) }}
+<p class="dc-audio dc-audio--{{ $form }}">
+  {{- if eq $form "reading" }}
+  {{- /* The cue is decoration: the accessible name of the control is the label
+       and the duration, without a triangle read out as a glyph. */ -}}
+  <span class="dc-audio__label" id="{{ $id }}"><span class="dc-audio__cue" aria-hidden="true">▶</span>{{ $label }} · <span class="dc-audio__duration">{{ $meta.duration }}</span></span>
+  {{- end }}
+  <audio
+    controls
+    preload="none"
+    src="{{ $url }}"
+    {{ if eq $form "reading" }}aria-labelledby="{{ $id }}"{{ else }}aria-label="{{ $label }} · {{ $meta.duration }}"{{ end }}>
+    <a href="{{ $url }}">{{ $url }}</a>
+  </audio>
+  {{- /* Paper keeps the address instead of a dead control (research B8). */}}
+  <span class="dc-audio__print">аудио: {{ $label }} · {{ $meta.duration }} — {{ $url }}</span>
+</p>
+{{- end }}

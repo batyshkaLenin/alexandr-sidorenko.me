@@ -11,6 +11,7 @@ the tail. Art direction decides composition, not the contract.
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
   <div class="dc-poem__head">
     {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
+    {{ partial "publication/audio-block.html" . }}
   </div>
   <div class="dc-art__grid">
     {{ with .Params.cover }}

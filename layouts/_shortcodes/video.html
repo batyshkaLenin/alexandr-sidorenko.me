@@ -1,0 +1,92 @@
+{{- /*
+Video as a content primitive (§27.3), not an application: a poster, the native
+controls and a caption. Custom transport is an enhancement and belongs to S23;
+external embeds are impossible here anyway, because the external-resources ADR
+lets no third-party script onto a page.
+
+The poster is dithered and the playback is not — that is the whole of §27.3's
+rule about where the treatment applies. The poster therefore goes through the
+same manifest as every other photograph (`data/dither.json`, T129); a `<video>`
+takes a single poster address, so it gets one rung of the ladder rather than a
+srcset.
+
+Nothing preloads and nothing autoplays (§44.6): the file is fetched when the
+reader asks for it, and until then the poster is the only weight on the page.
+
+Parameters, named:
+  src      — site-absolute address of the video under `assets/`;
+  poster   — site-absolute address of the poster image;
+  caption  — the caption under the figure; also the accessible name;
+  captions — optional WebVTT track for the spoken content.
+
+Video lives under `assets/`, like images and unlike audio: it is a block inside
+a publication rather than a feed enclosure, so nothing needs its byte size off
+the source file, and a draft's video never reaches a production build.
+*/ -}}
+{{- $src := .Get "src" -}}
+{{- $poster := .Get "poster" -}}
+{{- $caption := .Get "caption" -}}
+{{- $captions := .Get "captions" -}}
+{{- if not $src -}}
+  {{- errorf "%s: video shortcode needs a src" .Page.File.Path -}}
+{{- end -}}
+{{- if not $poster -}}
+  {{- errorf "%s: video %q needs a poster — §27.3 has no posterless video" .Page.File.Path $src -}}
+{{- end -}}
+{{- if not $caption -}}
+  {{- errorf "%s: video %q needs a caption, which is also its accessible name" .Page.File.Path $src -}}
+{{- end -}}
+{{- $video := resources.Get (strings.TrimPrefix "/" $src) -}}
+{{- if not $video -}}
+  {{- errorf "%s: video %q has no file at assets%s" .Page.File.Path $src $src -}}
+{{- end -}}
+{{- $image := partial "image-resource.html" (dict "path" $poster "context" .Page.File.Path) -}}
+{{- /* The rung nearest the prose column, so the poster is neither a thumbnail
+       stretched to width nor a full-size photograph fetched to be shrunk. */ -}}
+{{- $width := 800 -}}
+{{- $entry := index hugo.Data.dither $poster -}}
+{{- $still := "" -}}
+{{- $height := 0 -}}
+{{- if and $entry (eq $entry.kind "photo") -}}
+  {{- range $entry.variants -}}
+    {{- if eq (int .width) $width -}}
+      {{- $still = (resources.Get .path).RelPermalink -}}
+      {{- $height = int .height -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $still -}}
+  {{- $scaled := $image.Process (printf "resize %dx" $width) -}}
+  {{- $still = $scaled.RelPermalink -}}
+  {{- $height = $scaled.Height -}}
+{{- end -}}
+<figure class="dc-figure dc-figure--video">
+  <video
+    class="dc-video"
+    controls
+    preload="none"
+    playsinline
+    poster="{{ $still }}"
+    width="{{ $width }}"
+    height="{{ $height }}"
+    aria-label="{{ $caption }}">
+    <source src="{{ $video.RelPermalink }}" type="{{ $video.MediaType.Type }}">
+    {{- with $captions }}
+    {{- $track := resources.Get (strings.TrimPrefix "/" .) }}
+    {{- if not $track }}{{ errorf "%s: captions %q have no file at assets%s" $.Page.File.Path . . }}{{ end }}
+    <track kind="captions" src="{{ $track.RelPermalink }}" srclang="{{ $.Page.Language.Lang }}" label="{{ i18n "videoCaptions" }}" default>
+    {{- end }}
+    <a href="{{ $video.RelPermalink }}">{{ $video.RelPermalink }}</a>
+  </video>
+  {{- /* Paper prints no video element at all — a `<video>` there is an empty
+       rectangle where the poster should be. These two carry it instead: the
+       poster as an ordinary image, and the address, the same trade the audio
+       block makes (research B8). Both are `hidden` until the print
+       stylesheet asks for them, and the poster is the file the element above
+       already fetched. */ -}}
+  <img class="dc-video__still" src="{{ $still }}" width="{{ $width }}" height="{{ $height }}" alt="" aria-hidden="true" hidden>
+  <figcaption>
+    <span class="dc-figure__caption">{{ $caption }}</span>
+    <span class="dc-video__print" hidden>видео: {{ $video.RelPermalink }}</span>
+  </figcaption>
+</figure>

@@ -35,6 +35,12 @@ produce them exist (S22), rather than being guessed from prose.
   {{- $capabilities = $capabilities | append "audio" -}}
 {{- end -}}
 
+{{- /* video: the block of §27.3, which is the only thing that puts a <video>
+     on a page — external embeds are impossible under the resources ADR. */ -}}
+{{- if strings.Contains $content "<video" -}}
+  {{- $capabilities = $capabilities | append "video" -}}
+{{- end -}}
+
 {{- /* code: Chroma wraps every highlighted block in .highlight; a bare
      inline `code` span is prose, not a code capability. */ -}}
 {{- if or (strings.Contains $content "<pre") (strings.Contains $content "class=\"highlight\"") -}}

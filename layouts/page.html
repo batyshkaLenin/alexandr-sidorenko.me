@@ -17,7 +17,7 @@ already live in the Application Bar (§12, §14.2).
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry">
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
   {{ partial "publication/title-block.html" (dict "page" .) }}
-  {{ partial "publication/audio-player.html" . }}
+  {{ partial "publication/audio-block.html" . }}
   <div class="dc-prose e-content">
     {{ .Content }}
   </div>

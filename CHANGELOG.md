@@ -23,6 +23,13 @@ is folded into the entry describing the finished behaviour rather than listed as
   preserved in page HTML and in feeds alike, and a body image declares its real
   dimensions so the text below it does not jump while it loads — one pointing
   at a file that isn't there fails the build instead of shipping without them.
+- Attached recordings state how long they run before anyone presses play, and
+  an author reading inside a publication now looks like what it is — one quiet
+  line, `▶ Авторское чтение · 02:18`, and a control that stops short of the
+  text column instead of spanning it. Nothing preloads and nothing autoplays.
+- Video as a block inside a publication: a dithered poster, the browser's own
+  controls, optional captions and a caption line. It needs no JavaScript and
+  loads nothing until the reader asks for it.
 - Footer social links and an environment-aware `robots.txt` that disallows
   crawling outside production builds.
 - Cloudflare Workers Static Assets preview deployment.
@@ -108,7 +115,9 @@ is folded into the entry describing the finished behaviour rather than listed as
   same address.
 - Printing a publication now yields the publication: no shell header with its
   live clock, no navigation, no footer, no command labels. A page with audio
-  prints the track name and its address in place of the dead player control.
+  prints the recording's name, its length and its address in place of the dead
+  player control, and a video prints its poster and address instead of the
+  empty rectangle a `<video>` leaves on paper.
 - The 404 response speaks the site's own language: `$ cd ./unknown`,
   `404: bash: cd: no such file or directory`, and a `$ ls /` list of the root
   sections built from the main menu.

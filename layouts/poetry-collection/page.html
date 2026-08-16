@@ -18,7 +18,7 @@ climbs it.
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
   <div class="dc-poem__head">
     {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
-    {{ partial "publication/audio-player.html" . }}
+    {{ partial "publication/audio-block.html" . }}
   </div>
   {{ if ge $works 3 }}
   {{- /* Only a long collection gets a list: with two works it is furniture. */ -}}

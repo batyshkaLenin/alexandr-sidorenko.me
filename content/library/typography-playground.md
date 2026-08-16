@@ -8,6 +8,9 @@ authors: ["batyshkaLenin"]
 id: "01a00aea-44db-7086-9b1c-c38f325632b6"
 type: "article"
 tags: []
+audio:
+  - src: "/assets/library/regular-visitor/Постоянщик.mp3"
+    type: "audio/mpeg"
 ---
 
 Короткий лид статьи. Здесь проверяются **полужирное начертание**, *курсив*, ***полужирный курсив***, ~~зачёркнутый текст~~, `inline code` и [обычная ссылка](https://gohugo.io/).
@@ -231,6 +234,14 @@ async function loadUser(id: string): Promise<User> {
 ![Команда Blurred Technologies в аудитории](/assets/library/bluredu-new-teachers/core-team.jpg "Подпись при наведении")
 
 *Подпись под изображением, оформленная обычным курсивом.*
+
+## Видео
+
+{{< video
+    src="/assets/library/typography-playground/sample.mp4"
+    poster="/assets/library/skver/skver.jpg"
+    captions="/assets/library/typography-playground/sample.vtt"
+    caption="Фикстура видео: дизеренный постер, штатные элементы управления, субтитры." >}}
 
 ## Сноски
 

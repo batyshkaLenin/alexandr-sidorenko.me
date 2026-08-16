@@ -14,6 +14,7 @@ Art-directed pieces get a custom layout instead of options here (T127).
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-fiction">
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
   {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
+  {{ partial "publication/audio-block.html" . }}
   <div class="dc-prose e-content dc-fiction__body">
     {{ .Content }}
   </div>

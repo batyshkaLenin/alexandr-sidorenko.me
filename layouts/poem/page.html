@@ -18,7 +18,7 @@ the gap between stanzas. One renderer, two rhythms — not two templates.
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
   <div class="dc-poem__head">
     {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
-    {{ partial "publication/audio-player.html" . }}
+    {{ partial "publication/audio-block.html" . }}
   </div>
   <div class="dc-prose e-content dc-poem__body">
     {{ .Content }}

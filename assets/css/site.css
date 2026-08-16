@@ -1066,8 +1066,43 @@
 }
 
 .dc-audio__label {
-  color: var(--dc-primary);
   font-size: var(--dc-fs-meta);
+}
+
+/* The author reading is a block inside a publication, not the publication
+   (§27.4): it says what it is and how long it runs, and then gets out of the
+   way. Two things keep it quieter than the Track Player — a muted label
+   instead of the system green, and a control that stops well short of the
+   text column instead of spanning it. */
+.dc-audio--reading {
+  gap: 4px;
+  margin: 1.6em 0;
+}
+
+.dc-audio--reading .dc-audio__label {
+  color: var(--dc-muted);
+}
+
+.dc-audio--reading .dc-audio__cue {
+  margin-inline-end: 0.2em;
+  color: var(--dc-faint);
+}
+
+.dc-audio--reading .dc-audio__duration {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Width only: the height of a native control is the browser's business, and
+   pinning it clips the buttons in engines whose transport is taller. */
+.dc-audio--reading audio {
+  width: 100%;
+  max-width: 320px;
+}
+
+/* On the Track Detail the recording is the material, so it keeps the width of
+   the column and the label the Application Bar already carries. */
+.dc-audio--track .dc-audio__label {
+  color: var(--dc-primary);
 }
 
 /* Paper keeps the address instead of a dead control (research B8). */
@@ -1077,8 +1112,8 @@
 }
 
 @media print {
-  /* The "$ play" label is interface too — on paper the fallback line below
-     already names the track and its address. */
+  /* A player is interface too — on paper the fallback line below already names
+     the recording, its length and its address. */
   .dc-audio audio,
   .dc-audio__label,
   .dc-section-feeds {
@@ -1087,6 +1122,43 @@
 
   .dc-audio__print {
     display: block;
+  }
+}
+
+/* Video (§27.3). The poster carries the dither and the playback does not, so
+   the element only has to stay inside the column and keep the box the poster's
+   own width and height already reserved for it. */
+.dc-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  background: var(--dc-bg);
+  border: 1px solid var(--dc-border);
+  border-radius: 2px;
+}
+
+.dc-figure--video {
+  width: 100%;
+}
+
+@media print {
+  /* A <video> prints as an empty box, so paper gets the poster and the
+     address instead of a frame nobody can play. */
+  .dc-video {
+    display: none;
+  }
+
+  .dc-video__still {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .dc-video__print {
+    display: block;
+    width: 100%;
+    font-size: var(--dc-fs-meta);
   }
 }
 

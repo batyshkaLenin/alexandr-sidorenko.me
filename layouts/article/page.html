@@ -19,6 +19,7 @@ a list of two links is furniture, not help.
   <div class="dc-article__head">
     {{ partial "publication/title-block.html" (dict "page" .) }}
     {{ with .Params.lead }}<p class="dc-article__lead">{{ . }}</p>{{ end }}
+    {{ partial "publication/audio-block.html" . }}
   </div>
   {{ if $toc }}
   {{- /* Two shapes of the same list, because a disclosure cannot be forced

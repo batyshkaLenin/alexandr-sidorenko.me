@@ -17,7 +17,7 @@ it is not what a reader came for.
   <div class="dc-track__head">
     {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
     <p class="dc-track__year">{{ partial "publication/date.html" (dict "date" .Date "form" "year") }}</p>
-    {{ partial "publication/audio-player.html" (dict "page" . "label" false) }}
+    {{ partial "publication/audio-block.html" (dict "page" . "form" "track") }}
   </div>
   <div class="dc-prose e-content dc-track__lyrics">
     {{ .Content }}
@@ -39,7 +39,12 @@ it is not what a reader came for.
     {{- $file := os.Stat (printf "static%s" .src) -}}
     {{- /* The extension, not the MIME subtype: a reader knows what MP3 is,
     "MPEG" only looks like a mistake. */ -}}
-    <span class="dc-track__file">{{ upper (strings.TrimPrefix "." (path.Ext .src)) }} · {{ lang.FormatNumber 1 (div (float $file.Size) 1048576) }} МБ</span>
+    {{- /* The player shows no duration of its own until it has loaded the
+    file, and it never loads one unasked (`preload="none"`), so the length is
+    stated here in text — §26.2 has it on the transport, §44.6 has it before
+    anyone presses play. */ -}}
+    {{- $meta := index hugo.Data.audio .src -}}
+    <span class="dc-track__file">{{ upper (strings.TrimPrefix "." (path.Ext .src)) }} · {{ $meta.duration }} · {{ lang.FormatNumber 1 (div (float $file.Size) 1048576) }} МБ</span>
     {{ end }}
     <span class="dc-track__published">{{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}</span>
     {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}

@@ -15,6 +15,7 @@ this block; the renderer never invents structure the material does not have.
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-paper">
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
   {{ partial "publication/title-block.html" (dict "page" .) }}
+  {{ partial "publication/audio-block.html" . }}
   {{ with .Params.abstract }}
   <section class="dc-paper__abstract" aria-labelledby="dc-abstract-title">
     <h2 id="dc-abstract-title" class="dc-paper__section-title">Аннотация</h2>
