@@ -25,10 +25,40 @@ from pathlib import Path
 
 SITE_ORIGIN = "https://alexandr-sidorenko.me/"
 UID_PATTERN = re.compile(
-    r"^https://alexandr-sidorenko\.me/id/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    r"^https://alexandr-sidorenko\.me/id/"
+    r"[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
 )
+# Retired identities are not part of the site yet: nothing has ever been
+# withdrawn. The ADR still asks that a retired id can never be handed out
+# again, so the set is read here and the intersection checked below; a missing
+# file means an empty set, not an error.
+TOMBSTONE_FILE = Path("data") / "tombstones.yaml"
+TOMBSTONE_LINE = re.compile(r'^\s*-?\s*id:\s*"?([0-9a-f-]{36})"?\s*$')
 UID_LINE = re.compile(r'^id:\s*"([^"]*)"\s*$')
+SLUG_LINE = re.compile(r'^slug:\s*"?([^"]*?)"?\s*$')
 DRAFT_LINE = re.compile(r"^draft:\s*true\s*$")
+
+
+def tombstone_ids(root: Path) -> set[str]:
+    """Ids of materials permanently withdrawn. Empty until the first one is."""
+    path = root / TOMBSTONE_FILE
+    if not path.exists():
+        return set()
+    found = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if match := TOMBSTONE_LINE.match(line):
+            found.add(match.group(1).lower())
+    return found
+
+
+def route(path: Path) -> str:
+    """The material's route: front matter `slug` when set, file name otherwise."""
+    for line in path.read_text(encoding="utf-8").splitlines()[1:]:
+        if line.strip() == "---":
+            break
+        if match := SLUG_LINE.match(line.strip()):
+            return match.group(1)
+    return path.stem
 
 
 def is_draft(path: Path) -> bool:
@@ -157,6 +187,8 @@ def main() -> int:
 
     errors: list[str] = []
     seen: dict[str, Path] = {}  # every uid, drafts included — uniqueness is global
+    slugs: dict[str, Path] = {}  # routes, drafts included, for the same reason
+    live_ids: set[str] = set()
     uids: dict[str, Path] = {}  # published only: these must agree with the output
     permalinks: dict[str, str] = {}
 
@@ -181,10 +213,22 @@ def main() -> int:
                 errors.append(f"{item_id}: uid {uid!r} duplicates {seen[uid]}")
                 continue
             seen[uid] = path
+            live_ids.add(material_id.lower())
+            # Two materials cannot claim one route.
+            slug = route(path)
+            if slug in slugs:
+                errors.append(f"{item_id}: slug {slug!r} duplicates {slugs[slug]}")
+            else:
+                slugs[slug] = path
             if is_draft(path):
                 continue
             uids[uid] = path
             permalinks[uid] = f"{SITE_ORIGIN}{section}/{path.stem}"
+
+    for retired in sorted(live_ids & tombstone_ids(root)):
+        errors.append(
+            f"id {retired!r} is live and tombstoned at once — a withdrawn id is never reissued"
+        )
 
     rss = rss_guids(public_dir)
     rss_perma = rss_guid_is_permalink(public_dir)

@@ -1,0 +1,46 @@
+{{- /*
+Two fatal build invariants over every material (T107, ADR
+redesign-material-identity-and-routing §8):
+
+    duplicate id   → build fail
+    duplicate slug → build fail
+
+They protect different things — `id` protects identity, `slug` protects the
+route — so neither substitutes for the other, and neither degrades to a
+warning. Missing or malformed values fail here too: `hugo new` writes a file
+whatever the archetype says (see T105), so the placeholders it leaves behind
+must not survive a build.
+
+Called once from the home template, which every build renders.
+*/ -}}
+{{- $uuid := `^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$` -}}
+{{- $ids := dict -}}
+{{- $slugs := dict -}}
+{{- range where site.RegularPages "Section" "library" -}}
+  {{- $path := .File.Path -}}
+
+  {{- $id := .Params.id -}}
+  {{- if not $id -}}
+    {{- errorf "%s: missing 'id' — create materials with scripts/new-material.py" $path -}}
+  {{- else if not (findRE $uuid $id) -}}
+    {{- errorf "%s: id %q is not a lowercase UUIDv7" $path $id -}}
+  {{- else if isset $ids $id -}}
+    {{- errorf "duplicate id %q: %s and %s — an id is issued once and never reused" $id (index $ids $id) $path -}}
+  {{- else -}}
+    {{- $ids = merge $ids (dict $id $path) -}}
+  {{- end -}}
+
+  {{- $type := .Params.type -}}
+  {{- if not $type -}}
+    {{- errorf "%s: missing 'type'" $path -}}
+  {{- else if not (isset hugo.Data.creative_types $type) -}}
+    {{- errorf "%s: unknown type %q (see data/creative_types.yaml)" $path $type -}}
+  {{- end -}}
+
+  {{- $slug := path.Base .RelPermalink -}}
+  {{- if isset $slugs $slug -}}
+    {{- errorf "duplicate slug %q: %s and %s — two materials cannot claim one route" $slug (index $slugs $slug) $path -}}
+  {{- else -}}
+    {{- $slugs = merge $slugs (dict $slug $path) -}}
+  {{- end -}}
+{{- end -}}
