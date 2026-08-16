@@ -252,6 +252,23 @@
   /* Georgia stays unadjusted before them: measured 99.99% of PT Serif. */
   --dc-font-prose: "PT Serif", Georgia, "PT Serif Fallback T",
     "PT Serif Fallback N", "Times New Roman", serif;
+
+  /*
+   * Site-level colour tokens (T111). The theme owns the base palette and the
+   * type and redaction families; these are the values only this site uses.
+   * The syntax hues are today's values moved out of the rules verbatim —
+   * §28.3 rebalances them in T130, and naming them is what makes that a
+   * change in one place instead of forty.
+   */
+  --syntax-comment: #6a8578;
+  --syntax-string: #39ff88;
+  --syntax-keyword: #ff2f6e;
+  --syntax-function: #93ad9f;
+  --syntax-number: #ff6b6b;
+  --syntax-punctuation: #6a8578;
+  --syntax-property: #d7e6dc;
+
+  --portrait-frame: #2a1420;
 }
 
 /* Serif is for reading a publication, not for the TUI chrome: only the body of
@@ -562,7 +579,7 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border: 1px solid #2a1420;
+  border: 1px solid var(--portrait-frame);
 }
 
 .dc-portrait-quote {
@@ -689,7 +706,7 @@
 .dc-prose .chroma .cs,
 .dc-prose .chroma .cp,
 .dc-prose .chroma .cpf {
-  color: #6a8578;
+  color: var(--syntax-comment);
   font-style: italic;
 }
 
@@ -708,7 +725,7 @@
 .dc-prose .chroma .sr,
 .dc-prose .chroma .s1,
 .dc-prose .chroma .ss {
-  color: #39ff88;
+  color: var(--syntax-string);
 }
 
 /* keyword */
@@ -718,7 +735,7 @@
 .dc-prose .chroma .kp,
 .dc-prose .chroma .kr,
 .dc-prose .chroma .kt {
-  color: #ff2f6e;
+  color: var(--syntax-keyword);
 }
 
 /* function, class name */
@@ -726,7 +743,7 @@
 .dc-prose .chroma .fm,
 .dc-prose .chroma .nc,
 .dc-prose .chroma .nn {
-  color: #93ad9f;
+  color: var(--syntax-function);
 }
 
 /* number, boolean */
@@ -738,14 +755,14 @@
 .dc-prose .chroma .mo,
 .dc-prose .chroma .il,
 .dc-prose .chroma .kc {
-  color: #ff6b6b;
+  color: var(--syntax-number);
 }
 
 /* punctuation, operator */
 .dc-prose .chroma .p,
 .dc-prose .chroma .o,
 .dc-prose .chroma .ow {
-  color: #6a8578;
+  color: var(--syntax-punctuation);
 }
 
 /* property, tag, attribute */
@@ -754,7 +771,7 @@
 .dc-prose .chroma .nv,
 .dc-prose .chroma .py,
 .dc-prose .chroma .nb {
-  color: #d7e6dc;
+  color: var(--syntax-property);
 }
 
 .dc-audio {
@@ -865,6 +882,20 @@
   text-transform: uppercase;
 }
 
+/* The colour is a second signal; the label itself already says the type
+   (§17.4), so nothing is lost in print, in grayscale or to a screen reader. */
+.dc-type--knowledge {
+  color: var(--dc-type-knowledge);
+}
+
+.dc-type--literary {
+  color: var(--dc-type-literary);
+}
+
+.dc-type--audio {
+  color: var(--dc-type-audio);
+}
+
 .dc-list__date {
   display: block;
   color: var(--dc-faint);
@@ -873,10 +904,12 @@
 }
 
 /* Redactions (S17): a long run of U+2588 carries no break opportunity and
-   would otherwise push past the column. It keeps the body text colour on
-   purpose — a redaction is part of the text, not decoration, and it prints
-   exactly as it reads. */
+   would otherwise push past the column. The colour comes from the redaction
+   family (§17.5), which sits above the background and below muted text — a
+   redaction is part of the text, not an alarm. The surface itself is still
+   Unicode blocks; T128 replaces them with a real textured primitive. */
 .dc-redacted {
   overflow-wrap: anywhere;
   letter-spacing: -0.5px;
+  color: var(--dc-redaction-flat);
 }

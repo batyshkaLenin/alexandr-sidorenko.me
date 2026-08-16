@@ -22,5 +22,18 @@ name and the contents.
 {{- if lt $len 1 -}}
   {{- errorf "%s: shortcode redacted needs len >= 1, got %q" .Position (.Get "len") -}}
 {{- end -}}
-{{- $blocks := strings.Repeat $len "█" -}}
-<span class="dc-redacted" role="img" aria-label="вымарано" data-redaction="{{ $id }}" data-redaction-rule="{{ $rule }}"><span aria-hidden="true">{{ $blocks }}</span></span>
+{{- /*
+The run carries the length of what was removed, not its shape, so it must be
+allowed to break across lines like the text around it: a redaction that can
+only sit unbroken pushes itself onto the next line and leaves a hole behind.
+<wbr> gives break opportunities without adding a single pixel of width.
+*/ -}}
+{{- $group := 4 -}}
+{{- $out := "" -}}
+{{- range $i := seq 1 $len -}}
+  {{- $out = printf "%s█" $out -}}
+  {{- if and (eq (mod $i $group) 0) (lt $i $len) -}}
+    {{- $out = printf "%s<wbr>" $out -}}
+  {{- end -}}
+{{- end -}}
+<span class="dc-redacted" role="img" aria-label="вымарано" data-redaction="{{ $id }}" data-redaction-rule="{{ $rule }}"><span aria-hidden="true">{{ $out | safeHTML }}</span></span>

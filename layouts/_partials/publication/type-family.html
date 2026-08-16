@@ -1,0 +1,10 @@
+{{- /*
+The colour family of a material type (§17.3): knowledge, literary or audio.
+Returns "" for a material without a type, so a caller can skip the class
+rather than emit an empty one.
+*/ -}}
+{{- with . -}}
+  {{- with index hugo.Data.creative_types . -}}
+    {{- .family -}}
+  {{- end -}}
+{{- end -}}

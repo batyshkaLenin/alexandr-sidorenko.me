@@ -27,7 +27,7 @@ can't know to use.
       <li class="dc-list__item h-entry">
         {{ with $type }}
         <p class="dc-list__meta">
-          <span class="dc-list__type">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>
+          <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>
         </p>
         {{ end }}
         <h2 class="dc-list__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a></h2>

@@ -9,7 +9,7 @@ value on a typo).
 {{- $page := .page -}}
 {{- with $type -}}
   {{- with index hugo.Data.creative_types . -}}
-    {{- . -}}
+    {{- .label -}}
   {{- else -}}
     {{- errorf "%s: unknown type %q (see data/creative_types.yaml)" $page.File.Path . -}}
   {{- end -}}

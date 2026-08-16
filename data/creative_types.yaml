@@ -3,10 +3,26 @@
 # machine spelling used in design documents, not a storage format.
 #
 # `album` is absent on purpose: it is a future type with no material behind it.
-note: "Заметка"
-article: "Статья"
-paper: "Научная работа"
-fiction: "Проза"
-poem: "Стих"
-poetry-collection: "Подборка стихов"
-track: "Трек"
+# `family` picks the colour token (§17.3): one hue per broad family, subtype
+# told by the label itself.
+note:
+  label: "Заметка"
+  family: knowledge
+article:
+  label: "Статья"
+  family: knowledge
+paper:
+  label: "Научная работа"
+  family: knowledge
+fiction:
+  label: "Проза"
+  family: literary
+poem:
+  label: "Стих"
+  family: literary
+poetry-collection:
+  label: "Подборка стихов"
+  family: literary
+track:
+  label: "Трек"
+  family: audio
