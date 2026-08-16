@@ -5,7 +5,7 @@ for the publication/summary.txt partial, which the generic theme fallback
 can't know to use.
 */ -}}
 {{ define "main" }}
-<section class="dc-panel dc-panel--doc">
+<section class="dc-panel dc-panel--primary dc-panel--doc">
   {{ partial "declassified/panel-label.html" (printf "$ ls ~/%s" .Section) }}
   {{/* Feed paths come from .OutputFormats, never written out by hand, so the
        section's own feeds stay correct if an output format is renamed. */}}

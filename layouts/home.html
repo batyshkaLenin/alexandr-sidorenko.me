@@ -23,7 +23,7 @@ system (T116); this is the migrated shape, not the target one.
     (dict "icon" "&gt;" "label" "about.md" "current" true)
     (dict "icon" "📁" "label" "library/" "url" ("/library" | relLangURL))
   }}
-  <section class="dc-panel">
+  <section class="dc-panel dc-panel--structural">
     {{ partial "declassified/panel-label.html" (printf "$ ls -la ~/site (%d)" (len $tree)) }}
     <div class="dc-panel__body">
       <ul class="dc-filetree">
@@ -45,7 +45,7 @@ system (T116); this is the migrated shape, not the target one.
   </section>
 
   {{ $owner := partial "authors/owner.html" . }}
-  <section class="dc-panel h-card">
+  <section class="dc-panel dc-panel--primary h-card">
     {{ partial "declassified/panel-label.html" "$ cat about.md" }}
     <div class="dc-panel__body dc-prose">
       {{/* Two visual lines, one name: the parts stay separate elements so
@@ -66,7 +66,7 @@ system (T116); this is the migrated shape, not the target one.
     </div>
   </section>
 
-  <section class="dc-panel">
+  <section class="dc-panel dc-panel--utility">
     {{ partial "declassified/panel-label.html" "$ render --style=duotone" }}
     <div class="dc-panel__body dc-portrait-body">
       {{/* The alternative text describes the photograph, not just who is in
@@ -90,7 +90,7 @@ system (T116); this is the migrated shape, not the target one.
 
 <div class="dc-home-row dc-home-row--recent">
 
-  <section class="dc-panel">
+  <section class="dc-panel dc-panel--primary">
     {{ partial "declassified/panel-label.html" "$ tail -n3 ~/library/*.md" }}
     <div class="dc-panel__body">
       <ul class="dc-list">
@@ -121,7 +121,7 @@ system (T116); this is the migrated shape, not the target one.
   it is empty, because the fetch failed or has never run, the panel falls back
   to the plain link it has always been. */ -}}
   {{ $track := (index (default dict hugo.Data.lastfm) "track") }}
-  <section class="dc-panel">
+  <section class="dc-panel dc-panel--utility">
     {{ partial "declassified/panel-label.html" "$ lastfm-cli --last-played" }}
     <div class="dc-panel__body">
       {{- with $track }}
