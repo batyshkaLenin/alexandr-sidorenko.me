@@ -1615,3 +1615,21 @@ body:has(.dc-statusbar) {
   content: counter(dc-paper-section) ". ";
   color: var(--dc-faint);
 }
+
+/*
+ * Fiction Reader (§23). A slightly narrower measure than an article — §18.3
+ * asks for ~55–65ch, because prose is read line by line rather than scanned —
+ * and metadata that waits until the end instead of standing between the title
+ * and the first sentence.
+ */
+.dc-fiction__body {
+  max-width: 58ch;
+}
+
+.dc-fiction__colophon {
+  margin: 28px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--dc-border);
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-faint);
+}

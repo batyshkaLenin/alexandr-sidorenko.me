@@ -1,0 +1,29 @@
+{{- /*
+Fiction Reader (§23). More book than article: the work opens the page, the
+metadata steps aside, there is no sidebar and no technical chrome around the
+text.
+
+The title block runs in its quiet form — identity stays (the feeds point at
+it), the dates move to the end. A lead is not offered at all: §23 says it is
+unnecessary when it breaks the work, and prose usually begins with its own
+first line.
+
+Art-directed pieces get a custom layout instead of options here (T127).
+*/ -}}
+{{ define "main" }}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-fiction">
+  {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
+  {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
+  <div class="dc-prose e-content dc-fiction__body">
+    {{ .Content }}
+  </div>
+  <footer class="dc-fiction__colophon">
+    {{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}
+    {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
+    {{ with .Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
+  </footer>
+  {{ partial "publication/tail.html" . }}
+</article>
+{{ partial "publication/webmentions.html" . }}
+{{ partial "publication/adjacent.html" . }}
+{{ end }}
