@@ -1,54 +1,58 @@
-# Перенесено из src/components/layout/Footer.tsx (footer: true, видимые
-# иконки) и src/components/Helmet/index.tsx (остальные rel=me — были
-# только в <head>, не в UI). Все — идентичность batyshkaLenin/
-# Александр Сидоренко. footer:true рендерится в подвале сайта;
-# полный список с rel:"me" пойдёт в <link rel="me"> в Фазе 4.
+# Identity of batyshkaLenin / Александр Сидоренко, moved here from the old
+# project. `visible: true` means the link is shown to a reader in the identity
+# block of the home page and carries rel=me there; the rest stay discoverable
+# through <link rel="me"> in <head>. Every entry is part of the approved set —
+# visibility decides where the link appears, not whether it counts.
+#
+# The flag used to be called `footer`, from a footer that no longer shows any
+# of these (T40); it named a place instead of a purpose and controlled nothing
+# after that (T116).
 
 - label: "GitHub"
   url: "https://github.com/batyshkaLenin"
   rel: "me"
-  footer: true
+  visible: true
 - label: "ВКонтакте"
   url: "https://vk.com/batyshkalenin"
   rel: "me"
-  footer: true
+  visible: true
 - label: "Twitter"
   url: "https://twitter.com/batyshkaLenin"
   rel: "me"
-  footer: true
+  visible: true
 - label: "Telegram"
   url: "https://t.me/batyshka_Lenin"
   rel: "me"
-  footer: true
+  visible: true
 - label: "Mastodon"
   url: "https://merveilles.town/@batyshkaLenin"
   rel: "me"
-  footer: false
+  visible: false
 - label: "LinkedIn"
   url: "https://www.linkedin.com/in/alexandr-sidorenko/"
   rel: "me"
-  footer: false
+  visible: false
 - label: "Хабр Карьера"
   url: "https://career.habr.com/batyshkalenin"
   rel: "me"
-  footer: false
+  visible: false
 - label: "TikTok"
   url: "https://www.tiktok.com/@batyshkalenin"
   rel: "me"
-  footer: false
+  visible: false
 - label: "hh.ru"
   url: "https://hh.ru/applicant/resumes/view?resume=6700a5c7ff0594c2ba0039ed1f425a6c4a7771"
   rel: "me"
-  footer: false
+  visible: false
 - label: "Instagram"
   url: "https://www.instagram.com/alexander_sidorenko/"
   rel: "me"
-  footer: false
+  visible: false
 - label: "Facebook"
   url: "https://www.facebook.com/sidorenko.alexandr"
   rel: "me"
-  footer: false
+  visible: false
 - label: "Steam"
   url: "https://steamcommunity.com/id/batyshkaLenin/"
   rel: "me"
-  footer: false
+  visible: false

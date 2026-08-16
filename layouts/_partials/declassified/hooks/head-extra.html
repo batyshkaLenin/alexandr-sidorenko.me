@@ -93,10 +93,13 @@ paint (.ai/research/s15-ab-measurement.md).
 <link rel="authorization_endpoint" href="https://indieauth.com/auth">
 <link rel="token_endpoint" href="https://tokens.indieauth.com/token">
 
-{{/* T40: full approved identity set — footer no longer shows any of these
-as visible <a>, so all of data/links.yaml needs a head-only <link> here. */}}
+{{/* The approved identity set (T40). A link the page already shows as a
+visible <a rel="me"> is not repeated here: rel=me discovery counts the union,
+and IndieWeb prefers the visible one. Home shows four of them (T116), so only
+there does this list get shorter. */}}
+{{ $home := .IsHome }}
 {{ range hugo.Data.links }}
-<link rel="me" href="{{ .url }}">
+{{ if not (and $home .visible) }}<link rel="me" href="{{ .url }}">{{ end }}
 {{ end }}
 {{ end }}
 

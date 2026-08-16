@@ -63,6 +63,18 @@ system (T116); this is the migrated shape, not the target one.
       {{ if or .Params.location .Params.since }}
       <p class="dc-hero-meta">{{ with .Params.location }}# location: {{ . }}{{ end }}{{ with .Params.since }}<span class="dc-hero-meta__gap"></span># since: {{ . }}{{ end }}</p>
       {{ end }}
+      {{/* Identity links a reader can actually follow. Until now all twelve
+           approved profiles existed only as <link rel="me"> in <head>: correct
+           for a parser, invisible to a person (T116, replacing the cancelled
+           T43). The four marked `visible` carry rel=me here instead of in the
+           head, so discovery counts them exactly once. */}}
+      {{ with where hugo.Data.links "visible" true }}
+      <ul class="dc-identity-links">
+        {{ range . }}
+        <li><a rel="me" href="{{ .url }}">{{ .label }}</a></li>
+        {{ end }}
+      </ul>
+      {{ end }}
     </div>
   </section>
 
@@ -121,22 +133,24 @@ system (T116); this is the migrated shape, not the target one.
   it is empty, because the fetch failed or has never run, the panel falls back
   to the plain link it has always been. */ -}}
   {{ $track := (index (default dict hugo.Data.lastfm) "track") }}
+  {{- /* A module with no data is not drawn (§16.2): an empty pane saying
+  "nothing here yet" spends a whole region to report the absence of a fact
+  nobody asked for. When the snapshot is missing — the fetch failed or never
+  ran — the pane simply is not there. */ -}}
+  {{- with $track }}
   <section class="dc-panel dc-panel--utility">
     {{ partial "declassified/panel-label.html" "$ lastfm-cli --last-played" }}
     <div class="dc-panel__body">
-      {{- with $track }}
       <p class="dc-lastfm-track">
         <a href="{{ .url }}" target="_blank" rel="noopener">{{ .artist }} — {{ .name }}</a>
       </p>
       <p class="dc-lastfm-note">
         слушал {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}, по данным Last.fm
       </p>
-      {{- else }}
-      <p class="dc-lastfm-note">{{ i18n "nothingHereYet" }}</p>
-      {{- end }}
       <a class="dc-lastfm-link" href="https://www.last.fm/user/batyshkaLenin" target="_blank" rel="noopener">last.fm/batyshkaLenin →</a>
     </div>
   </section>
+  {{- end }}
 
 </div>
 {{ end }}
