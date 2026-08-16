@@ -34,7 +34,7 @@ elsewhere; the prompt follows the address a visitor sees, not the folder. */ -}}
 {{- else -}}
   {{- $path = printf "~/%s" .Section -}}
 {{- end -}}
-<p class="dc-identity{{ if $isPublication }} dc-identity--reader{{ end }}">
+<p class="dc-identity{{ if $isPublication }} dc-identity--quiet{{ end }}">
   {{- if $isPublication -}}
     <span class="dc-identity__command">$ {{ $command }}</span>
   {{- else -}}

@@ -1,0 +1,33 @@
+{{- /*
+The title block every renderer starts from (§5.3: inherit, don't copy).
+
+    {{ partial "publication/title-block.html" (dict "page" . ) }}
+    {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
+
+`meta: false` keeps the heading and the identity but drops the metadata line —
+poetry and fiction want the work to open the page, not its dates (§23, §24.1).
+Identity is never dropped: it is what the feeds point at.
+
+cover is metadata only (og:image, JSON-LD image via head-extra.html and
+schema.html) — it is deliberately not rendered as a visible <img>; the only
+visible image is whatever the author put in the Markdown body.
+*/ -}}
+{{- $page := .page -}}
+{{- $meta := default true .meta -}}
+<h1 class="dc-title p-name">{{ $page.Title }}</h1>
+<data class="u-uid" value="{{ partial "publication/identity-uri.html" $page }}"></data>
+{{- if $meta }}
+<p class="dc-publication__meta">
+  <a class="u-url" href="{{ partial "canonical-url.html" $page.Permalink }}">
+    {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-list__date dt-published") }}
+  </a>
+  {{ with $page.Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>{{ end }}
+  {{ with $page.Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
+</p>
+{{ partial "byline.html" $page }}
+{{- else }}
+<a class="u-url dc-visually-hidden" href="{{ partial "canonical-url.html" $page.Permalink }}">
+  {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dt-published") }}
+</a>
+{{ partial "byline.html" $page }}
+{{- end }}

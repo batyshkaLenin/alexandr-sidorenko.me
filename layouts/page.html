@@ -1,41 +1,27 @@
 {{- /*
-Site override of the theme's generic page.html: material detail needs the
-byline/topics MF2 output contract (h-entry/p-category) the generic theme
-fallback doesn't and can't know about. cover is metadata-only (og:image,
-JSON-LD image via head-extra.html/schema.html) — it is intentionally not
-rendered as a visible <img> here; the only visible image is whatever the
-author put in the Markdown body itself, same as the legacy site.
+The publication foundation (§5). Every renderer family inherits this frame and
+changes only what it must; this file is also the fallback for a material whose
+type has no renderer of its own yet — a new type renders as readable text
+instead of failing the build.
 
-One renderer for every type until the renderer families arrive (S21): the
-type only decides the label and whether audio is offered, not the layout.
+Hugo picks the renderer by the material's `type`: a file at
+layouts/<type>/page.html applies to exactly that type and nothing else, so the
+selection needs no branching here and never looks at the source path (T106
+confirmed this by experiment). Renderer names stay internal — nothing on the
+page says "Article Reader" (§5.2).
+
+The pane title is the material's file, because the command and the way back
+already live in the Application Bar (§12, §14.2).
 */ -}}
 {{ define "main" }}
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry">
-  {{- /* The command and the way back belong to the Application Bar (§12); the
-  pane title says what this pane holds, which is the material's own file
-  (§14.2). Repeating either here would just say the same thing twice. */ -}}
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
-  <h1 class="dc-title p-name">{{ .Title }}</h1>
-  <data class="u-uid" value="{{ partial "publication/identity-uri.html" . }}"></data>
-  <p>
-    <a class="u-url" href="{{ partial "canonical-url.html" .Permalink }}">
-      {{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dc-list__date dt-published") }}
-    </a>
-    {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
-    {{ with .Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
-  </p>
-  {{ partial "byline.html" . }}
-
+  {{ partial "publication/title-block.html" (dict "page" .) }}
   {{ partial "publication/audio-player.html" . }}
   <div class="dc-prose e-content">
     {{ .Content }}
   </div>
-  {{ partial "publication/updated.html" . }}
-  {{ with .Params.tags }}
-  <ul class="tags">
-    {{ range . }}<li class="p-category">{{ . }}</li>{{ end }}
-  </ul>
-  {{ end }}
+  {{ partial "publication/tail.html" . }}
 </article>
 {{ partial "publication/webmentions.html" . }}
 {{ partial "publication/adjacent.html" . }}

@@ -287,7 +287,7 @@
 /* A publication lowers the shell's voice (§19): the command stays, the
    guest@host prefix goes, and the colour drops to muted so the page's own
    title is the loudest thing on screen. */
-.dc-identity--reader {
+.dc-identity--quiet {
   font-weight: 400;
   color: var(--dc-muted);
 }
