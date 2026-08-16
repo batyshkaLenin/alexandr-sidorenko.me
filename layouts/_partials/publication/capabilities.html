@@ -1,0 +1,55 @@
+{{- /*
+What a material contains, computed at build time (ADR
+redesign-content-model-identity-relations-capabilities, §4.3 of the design
+system). Capabilities are derived, never authored: the front matter says what
+a material *is* (`type`), the body says what it *has*.
+
+A capability never stands in for identity — a poem with the author reading it
+is still a POEM with `audio`.
+
+Returns a sorted slice. Call it through partialCached, keyed by the page, so
+one material is inspected once per build:
+
+    {{ partialCached "publication/capabilities.html" . .RelPermalink }}
+
+Only capabilities with a carrier in the current site are computed. `gallery`,
+`video`, `notation`, `bibliography` and `download` join when the blocks that
+produce them exist (S22), rather than being guessed from prose.
+*/ -}}
+{{- $content := .Content -}}
+{{- $capabilities := slice -}}
+
+{{- /* text: a material with a body. An empty stub has nothing to read. */ -}}
+{{- if gt (len (strings.TrimSpace (plainify $content))) 0 -}}
+  {{- $capabilities = $capabilities | append "text" -}}
+{{- end -}}
+
+{{- /* image: a picture inside the body. `cover` is metadata only (og:image),
+     never a visible image, so it deliberately does not count. */ -}}
+{{- if strings.Contains $content "<img" -}}
+  {{- $capabilities = $capabilities | append "image" -}}
+{{- end -}}
+
+{{- /* audio: an attached recording or a player in the body. */ -}}
+{{- if or .Params.audio (strings.Contains $content "<audio") -}}
+  {{- $capabilities = $capabilities | append "audio" -}}
+{{- end -}}
+
+{{- /* code: Chroma wraps every highlighted block in .highlight; a bare
+     inline `code` span is prose, not a code capability. */ -}}
+{{- if or (strings.Contains $content "<pre") (strings.Contains $content "class=\"highlight\"") -}}
+  {{- $capabilities = $capabilities | append "code" -}}
+{{- end -}}
+
+{{- /* math: MathML rendered at build time (T60). No client-side renderer is
+     allowed, so its absence here is the honest answer today. */ -}}
+{{- if strings.Contains $content "<math" -}}
+  {{- $capabilities = $capabilities | append "math" -}}
+{{- end -}}
+
+{{- /* footnotes: Goldmark emits one container per page. */ -}}
+{{- if strings.Contains $content "class=\"footnotes\"" -}}
+  {{- $capabilities = $capabilities | append "footnotes" -}}
+{{- end -}}
+
+{{- return sort $capabilities -}}

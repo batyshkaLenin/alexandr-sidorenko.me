@@ -21,6 +21,6 @@ this file cannot become the one place that publishes a trailing slash.
 {{ range $sections }}
 ## {{ .Title }}
 {{ range .Pages.ByDate.Reverse }}
-- [{{ .Title }}]({{ partial "canonical-url.html" .Permalink }}) — {{ partial "publication/type-label.html" (dict "type" .Params.type "page" .) }}{{ with partial "publication/summary.txt" . }}: {{ . }}{{ end }}
+- [{{ .Title }}]({{ partial "canonical-url.html" .Permalink }}) — {{ partial "publication/type-label.html" (dict "type" .Params.type "page" .) }}{{ range partialCached "publication/capabilities.html" . .RelPermalink }} has:{{ . }}{{ end }}{{ with partial "publication/summary.txt" . }}: {{ . }}{{ end }}
 {{- end }}
 {{ end -}}
