@@ -1,0 +1,50 @@
+{{- /*
+Article Reader (§21). A magazine-ish text: an optional lead, the body, and a
+table of contents that sits to the right on a wide screen and folds into
+<details> on a narrow one (§21.2).
+
+The TOC is a contextual utility, not a persistent left sidebar — §47.5 rejected
+that outright: the document must begin naturally, not look nested inside a file
+manager.
+
+A short article has no TOC at all. "Short" is decided by the material itself:
+fewer than three headings means the reader can see the whole shape already, and
+a list of two links is furniture, not help.
+*/ -}}
+{{ define "main" }}
+{{- $headings := len (findRE `<h[23]` .Content) -}}
+{{- $toc := ge $headings 3 -}}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-article{{ if $toc }} dc-article--with-toc{{ end }}">
+  {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
+  <div class="dc-article__head">
+    {{ partial "publication/title-block.html" (dict "page" .) }}
+    {{ with .Params.lead }}<p class="dc-article__lead">{{ . }}</p>{{ end }}
+  </div>
+  {{ if $toc }}
+  {{- /* Two shapes of the same list, because a disclosure cannot be forced
+  open by CSS: a wide screen has a column for the contents and shows them
+  outright, a narrow one folds them away so the article starts at the top
+  (§21.2). Only one is ever rendered — the other is display:none, which also
+  removes it from the accessibility tree, so a screen reader still meets a
+  single table of contents. */ -}}
+  <nav class="dc-toc dc-toc--column" aria-label="Содержание">
+    <p class="dc-toc__title">Содержание</p>
+    {{ .TableOfContents }}
+  </nav>
+  <nav class="dc-toc dc-toc--folded" aria-label="Содержание">
+    <details class="dc-toc__details">
+      <summary class="dc-toc__summary">Содержание</summary>
+      {{ .TableOfContents }}
+    </details>
+  </nav>
+  {{ end }}
+  <div class="dc-prose e-content dc-article__body">
+    {{ .Content }}
+  </div>
+  <div class="dc-article__tail">
+    {{ partial "publication/tail.html" . }}
+  </div>
+</article>
+{{ partial "publication/webmentions.html" . }}
+{{ partial "publication/adjacent.html" . }}
+{{ end }}

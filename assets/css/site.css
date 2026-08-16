@@ -1454,3 +1454,112 @@ body:has(.dc-statusbar) {
   margin: 0;
   font-size: var(--dc-fs-meta);
 }
+
+/*
+ * Article Reader (§21). On a wide screen the contents sit in a right-hand
+ * column beside the body — a contextual utility, never a persistent left
+ * sidebar (§21.2, §47.5). The document starts where it would have started
+ * without it: the head and the body keep their own column.
+ */
+.dc-article--with-toc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 200px;
+  grid-template-areas:
+    "head toc"
+    "body toc"
+    "tail tail";
+  gap: 0 28px;
+  align-items: start;
+}
+
+.dc-article__head {
+  grid-area: head;
+}
+
+.dc-article__body {
+  grid-area: body;
+}
+
+.dc-article__tail {
+  grid-area: tail;
+}
+
+.dc-toc {
+  grid-area: toc;
+  position: sticky;
+  top: 24px;
+  font-size: var(--dc-fs-meta);
+}
+
+.dc-toc__summary {
+  color: var(--dc-faint);
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.dc-toc__title {
+  margin: 0 0 6px;
+  color: var(--dc-faint);
+}
+
+/* One of the two shapes is always hidden — and hidden means gone from the
+   accessibility tree too, so the page has exactly one table of contents. */
+.dc-toc--folded {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .dc-toc--column {
+    display: none;
+  }
+
+  .dc-toc--folded {
+    display: block;
+  }
+}
+
+.dc-toc ul {
+  margin: 0;
+  padding: 0 0 0 12px;
+  list-style: none;
+  border-inline-start: 1px solid var(--dc-border);
+}
+
+.dc-toc li {
+  margin: 4px 0;
+}
+
+.dc-toc a {
+  color: var(--dc-muted);
+  text-decoration: none;
+}
+
+.dc-toc a:hover,
+.dc-toc a:focus-visible {
+  color: var(--dc-text);
+  text-decoration: underline;
+}
+
+.dc-article__lead {
+  margin: 12px 0 0;
+  font-size: var(--dc-fs-lead);
+  line-height: 1.45;
+  color: var(--dc-text);
+}
+
+/* Narrow: the contents fold above the text and start closed — a reader who
+   opened an article wants the article, and the list is one tap away (§21.2). */
+@media (max-width: 900px) {
+  .dc-article--with-toc {
+    display: block;
+  }
+
+  .dc-toc {
+    position: static;
+    margin: 14px 0 0;
+  }
+
+  .dc-toc__details[open] > .dc-toc__summary {
+    margin-bottom: 8px;
+  }
+}
