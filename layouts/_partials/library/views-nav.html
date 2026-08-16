@@ -15,6 +15,9 @@ apart from the two primary views (§6.2).
     <li{{ if eq $current "all" }} class="dc-library__view--current"{{ end }}>
       <a href="{{ partial "canonical-url.html" ("/library/all" | relLangURL) }}"{{ if eq $current "all" }} aria-current="page"{{ end }}>all</a>
     </li>
+    <li{{ if eq $current "timeline" }} class="dc-library__view--current"{{ end }}>
+      <a href="{{ partial "canonical-url.html" ("/library/timeline" | relLangURL) }}"{{ if eq $current "timeline" }} aria-current="page"{{ end }}>timeline</a>
+    </li>
   </ul>
   <ul class="dc-library__views-list dc-library__views-list--secondary">
     <li{{ if eq $current "types" }} class="dc-library__view--current"{{ end }}>

@@ -1105,6 +1105,20 @@ body:has(.dc-statusbar) {
   align-items: start;
 }
 
+/* Grid children refuse to shrink below their content unless told to, and the
+   pane's own max-width (820px) is wider than the column it sits in — so it
+   grew to fit the table instead of letting the table's scroll box do its job,
+   and the whole page scrolled sideways. Both halves are needed: min-width to
+   allow shrinking, max-width to keep the pane inside its column. */
+.dc-library > *,
+.dc-library .dc-panel__body {
+  min-width: 0;
+}
+
+.dc-library > .dc-panel {
+  max-width: 100%;
+}
+
 .dc-library__views {
   font-size: var(--dc-fs-meta);
 }
@@ -1160,8 +1174,10 @@ body:has(.dc-statusbar) {
 }
 
 @media (max-width: 1100px) {
+  /* minmax(0, 1fr), not 1fr: a plain 1fr refuses to shrink below its content,
+     and one wide table then pushes the whole page sideways. */
   .dc-library {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
   }
 
@@ -1262,6 +1278,161 @@ body:has(.dc-statusbar) {
   .dc-material__title a {
     display: block;
     padding: 10px 0;
+    min-height: 44px;
+  }
+}
+
+/*
+ * Timeline T2 (§10). The date sits on a left rail with the event dot; the row
+ * repeats neither the date nor the year, because the rail and the heading
+ * already carry them. The title is the loudest text, the type is a fast
+ * secondary signal, the size is third.
+ */
+.dc-timeline {
+  margin: 0 0 26px;
+}
+
+.dc-timeline__year {
+  margin: 0 0 10px;
+  font-size: var(--dc-fs-title);
+  font-weight: 400;
+  color: var(--dc-muted);
+}
+
+.dc-timeline__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-inline-start: 1px solid var(--dc-border);
+}
+
+.dc-timeline__item {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.dc-timeline__rail {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding-inline-start: 12px;
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-faint);
+}
+
+.dc-timeline__dot {
+  color: var(--dc-primary);
+}
+
+.dc-timeline__title {
+  display: block;
+  font-size: var(--dc-fs-ui-strong);
+}
+
+.dc-timeline__title a {
+  color: var(--dc-text);
+  text-decoration: none;
+}
+
+.dc-timeline__title a:hover,
+.dc-timeline__title a:focus-visible {
+  color: var(--dc-accent);
+  text-decoration: underline;
+}
+
+.dc-timeline__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-faint);
+}
+
+/*
+ * Index mode (§9.3). Column order is TITLE | TYPE | DATE | SIZE — the date may
+ * sort the list without leading it. The table scrolls inside its own box, so a
+ * narrow screen never scrolls the page sideways.
+ */
+.dc-table-scroll {
+  overflow-x: auto;
+  /* The box may be narrower than its table: that is the point of the box. */
+  min-width: 0;
+}
+
+.dc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--dc-fs-meta);
+}
+
+.dc-table th {
+  text-align: start;
+  font-weight: 400;
+  color: var(--dc-faint);
+  border-bottom: 1px solid var(--dc-border);
+  padding: 6px 12px 6px 0;
+  white-space: nowrap;
+}
+
+.dc-table td {
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--dc-border);
+  vertical-align: baseline;
+}
+
+.dc-table td:first-child {
+  font-size: var(--dc-fs-ui);
+}
+
+/* A date broken across two lines stops being a date, and a type label that
+   wraps stops reading as one token. The title is the only cell allowed to
+   wrap — it is the one that carries variable length. */
+.dc-table td:not(:first-child) {
+  white-space: nowrap;
+}
+
+.dc-table td a {
+  color: var(--dc-text);
+  text-decoration: none;
+}
+
+.dc-table td a:hover,
+.dc-table td a:focus-visible {
+  color: var(--dc-accent);
+  text-decoration: underline;
+}
+
+.dc-mode-switch {
+  display: flex;
+  gap: 12px;
+  margin: 0 0 12px;
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-faint);
+}
+
+.dc-mode-switch__current {
+  color: var(--dc-primary);
+}
+
+@media (max-width: 640px) {
+  .dc-timeline__item {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .dc-timeline__rail {
+    padding-inline-start: 12px;
+    justify-content: flex-start;
+  }
+
+  .dc-timeline__title a {
+    display: block;
+    padding: 8px 0;
     min-height: 44px;
   }
 }

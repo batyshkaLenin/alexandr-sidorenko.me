@@ -409,6 +409,46 @@
           "https://alexandr-sidorenko.me/library/types"
         ]
       ]
+    },
+    {
+      "html": "library/timeline/index.html",
+      "blocks": [
+        "BreadcrumbList"
+      ],
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
+        ],
+        [
+          "Хронология",
+          "https://alexandr-sidorenko.me/library/timeline"
+        ]
+      ]
+    },
+    {
+      "html": "library/table/index.html",
+      "blocks": [
+        "BreadcrumbList"
+      ],
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Библиотека",
+          "https://alexandr-sidorenko.me/library"
+        ],
+        [
+          "Таблица",
+          "https://alexandr-sidorenko.me/library/table"
+        ]
+      ]
     }
   ],
   "pages_without_structured_data": [

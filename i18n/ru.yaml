@@ -20,3 +20,13 @@ materialsCount:
   few: "материала"
   many: "материалов"
   other: "материала"
+linesCount:
+  one: "строка"
+  few: "строки"
+  many: "строк"
+  other: "строки"
+minutesCount:
+  one: "минута"
+  few: "минуты"
+  many: "минут"
+  other: "минуты"

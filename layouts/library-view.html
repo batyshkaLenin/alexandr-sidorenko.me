@@ -16,7 +16,67 @@ MaterialRow.
     <h1 class="dc-section-title">{{ .Title }}</h1>
     {{ with .Content }}<div class="dc-panel__body dc-prose">{{ . }}</div>{{ end }}
     <div class="dc-panel__body">
-      {{ if eq .Params.view "types" }}
+      {{ if eq .Params.view "timeline" }}
+        {{- /* Timeline T2 (§10): the year is a large grouping label, the date
+        lives on the left rail and is not repeated in the row's metadata, and
+        the title stays the most prominent text. Every type flows together —
+        this is the human-facing counterpart of the full feed (§6.5). */ -}}
+        {{ range $materials.GroupByDate "2006" }}
+        <section class="dc-timeline">
+          <h2 class="dc-timeline__year">{{ .Key }}</h2>
+          <ol class="dc-timeline__list h-feed">
+            {{ range .Pages.ByDate.Reverse }}
+            <li class="dc-timeline__item h-entry">
+              <span class="dc-timeline__rail">
+                {{ partial "publication/date.html" (dict "date" .Date "form" "short" "class" "dc-timeline__date dt-published") }}
+                <span class="dc-timeline__dot" aria-hidden="true">●</span>
+              </span>
+              <span class="dc-timeline__body">
+                <span class="dc-timeline__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></span>
+                <span class="dc-timeline__meta">
+                  {{- with .Params.type -}}
+                  <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>
+                  {{- end -}}
+                  <span class="dc-material__sep" aria-hidden="true">·</span>
+                  <span class="dc-timeline__size">{{ partial "library/material-size.html" . }}</span>
+                </span>
+              </span>
+            </li>
+            {{ end }}
+          </ol>
+        </section>
+        {{ end }}
+      {{ else if eq .Params.view "table" }}
+        {{- /* Index mode (§9.3): TITLE first, then TYPE, DATE, SIZE. The date
+        may sort the list without leading it — hierarchy is not obliged to
+        repeat the sorting criterion. */ -}}
+        <p class="dc-mode-switch">
+          <a href="{{ partial "canonical-url.html" ("/library/all" | relLangURL) }}">[list]</a>
+          <span class="dc-mode-switch__current">[table]</span>
+        </p>
+        <div class="dc-table-scroll">
+          <table class="dc-table">
+            <thead>
+              <tr>
+                <th scope="col">название</th>
+                <th scope="col">тип</th>
+                <th scope="col">дата <span aria-hidden="true">↓</span></th>
+                <th scope="col">объём</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range $materials.ByDate.Reverse }}
+              <tr>
+                <td><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></td>
+                <td>{{- with .Params.type -}}<span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{- end -}}</td>
+                <td>{{ partial "publication/date.html" (dict "date" .Date "form" "iso") }}</td>
+                <td>{{ partial "library/material-size.html" . }}</td>
+              </tr>
+              {{ end }}
+            </tbody>
+          </table>
+        </div>
+      {{ else if eq .Params.view "types" }}
         {{ range $materials.GroupByParam "type" }}
         {{ $type := .Key }}
         {{ $group := .Pages }}
@@ -31,6 +91,12 @@ MaterialRow.
         </ul>
         {{ end }}
       {{ else }}
+        {{- /* list ↔ table is a mode of All, not a section of its own (§6.3).
+        Without JavaScript the switch is two links; T136 makes it instant. */ -}}
+        <p class="dc-mode-switch">
+          <span class="dc-mode-switch__current">[list]</span>
+          <a href="{{ partial "canonical-url.html" ("/library/table" | relLangURL) }}">[table]</a>
+        </p>
         <ul class="dc-material-list dc-material-list--dense h-feed">
           {{ range $materials.ByDate.Reverse }}
           {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}

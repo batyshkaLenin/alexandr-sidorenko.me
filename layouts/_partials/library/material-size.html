@@ -1,0 +1,23 @@
+{{- /*
+The size of a material, in the unit that suits it (§9.2: "9 мин", "12 стр").
+
+    text-ish  minutes to read
+    poetry    lines, because a poem is measured in lines and a two-minute
+              estimate says nothing about it
+    track     the same minutes, until an audio duration is actually recorded —
+              inventing one from the file would be a guess, and the design
+              system is explicit about not inventing state
+
+Returns a plain string; the caller decides where it goes.
+*/ -}}
+{{- $page := . -}}
+{{- $type := $page.Params.type -}}
+{{- if in (slice "poem" "poetry-collection") $type -}}
+  {{- $lines := len (findRE `\n` (strings.TrimSpace (plainify $page.Content))) -}}
+  {{- $lines = add $lines 1 -}}
+  {{- printf "%d %s" $lines (i18n "linesCount" $lines) -}}
+{{- else -}}
+  {{- $minutes := $page.ReadingTime -}}
+  {{- if lt $minutes 1 }}{{ $minutes = 1 }}{{ end -}}
+  {{- printf "%d %s" $minutes (i18n "minutesCount" $minutes) -}}
+{{- end -}}

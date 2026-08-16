@@ -29,7 +29,7 @@ shortcuts have no keyboard to come from (§13.3).
     {{- /* A Library view counts what it lists — the same static fact the
     section itself reports (§13.4). */ -}}
     {{- $materials := where site.RegularPages "Section" "library" -}}
-    {{- $mode = cond (eq .Params.view "types") "TYPES" "INDEX" -}}
+    {{- $mode = upper .Params.view -}}
     {{- $state = printf "%d %s" (len $materials) (i18n "materialsCount" (len $materials)) -}}
   {{- end -}}
 {{- else if and (eq .Kind "section") (eq .Section "library") -}}
