@@ -284,6 +284,37 @@
   color: var(--dc-accent);
 }
 
+/* A publication lowers the shell's voice (§19): the command stays, the
+   guest@host prefix goes, and the colour drops to muted so the page's own
+   title is the loudest thing on screen. */
+.dc-identity--reader {
+  font-weight: 400;
+  color: var(--dc-muted);
+}
+
+.dc-identity__command {
+  color: var(--dc-muted);
+}
+
+.dc-identity__back {
+  margin: 0;
+  font-size: var(--dc-fs-meta);
+}
+
+.dc-identity__back a {
+  color: var(--dc-muted);
+}
+
+/* A phone gets no `guest@host ~/library $` — it does not fit at 390px and the
+   design system says not to try (§12). Hiding only the middle of the prompt
+   would leave "guestlibrary", so the whole line goes; what remains is the way
+   back and the material's own title, which the page already shows. */
+@media (max-width: 640px) {
+  .dc-identity {
+    display: none;
+  }
+}
+
 .dc-identity__sep {
   font-weight: 400;
   color: var(--dc-muted);

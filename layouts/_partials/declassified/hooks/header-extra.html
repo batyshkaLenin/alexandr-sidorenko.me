@@ -1,15 +1,46 @@
 {{- /*
-Site override of the theme's empty header-extra hook: a short identity line
-inside <header>, above the theme-owned nav. Full biography/h-card lives in
-the home about panel (layouts/home.html), not here — this is just the
-top-bar prompt. "owner", the "~ $ whoami" suffix and the blinking cursor are all
-decorative prompt flavor, not live/dynamic state and not an identity
-field — no data or JS involved (T54).
+Application Bar (§12): the context line of the current page.
 
-#dc-clock is empty markup only: optional progressive enhancement (see the
-enhance hook) fills it with the *visitor's own* local clock via
-Intl.DateTimeFormat — never a claimed author timezone. No JS/blocked JS
-means no clock text at all, not a stale placeholder.
+The session belongs to the visitor, not to the owner — §11.1 is explicit that
+`owner@…` is the wrong default, and §11.2 that `whoami` must answer with the
+current user rather than with Alexandr's biography. So the prompt says `guest`
+and the command says what the page is: the small vocabulary of §11.3 —
+`library`, `read`, `play` — and nothing invented beyond it.
+
+A reader lowers the shell's voice (§12, §19): no `guest@host` prefix, just the
+command and a way back. On a phone the full prompt does not fit and is not
+attempted; the bar becomes «← library» plus the material's own title.
+
+#dc-clock is empty markup only: optional progressive enhancement fills it with
+the *visitor's own* local clock. No JS means no clock text at all, not a stale
+placeholder — and its reserved height keeps the bar from growing when it
+arrives (T62).
 */ -}}
-<p class="dc-identity">owner<span class="dc-identity__sep">@{{ strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) }} ~ $ </span>whoami<span class="dc-blink dc-identity__cursor" aria-hidden="true">_</span></p>
+{{- $host := strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) -}}
+{{- $isPublication := and (eq .Kind "page") (eq .Section "library") -}}
+{{- $path := "~" -}}
+{{- $command := "" -}}
+{{- if .IsHome -}}
+  {{- $command = "" -}}
+{{- else if $isPublication -}}
+  {{- $path = "~/library" -}}
+  {{- $command = printf "%s %s" (cond (eq .Params.type "track") "play" "read") (printf "~/library/%s" .File.BaseFileName) -}}
+{{- else if eq .Section "library" -}}
+  {{- $path = "~/library" -}}
+  {{- $command = "library" -}}
+{{- else -}}
+  {{- $path = printf "~/%s" .Section -}}
+{{- end -}}
+<p class="dc-identity{{ if $isPublication }} dc-identity--reader{{ end }}">
+  {{- if $isPublication -}}
+    <span class="dc-identity__command">$ {{ $command }}</span>
+  {{- else -}}
+    guest<span class="dc-identity__sep">@{{ $host }} {{ $path }} $ </span>{{ $command }}<span class="dc-blink dc-identity__cursor" aria-hidden="true">_</span>
+  {{- end -}}
+</p>
+{{- if $isPublication }}
+{{- with .Parent }}
+<p class="dc-identity__back"><a href="{{ partial "canonical-url.html" .RelPermalink }}"><span aria-hidden="true">← </span>library</a></p>
+{{- end }}
+{{- end }}
 <p class="dc-clock" id="dc-clock" aria-hidden="true"></p>

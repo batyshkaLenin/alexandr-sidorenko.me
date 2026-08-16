@@ -11,10 +11,10 @@ type only decides the label and whether audio is offered, not the layout.
 */ -}}
 {{ define "main" }}
 <article class="dc-panel dc-panel--detail h-entry">
-  {{ with .Parent }}
-  <a class="dc-back" href="{{ partial "canonical-url.html" .RelPermalink }}">← {{ .Title }}</a>
-  {{ end }}
-  {{ partial "declassified/panel-label.html" (printf "$ read ~/library/%s" .File.BaseFileName) }}
+  {{- /* The command and the way back belong to the Application Bar (§12); the
+  pane title says what this pane holds, which is the material's own file
+  (§14.2). Repeating either here would just say the same thing twice. */ -}}
+  {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
   <h1 class="dc-title p-name">{{ .Title }}</h1>
   <data class="u-uid" value="{{ partial "publication/identity-uri.html" . }}"></data>
   <p>
