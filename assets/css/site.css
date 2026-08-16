@@ -1387,6 +1387,153 @@
   display: block;
 }
 
+/* The credit belongs to the picture, not to the sentence around it, so it sits
+   on the caption line and stays quieter than the caption itself (§27.1). */
+.dc-figure__source {
+  color: var(--dc-faint);
+}
+
+.dc-figure__source a {
+  color: inherit;
+}
+
+/* A gallery is a sequence of figures, not a grid of cards (§27.2): the columns
+   only exist while there is room for them, and `auto-fit` with a floor of
+   220px lands on three across the prose column, two on a tablet and one on a
+   phone — without a media query claiming to know the picture's shape. */
+.dc-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2em;
+  margin: 1.6em 0;
+}
+
+/* Inside the sequence a figure fills its column: `width: fit-content` is for a
+   picture standing alone in the text. */
+.dc-gallery .dc-figure {
+  width: 100%;
+  margin: 0;
+}
+
+/*
+ * A table inside a publication (§27.5). The Library's own table is a data
+ * primitive with monospace metadata and sortable headers — `.dc-table`, far
+ * below; this one is a paragraph that happens to have columns: the body type,
+ * quiet rules, no zebra and nothing to click.
+ *
+ * The scroll lives in the container, so a table wider than the phone moves
+ * inside its box instead of dragging the page sideways.
+ */
+.dc-prose-table {
+  overflow-x: auto;
+  /* A grid or flex child refuses to shrink below its content without this, and
+     one wide table then pushes the whole panel sideways. */
+  min-width: 0;
+  margin: 1.6em 0;
+}
+
+.dc-prose-table:focus-visible {
+  outline: 2px solid var(--dc-primary);
+  outline-offset: 2px;
+}
+
+.dc-prose-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+.dc-prose-table__cell {
+  padding: 0.5em 1em 0.5em 0;
+  text-align: start;
+  vertical-align: baseline;
+  border-bottom: 1px solid var(--dc-border);
+}
+
+.dc-prose-table thead .dc-prose-table__cell {
+  font-weight: 700;
+  color: var(--dc-text);
+  border-bottom-color: var(--dc-muted);
+}
+
+.dc-prose-table__cell--left {
+  text-align: start;
+}
+
+.dc-prose-table__cell--center {
+  text-align: center;
+}
+
+.dc-prose-table__cell--right {
+  text-align: end;
+}
+
+@media print {
+  /* Paper cannot scroll a box, so the table stops being one: it prints whole,
+     at whatever width the page gives it. */
+  .dc-prose-table {
+    overflow: visible;
+  }
+
+  .dc-prose-table table {
+    font-size: 0.8em;
+  }
+
+  .dc-prose-table__cell {
+    border-bottom-color: #999;
+  }
+
+  .dc-prose-table thead .dc-prose-table__cell {
+    border-bottom-color: #000;
+  }
+}
+
+/*
+ * Footnotes. Goldmark already writes the semantics — `doc-endnotes`,
+ * `doc-noteref`, `doc-backlink` — so what is left is to make both ends visible
+ * and to say where the reader landed after following one.
+ */
+.dc-prose .footnotes {
+  margin-top: 2.4em;
+  font-size: 0.85em;
+  color: var(--dc-muted);
+}
+
+.dc-prose .footnotes hr {
+  margin: 0 0 1em;
+  border: 0;
+  border-top: 1px solid var(--dc-border);
+}
+
+.dc-prose .footnotes li {
+  margin-bottom: 0.6em;
+}
+
+/* The mark in the text and the way back are both links, and both are small:
+   they get the link colour rather than a hover-only hint. */
+.dc-prose .footnote-ref,
+.dc-prose .footnote-backref {
+  color: var(--dc-accent);
+  text-decoration: none;
+}
+
+.dc-prose .footnote-ref:hover,
+.dc-prose .footnote-ref:focus-visible,
+.dc-prose .footnote-backref:hover,
+.dc-prose .footnote-backref:focus-visible {
+  text-decoration: underline;
+}
+
+/* Following a footnote moves the page, and nothing else says which line was
+   the target — the marker does. */
+.dc-prose .footnotes li:target,
+.dc-prose sup:target {
+  outline: 1px solid var(--dc-border);
+  outline-offset: 4px;
+  background: var(--dc-panel-bg);
+}
+
 /* The link is the only interactive part of a figure, so it reads as a command
    rather than as a caption that happens to be blue. */
 .dc-figure__original {

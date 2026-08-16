@@ -1,105 +1,19 @@
 {{- /*
-Site override of the theme's generic image hook: the same figure, but the file
-the browser downloads is sized for the column it lands in (T66), and it still
-carries the real width/height so nothing below it moves while it loads (T57).
+An image written in Markdown is a figure (§27.1): `![alt](/assets/… "caption")`.
+Everything else it needs — the responsive ladder, dithering, the link to the
+original — belongs to `publication/figure.html`, which the `figure` shortcode
+shares, so the two ways of putting a picture in a publication cannot drift
+apart. A credit line has no place in Markdown's syntax; that is what the
+shortcode is for.
 
 Body images are addressed as `/assets/…` in Markdown and resolved to pipeline
 resources under `assets/` — the address does not change, the bytes behind it
-do. An image pointing at a missing file fails the build here rather than
+do. An image pointing at a missing file fails the build there rather than
 shipping an <img> without dimensions.
-
-The prose column is `--dc-detail-width: 760px` on a wide screen. Below the
-860px breakpoint it is the viewport minus 86px of fixed chrome — `.dc-main`
-padding, `.dc-panel__body` padding and the panel border — measured at 326 CSS
-px inside a 412 px viewport. Saying `100vw` there would overstate the need by a
-quarter and make the browser fetch one rung too far up the ladder.
-
-The ladder is the common recommendation for a 700-800px article column —
-400/800/1200 — with a 600 added where this layout's own demand actually falls.
-`sizes` describes CSS pixels only; the browser multiplies by the device ratio
-itself, so the upper rungs are what serve a high-density screen:
-
-  326 CSS px @ 1.75x -> 570  takes 600
-  326 CSS px @ 2x    -> 652  takes 800
-  760 CSS px @ 1x    -> 760  takes 800
-  326 CSS px @ 3x    -> 978  takes 1200
-  760 CSS px @ 2x    -> 1520 takes 1200, the one place the ladder is short
-
-Truncating it lower would trade a visible loss on every retina screen for a
-smaller number in the build directory, which is not what the ladder is for.
 */ -}}
-{{- $src := .Destination -}}
-{{- $external := or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "//") -}}
-{{- /*
-The first body image is the one that can be the LCP element on a wide screen,
-and lazy loading hides it from the preload scanner until layout is done (T64).
-Every later image keeps deferring — they are below the fold by construction.
-
-Rendered content is cached and reused for .Summary in lists, so the attribute
-cannot depend on which page is being written out — that would make the same
-image eager or lazy depending on build order.
-*/ -}}
-{{- $loading := cond (eq .Ordinal 0) `fetchpriority="high"` `loading="lazy"` | safeHTMLAttr -}}
-{{- $sizes := "(max-width: 860px) calc(100vw - 86px), 760px" -}}
-{{- $widths := slice 400 600 800 1200 -}}
-{{- /*
-`image_style` (§30.4) is declared once per material and governs its images:
-
-  auto     — dither photographs, leave graphics as they are (§30.3)
-  dither   — dither everything, including what looks like a diagram
-  original — publish the photographs themselves
-
-`auto` needs no hand-labelling: scripts/dither-images.py measures how flat each
-image's colour field is and records `photo` or `graphic` in data/dither.json.
-An image the measurement gets wrong is what the other two values are for.
-*/ -}}
-{{- $style := default "auto" .Page.Params.image_style -}}
-{{- if not (in (slice "auto" "dither" "original") $style) -}}
-  {{- errorf "%s: image_style %q is not auto, dither or original" .Page.File.Path $style -}}
-{{- end -}}
-{{- $image := "" -}}
-{{- /* A dithered image brings its own <figure>, because the link to the
-       original belongs in the caption whether or not there is a caption. */ -}}
-{{- $wrapped := false -}}
-{{- if $external -}}
-  {{- $image = printf `<img src="%s" alt="%s" %s decoding="async">` $src .Text $loading | safeHTML -}}
-{{- else -}}
-  {{- if not (hasPrefix $src "/") -}}
-    {{- errorf "%s: image %q must be a root-relative path — this site addresses images the same way it publishes them" .Page.File.Path $src -}}
-  {{- end -}}
-  {{- $resource := partial "image-resource.html" (dict "path" $src "context" .Page.File.Path) -}}
-  {{- $entry := index hugo.Data.dither $src -}}
-  {{- if and (eq $style "dither") (not $entry) -}}
-    {{- errorf "%s: image %q asks for dithering but has no derivative — run scripts/dither-images.py" .Page.File.Path $src -}}
-  {{- end -}}
-  {{- $dither := and $entry (or (eq $style "dither") (and (eq $style "auto") (eq $entry.kind "photo"))) -}}
-  {{- if $dither -}}
-    {{- /* The original opens at the top of the ladder rather than at the
-           source's full size: it is the same photograph, not an archive
-           master, and it is fetched only when someone asks for it. */ -}}
-    {{- $limit := math.Min $resource.Width (index (last 1 $widths) 0) -}}
-    {{- $image = partial "dithered-image.html" (dict
-          "entry" $entry
-          "alt" .Text
-          "sizes" $sizes
-          "attrs" $loading
-          "caption" .Title
-          "original" ($resource.Process (printf "resize %dx" (int $limit))).RelPermalink) -}}
-    {{- $wrapped = true -}}
-  {{- else -}}
-    {{- $image = partial "responsive-image.html" (dict
-          "resource" $resource
-          "alt" .Text
-          "sizes" $sizes
-          "widths" $widths
-          "attrs" $loading) -}}
-  {{- end -}}
-{{- end -}}
-{{ if and .Title (not $wrapped) }}
-<figure class="dc-figure">
-  {{ $image }}
-  <figcaption>{{ .Title }}</figcaption>
-</figure>
-{{ else }}
-{{ $image }}
-{{ end }}
+{{- partial "publication/figure.html" (dict
+      "page" .Page
+      "src" .Destination
+      "alt" .Text
+      "caption" .Title
+      "ordinal" .Ordinal) -}}

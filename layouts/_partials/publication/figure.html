@@ -1,0 +1,124 @@
+{{- /*
+One figure, whichever way a publication asks for it (§27.1): the image, its
+caption, its source, and the link to the full-colour original. The Markdown
+hook (`layouts/_markup/render-image.html`) and the `figure` shortcode both come
+here, so a picture written as `![…](…)` and one that needs a credit line are
+the same block with the same rules.
+
+Nothing is drawn over the image — §27.1 is explicit about that, and it is why
+the caption line lives under it even when there is no caption: the link to the
+original has to have a predictable place.
+
+Call with a dict:
+  page      — the page the image belongs to
+  src       — site-absolute address, or an external URL
+  alt       — alternative text (empty for a decorative image, §44.5)
+  caption   — optional caption
+  source    — optional credit ("Фото: …", a publication, an archive)
+  sourceURL — optional address the credit points at
+  ordinal   — position of the image in the body; 0 is the one that can be LCP
+  sizes     — optional `sizes` override, for an image that does not get the
+              full measure (a gallery column)
+*/ -}}
+{{- $page := .page -}}
+{{- $src := .src -}}
+{{- $alt := default "" .alt -}}
+{{- $caption := .caption -}}
+{{- $source := .source -}}
+{{- $sourceURL := .sourceURL -}}
+{{- $ordinal := default 1 .ordinal -}}
+{{- $context := $page.File.Path -}}
+{{- $external := or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "//") -}}
+{{- /*
+The first body image is the one that can be the LCP element on a wide screen,
+and lazy loading hides it from the preload scanner until layout is done (T64).
+Every later image keeps deferring — they are below the fold by construction.
+
+Rendered content is cached and reused for .Summary in lists, so the attribute
+cannot depend on which page is being written out — that would make the same
+image eager or lazy depending on build order.
+*/ -}}
+{{- $loading := cond (eq $ordinal 0) `fetchpriority="high"` `loading="lazy"` | safeHTMLAttr -}}
+{{- /*
+The prose column is `--dc-detail-width: 760px` on a wide screen. Below the
+860px breakpoint it is the viewport minus 86px of fixed chrome — `.dc-main`
+padding, `.dc-panel__body` padding and the panel border — measured at 326 CSS
+px inside a 412 px viewport. Saying `100vw` there would overstate the need by a
+quarter and make the browser fetch one rung too far up the ladder.
+
+The ladder is the common recommendation for a 700-800px article column —
+400/800/1200 — with a 600 added where this layout's own demand actually falls:
+
+  326 CSS px @ 1.75x -> 570  takes 600
+  326 CSS px @ 2x    -> 652  takes 800
+  760 CSS px @ 1x    -> 760  takes 800
+  326 CSS px @ 3x    -> 978  takes 1200
+  760 CSS px @ 2x    -> 1520 takes 1200, the one place the ladder is short
+*/ -}}
+{{- $sizes := default "(max-width: 860px) calc(100vw - 86px), 760px" .sizes -}}
+{{- $widths := slice 400 600 800 1200 -}}
+{{- $image := "" -}}
+{{- $original := "" -}}
+{{- $dithered := false -}}
+{{- if $external -}}
+  {{- $image = printf `<img src="%s" alt="%s" %s decoding="async">` $src $alt $loading | safeHTML -}}
+{{- else -}}
+  {{- if not (hasPrefix $src "/") -}}
+    {{- errorf "%s: image %q must be a root-relative path — this site addresses images the same way it publishes them" $context $src -}}
+  {{- end -}}
+  {{- $resource := partial "image-resource.html" (dict "path" $src "context" $context) -}}
+  {{- /*
+  `image_style` (§30.4) is declared once per material and governs its images:
+
+    auto     — dither photographs, leave graphics as they are (§30.3)
+    dither   — dither everything, including what looks like a diagram
+    original — publish the photographs themselves
+
+  `auto` needs no hand-labelling: scripts/dither-images.py measures how flat
+  each image's colour field is and records `photo` or `graphic` in
+  data/dither.json. An image the measurement gets wrong is what the other two
+  values are for.
+  */ -}}
+  {{- $style := default "auto" $page.Params.image_style -}}
+  {{- if not (in (slice "auto" "dither" "original") $style) -}}
+    {{- errorf "%s: image_style %q is not auto, dither or original" $context $style -}}
+  {{- end -}}
+  {{- $entry := index hugo.Data.dither $src -}}
+  {{- if and (eq $style "dither") (not $entry) -}}
+    {{- errorf "%s: image %q asks for dithering but has no derivative — run scripts/dither-images.py" $context $src -}}
+  {{- end -}}
+  {{- $dithered = and $entry (or (eq $style "dither") (and (eq $style "auto") (eq $entry.kind "photo"))) -}}
+  {{- if $dithered -}}
+    {{- /* The original opens at the top of the ladder rather than at the
+           source's full size: it is the same photograph, not an archive
+           master, and it is fetched only when someone asks for it. */ -}}
+    {{- $limit := math.Min $resource.Width (index (last 1 $widths) 0) -}}
+    {{- $original = ($resource.Process (printf "resize %dx" (int $limit))).RelPermalink -}}
+    {{- $image = partial "dithered-img.html" (dict
+          "entry" $entry
+          "alt" $alt
+          "sizes" $sizes
+          "class" "dc-image dc-image--dithered"
+          "attrs" $loading) -}}
+  {{- else -}}
+    {{- $image = partial "responsive-image.html" (dict
+          "resource" $resource
+          "alt" $alt
+          "sizes" $sizes
+          "widths" $widths
+          "attrs" $loading) -}}
+  {{- end -}}
+{{- end -}}
+{{- /* A figcaption is needed whenever anything belongs under the image: a
+       caption, a credit, or the link a dithered image owes its original. */ -}}
+{{- $hasLine := or $caption $source $dithered -}}
+<figure class="dc-figure{{ if $dithered }} dc-figure--dithered{{ end }}"{{ if $dithered }} data-dither="{{ (index hugo.Data.dither $src).family }}"{{ end }}>
+  {{ $image }}
+  {{- if $hasLine }}
+  <figcaption>
+    {{- with $caption }}<span class="dc-figure__caption">{{ . }}</span>{{ end -}}
+    {{- with $source }}<span class="dc-figure__source">{{ with $sourceURL }}<a href="{{ . }}">{{ $source }}</a>{{ else }}{{ . }}{{ end }}</span>{{ end -}}
+    {{- if $dithered }}<a class="dc-figure__original" href="{{ $original }}">{{ i18n "imageOriginal" }}</a>{{ end -}}
+  </figcaption>
+  {{- end }}
+</figure>

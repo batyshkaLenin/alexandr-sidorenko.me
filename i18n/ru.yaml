@@ -36,3 +36,5 @@ audioReading:
   other: "Авторское чтение"
 videoCaptions:
   other: "Субтитры"
+tableRegion:
+  other: "Таблица, прокручивается по горизонтали"

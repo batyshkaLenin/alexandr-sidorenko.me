@@ -30,6 +30,20 @@ is folded into the entry describing the finished behaviour rather than listed as
 - Video as a block inside a publication: a dithered poster, the browser's own
   controls, optional captions and a caption line. It needs no JavaScript and
   loads nothing until the reader asks for it.
+- A picture can now carry a credit as well as a caption, and several pictures
+  can stand together as a gallery — an editorial sequence of two or three
+  columns that becomes one on a phone, where every image keeps its own
+  alternative text, its own caption and its own link to the original.
+- A table inside a publication reads as part of the text: the body type, quiet
+  rules and nothing to click. The column alignment written in Markdown now
+  actually applies — it used to ship as an inline style that the site's own
+  Content-Security-Policy discarded — every header cell says which column it
+  heads, and a table too wide for a phone scrolls inside its own box, which
+  the keyboard can reach and a screen reader announces, instead of dragging
+  the page sideways.
+- Footnotes read in both directions: the mark in the text and the way back are
+  both links, both reachable by keyboard, and whichever end the reader lands
+  on is marked so the line is findable.
 - Footer social links and an environment-aware `robots.txt` that disallows
   crawling outside production builds.
 - Cloudflare Workers Static Assets preview deployment.

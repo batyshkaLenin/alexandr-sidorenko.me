@@ -235,6 +235,23 @@ async function loadUser(id: string): Promise<User> {
 
 *Подпись под изображением, оформленная обычным курсивом.*
 
+### Фигура с источником
+
+{{< figure
+    src="/assets/library/philosophy-of-freedom/lenin.jpg"
+    alt="Портрет Ленина"
+    caption="Подпись фигуры, заданной шорткодом."
+    source="Фото: архив Blurred Technologies"
+    source_url="https://example.com/archive" >}}
+
+### Галерея
+
+{{< gallery >}}
+  {{< figure src="/assets/library/bluredu-new-teachers/core-team.jpg" alt="Команда в аудитории" caption="Первая картинка галереи." >}}
+  {{< figure src="/assets/library/bluredu-new-teachers/many-students.jpg" alt="Много студентов в зале" caption="У второй — своя подпись." >}}
+  {{< figure src="/assets/library/23/strange-hat.jpg" alt="Человек в странной шляпе" caption="И у третьей тоже." >}}
+{{< /gallery >}}
+
 ## Видео
 
 {{< video
