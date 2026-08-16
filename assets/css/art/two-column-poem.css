@@ -1,0 +1,33 @@
+/*
+ * Art direction for one material (§24.4). It may change scale, density and
+ * composition; it may not change tokens, accessibility, navigation or the
+ * shell — those come from the system, and a poem is not a reason to leave it.
+ *
+ * Everything is scoped under .dc-art--two-column-poem, so this file cannot
+ * reach a page that did not ask for it.
+ */
+.dc-art--two-column-poem .dc-art__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: center;
+}
+
+.dc-art--two-column-poem .dc-art__image img {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--dc-border);
+}
+
+.dc-art--two-column-poem .dc-poem__body {
+  margin-inline: 0;
+  max-width: none;
+}
+
+/* A phone gets the same work as a single document flow (§24.4). */
+@media (max-width: 720px) {
+  .dc-art--two-column-poem .dc-art__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+}

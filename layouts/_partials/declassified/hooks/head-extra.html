@@ -53,6 +53,17 @@ paint (.ai/research/s15-ab-measurement.md).
 {{ with (resources.Get "css/site.css") | minify | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
+{{- /* A material may bring its own stylesheet (§5.1, §24.6): `art: <name>` in
+front matter loads assets/css/art/<name>.css, and only on that page. Loading it
+everywhere would put one poem's art direction into the site's budget for every
+reader (§45.2); a missing file is a build error, not a silent skip. */ -}}
+{{ with .Params.art }}
+{{ $art := resources.Get (printf "css/art/%s.css" .) }}
+{{ if not $art }}{{ errorf "%s: art stylesheet css/art/%s.css does not exist" $.File.Path . }}{{ end }}
+{{ with $art | minify | fingerprint }}
+<link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
+{{ end }}
+{{ end }}
 {{ if or .IsHome (eq .Kind "section") }}
 {{ with .OutputFormats.Get "rss" }}<link rel="alternate" type="{{ .MediaType }}" href="{{ .Permalink }}" title="RSS">{{ end }}
 {{ with .OutputFormats.Get "jsonfeed" }}<link rel="alternate" type="{{ .MediaType }}" href="{{ .Permalink }}" title="JSON Feed">{{ end }}

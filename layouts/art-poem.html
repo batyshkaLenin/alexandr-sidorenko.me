@@ -1,0 +1,35 @@
+{{- /*
+An art-directed poem (§24.4): image and text share a row on a wide screen and
+become one flow on a phone. Chosen per material with `layout: art-poem`, and
+paired with `art: <name>` for its stylesheet.
+
+Everything system-owned stays: the shell, the pane, identity, the title block,
+the tail. Art direction decides composition, not the contract.
+*/ -}}
+{{ define "main" }}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-poem dc-art--{{ .Params.art }}">
+  {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
+  <div class="dc-poem__head">
+    {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
+  </div>
+  <div class="dc-art__grid">
+    {{ with .Params.cover }}
+    <div class="dc-art__image">
+      {{ $image := partial "image-resource.html" (dict "path" . "context" $.File.Path) }}
+      {{ $rendered := $image.Process "resize 900x webp" }}
+      <img src="{{ $rendered.RelPermalink }}" width="{{ $rendered.Width }}" height="{{ $rendered.Height }}" alt="{{ $.Params.cover_alt }}" loading="lazy">
+    </div>
+    {{ end }}
+    <div class="dc-prose e-content dc-poem__body">
+      {{ .Content }}
+    </div>
+  </div>
+  <footer class="dc-poem__colophon">
+    {{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}
+    {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
+  </footer>
+  {{ partial "publication/tail.html" . }}
+</article>
+{{ partial "publication/webmentions.html" . }}
+{{ partial "publication/adjacent.html" . }}
+{{ end }}
