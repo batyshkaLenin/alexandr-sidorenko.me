@@ -22,7 +22,7 @@ from pathlib import Path
 from urllib.parse import quote, urlsplit
 
 SITE_ORIGIN = "https://alexandr-sidorenko.me"
-PUBLICATION_SECTIONS = ("posts", "creativity")
+PUBLICATION_SECTIONS = ("library",)
 # meta tags whose content is a URL; other meta content is prose and must not
 # be mistaken for an address.
 URL_META = {"og:url", "og:image", "twitter:image"}
@@ -57,8 +57,8 @@ def check(errors: list[str], condition: bool, message: str) -> None:
 
 def self_test() -> None:
     """A broken detector must not silently report green."""
-    assert has_trailing_slash("/posts/"), "self-test: relative form not detected"
-    assert has_trailing_slash(f"{SITE_ORIGIN}/posts/philosophy-of-freedom/"), (
+    assert has_trailing_slash("/library/"), "self-test: relative form not detected"
+    assert has_trailing_slash(f"{SITE_ORIGIN}/library/philosophy-of-freedom/"), (
         "self-test: absolute form not detected"
     )
     assert not has_trailing_slash("/"), "self-test: root must stay allowed"

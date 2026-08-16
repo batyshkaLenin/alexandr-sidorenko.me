@@ -16,17 +16,19 @@ theme = 'declassified'
 
 [params]
   # The author lives in data/authors.yaml, on the entry flagged `site_owner`.
-  description = 'Блог и творчество Александра Сидоренко: заметки и статьи о разработке, музыке и жизни.'
+  description = 'Заметки, статьи, стихи, проза и музыка Александра Сидоренко.'
 
-# Home and Library are the whole of the navigation (content-model ADR). The
-# shell wording follows in T110; these are the addresses that exist.
+# Home and Library are the whole of the navigation (content-model ADR).
+# Names are lowercase English because the menu is shell, not document: the
+# design system splits the two layers deliberately (§2.3, §18.5). Titles of
+# the pages themselves stay Russian.
 [[menus.main]]
-  name = 'Главная'
+  name = 'home'
   pageRef = '/'
   weight = -1
 
 [[menus.main]]
-  name = 'Библиотека'
+  name = 'library'
   pageRef = '/library'
   weight = 1
 

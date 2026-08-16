@@ -95,13 +95,21 @@ def check(errors: list[str], condition: bool, message: str) -> None:
 
 def self_test() -> None:
     """A broken uniqueness/format check must not silently report green."""
-    dupes = ["https://alexandr-sidorenko.me/posts/a", "https://alexandr-sidorenko.me/posts/a"]
+    sample = "https://alexandr-sidorenko.me/id/019c2f8e-85d2-7ba1-9b8a-e45c65536e91"
+    dupes = [sample, sample]
     assert len(dupes) != len(set(dupes)), "self-test: duplicate detection is broken"
-    assert not UID_PATTERN.match("https://alexandr-sidorenko.me/posts/a/"), (
-        "self-test: trailing-slash uid should not match the format pattern"
+    assert UID_PATTERN.match(sample), "self-test: a valid identity URI must match"
+    assert not UID_PATTERN.match(f"{sample}/"), (
+        "self-test: trailing-slash identity URI should not match the format pattern"
     )
-    assert not UID_PATTERN.match("http://alexandr-sidorenko.me/posts/a"), (
-        "self-test: non-https uid should not match the format pattern"
+    assert not UID_PATTERN.match(sample.replace("https", "http")), (
+        "self-test: non-https identity URI should not match the format pattern"
+    )
+    assert not UID_PATTERN.match(sample.replace("-7ba1-", "-4ba1-")), (
+        "self-test: a non-v7 UUID should not match the format pattern"
+    )
+    assert not UID_PATTERN.match(sample.upper()), (
+        "self-test: uppercase is not the canonical UUID form"
     )
 
 

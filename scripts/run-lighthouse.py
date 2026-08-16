@@ -57,14 +57,14 @@ LIGHTHOUSE_VERSION = "13.4.1"
 PREVIEW_ORIGIN = "https://alexandr-sidorenko-me.auroragamesproject.workers.dev"
 PRODUCTION_ORIGIN = "https://alexandr-sidorenko.me"
 
-# One page per template that renders differently: home, section list,
-# post detail, creativity list, creativity detail with audio.
+# One page per template that renders differently: home, the library list, an
+# article with images, a track with audio. Renderer families (S21) will need
+# one entry each once they exist.
 DEFAULT_PATHS = (
     "/",
-    "/posts",
-    "/posts/bluredu-new-teachers",
-    "/creativity",
-    "/creativity/regular-visitor",
+    "/library",
+    "/library/bluredu-new-teachers",
+    "/library/regular-visitor",
 )
 
 CATEGORIES = ("performance", "accessibility", "best-practices", "seo", "agentic-browsing")
@@ -438,7 +438,7 @@ def self_test() -> None:
     assert failed_audits(report, frozenset()) == ["canonical", "is-crawlable"], "self-test: failures missed"
     assert failed_audits(report, PREVIEW_EXPECTED_FAILURES) == ["canonical"], "self-test: allowance ignored"
     assert extension_noise(report) == 1, "self-test: extension requests not counted"
-    run = Run("/posts", "mobile", False)
+    run = Run("/library", "mobile", False)
     assert any("largest-contentful-paint" in v for v in check_budget(run, [report])), "self-test: budget not enforced"
     assert Run("/", "desktop", True).slug == "home-desktop-nofonts", "self-test: slug"
 
@@ -482,8 +482,8 @@ def self_test() -> None:
                     connection.close()
 
             assert status("/")[0] == 200, "self-test: root not served"
-            assert status("/creativity/skver")[0] == 200, "self-test: canonical form not served directly"
-            assert status("/creativity/skver/") == (301, "/creativity/skver"), "self-test: slash form not redirected"
+            assert status("/library/skver")[0] == 200, "self-test: canonical form not served directly"
+            assert status("/library/skver/") == (301, "/library/skver"), "self-test: slash form not redirected"
             assert status("/feed.xml")[0] == 200, "self-test: plain file not served"
             assert status("/nothing-here")[0] == 404, "self-test: missing path not 404"
 

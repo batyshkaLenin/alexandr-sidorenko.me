@@ -446,17 +446,19 @@
   grid-template-columns: 240px 1fr 300px;
 }
 
-.dc-home-row--posts {
+.dc-home-row--recent {
   grid-template-columns: 1fr;
 }
 
-.dc-home-row--creativity {
+/* One panel since the second section went away (T106); the column stays sized
+   for the pair the Home Workspace will bring back (T116). */
+.dc-home-row--activity {
   grid-template-columns: 1fr 280px;
 }
 
 @media (max-width: 860px) {
   .dc-home-row--identity,
-  .dc-home-row--creativity {
+  .dc-home-row--activity {
     grid-template-columns: 1fr;
   }
 }

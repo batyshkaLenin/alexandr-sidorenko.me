@@ -41,7 +41,7 @@ import shutil
 import sys
 from pathlib import Path
 
-SOURCE_PAGE = "creativity/skver/index.html"
+SOURCE_PAGE = "library/skver/index.html"
 
 PRECONNECTS = re.compile(r"<link rel=preconnect href=https://fonts\.(?:googleapis|gstatic)\.com[^>]*>")
 GOOGLE_CSS = re.compile(r'<link rel=stylesheet href="https://fonts\.googleapis\.com/css2[^"]*">')
