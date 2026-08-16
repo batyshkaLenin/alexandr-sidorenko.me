@@ -1563,3 +1563,55 @@ body:has(.dc-statusbar) {
     margin-bottom: 8px;
   }
 }
+
+/*
+ * Paper Reader (§22). The stricter presentation inside the text family:
+ * numbered sections, an abstract that reads as a summary rather than as the
+ * opening paragraph, and a measure a little narrower than an article's,
+ * because footnote-dense prose is read more slowly.
+ *
+ * Nothing here is terminal-flavoured: §22.1 forbids wrapping academic content
+ * in fake commands, and that includes decorative prompts around headings.
+ */
+.dc-paper__abstract {
+  margin: 18px 0 0;
+  padding: 12px 16px;
+  border-inline-start: 2px solid var(--dc-border);
+  color: var(--dc-muted);
+  font-size: var(--dc-fs-meta);
+  line-height: var(--dc-lh-ui);
+}
+
+.dc-paper__section-title {
+  margin: 0 0 6px;
+  font-size: var(--dc-fs-meta);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dc-faint);
+}
+
+.dc-paper__keywords {
+  margin: 10px 0 0;
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-muted);
+}
+
+.dc-paper__keywords-label {
+  color: var(--dc-faint);
+}
+
+/* Sections number themselves: the author writes headings, the renderer counts
+   them (§22). A paper without headings simply has nothing to number. */
+.dc-paper__body {
+  counter-reset: dc-paper-section;
+}
+
+.dc-paper__body h2 {
+  counter-increment: dc-paper-section;
+}
+
+.dc-paper__body h2::before {
+  content: counter(dc-paper-section) ". ";
+  color: var(--dc-faint);
+}

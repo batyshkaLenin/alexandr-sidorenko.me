@@ -1,0 +1,34 @@
+{{- /*
+Paper Reader (§22). Academic content looks academic: a title block, an abstract
+set apart, keywords, numbered sections, the body at a narrower measure, and the
+references at the end.
+
+§22.1 is a prohibition worth repeating: no `$ render equation.tex` around a
+formula, no terminal chrome anywhere in the work. The shell stays outside the
+publication.
+
+`abstract` and `keywords` are optional front matter. A paper that keeps its
+abstract inside the body — as the existing one does — simply renders without
+this block; the renderer never invents structure the material does not have.
+*/ -}}
+{{ define "main" }}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-paper">
+  {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
+  {{ partial "publication/title-block.html" (dict "page" .) }}
+  {{ with .Params.abstract }}
+  <section class="dc-paper__abstract" aria-labelledby="dc-abstract-title">
+    <h2 id="dc-abstract-title" class="dc-paper__section-title">Аннотация</h2>
+    <p>{{ . }}</p>
+  </section>
+  {{ end }}
+  {{ with .Params.keywords }}
+  <p class="dc-paper__keywords"><span class="dc-paper__keywords-label">Ключевые слова:</span> {{ delimit . " · " }}</p>
+  {{ end }}
+  <div class="dc-prose e-content dc-paper__body">
+    {{ .Content }}
+  </div>
+  {{ partial "publication/tail.html" . }}
+</article>
+{{ partial "publication/webmentions.html" . }}
+{{ partial "publication/adjacent.html" . }}
+{{ end }}
