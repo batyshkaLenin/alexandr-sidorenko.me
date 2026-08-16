@@ -15,3 +15,8 @@ headingAnchor:
   other: "Ссылка на этот раздел"
 navKeysHint:
   other: "1/2 — переход · Esc — назад"
+materialsCount:
+  one: "материал"
+  few: "материала"
+  many: "материалов"
+  other: "материала"

@@ -944,3 +944,54 @@
   letter-spacing: -0.5px;
   color: var(--dc-redaction-flat);
 }
+
+/*
+ * Status Bar (§13.1). Pinned to the bottom edge, not scrolling with the
+ * document — and paid for in layout, not stolen from it: the body reserves the
+ * bar's height so the last line of a publication is never hidden underneath.
+ *
+ * The bar exists only where a static state is worth showing (see the partial);
+ * on a phone it is not rendered at all (§13.3), so the reserved space is
+ * released with it.
+ */
+.dc-statusbar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 5;
+  margin: 0;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 6px 20px;
+  background: var(--dc-panel-bg);
+  border-top: 1px solid var(--dc-border);
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-muted);
+}
+
+.dc-statusbar__mode {
+  color: var(--dc-primary);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+body:has(.dc-statusbar) {
+  padding-bottom: 2.6em;
+}
+
+@media (max-width: 640px) {
+  .dc-statusbar {
+    display: none;
+  }
+
+  body:has(.dc-statusbar) {
+    padding-bottom: 0;
+  }
+}
+
+@media print {
+  .dc-statusbar {
+    display: none;
+  }
+}

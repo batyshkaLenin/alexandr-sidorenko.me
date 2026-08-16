@@ -1,0 +1,41 @@
+{{- /*
+Status Bar (§13): the mode of the current application and the state that is
+true about it right now.
+
+§13.4 is the rule that decides whether it exists at all:
+
+    a useful static state remains  → the bar is drawn
+    only a decorative mode name    → there is no bar
+
+So Home has none. `NORMAL` on its own says nothing without the keyboard hints
+that arrive with JavaScript (T135), and a row of viewport height is too much to
+spend on a word. Library and a publication do have something true to say
+without a single line of script: how many materials are listed, what kind of
+material this is.
+
+What is deliberately absent: read progress, media progress, `UTF-8`, `markdown`,
+`LF`. The first two exist only with JavaScript; the rest is IDE cosplay (§13.2).
+
+On a phone the bar is not rendered at all — vertical space matters more, and
+shortcuts have no keyboard to come from (§13.3).
+*/ -}}
+{{- $mode := "" -}}
+{{- $state := "" -}}
+{{- if eq .Kind "page" -}}
+  {{- if eq .Section "library" -}}
+    {{- $mode = cond (eq .Params.type "track") "PLAY" "READ" -}}
+    {{- $state = partial "publication/type-label.html" (dict "type" .Params.type "page" .) -}}
+  {{- end -}}
+{{- else if and (eq .Kind "section") (eq .Section "library") -}}
+  {{- $mode = "LIBRARY" -}}
+  {{- $state = printf "%d %s" (len .Pages) (i18n "materialsCount" (len .Pages)) -}}
+{{- else if eq .Kind "term" -}}
+  {{- $mode = "TOPIC" -}}
+  {{- $state = printf "%d %s" (len .Pages) (i18n "materialsCount" (len .Pages)) -}}
+{{- end -}}
+{{- with $mode }}
+<p class="dc-statusbar" role="status">
+  <span class="dc-statusbar__mode">{{ . }}</span>
+  {{- with $state }}<span class="dc-statusbar__state">{{ . }}</span>{{ end -}}
+</p>
+{{- end -}}
