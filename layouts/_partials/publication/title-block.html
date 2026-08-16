@@ -14,6 +14,10 @@ visible image is whatever the author put in the Markdown body.
 */ -}}
 {{- $page := .page -}}
 {{- $meta := default true .meta -}}
+{{- /* `created` is the second date — when the work was begun, not published.
+It matters for a poem written years before it appeared and says nothing on a
+note (§20: minimum metadata). */ -}}
+{{- $created := default true .created -}}
 <h1 class="dc-title p-name">{{ $page.Title }}</h1>
 <data class="u-uid" value="{{ partial "publication/identity-uri.html" $page }}"></data>
 {{- if $meta }}
@@ -22,7 +26,7 @@ visible image is whatever the author put in the Markdown body.
     {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-list__date dt-published") }}
   </a>
   {{ with $page.Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>{{ end }}
-  {{ with $page.Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
+  {{ if $created }}{{ with $page.Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}{{ end }}
 </p>
 {{ partial "byline.html" $page }}
 {{- else }}

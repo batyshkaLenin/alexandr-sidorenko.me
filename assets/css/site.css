@@ -1436,3 +1436,21 @@ body:has(.dc-statusbar) {
     min-height: 44px;
   }
 }
+
+/* The publication's metadata line is one line: the date there is inline, not
+   the block-level one a list row uses. */
+.dc-publication__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  margin: 6px 0 0;
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-faint);
+}
+
+.dc-publication__meta .dc-list__date {
+  display: inline;
+  margin: 0;
+  font-size: var(--dc-fs-meta);
+}
