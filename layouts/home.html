@@ -165,8 +165,13 @@ as a clearly build-time fallback. */ -}}
       <p class="as-activity__value">
         <a href="{{ .url }}" target="_blank" rel="noopener">{{ .artist }} — {{ .name }}</a>
       </p>
+      {{- /* The pane shows data, not the name of whoever supplied it: the
+      source lives in the link's tooltip together with the moment the snapshot
+      was taken (owner's call, 17 August 2026 — same rule as the dev module in
+      ADR redesign-activity-dev-module). */ -}}
       <p class="as-activity__meta">
-        слушал {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}, <a href="https://www.last.fm/user/batyshkaLenin" target="_blank" rel="noopener">по данным Last.fm</a>
+        <a href="https://www.last.fm/user/batyshkaLenin" target="_blank" rel="noopener"
+           title="{{ i18n "activityMusicSource" }}">слушал {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}</a>
       </p>
     </section>
     {{- end }}

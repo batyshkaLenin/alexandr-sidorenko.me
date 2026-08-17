@@ -114,3 +114,5 @@ helpKeysTitle:
   other: "клавиши"
 helpCommandsTitle:
   other: "cli"
+activityMusicSource:
+  other: "Последний трек по данным Last.fm, обновляется при сборке сайта"
