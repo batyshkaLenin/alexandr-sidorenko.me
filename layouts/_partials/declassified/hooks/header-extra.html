@@ -46,5 +46,19 @@ elsewhere; the prompt follows the address a visitor sees, not the folder. */ -}}
 <p class="dc-identity__back"><a href="{{ partial "canonical-url.html" .RelPermalink }}"><span aria-hidden="true">← </span>library</a></p>
 {{- end }}
 {{- end }}
+{{- /* Search lives in the bar, not in the menu: it is not a section of the site
+(content-model ADR, п.5). The element is empty markup — with no JavaScript
+neither the trigger nor the palette is drawn at all (§32.1), and the way to
+anything remains the Library. Its copy is passed in, because the component is
+the theme's and knows no Russian. */ -}}
+<span class="dc-topbar__tools">
+{{ partial "declassified/component.html" "dc-command-palette" -}}
+<dc-command-palette
+  src="/search-index.json"
+  data-hint="{{ i18n "searchHint" }}"
+  data-loading="{{ i18n "searchLoading" }}"
+  data-empty="{{ i18n "searchEmpty" }}"
+  data-error="{{ i18n "searchError" }}"></dc-command-palette>
 {{ partial "declassified/component.html" "dc-clock" -}}
 <dc-clock aria-hidden="true"></dc-clock>
+</span>

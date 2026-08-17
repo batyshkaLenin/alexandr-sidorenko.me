@@ -44,7 +44,7 @@ theme = 'declassified'
   lastmod = ['lastmod', ':git', ':default']
 
 [outputs]
-  home = ['html', 'rss', 'jsonfeed', 'llms', 'redirects']
+  home = ['html', 'rss', 'jsonfeed', 'llms', 'redirects', 'searchindex']
   section = ['html', 'rss', 'jsonfeed']
   page = ['html']
   taxonomy = ['html']
@@ -77,6 +77,15 @@ theme = 'declassified'
   mediaType = 'text/plain'
   baseName = 'llms'
   isPlainText = true
+
+# /search-index.json (T134): what the theme's search palette searches. Home
+# only — one index for the whole site, built with it (§45.1) rather than
+# assembled in the browser.
+[outputFormats.searchindex]
+  mediaType = 'application/json'
+  baseName = 'search-index'
+  isPlainText = true
+  notAlternative = true
 
 # /_redirects (T144): the identity resolver plus the canonical-slash rule.
 # Generated rather than kept in static/, because one rule per material has to

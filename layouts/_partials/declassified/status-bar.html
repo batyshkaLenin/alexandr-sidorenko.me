@@ -39,9 +39,15 @@ shortcuts have no keyboard to come from (§13.3).
   {{- $mode = "TOPIC" -}}
   {{- $state = printf "%d %s" (len .Pages) (i18n "materialsCount" (len .Pages)) -}}
 {{- end -}}
+{{- /* <as-statusbar> swaps the mode for SEARCH while the palette is open (T134)
+and puts the static one back afterwards. It creates no bar of its own: a page
+without one — Home — stays without one. */ -}}
 {{- with $mode }}
+{{ partial "declassified/component.html" "as-statusbar" -}}
+<as-statusbar mode-search="{{ i18n "searchMode" }}" keys-search="{{ i18n "searchKeys" }}">
 <p class="dc-statusbar" role="status">
-  <span class="dc-statusbar__mode">{{ . }}</span>
-  {{- with $state }}<span class="dc-statusbar__state">{{ . }}</span>{{ end -}}
+  <span class="dc-statusbar__mode" data-statusbar-mode>{{ . }}</span>
+  {{- with $state }}<span class="dc-statusbar__state" data-statusbar-state>{{ . }}</span>{{ end -}}
 </p>
+</as-statusbar>
 {{- end -}}

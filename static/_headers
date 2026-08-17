@@ -97,6 +97,12 @@
 /llms.txt
   Cache-Control: public, max-age=3600
 
+# The search index lives at a stable address and follows the materials, so it
+# revalidates on the same hour as the feeds rather than claiming immutability
+# it cannot have (T134).
+/search-index.json
+  Cache-Control: public, max-age=3600
+
 # The cleanup worker unregisters stale service workers, so a visitor must not
 # be stuck with a cached copy of it (T38, T59).
 /sw.js

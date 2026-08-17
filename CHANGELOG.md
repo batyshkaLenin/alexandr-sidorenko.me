@@ -99,6 +99,14 @@ is folded into the entry describing the finished behaviour rather than listed as
   in grayscale, by their own `+`/`-` and by a rule in the margin.
 - Heading anchors in publication bodies: reachable by keyboard, named for a
   screen reader, revealed on hover or focus.
+- Search. A `/ search` button sits in the top bar and `/` opens the same
+  palette from the keyboard: it looks through titles, bodies, types, topics and
+  addresses, and shows the line around the match, so a hit inside a long text
+  says why it is a hit. Arrows and Enter work, Esc closes it, and focus returns
+  to where it was. With JavaScript off there is no button, no field and no
+  broken promise — the library, its views and the topic pages remain the way to
+  everything, as they were. A redacted fragment is as absent from the search
+  index as it is from the page.
 - A clock in the top bar, reading as a machine timestamp: ISO 8601 with the
   visitor's own offset, counting the seconds it shows. It is absent below the
   top bar's breakpoint, where it would cost a whole row on a phone before any

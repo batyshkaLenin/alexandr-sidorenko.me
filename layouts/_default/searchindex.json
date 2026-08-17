@@ -1,0 +1,81 @@
+{{- /*
+/search-index.json (T134) — everything the palette can find, built with the
+site (§45.1).
+
+The index is data for the theme's <dc-command-palette>, which knows nothing
+about this site: the shape is the theme's public API, the labels and what gets
+listed are ours. Every address goes through canonical-url.html like every other
+representation, so this file cannot become the one place that publishes a
+trailing slash.
+
+Bodies come from `.Plain`, which is the rendered page without its tags — so a
+redacted fragment is absent here exactly as it is absent from the page, the
+feeds and /llms.txt: the shortcode never puts the original text in the DOM, and
+what remains is the accessible replacement ("[вымарано]"). The one thing that
+must never happen to this file is becoming the place where a redaction leaks,
+and `scripts/check-search-index.py` asserts it.
+
+`path` is the address in the shape the top bar prints (`~/library/skver`), so
+searching for a path finds what a visitor has seen on screen.
+*/ -}}
+{{- $entries := slice -}}
+
+{{- /* Materials: the whole body is searchable, not just the summary — §32 asks
+for content, and with six materials the file stays small. */ -}}
+{{- range (where site.RegularPages "Section" "library").ByDate.Reverse -}}
+  {{- $entries = $entries | append (dict
+    "title" .Title
+    "url" (partial "canonical-url.html" .RelPermalink)
+    "path" (partial "search/path.html" .RelPermalink)
+    "type" (partial "publication/type-label.html" (dict "type" .Params.type "page" .))
+    "topics" (default (slice) .Params.tags)
+    "summary" (partial "publication/summary.txt" .)
+    "text" (partial "search/plain.html" .)
+  ) -}}
+{{- end -}}
+
+{{- /* The ways to browse are findable too: a visitor who types "таблица" or
+"library/types" is looking for a page, not a material. */ -}}
+{{- range where site.RegularPages "Params.view" "!=" nil -}}
+  {{- $entries = $entries | append (dict
+    "title" .Title
+    "url" (partial "canonical-url.html" .RelPermalink)
+    "path" (partial "search/path.html" .RelPermalink)
+    "type" (i18n "searchKindView")
+    "topics" (slice)
+    "summary" .Description
+    "text" ""
+  ) -}}
+{{- end -}}
+
+{{- with site.GetPage "/library" -}}
+  {{- $entries = $entries | append (dict
+    "title" .Title
+    "url" (partial "canonical-url.html" .RelPermalink)
+    "path" (partial "search/path.html" .RelPermalink)
+    "type" (i18n "searchKindSection")
+    "topics" (slice)
+    "summary" .Description
+    "text" ""
+  ) -}}
+{{- end -}}
+
+{{- range site.Taxonomies.tags -}}
+  {{- with .Page -}}
+    {{- /* A term's address is percent-encoded because the topic is Russian;
+    the path is what a reader would type, so it carries the readable form. */ -}}
+    {{- $entries = $entries | append (dict
+      "title" .Title
+      "url" (partial "canonical-url.html" .RelPermalink)
+      "path" (printf "~/tags/%s" (lower .Title))
+      "type" (i18n "searchKindTopic")
+      "topics" (slice .Title)
+      "summary" .Description
+      "text" ""
+    ) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* No build timestamp: the file changes when the site's content changes and
+not once per build, so a cached copy stays valid as long as it is true. */ -}}
+{{- dict "entries" $entries | jsonify -}}

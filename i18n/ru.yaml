@@ -38,3 +38,21 @@ videoCaptions:
   other: "Субтитры"
 tableRegion:
   other: "Таблица, прокручивается по горизонтали"
+searchKindView:
+  other: "Представление"
+searchKindSection:
+  other: "Раздел"
+searchKindTopic:
+  other: "Тема"
+searchHint:
+  other: "ищет по названиям, тексту, типам, темам и путям"
+searchLoading:
+  other: "индекс загружается…"
+searchEmpty:
+  other: "ничего не найдено"
+searchError:
+  other: "индекс недоступен — материалы остаются в библиотеке"
+searchMode:
+  other: "SEARCH"
+searchKeys:
+  other: "↑↓ выбор · ↵ открыть · Esc закрыть"

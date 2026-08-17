@@ -1,0 +1,8 @@
+{{- /*
+A page's body as one line of searchable text: rendered HTML without its tags,
+entities resolved (`.Plain` leaves the typographer's quotes escaped), and
+whitespace collapsed. A redacted fragment is not in the rendered page, so it is
+not here either — what remains is the accessible replacement the shortcode
+prints.
+*/ -}}
+{{- return (.Plain | htmlUnescape | strings.TrimSpace | replaceRE `\s+` " ") -}}

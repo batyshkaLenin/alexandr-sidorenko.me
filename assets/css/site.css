@@ -444,6 +444,14 @@
    both belong to its <dc-keynav> and <dc-clock>, and a component's styles ship
    with the component. */
 
+/* The bar's right-hand tools: search trigger and clock, kept together so the
+   prompt on the left and the tools on the right are the topbar's two ends. */
+.dc-topbar__tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 /* Home page: three rows mirror the accepted Sidorenko TUI mockup layout
    (240px filetree / 1fr about / 300px portrait, then posts+links, then
    creativity+status). Collapses to one column at the theme's existing
@@ -1571,6 +1579,12 @@
  * on a phone it is not rendered at all (§13.3), so the reserved space is
  * released with it.
  */
+/* A wrapper that creates no box: <as-statusbar> only swaps the mode text, and
+   the bar keeps behaving exactly as it did before it was wrapped. */
+as-statusbar {
+  display: contents;
+}
+
 .dc-statusbar {
   position: fixed;
   inset-inline: 0;

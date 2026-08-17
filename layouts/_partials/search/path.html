@@ -1,0 +1,6 @@
+{{- /*
+The address in the shape the top bar prints it: `/library/skver` → `~/library/skver`,
+the site root → `~`. Input: a root-relative URL. See searchindex.json.
+*/ -}}
+{{- $url := partial "canonical-url.html" . -}}
+{{- return (cond (eq $url "/") "~" (printf "~%s" $url)) -}}

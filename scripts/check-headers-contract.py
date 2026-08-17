@@ -66,6 +66,7 @@ EXPECTED_CACHE = {
     "/sitemap.xml": HOUR,
     "/robots.txt": HOUR,
     "/llms.txt": HOUR,
+    "/search-index.json": HOUR,
     "/sw.js": REVALIDATE,
 }
 
