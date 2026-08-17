@@ -1,0 +1,14 @@
+{{- /*
+Site override of the theme's footer shell: the shell has no footer.
+(A publication still closes with its own <footer> colophon — that is the
+document's ending, not the interface's.)
+
+The status bar (§13) is fixed to the bottom of the viewport and is the bottom
+of the working area; a document footer underneath it made two endings in a
+row. What the footer used to carry — the link to the source, the feed and the
+copyright line — is not reprinted here: RSS and JSON Feed stay discoverable
+through <head> and the library's own buttons, the licence and authorship stay
+in the JSON-LD, and where the visible versions belong is an open question the
+owner will answer separately (T137 review, 17 August 2026).
+*/ -}}
+{{- partial "declassified/status-bar.html" . -}}
