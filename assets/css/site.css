@@ -506,10 +506,6 @@ dc-prompt[open] .dc-identity__sep {
   grid-template-columns: 1fr;
 }
 
-.dc-home-row--activity {
-  grid-template-columns: 1fr 280px;
-}
-
 /* Tablet: the three-column identity row cannot hold three columns, so the
    preview moves under the pair — but a portrait spanning the full width would
    turn a utility pane into the loudest thing on the page (§15.2). It keeps a
@@ -525,8 +521,7 @@ dc-prompt[open] .dc-identity__sep {
 }
 
 @media (max-width: 860px) {
-  .dc-home-row--identity,
-  .dc-home-row--activity {
+  .dc-home-row--identity {
     grid-template-columns: 1fr;
   }
 }
@@ -565,7 +560,7 @@ dc-prompt[open] .dc-identity__sep {
     order: 4;
   }
 
-  .dc-home-row--activity > .dc-panel {
+  .as-activity {
     order: 5;
   }
 
@@ -717,27 +712,77 @@ dc-prompt[open] .dc-identity__sep {
   text-decoration: underline;
 }
 
-/* The track itself carries the panel: it is the one line a reader came here
-   for, so it stays in the body colour while the timestamp below stays muted
-   (T96). */
-.dc-lastfm-track {
-  margin: 0 0 4px;
+/* Activity (§16): one utility pane, divided by whitespace and quiet rules
+   rather than a dashboard of cards. Unknown/stale data stays muted; it never
+   becomes an alert state. */
+.as-activity {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.as-activity__body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0;
+  padding-block: 12px;
+}
+
+.as-activity__module {
+  min-width: 0;
+  padding: 2px 18px;
+  border-left: 1px solid var(--dc-border);
+}
+
+.as-activity__module:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.as-activity__name,
+.as-activity__value,
+.as-activity__meta {
+  margin: 0;
+}
+
+.as-activity__name {
+  color: var(--dc-muted);
+  font-size: var(--dc-fs-meta);
+  font-weight: 400;
+  text-transform: lowercase;
+}
+
+.as-activity__value {
+  margin-top: 5px;
+  color: var(--dc-text);
   font-size: var(--dc-fs-ui);
 }
 
-.dc-lastfm-note {
-  margin: 0 0 8px;
+.as-activity__meta {
+  margin-top: 3px;
   color: var(--dc-muted);
   font-size: var(--dc-fs-meta);
 }
 
-.dc-lastfm-link {
-  display: inline-block;
-  border: 1px solid var(--dc-border);
-  border-radius: 2px;
-  padding: 2px 7px;
-  font-size: var(--dc-fs-meta);
-  color: var(--dc-accent);
+.as-activity[data-stale] .as-activity__meta {
+  color: var(--dc-faint);
+}
+
+@media (max-width: 640px) {
+  .as-activity__body {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .as-activity__module {
+    padding: 14px 0 0;
+    border-top: 1px solid var(--dc-border);
+    border-left: 0;
+  }
+
+  .as-activity__module:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
 }
 
 /* Full list pages (.dc-panel--doc, from the theme) show a bordered type

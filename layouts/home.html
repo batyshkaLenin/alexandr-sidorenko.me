@@ -144,37 +144,41 @@ made of lists (T135). */ -}}
 
 </div>
 
-<div class="dc-home-row dc-home-row--activity">
-
-  {{- /* The second panel used to list the other section. With one library it
-  would only repeat the panel above, so it is gone until Home is composed
-  properly (T116). */ -}}
-  {{- /* Last scrobbled track, not "now playing" (T96). Scrobbles arrive in
-  batches when the phone syncs by hand, so what this shows is a past event with
-  the time it happened — never a claim about the present. The snapshot in
-  data/lastfm.json is written by scripts/fetch-lastfm.py during the build; when
-  it is empty, because the fetch failed or has never run, the panel falls back
-  to the plain link it has always been. */ -}}
-  {{ $track := (index (default dict hugo.Data.lastfm) "track") }}
-  {{- /* A module with no data is not drawn (§16.2): an empty pane saying
-  "nothing here yet" spends a whole region to report the absence of a fact
-  nobody asked for. When the snapshot is missing — the fetch failed or never
-  ran — the pane simply is not there. */ -}}
-  {{- with $track }}
-  <section class="dc-panel dc-panel--utility">
-    {{ partial "declassified/panel-label.html" "$ lastfm-cli --last-played" }}
-    <div class="dc-panel__body">
-      <p class="dc-lastfm-track">
+{{- /* One site-owned utility pane (§16), not a row of dashboard cards. The
+modules are ordinary static markup first; <as-activity> only annotates an old
+build as a snapshot when JavaScript is available. */ -}}
+{{ partial "declassified/component.html" "as-activity" }}
+{{ $builtAt := now.UTC }}
+{{- /* GitInfo is page-scoped and Home may point at content/_index.md's last
+commit rather than the revision being built. The build wrapper exports the
+site revision explicitly; local bare `hugo` remains useful with the page hash
+as a clearly build-time fallback. */ -}}
+{{ $buildCommit := default .GitInfo.AbbreviatedHash (os.Getenv "HUGO_BUILD_COMMIT") }}
+<as-activity class="dc-panel dc-panel--utility as-activity" data-built-at="{{ $builtAt.Format "2006-01-02T15:04:05Z07:00" }}">
+  {{ partial "declassified/panel-label.html" "activity/" }}
+  <div class="dc-panel__body as-activity__body">
+    {{- /* Last scrobbled track, never "now playing" (T96). An absent snapshot
+    removes the whole module; there is no empty frame in its place (§16.2). */ -}}
+    {{- with (index (default dict hugo.Data.lastfm) "track") }}
+    <section class="as-activity__module" data-activity-module="music" aria-labelledby="activity-music">
+      <h2 class="as-activity__name" id="activity-music">music</h2>
+      <p class="as-activity__value">
         <a href="{{ .url }}" target="_blank" rel="noopener">{{ .artist }} — {{ .name }}</a>
       </p>
-      <p class="dc-lastfm-note">
-        слушал {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}, по данным Last.fm
+      <p class="as-activity__meta">
+        слушал {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}, <a href="https://www.last.fm/user/batyshkaLenin" target="_blank" rel="noopener">по данным Last.fm</a>
       </p>
-      <a class="dc-lastfm-link" href="https://www.last.fm/user/batyshkaLenin" target="_blank" rel="noopener">last.fm/batyshkaLenin →</a>
-    </div>
-  </section>
-  {{- end }}
+    </section>
+    {{- end }}
 
-</div>
+    {{- with $buildCommit }}
+    <section class="as-activity__module" data-activity-module="site" aria-labelledby="activity-site">
+      <h2 class="as-activity__name" id="activity-site">site</h2>
+      <p class="as-activity__value">main@{{ strings.TrimSpace . | truncate 7 "" }}</p>
+      <p class="as-activity__meta" data-activity-freshness>собрано <time datetime="{{ $builtAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ $builtAt.Format "02.01.2006 15:04 UTC" }}</time></p>
+    </section>
+    {{- end }}
+  </div>
+</as-activity>
 </dc-listnav>
 {{ end }}

@@ -135,6 +135,11 @@ is folded into the entry describing the finished behaviour rather than listed as
   visitor's own offset, counting the seconds it shows. It is absent below the
   top bar's breakpoint, where it would cost a whole row on a phone before any
   content is visible, and it stops counting whenever it is not on screen.
+- One `activity/` pane on Home combines the last played track with the exact
+  site revision and build time. Missing data removes its module rather than
+  leaving an empty card, and an old build is labelled as a quiet snapshot,
+  never live telemetry. The complete pane remains useful without JavaScript
+  and makes no browser request outside the site.
 - `/llms.txt`: the site as one Markdown map — a heading, a short description
   and a linked list of every publication with its summary — so a language model
   can read the structure in a single request instead of walking the sections.

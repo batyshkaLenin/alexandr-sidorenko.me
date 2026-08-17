@@ -75,6 +75,7 @@ main() {
   fi
 
   echo "Site commit: $(git rev-parse HEAD)"
+  export HUGO_BUILD_COMMIT="$(git rev-parse HEAD)"
   ensure_submodules
 
   echo "Installing Hugo ${HUGO_VERSION}..."
