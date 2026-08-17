@@ -66,8 +66,12 @@ MaterialRow.
         {{ range $materials.GroupByParam "type" }}
         {{ $type := .Key }}
         {{ $group := .Pages }}
+        {{- /* Each group is a link to that type's own address, which is also
+        where its feeds live (T142). */ -}}
         <h2 class="dc-library__group">
-          <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" $type }}">{{ partial "publication/type-label.html" (dict "type" $type "page" (index $group 0)) }}</span>
+          <a href="{{ partial "canonical-url.html" (printf "/library/types/%s" $type | relLangURL) }}">
+            <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" $type }}">{{ partial "publication/type-label.html" (dict "type" $type "page" (index $group 0)) }}</span>
+          </a>
           <span class="dc-library__count">{{ len $group }}</span>
         </h2>
         <ul class="dc-material-list dc-material-list--dense h-feed">

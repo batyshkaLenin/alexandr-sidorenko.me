@@ -109,6 +109,10 @@ is folded into the entry describing the finished behaviour rather than listed as
   and status line say which mode it is. Without JavaScript they stay two
   ordinary links to two pages. A phone is not offered the table at all — its
   columns only fit sideways there.
+- Feeds for each material type and each topic, beside the site-wide one: a
+  reader who only wants the poems, or only what touches one topic, can follow
+  exactly that. All of them are full-text, and every page announces its own in
+  the head, so a reader's client finds them without being told.
 - Responses under a publication are sorted by what they are: answers with their
   text, mentions that only say someone linked here, and a count of likes and
   reposts once there are enough of them to crowd the page. A quote is trimmed to

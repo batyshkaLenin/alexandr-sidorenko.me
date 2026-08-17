@@ -1,0 +1,22 @@
+{{- /*
+Which materials belong in the feed of this page.
+
+One place decides it for both feed formats, so RSS and JSON Feed can never
+disagree about what they publish:
+
+  home, library     every material
+  topic (term)      the materials of that topic
+  type page         the materials of that type
+
+A type page is an ordinary page with its own outputs (content/types/*.md), so
+it has no pages of its own to walk — the filter is the whole of its identity.
+*/ -}}
+{{- $materials := where site.RegularPages "Section" "library" -}}
+{{- with .Params.material_type -}}
+  {{- $materials = where $materials "Params.type" . -}}
+{{- else -}}
+  {{- if eq $.Kind "term" -}}
+    {{- $materials = where $.Pages "Section" "library" -}}
+  {{- end -}}
+{{- end -}}
+{{- return $materials.ByDate.Reverse -}}

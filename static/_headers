@@ -76,6 +76,9 @@
 # specific type (T4). Setting the header replaces the platform's value; no
 # removal line is needed, and repeated names are only joined between separate
 # matching rules.
+# Two rules per format instead of one per feed: since T142 every topic and every
+# material type publishes its own pair, and naming them one by one would grow
+# the file with the library and eventually meet the 100-rule limit.
 /feed.xml
   Cache-Control: public, max-age=3600
   Content-Type: application/rss+xml; charset=utf-8
@@ -84,11 +87,11 @@
   Cache-Control: public, max-age=3600
   Content-Type: application/feed+json; charset=utf-8
 
-/library/feed.xml
+/*/feed.xml
   Cache-Control: public, max-age=3600
   Content-Type: application/rss+xml; charset=utf-8
 
-/library/feed.json
+/*/feed.json
   Cache-Control: public, max-age=3600
   Content-Type: application/feed+json; charset=utf-8
 

@@ -1,5 +1,5 @@
 {{- $items := slice }}
-{{- range (where .RegularPagesRecursive "Section" "library").ByDate.Reverse }}
+{{- range (partial "publication/feed-pages.html" .) }}
   {{- $authors := slice }}
   {{- range .Params.authors }}
     {{- with index hugo.Data.authors . }}

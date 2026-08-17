@@ -1,0 +1,35 @@
+{{- /*
+One material type as its own address (§38, T142): everything of that kind, in
+one list, with its own RSS and JSON Feed.
+
+The page exists because a feed needs an address, and an address a reader can
+link to is worth a page. It reuses the Library's own row primitive rather than
+inventing markup: this is the library filtered, not a new kind of screen.
+*/ -}}
+{{ define "main" }}
+{{ $materials := where (where site.RegularPages "Section" "library") "Params.type" .Params.material_type }}
+<div class="dc-library">
+  {{ partial "library/views-nav.html" . }}
+  <section class="dc-panel dc-panel--primary dc-panel--doc">
+    {{ partial "declassified/panel-label.html" (printf "$ ls ~/library --type %s" .Params.material_type) }}
+    <h1 class="dc-section-title">{{ .Title }}</h1>
+    <p class="dc-section-meta">
+      {{ len $materials }} {{ i18n "materialsCount" (len $materials) }}
+      {{ partial "publication/feed-links.html" . }}
+    </p>
+    {{ with .Content }}<div class="dc-panel__body dc-prose">{{ . }}</div>{{ end }}
+    <div class="dc-panel__body">
+      {{ partial "declassified/component.html" "dc-listnav" }}
+      <dc-listnav>
+      <ul class="dc-material-list dc-material-list--dense h-feed">
+        {{ range $materials.ByDate.Reverse }}
+        {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+        {{ else }}
+        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+        {{ end }}
+      </ul>
+      </dc-listnav>
+    </div>
+  </section>
+</div>
+{{ end }}

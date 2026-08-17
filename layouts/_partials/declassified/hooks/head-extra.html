@@ -64,10 +64,12 @@ reader (§45.2); a missing file is a build error, not a silent skip. */ -}}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
 {{ end }}
-{{ if or .IsHome (eq .Kind "section") }}
+{{- /* Every page that has feeds announces them, and only the page's own: home,
+the library, a topic and a type each publish a different set of materials
+(§38, T142). The condition is the presence of the output, not a list of page
+kinds — adding a feed somewhere must not require editing this line. */ -}}
 {{ with .OutputFormats.Get "rss" }}<link rel="alternate" type="{{ .MediaType }}" href="{{ .Permalink }}" title="RSS">{{ end }}
 {{ with .OutputFormats.Get "jsonfeed" }}<link rel="alternate" type="{{ .MediaType }}" href="{{ .Permalink }}" title="JSON Feed">{{ end }}
-{{ end }}
 
 <link rel="icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/logo192.png">

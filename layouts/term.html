@@ -6,6 +6,11 @@ links go through canonical-url.html so the site emits a single URL form (T56).
 <section class="dc-panel dc-panel--wide">
   <h1 class="dc-visually-hidden">{{ .Title }}</h1>
   {{ partial "declassified/panel-label.html" (printf "$ grep -rl %s ~/" .Title) }}
+  {{- /* A topic says how much it holds and offers itself as a feed (§38). */ -}}
+  <p class="dc-section-meta">
+    {{ len .Pages }} {{ i18n "materialsCount" (len .Pages) }}
+    {{ partial "publication/feed-links.html" . }}
+  </p>
   <div class="dc-panel__body">
     {{ partial "declassified/component.html" "dc-listnav" }}
     <dc-listnav>

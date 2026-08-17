@@ -19,10 +19,7 @@ does not.
          section's own feeds stay correct if an output format is renamed. */}}
     <div class="dc-section-head">
       <h1 class="dc-section-title">{{ .Title }}</h1>
-      <p class="dc-section-feeds">
-        {{- with .OutputFormats.Get "rss" }}<a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">rss</a>{{ end }}
-        {{- with .OutputFormats.Get "jsonfeed" }}<a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">json feed</a>{{ end }}
-      </p>
+      <p class="dc-section-feeds">{{ partial "publication/feed-links.html" . }}</p>
     </div>
     {{ with .Content }}
     <div class="dc-panel__body dc-prose">{{ . }}</div>

@@ -99,6 +99,48 @@ def check(errors: list[str], condition: bool, message: str) -> None:
         errors.append(message)
 
 
+def derived_feeds(public_dir: Path) -> list[Path]:
+    """Every feed that is not the site-wide one: topics and material types."""
+    return sorted(p for p in public_dir.rglob("feed.xml") if p.parent != public_dir)
+
+
+def feed_entries(path: Path) -> dict[str, str]:
+    """url → guid, for any RSS file."""
+    root = ET.parse(path).getroot()
+    entries = {}
+    for item in root.findall("./channel/item"):
+        link = (item.findtext("link") or "").strip()
+        entries[link] = (item.findtext("guid") or "").strip()
+    return entries
+
+
+def check_derived_feeds(errors: list[str], public_dir: Path, site_wide: dict[str, dict[str, object]]) -> int:
+    """A topic's or a type's feed is a subset of the whole, with the same
+    identity for the same material (§38, T142): a narrower feed must never
+    invent an item or give it a different id."""
+    checked = 0
+    for feed in derived_feeds(public_dir):
+        where = "/" + feed.relative_to(public_dir).as_posix()
+        entries = feed_entries(feed)
+        check(errors, bool(entries), f"{where}: feed has no items")
+        json_path = feed.with_name("feed.json")
+        check(errors, json_path.is_file(), f"{where}: has no JSON Feed beside it")
+        json_urls = set()
+        if json_path.is_file():
+            json_urls = {item.get("url") for item in json.loads(json_path.read_text()).get("items", [])}
+        for url, guid in entries.items():
+            check(errors, url in site_wide, f"{where}: {url} is not in the site-wide feed")
+            if url in site_wide:
+                check(
+                    errors,
+                    guid == site_wide[url]["guid"],
+                    f"{where}: {url} carries a different identity than the site-wide feed",
+                )
+            check(errors, url in json_urls, f"{where}: {url} is missing from the JSON Feed beside it")
+        checked += 1
+    return checked
+
+
 def rss_items(public_dir: Path) -> dict[str, dict[str, object]]:
     root = ET.parse(public_dir / "feed.xml").getroot()
     result: dict[str, dict[str, object]] = {}
@@ -106,6 +148,7 @@ def rss_items(public_dir: Path) -> dict[str, dict[str, object]]:
         url = item.findtext("link")
         if url:
             result[url] = {
+                "guid": (item.findtext("guid") or "").strip(),
                 "summary": item.findtext("description") or "",
                 "content": item.findtext(CONTENT_NS) or "",
                 "author": item.findtext(CREATOR_NS) or "",
@@ -158,6 +201,8 @@ def main() -> int:
     card_parser = section_cards(public_dir)
     cards = card_parser.cards
     errors: list[str] = []
+
+    derived = check_derived_feeds(errors, public_dir, rss)
 
     check(errors, len(rss) == len(fixture["items"]), "RSS item count changed")
     check(
@@ -281,7 +326,8 @@ def main() -> int:
         return 1
 
     print(
-        f"OK: {len(fixture['items'])} feed items; body, URL, audio, XML and JSON contracts"
+        f"OK: {len(fixture['items'])} feed items in the site-wide feed, "
+        f"{derived} derived feed(s); body, URL, audio, XML and JSON contracts"
     )
     return 0
 

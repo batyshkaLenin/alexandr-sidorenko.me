@@ -61,8 +61,10 @@ EXPECTED_CACHE = {
     "/site.webmanifest": DAY,
     "/feed.xml": HOUR,
     "/feed.json": HOUR,
-    "/library/feed.xml": HOUR,
-    "/library/feed.json": HOUR,
+    # Every topic and type publishes its own pair (T142); the rules are per
+    # format, not per feed, so the file does not grow with the library.
+    "/*/feed.xml": HOUR,
+    "/*/feed.json": HOUR,
     "/sitemap.xml": HOUR,
     "/robots.txt": HOUR,
     "/llms.txt": HOUR,
@@ -76,8 +78,8 @@ EXPECTED_CACHE = {
 EXPECTED_CONTENT_TYPE = {
     "/feed.xml": "application/rss+xml; charset=utf-8",
     "/feed.json": "application/feed+json; charset=utf-8",
-    "/library/feed.xml": "application/rss+xml; charset=utf-8",
-    "/library/feed.json": "application/feed+json; charset=utf-8",
+    "/*/feed.xml": "application/rss+xml; charset=utf-8",
+    "/*/feed.json": "application/feed+json; charset=utf-8",
 }
 
 # HTML deliberately has no rule: the platform default is already the contract's

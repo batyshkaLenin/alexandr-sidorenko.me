@@ -48,7 +48,10 @@ theme = 'declassified'
   section = ['html', 'rss', 'jsonfeed']
   page = ['html']
   taxonomy = ['html']
-  term = ['html']
+  # A topic is a real address someone can follow, so it carries feeds like any
+  # other list of materials (§38, T142). Types get theirs per page, declared in
+  # content/types/*.md, because they are pages rather than a taxonomy.
+  term = ['html', 'rss', 'jsonfeed']
 
 [mediaTypes.'application/feed+json']
   suffixes = ['json']
