@@ -350,15 +350,15 @@ dc-prompt[open] .dc-identity__sep {
   white-space: pre;
 }
 
-/* While the line is a real input it has a real caret; the drawn one would be a
-   second cursor sitting next to it. */
-dc-prompt[open] .dc-identity__cursor,
-dc-prompt[open] .dc-identity__sep {
-  opacity: 0.5;
+/* The drawn cursor belongs to the static line. Once <dc-prompt> is alive the
+   line has a real caret the moment it is opened, and a `_` blinking at the end
+   of the printed command points at a place the caret never appears. */
+dc-prompt[ready] .dc-identity__cursor {
+  display: none;
 }
 
-dc-prompt[open] .dc-identity__cursor {
-  display: none;
+dc-prompt[open] .dc-identity__sep {
+  opacity: 0.5;
 }
 
 /* Moves between neighbours (T55). Sizes and colours reuse the panel's existing
