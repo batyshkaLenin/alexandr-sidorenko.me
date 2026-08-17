@@ -109,6 +109,15 @@ is folded into the entry describing the finished behaviour rather than listed as
   and status line say which mode it is. Without JavaScript they stay two
   ordinary links to two pages. A phone is not offered the table at all — its
   columns only fit sideways there.
+- Responses under a publication are sorted by what they are: answers with their
+  text, mentions that only say someone linked here, and a count of likes and
+  reposts once there are enough of them to crowd the page. A quote is trimmed to
+  a couple of lines — enough to recognise a response, not to reprint it. Nothing
+  is fetched from anyone else's server to show them, and no avatars are pulled.
+  Under it, instead of a comment box that would go nowhere: answer on your own
+  site and send a Webmention, with the publication's permanent address written
+  out, copyable in one click, and two links for anyone who has not met the
+  protocol before.
 - The activity panel gained a third module: how many hours went into code this
   week, and a small graph of how the days compared. The hours come from the
   build's own snapshot; the graph refreshes itself from a public endpoint when

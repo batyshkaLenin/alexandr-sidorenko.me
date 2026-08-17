@@ -1,49 +1,126 @@
 {{- /*
-Approved incoming Webmentions for this publication (T8). The source of truth is
-data/webmentions.json, written only by scripts/moderate-webmentions.py: whatever
-sits in that file is exactly what the reader sees, so removing a mention is
-taking it out and rebuilding.
+`responses/` — what came back to this publication, and how to answer it (§37).
 
-Reactions (like/repost/bookmark) carry no text, so they collapse into one line
-of names; replies and mentions get their own entries with the stored plain
-text. No avatars: the contract stores neither the image nor a link to it, and
-hotlinking a stranger's photo would put back the third-party origin the fonts
-decision removed.
+A Webmention is a transport, not a comment section (§37.1): a reply, a mention
+and a like are three different things and are shown as three, never as one list
+called «Комментарии». Replies carry text and get entries; mentions say that
+someone linked here; likes, reposts and bookmarks are names, and past a handful
+they collapse into a count so that social noise cannot outweigh the publication
+(§37.3).
 
-Nothing renders when a page has no approved mentions — an empty "Упоминания"
-heading tells the reader nothing.
+The source of truth is data/webmentions.json, written only by
+scripts/moderate-webmentions.py: what sits in that file is exactly what a reader
+sees, and removing a mention means taking it out and rebuilding. No avatars —
+the contract stores neither the image nor a link to it, and hotlinking a
+stranger's photo would put back the third-party origin the fonts decision
+removed (ADR redesign-webmention-moderation-contract).
+
+There is no comment form, because there is nothing behind one (§37.5). What is
+offered instead is honest: answer on your own site and send a Webmention, and
+take the permalink. The address is written out as a link, so it works without
+JavaScript; <dc-copy> adds a copy button when it can.
+
+§37.5 also suggests an e-mail address as a third action. There is none here:
+the owner decided on 17 August 2026 not to publish one, and an action nobody
+can perform is exactly what that section warns against.
+
+The block itself is always here — the invitation is useful on a publication
+nobody has answered yet — but nothing empty is drawn: with no approved mentions
+there are no lists, no headings and no counts.
 */ -}}
-{{- $target := partial "canonical-url.html" .Permalink -}}
-{{- $mentions := where (default (slice) hugo.Data.webmentions.mentions) "target" $target -}}
+{{- $permalink := partial "canonical-url.html" .Permalink -}}
+{{- $mentions := where (default (slice) hugo.Data.webmentions.mentions) "target" $permalink -}}
+{{- $replies := where $mentions "type" "eq" "reply" -}}
+{{- $links := where $mentions "type" "eq" "mention" -}}
 {{- $reactions := where $mentions "type" "in" (slice "like" "repost" "bookmark") -}}
-{{- $replies := where $mentions "type" "in" (slice "reply" "mention") -}}
-{{- if $mentions }}
-<section class="dc-webmentions" aria-labelledby="webmentions-heading">
-  <h2 class="dc-webmentions__heading" id="webmentions-heading">Упоминания</h2>
+{{- /* Above this many, names stop being informative and become a crowd. */ -}}
+{{- $reactionNames := 6 -}}
+<section class="dc-responses" aria-labelledby="responses-heading">
+  {{ partial "declassified/panel-label.html" "responses/" }}
+  <h2 class="dc-visually-hidden" id="responses-heading">{{ i18n "responsesHeading" }}</h2>
+
+  {{- if $mentions }}
+  <p class="dc-responses__summary">
+    {{- $counts := slice -}}
+    {{- with $replies }}{{ $counts = $counts | append (i18n "responsesReplies" (len .)) }}{{ end -}}
+    {{- with $links }}{{ $counts = $counts | append (i18n "responsesMentions" (len .)) }}{{ end -}}
+    {{- with $reactions }}{{ $counts = $counts | append (i18n "responsesReactions" (len .)) }}{{ end -}}
+    {{ delimit $counts " · " }}
+  </p>
+  {{- end }}
+
+  {{- with $replies }}
+  <h3 class="dc-responses__group">{{ i18n "responsesGroupReplies" }}</h3>
+  <ul class="dc-responses__list">
+    {{- range . }}
+    <li class="dc-responses__item h-cite" data-response="reply">
+      <p class="dc-responses__who">
+        <a class="dc-responses__source u-url" href="{{ .source }}" rel="nofollow ugc">
+          <span class="p-author h-card">{{ .author_name | default .author_url | default (i18n "responsesAnonymous") }}</span>
+        </a>
+        {{- with .published }}
+        {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long" "class" "dc-responses__date dt-published") }}
+        {{- end }}
+      </p>
+      {{- with .content_text }}
+      {{- /* The excerpt is short on purpose (§37.6): a response is quoted to be
+      recognised, not reprinted here in full. The stored text carries no markup —
+      the importer strips it — so truncation cannot break a tag. */ -}}
+      <p class="dc-responses__text p-content">{{ . | truncate 280 "…" }}</p>
+      {{- end }}
+    </li>
+    {{- end }}
+  </ul>
+  {{- end }}
+
+  {{- with $links }}
+  <h3 class="dc-responses__group">{{ i18n "responsesGroupMentions" }}</h3>
+  <ul class="dc-responses__list">
+    {{- range . }}
+    <li class="dc-responses__item h-cite" data-response="mention">
+      <p class="dc-responses__who">
+        <a class="dc-responses__source u-url" href="{{ .source }}" rel="nofollow ugc">
+          <span class="p-author h-card">{{ .author_name | default .author_url | default (i18n "responsesAnonymous") }}</span>
+        </a>
+        {{- with .published }}
+        {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long" "class" "dc-responses__date dt-published") }}
+        {{- end }}
+      </p>
+    </li>
+    {{- end }}
+  </ul>
+  {{- end }}
+
   {{- with $reactions }}
-  <p class="dc-webmentions__reactions">
+  <h3 class="dc-responses__group">{{ i18n "responsesGroupReactions" }}</h3>
+  {{- if gt (len .) $reactionNames }}
+  {{- /* A crowd is a number: the names would fill the page and say less than
+  the count does (§37.3). */ -}}
+  <p class="dc-responses__reactions" data-response="reactions">{{ i18n "responsesReactions" (len .) }}</p>
+  {{- else }}
+  <p class="dc-responses__reactions" data-response="reactions">
     {{- range $index, $mention := . }}
     {{- if $index }}, {{ end -}}
     <a class="u-like-of" href="{{ $mention.source }}" rel="nofollow ugc">{{ $mention.author_name | default $mention.author_url | default $mention.source }}</a>
     {{- end }}
   </p>
   {{- end }}
-  {{- with $replies }}
-  <ul class="dc-webmentions__list">
-    {{- range . }}
-    <li class="dc-webmentions__item h-cite">
-      <a class="dc-webmentions__source u-url" href="{{ .source }}" rel="nofollow ugc">
-        <span class="p-author h-card">{{ .author_name | default .author_url | default "Аноним" }}</span>
-      </a>
-      {{- with .published }}
-      {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long" "class" "dc-webmentions__date dt-published") }}
-      {{- end }}
-      {{- with .content_text }}
-      <p class="dc-webmentions__text p-content">{{ . }}</p>
-      {{- end }}
-    </li>
-    {{- end }}
-  </ul>
   {{- end }}
+
+  <div class="dc-responses__reply">
+    <p class="dc-responses__invite">{{ i18n "responsesInvite" }}</p>
+    {{- /* Two outward links, because the protocol needs the answering site to
+    act: one explains what a Webmention is, the other sends one by hand for a
+    site that cannot. Neither is loaded by the page — they are navigation. */ -}}
+    <p class="dc-responses__action dc-responses__help">
+      <a href="https://indieweb.org/Webmention" target="_blank" rel="noopener">{{ i18n "responsesWhat" }}</a>
+      <a href="https://telegraph.p3k.io/" target="_blank" rel="noopener">{{ i18n "responsesSend" }}</a>
+    </p>
+    <p class="dc-responses__action">
+      {{ partial "declassified/component.html" "dc-copy" -}}
+      <dc-copy data-label="{{ i18n "responsesCopy" }}" data-done="{{ i18n "responsesCopied" }}">
+        <a class="dc-responses__permalink" href="{{ $permalink }}">{{ .Permalink | replaceRE "/$" "" }}</a>
+      </dc-copy>
+    </p>
+  </div>
 </section>
-{{- end -}}

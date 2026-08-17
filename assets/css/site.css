@@ -428,10 +428,10 @@ dc-prompt[open] .dc-identity__sep {
   }
 }
 
-/* Approved incoming Webmentions (T8). Lines up with the panel the same way
-   .dc-adjacent does, and stays visually quieter than the publication itself:
-   these are other people's words about the text, not part of it. */
-.dc-webmentions {
+/* `responses/` (§37, T141). Lines up with the panel the same way .dc-adjacent
+   does and stays quieter than the publication itself: these are other people's
+   words about the text, not part of it. */
+.dc-responses {
   max-width: var(--dc-detail-width);
   margin: 24px auto 0;
   padding: 0 26px;
@@ -439,30 +439,104 @@ dc-prompt[open] .dc-identity__sep {
   font-size: var(--dc-fs-ui);
 }
 
-.dc-webmentions__heading {
+.dc-responses__summary {
+  margin: 0;
+  color: var(--dc-faint);
+  font-size: var(--dc-fs-meta);
+}
+
+/* The groups are labels, not headlines: three of them on a page must not
+   compete with the publication's own headings. */
+.dc-responses__group {
+  margin: 16px 0 6px;
   color: var(--dc-faint);
   font-size: var(--dc-fs-meta);
   font-weight: normal;
-  text-transform: uppercase;
+  text-transform: lowercase;
+  letter-spacing: 0.08em;
 }
 
-.dc-webmentions__list {
+.dc-responses__list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.dc-webmentions__item + .dc-webmentions__item {
-  margin-top: 16px;
+.dc-responses__item + .dc-responses__item {
+  margin-top: 12px;
 }
 
-.dc-webmentions__date {
+.dc-responses__who {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.dc-responses__date {
   color: var(--dc-faint);
   font-size: var(--dc-fs-meta);
 }
 
-.dc-webmentions__text {
-  margin: 4px 0 0;
+.dc-responses__text {
+  margin: 3px 0 0;
+  color: var(--dc-text);
+}
+
+.dc-responses__reactions {
+  margin: 0;
+}
+
+/* The invitation sits apart from what came back: it is addressed to the reader,
+   not a response from one. */
+.dc-responses__reply {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--dc-border);
+}
+
+.dc-responses__invite,
+.dc-responses__action {
+  margin: 0;
+  font-size: var(--dc-fs-meta);
+}
+
+.dc-responses__action {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+}
+
+/* The permalink is meant to be taken, so it is written out in full and allowed
+   to wrap rather than being cut with an ellipsis. */
+.dc-responses__permalink {
+  color: var(--dc-muted);
+  overflow-wrap: anywhere;
+}
+
+.dc-copy__button {
+  border: 1px solid var(--dc-border);
+  border-radius: 0;
+  background: none;
+  color: var(--dc-muted);
+  font: inherit;
+  font-size: var(--dc-fs-meta);
+  padding: 1px 8px;
+  cursor: pointer;
+}
+
+.dc-copy__button:hover,
+.dc-copy__button:focus-visible {
+  color: var(--dc-accent);
+  border-color: var(--dc-accent);
+}
+
+dc-copy[copied] .dc-copy__button {
+  color: var(--dc-primary);
+  border-color: var(--dc-primary);
 }
 
 /* The keyboard hint (T54) and the clock (T62, T82) are styled by the theme:

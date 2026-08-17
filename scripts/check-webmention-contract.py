@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Verify the published Webmention snapshot and its rendering (T8).
+"""Verify the published Webmention snapshot and its rendering (T8, T141).
 
 The snapshot in `data/webmentions.json` is the only thing that reaches readers,
 so this checks both halves of the contract (ADR
 `redesign-webmention-moderation-contract`): the stored fields carry no foreign
 HTML, no avatar and no contact data, and every stored mention actually appears
-on its own page — with nothing rendered where a page has none.
+on its own page.
+
+Since T141 the `responses/` block is printed on every publication, because the
+invitation to answer is useful before anyone has. What must not appear on a page
+without approved mentions is a *response* — an entry, a count, a heading — and
+that is what the emptiness check looks for now, rather than the block itself.
 """
 
 from __future__ import annotations
@@ -35,7 +40,7 @@ EMAIL = re.compile(r"[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}")
 
 
 class SectionParser(HTMLParser):
-    """Collects the webmention section's hrefs and any image inside it."""
+    """Collects the responses block's hrefs, its entries and any image inside."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -43,11 +48,14 @@ class SectionParser(HTMLParser):
         self.sources: list[str] = []
         self.images: list[str] = []
         self.sections = 0
+        self.responses: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
         classes = (attributes.get("class") or "").split()
-        if tag == "section" and "dc-webmentions" in classes:
+        if attributes.get("data-response"):
+            self.responses.append(attributes["data-response"])
+        if tag == "section" and "dc-responses" in classes:
             self.depth = 1
             self.sections += 1
             return
@@ -119,9 +127,21 @@ def check_rendering(errors: list[str], public_dir: Path, mentions: list[dict]) -
             continue
         parser = SectionParser()
         parser.feed(page.read_text())
-        check(errors, parser.sections == 1, f"{target}: expected one webmention section, found {parser.sections}")
-        check(errors, not parser.images, f"{target}: webmention section renders an image — avatars are not published")
+        check(errors, parser.sections == 1, f"{target}: expected one responses block, found {parser.sections}")
+        check(errors, not parser.images, f"{target}: responses block renders an image — avatars are not published")
+        check(
+            errors,
+            len(parser.responses) > 0,
+            f"{target}: approved mentions exist, but the block shows no response entries",
+        )
+        collapsed = "reactions" in parser.responses
         for entry in entries:
+            # Likes, reposts and bookmarks may collapse into a count once there
+            # are enough of them (§37.3), and then their sources are
+            # deliberately not printed. Replies and mentions always are: they
+            # carry someone's words, and a count would hide them.
+            if entry["type"] in {"like", "repost", "bookmark"} and collapsed:
+                continue
             check(
                 errors,
                 entry["source"] in parser.sources,
@@ -133,8 +153,12 @@ def check_rendering(errors: list[str], public_dir: Path, mentions: list[dict]) -
         target = BASE_URL if relative == "." else f"{BASE_URL}/{relative}"
         if target in by_target:
             continue
-        if "dc-webmentions" in page.read_text():
-            errors.append(f"{target}: renders a webmention section without any approved mention")
+        parser = SectionParser()
+        parser.feed(page.read_text())
+        if parser.responses:
+            errors.append(
+                f"{target}: shows {len(parser.responses)} response(s) without any approved mention"
+            )
 
 
 def main() -> int:

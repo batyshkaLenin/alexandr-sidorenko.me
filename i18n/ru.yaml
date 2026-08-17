@@ -120,3 +120,38 @@ activityDevShape:
   other: "Интенсивность последних семи дней"
 activitySourceAt:
   other: "Согласно данным {{ .Source }} от {{ .At }}"
+responsesHeading:
+  other: "Отклики"
+responsesGroupReplies:
+  other: "ответы"
+responsesGroupMentions:
+  other: "упоминания"
+responsesGroupReactions:
+  other: "отметки"
+responsesAnonymous:
+  other: "Аноним"
+responsesInvite:
+  other: "Ответьте у себя и пришлите Webmention на этот адрес — он же постоянная ссылка на публикацию."
+responsesWhat:
+  other: "что такое Webmention"
+responsesSend:
+  other: "отправить вручную"
+responsesCopy:
+  other: "скопировать"
+responsesCopied:
+  other: "скопировано"
+responsesReplies:
+  one: "{{ . }} ответ"
+  few: "{{ . }} ответа"
+  many: "{{ . }} ответов"
+  other: "{{ . }} ответа"
+responsesMentions:
+  one: "{{ . }} упоминание"
+  few: "{{ . }} упоминания"
+  many: "{{ . }} упоминаний"
+  other: "{{ . }} упоминания"
+responsesReactions:
+  one: "{{ . }} отметка"
+  few: "{{ . }} отметки"
+  many: "{{ . }} отметок"
+  other: "{{ . }} отметки"
