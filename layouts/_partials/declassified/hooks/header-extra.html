@@ -29,7 +29,9 @@ elsewhere; the prompt follows the address a visitor sees, not the folder. */ -}}
   {{- $path = "~/library" -}}
   {{- $command = printf "%s %s" (cond (eq .Params.type "track") "play" "read") (printf "~/library/%s" .File.BaseFileName) -}}
 {{- else if or (eq .Section "library") $isLibraryView -}}
-  {{- $path = "~/library" -}}
+  {{- /* The path stays `~`, because `library` is the command that opens the
+  library — printing `~/library $ library` says the same thing twice. This is
+  §11.3's own example: `guest@… ~ $ library`. */ -}}
   {{- $command = cond $isLibraryView (printf "library --%s" (default "" .Params.view)) "library" -}}
 {{- else -}}
   {{- $path = printf "~/%s" .Section -}}

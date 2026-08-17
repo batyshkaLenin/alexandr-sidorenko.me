@@ -336,6 +336,20 @@
   color: var(--dc-accent);
 }
 
+/* Open, the prompt line becomes a row so the field can take everything left
+   of the tools: the theme's component asks for the width, this composition is
+   what grants it. */
+dc-prompt[open] .dc-identity {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+}
+
+dc-prompt[open] .dc-identity__sep {
+  flex: none;
+  white-space: pre;
+}
+
 /* While the line is a real input it has a real caret; the drawn one would be a
    second cursor sitting next to it. */
 dc-prompt[open] .dc-identity__cursor,
