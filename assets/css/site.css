@@ -517,6 +517,51 @@ dc-prompt[open] .dc-identity__sep {
   overflow-wrap: anywhere;
 }
 
+/* `relations/` (§6.6, T143). Sits between the work and its responses: what the
+   material itself points at, and what points back — the no-JS graph. */
+.dc-relations {
+  max-width: var(--dc-detail-width);
+  margin: 24px auto 0;
+  padding: 0 26px;
+  color: var(--dc-muted);
+  font-size: var(--dc-fs-ui);
+}
+
+.dc-relations__group + .dc-relations__group {
+  margin-top: 16px;
+}
+
+.dc-relations__label {
+  margin: 0 0 6px;
+  color: var(--dc-faint);
+  font-size: var(--dc-fs-meta);
+  font-weight: normal;
+  text-transform: lowercase;
+  letter-spacing: 0.08em;
+}
+
+.dc-relations__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dc-relations__item + .dc-relations__item {
+  margin-top: 6px;
+}
+
+/* An external target reads as leaving the site, without a forced new tab —
+   consistent with every other outbound link in a material's own body. */
+.dc-relations__item--external a::after {
+  content: " ↗";
+}
+
+.dc-relations__rel {
+  margin-left: 6px;
+  color: var(--dc-faint);
+  font-size: var(--dc-fs-meta);
+}
+
 .dc-copy__button {
   border: 1px solid var(--dc-border);
   border-radius: 0;
@@ -1357,6 +1402,19 @@ dc-copy[copied] .dc-copy__button {
   margin: 0;
 }
 
+/* The count-plus-feeds line on a type or topic page (library-type.html,
+   term.html): same badge gap as .dc-section-feeds, so the two feed links
+   don't touch just because this line also carries the material count. */
+.dc-section-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 14px;
+  color: var(--dc-muted);
+  font-size: var(--dc-fs-ui);
+}
+
 .dc-badge {
   border: 1px solid var(--dc-border);
   padding: 0 5px;
@@ -1799,10 +1857,15 @@ as-statusbar {
   color: var(--dc-faint);
 }
 
+.dc-statusbar__prefix,
 .dc-statusbar__mode {
   color: var(--dc-primary);
   font-weight: 700;
   letter-spacing: 0.08em;
+}
+
+.dc-statusbar__sep {
+  color: var(--dc-border);
 }
 
 body:has(.dc-statusbar) {
@@ -1940,6 +2003,17 @@ body:has(.dc-statusbar) {
   font-size: var(--dc-fs-meta);
 }
 
+/* The group heading links to the type's own page (T142); it is a link on a
+   coloured badge, not prose, so it does not need underlining to read as one. */
+.dc-library__group a {
+  text-decoration: none;
+}
+
+.dc-library__group a:hover,
+.dc-library__group a:focus-visible {
+  text-decoration: underline;
+}
+
 @media (max-width: 1100px) {
   /* minmax(0, 1fr), not 1fr: a plain 1fr refuses to shrink below its content,
      and one wide table then pushes the whole page sideways. */
@@ -2014,6 +2088,23 @@ body:has(.dc-statusbar) {
   margin: 4px 0 0;
   font-size: var(--dc-fs-meta);
   color: var(--dc-faint);
+}
+
+/* Dense is one line — date, type, title, markers (T153) — not the rich
+   title-then-meta stack: a container that already filtered or grouped the
+   list needs a row to scan, not a card per item. */
+.dc-material--dense .dc-material__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--dc-fs-meta);
+  color: var(--dc-faint);
+}
+
+.dc-material--dense .dc-material__title {
+  font-size: var(--dc-fs-ui);
 }
 
 .dc-material__sep {
@@ -2573,48 +2664,3 @@ body:has(.dc-statusbar) {
   font-size: var(--dc-fs-meta);
   color: var(--dc-faint);
 }
-/* `relations/` (§6.6, T143). Sits between the work and its responses: what the
-   material itself points at, and what points back — the no-JS graph. */
-.dc-relations {
-  max-width: var(--dc-detail-width);
-  margin: 24px auto 0;
-  padding: 0 26px;
-  color: var(--dc-muted);
-  font-size: var(--dc-fs-ui);
-}
-
-.dc-relations__group + .dc-relations__group {
-  margin-top: 16px;
-}
-
-.dc-relations__label {
-  margin: 0 0 6px;
-  color: var(--dc-faint);
-  font-size: var(--dc-fs-meta);
-  font-weight: normal;
-  text-transform: lowercase;
-  letter-spacing: 0.08em;
-}
-
-.dc-relations__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.dc-relations__item + .dc-relations__item {
-  margin-top: 6px;
-}
-
-/* An external target reads as leaving the site, without a forced new tab —
-   consistent with every other outbound link in a material's own body. */
-.dc-relations__item--external a::after {
-  content: " ↗";
-}
-
-.dc-relations__rel {
-  margin-left: 6px;
-  color: var(--dc-faint);
-  font-size: var(--dc-fs-meta);
-}
-

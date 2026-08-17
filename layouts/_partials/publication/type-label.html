@@ -1,15 +1,20 @@
 {{- /*
 Resolves a material `type` to its Russian label (data/creative_types.yaml).
-Input: dict "type" <raw type value> "page" <the page, for the error message>.
+Input: dict "type" <raw type value> "page" <the page, for the error message>
+["plural" true] — plural asks for the label that reads correctly over a group
+of materials of that type ("Статьи"), the everyday singular otherwise
+("Статья"). Both are explicit vocabulary entries, never declined in the
+template: Russian plurals are not a deterministic string transform.
 errorf's on an unrecognized value rather than silently printing the raw key
 (T35 — schema.html/section.html/home.html previously all fell back to the raw
 value on a typo).
 */ -}}
 {{- $type := .type -}}
 {{- $page := .page -}}
+{{- $plural := .plural -}}
 {{- with $type -}}
   {{- with index hugo.Data.creative_types . -}}
-    {{- .label -}}
+    {{- if $plural -}}{{- .label_plural -}}{{- else -}}{{- .label -}}{{- end -}}
   {{- else -}}
     {{- errorf "%s: unknown type %q (see data/creative_types.yaml)" $page.File.Path . -}}
   {{- end -}}

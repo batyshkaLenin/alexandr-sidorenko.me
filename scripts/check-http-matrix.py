@@ -29,7 +29,7 @@ UA = {"User-Agent": "alexandr-sidorenko.me http matrix check"}
 CANONICAL_HOST = "https://alexandr-sidorenko.me"
 
 # HTML routes: the no-slash form is canonical, the slash form redirects to it.
-HTML_ROUTES = ["/", "/library", "/library/philosophy-of-freedom", "/library/skver", "/tags"]
+HTML_ROUTES = ["/", "/library", "/library/philosophy-of-freedom", "/library/skver", "/library/topics"]
 
 # path -> expected media type prefix
 MEDIA_TYPES = {

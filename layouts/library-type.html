@@ -23,7 +23,7 @@ inventing markup: this is the library filtered, not a new kind of screen.
       <dc-listnav>
       <ul class="dc-material-list dc-material-list--dense h-feed">
         {{ range $materials.ByDate.Reverse }}
-        {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+        {{ partial "library/material-row.html" (dict "page" . "density" "dense" "showType" false) }}
         {{ else }}
         <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
         {{ end }}

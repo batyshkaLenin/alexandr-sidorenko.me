@@ -66,7 +66,7 @@ is folded into the entry describing the finished behaviour rather than listed as
   publication that sets a cover without describing it fails the build instead
   of shipping an unreadable preview.
 - Structured data for every indexable page kind, not just the home page and
-  the publications: the sections, the tag list and each tag describe
+  the publications: the sections, the topic list and each topic describe
   themselves (`Blog`/`CollectionPage`) and embed the same publications, in the
   same order, that their visible list shows. Everything below the home page
   also carries a `BreadcrumbList` with absolute URLs. The music project "ППН"
@@ -217,6 +217,18 @@ is folded into the entry describing the finished behaviour rather than listed as
   outgoing link does not come back: `blur.tech` is no longer a registered
   domain, so Blurred Technologies is named in plain text rather than linked to
   whoever registers it next.
+- Topics live inside the library, at `/library/topics` and
+  `/library/topics/<topic>`, the way Types already live under `/library/types`.
+  A type's own page and the Types grouping name the type in the plural —
+  «Статьи», «Стихи», «Треки» — from a second vocabulary entry, because Russian
+  plurals are not a suffix and «Проза» is a mass noun. On a type page the
+  per-row type mark is omitted: the heading already said what the list is. A
+  topic keeps it, because one topic spans several types. Types and Topics use
+  the same library chrome as the other views, including which item in the view
+  list is current.
+- A dense library row — Music, a Types group, a type page, a topic page —
+  reads date, then type, then title, then markers. Feed links in a section
+  heading no longer sit against each other.
 
 ### Removed
 

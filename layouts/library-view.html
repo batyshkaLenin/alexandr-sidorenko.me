@@ -25,7 +25,7 @@ MaterialRow.
         {{ $tracks := where $materials "Params.type" "track" }}
         <ul class="dc-material-list dc-music-list h-feed">
           {{ range $tracks.ByDate.Reverse }}
-          {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+          {{ partial "library/material-row.html" (dict "page" . "density" "dense" "showType" false) }}
           {{ else }}
           <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
           {{ end }}
@@ -70,13 +70,13 @@ MaterialRow.
         where its feeds live (T142). */ -}}
         <h2 class="dc-library__group">
           <a href="{{ partial "canonical-url.html" (printf "/library/types/%s" $type | relLangURL) }}">
-            <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" $type }}">{{ partial "publication/type-label.html" (dict "type" $type "page" (index $group 0)) }}</span>
+            {{ partial "library/type-badge.html" (dict "page" (index $group 0) "plural" true) }}
           </a>
           <span class="dc-library__count">{{ len $group }}</span>
         </h2>
         <ul class="dc-material-list dc-material-list--dense h-feed">
           {{ range $group.ByDate.Reverse }}
-          {{ partial "library/material-row.html" (dict "page" . "density" "dense" "level" 3) }}
+          {{ partial "library/material-row.html" (dict "page" . "density" "dense" "level" 3 "showType" false) }}
           {{ end }}
         </ul>
         {{ end }}

@@ -1,5 +1,5 @@
 ---
-title: "Научная работа"
+title: "Научные работы"
 description: "Научные работы Александра Сидоренко."
 url: "/library/types/paper"
 layout: "library-type"

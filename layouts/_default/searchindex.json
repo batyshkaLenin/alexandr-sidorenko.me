@@ -85,12 +85,10 @@ for content, and with six materials the file stays small. */ -}}
 
 {{- range site.Taxonomies.tags -}}
   {{- with .Page -}}
-    {{- /* A term's address is percent-encoded because the topic is Russian;
-    the path is what a reader would type, so it carries the readable form. */ -}}
     {{- $entries = $entries | append (dict
       "title" .Title
       "url" (partial "canonical-url.html" .RelPermalink)
-      "path" (printf "~/tags/%s" (lower .Title))
+      "path" (partial "search/path.html" .RelPermalink)
       "type" (i18n "searchKindTopic")
       "kind" "topic"
       "topics" (slice .Title)

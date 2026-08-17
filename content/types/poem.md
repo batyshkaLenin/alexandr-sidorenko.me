@@ -1,5 +1,5 @@
 ---
-title: "Стих"
+title: "Стихи"
 description: "Стихи Александра Сидоренко."
 url: "/library/types/poem"
 layout: "library-type"

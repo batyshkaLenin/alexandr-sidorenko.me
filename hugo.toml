@@ -35,6 +35,13 @@ theme = 'declassified'
 [taxonomies]
   tag = 'tags'
 
+# Topics is a secondary, cross-cutting view inside the Library, same as Types
+# (§38): its address should read that way too, not sit at the top level.
+[permalinks.taxonomy]
+  tags = '/library/topics/'
+[permalinks.term]
+  tags = '/library/topics/:slug/'
+
 # Explicit front-matter lastmod wins; git commit date is only a fallback
 # when a page has none. Without this, enableGitInfo makes Hugo prefer
 # :git over front matter, silently overriding real lastmod values with

@@ -20,6 +20,11 @@ materialsCount:
   few: "материала"
   many: "материалов"
   other: "материала"
+topicsCount:
+  one: "тема"
+  few: "темы"
+  many: "тем"
+  other: "темы"
 linesCount:
   one: "строка"
   few: "строки"
@@ -122,6 +127,10 @@ activityDevShape:
   other: "Интенсивность последних семи дней"
 activitySourceAt:
   other: "Согласно данным {{ .Source }} от {{ .At }}"
+relationsHeading:
+  other: "Связи"
+relationsBacklinks:
+  other: "Ссылаются на этот материал"
 responsesHeading:
   other: "Отклики"
 responsesGroupReplies:
@@ -157,7 +166,3 @@ responsesReactions:
   few: "{{ . }} отметки"
   many: "{{ . }} отметок"
   other: "{{ . }} отметки"
-relationsHeading:
-  other: "Связи"
-relationsBacklinks:
-  other: "Ссылаются на этот материал"

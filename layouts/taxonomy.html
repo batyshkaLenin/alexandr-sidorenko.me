@@ -1,24 +1,30 @@
 {{- /*
-Site override of the theme's taxonomy.html: identical markup, but term links
-go through canonical-url.html so the site emits a single URL form (T56).
+Topics list (§38, T153): the same Library frame as every other view — sidebar
+plus one panel — because Topics is a secondary view inside the Library, not a
+world of its own (§6.2). Its address reads that way too: /library/topics.
 */ -}}
 {{ define "main" }}
-<section class="dc-panel dc-panel--wide">
-  <h1 class="dc-visually-hidden">{{ .Title }}</h1>
-  {{ partial "declassified/panel-label.html" (printf "$ ls ~/%s" .Data.Plural) }}
-  <div class="dc-panel__body">
-    {{ partial "declassified/component.html" "dc-listnav" }}
-    <dc-listnav>
-    <ul class="dc-list">
-      {{ range .Pages }}
-      <li class="dc-list__item">
-        <h2 class="dc-list__title"><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></h2>
-      </li>
-      {{ else }}
-      <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
-      {{ end }}
-    </ul>
-    </dc-listnav>
-  </div>
-</section>
+<div class="dc-library">
+  {{ partial "library/views-nav.html" . }}
+  <section class="dc-panel dc-panel--primary dc-panel--doc">
+    {{ partial "declassified/panel-label.html" "$ ls ~/library --topics" }}
+    <h1 class="dc-section-title">{{ .Title }}</h1>
+    <p class="dc-section-meta">{{ len .Pages }} {{ i18n "topicsCount" (len .Pages) }}</p>
+    {{ with .Content }}<div class="dc-panel__body dc-prose">{{ . }}</div>{{ end }}
+    <div class="dc-panel__body">
+      {{ partial "declassified/component.html" "dc-listnav" }}
+      <dc-listnav>
+      <ul class="dc-list">
+        {{ range .Pages }}
+        <li class="dc-list__item">
+          <h2 class="dc-list__title"><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></h2>
+        </li>
+        {{ else }}
+        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+        {{ end }}
+      </ul>
+      </dc-listnav>
+    </div>
+  </section>
+</div>
 {{ end }}

@@ -1,28 +1,43 @@
 # Material types (content-model ADR). The key is what front matter stores,
 # kebab-case; the label is what a reader sees. `ARTICLE` and friends are the
-# machine spelling used in design documents, not a storage format.
+# machine spelling used in design documents, not a storage format — and also
+# what the status bar prints (§13.2): shell is English, document is Russian,
+# and `upper` of the key already gives the right word without a second entry.
+#
+# `label_plural` is a second explicit vocabulary entry, not the singular run
+# through template logic: Russian plurals are not a deterministic suffix swap
+# (Стих → Стихи, but Проза stays Проза, a mass noun), so a heading that spans
+# many materials of one type (a Types group, a type's own page) reads this
+# instead of guessing.
 #
 # `album` is absent on purpose: it is a future type with no material behind it.
 # `family` picks the colour token (§17.3): one hue per broad family, subtype
 # told by the label itself.
 note:
   label: "Заметка"
+  label_plural: "Заметки"
   family: knowledge
 article:
   label: "Статья"
+  label_plural: "Статьи"
   family: knowledge
 paper:
   label: "Научная работа"
+  label_plural: "Научные работы"
   family: knowledge
 fiction:
   label: "Проза"
+  label_plural: "Проза"
   family: literary
 poem:
   label: "Стих"
+  label_plural: "Стихи"
   family: literary
 poetry-collection:
   label: "Подборка стихов"
+  label_plural: "Подборки стихов"
   family: literary
 track:
   label: "Трек"
+  label_plural: "Треки"
   family: audio

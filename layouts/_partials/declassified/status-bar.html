@@ -19,25 +19,41 @@ What is deliberately absent: read progress, media progress, `UTF-8`, `markdown`,
 On a phone the bar is not rendered at all — vertical space matters more, and
 shortcuts have no keyboard to come from (§13.3).
 */ -}}
+{{- $prefix := "" -}}
 {{- $mode := "" -}}
 {{- $state := "" -}}
 {{- if eq .Kind "page" -}}
   {{- if eq .Section "library" -}}
+    {{- /* The reader is shell, not document (§13.2, §2.3): the state names the
+    type in the same machine spelling the menu already uses (`ARTICLE`, not
+    "Статья") — `upper` of the front-matter key, no separate vocabulary entry. */ -}}
     {{- $mode = cond (eq .Params.type "track") "PLAY" "READ" -}}
-    {{- $state = partial "publication/type-label.html" (dict "type" .Params.type "page" .) -}}
+    {{- $state = upper .Params.type -}}
   {{- else if .Params.view -}}
-    {{- /* A Library view counts what it lists — the same static fact the
-    section itself reports (§13.4). */ -}}
+    {{- /* A Library view counts what it actually lists, not the library as a
+    whole (§13.4) — Music was reporting the total material count instead of
+    its own track count. */ -}}
+    {{- $view := .Params.view -}}
     {{- $materials := where site.RegularPages "Section" "library" -}}
-    {{- $mode = upper .Params.view -}}
+    {{- if eq $view "music" -}}
+      {{- $materials = where $materials "Params.type" "track" -}}
+    {{- end -}}
+    {{- $prefix = "LIBRARY" -}}
+    {{- $mode = upper $view -}}
     {{- $state = printf "%d %s" (len $materials) (i18n "materialsCount" (len $materials)) -}}
   {{- end -}}
 {{- else if and (eq .Kind "section") (eq .Section "library") -}}
-  {{- $mode = "LIBRARY" -}}
+  {{- $prefix = "LIBRARY" -}}
+  {{- $mode = "RECENT" -}}
   {{- $state = printf "%d %s" (len .Pages) (i18n "materialsCount" (len .Pages)) -}}
 {{- else if eq .Kind "term" -}}
+  {{- $prefix = "LIBRARY" -}}
   {{- $mode = "TOPIC" -}}
   {{- $state = printf "%d %s" (len .Pages) (i18n "materialsCount" (len .Pages)) -}}
+{{- else if eq .Kind "taxonomy" -}}
+  {{- $prefix = "LIBRARY" -}}
+  {{- $mode = "TOPICS" -}}
+  {{- $state = printf "%d %s" (len .Pages) (i18n "topicsCount" (len .Pages)) -}}
 {{- end -}}
 {{- /* <as-statusbar> adds what only exists with JavaScript (T135): the keyboard
 hints, and SEARCH while the palette is open. It is printed even where the
@@ -61,8 +77,15 @@ itself and `mode-default` is the word it uses. */ -}}
   keys-help="{{ i18n "helpKey" }}">
 {{- with $mode }}
 <p class="dc-statusbar" role="status">
+  {{- with $prefix }}
+  <span class="dc-statusbar__prefix">{{ . }}</span>
+  <span class="dc-statusbar__sep" aria-hidden="true">·</span>
+  {{- end }}
   <span class="dc-statusbar__mode" data-statusbar-mode>{{ . }}</span>
-  {{- with $state }}<span class="dc-statusbar__state" data-statusbar-state>{{ . }}</span>{{ end -}}
+  {{- with $state }}
+  <span class="dc-statusbar__sep" aria-hidden="true">·</span>
+  <span class="dc-statusbar__state" data-statusbar-state>{{ . }}</span>
+  {{- end }}
   <span class="dc-statusbar__keys" data-statusbar-keys></span>
 </p>
 {{- end }}

@@ -1,12 +1,20 @@
 {{- /*
-MaterialRow — one material in a list. Title first, always (§9): the name is what
-a person scans for, and putting the date or the type ahead of it inverts the
-hierarchy the design system is explicit about.
+MaterialRow — one material in a list.
 
     {{ partial "library/material-row.html" (dict "page" $page "density" "rich") }}
 
-    rich   title, type, date, excerpt — Home recent, Library Recent, topic pages
-    dense  title, type, date, markers on one line — for scanning many at once
+    rich   title first (§9): the name is what a person scans for, so nothing
+           sits ahead of it. Type · date sit under it, an excerpt below that.
+           Home recent, Library Recent.
+    dense  one line, oldest-first-signal order — date, type, title, markers —
+           for scanning many rows a container already grouped or filtered:
+           Music, a Types group, a type's own page, a topic's own page.
+
+`showType` (default true) drops the per-row type badge when the list's own
+container already said it once — a Types group heading, a type's own page —
+so a filtered list does not repeat what it is already filtered by. Topics
+stays true: one topic spans several types, so the badge is the only place
+that says which.
 
 `level` is the heading level of the row's title, default 2: a list under the
 page's own h1 starts at h2, and only a list that sits under a group heading
@@ -15,7 +23,7 @@ and a skipped level is a page a screen-reader user navigates by headings and
 falls through.
 
 One primitive, two densities, not two templates: the difference is what is
-shown, not how it is built.
+shown and its order, not how it is built.
 
 Capability markers come from the computed set (T108) and their glyphs from the
 symbol vocabulary (data/glyphs.yaml). No more than three appear — §18.5 asks for
@@ -29,26 +37,56 @@ mechanical change once the theme owns that vocabulary too.
 {{- $page := .page -}}
 {{- $density := default "rich" .density -}}
 {{- $level := default 2 .level -}}
+{{- $dense := eq $density "dense" -}}
+{{- $showType := true -}}
+{{- if isset . "showType" -}}{{- $showType = .showType -}}{{- end -}}
 {{- $capabilities := partialCached "publication/capabilities.html" $page $page.RelPermalink -}}
+{{- $markers := slice -}}
+{{- $shown := 0 -}}
+{{- range $capabilities -}}
+  {{- $glyph := index (index hugo.Data.glyphs "capabilities") . -}}
+  {{- if and $glyph (lt $shown 3) -}}
+    {{- $shown = add $shown 1 -}}
+    {{- $markers = $markers | append $glyph -}}
+  {{- end -}}
+{{- end -}}
+{{- $typeBadge := "" -}}
+{{- if $showType -}}
+  {{- with $page.Params.type -}}
+    {{- $typeBadge = printf `<span class="dc-list__type dc-type--%s">%s</span>` (partial "publication/type-family.html" .) (partial "publication/type-label.html" (dict "type" . "page" $page)) | safeHTML -}}
+  {{- end -}}
+{{- end -}}
 <li class="dc-material dc-material--{{ $density }} h-entry">
+{{- if $dense }}
+  <div class="dc-material__row">
+    {{ partial "publication/date.html" (dict "date" $page.Date "form" "iso" "class" "dc-material__date dt-published") }}
+    {{- with $typeBadge }}
+    <span class="dc-material__sep" aria-hidden="true">·</span>
+    {{ . }}
+    {{- end }}
+    <span class="dc-material__sep" aria-hidden="true">·</span>
+    <h{{ $level }} class="dc-material__title">
+      <a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
+    </h{{ $level }}>
+    {{- range $markers }}
+    <span class="dc-material__marker" title="{{ index . "meaning" }}"><span aria-hidden="true">{{ index . "glyph" }}</span><span class="dc-visually-hidden">{{ index . "text" }}</span></span>
+    {{- end }}
+  </div>
+{{- else }}
   <h{{ $level }} class="dc-material__title">
     <a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
   </h{{ $level }}>
   <p class="dc-material__meta">
-    {{- with $page.Params.type -}}
-    <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>
-    {{- end -}}
+    {{- with $typeBadge }}
+    {{ . }}
     <span class="dc-material__sep" aria-hidden="true">·</span>
-    {{ partial "publication/date.html" (dict "date" $page.Date "form" (cond (eq $density "dense") "iso" "long") "class" "dc-material__date dt-published") }}
-    {{- $shown := 0 -}}
-    {{- range $capabilities -}}
-      {{- $glyph := index (index hugo.Data.glyphs "capabilities") . -}}
-      {{- if and $glyph (lt $shown 3) -}}
-        {{- $shown = add $shown 1 -}}
-        <span class="dc-material__marker" title="{{ index $glyph "meaning" }}"><span aria-hidden="true">{{ index $glyph "glyph" }}</span><span class="dc-visually-hidden">{{ index $glyph "text" }}</span></span>
-      {{- end -}}
-    {{- end -}}
+    {{- end }}
+    {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-material__date dt-published") }}
+    {{- range $markers }}
+    <span class="dc-material__marker" title="{{ index . "meaning" }}"><span aria-hidden="true">{{ index . "glyph" }}</span><span class="dc-visually-hidden">{{ index . "text" }}</span></span>
+    {{- end }}
   </p>
+{{- end }}
   {{- range $page.Params.authors }}
     {{- $authorKey := . -}}
     {{- with index hugo.Data.authors $authorKey }}

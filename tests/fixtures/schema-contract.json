@@ -58,13 +58,13 @@
       ]
     },
     {
-      "html": "tags/index.html",
+      "html": "library/topics/index.html",
       "blocks": [
         "CollectionPage",
         "BreadcrumbList"
       ],
-      "name": "Теги",
-      "url": "https://alexandr-sidorenko.me/tags",
+      "name": "Темы",
+      "url": "https://alexandr-sidorenko.me/library/topics",
       "required_properties": [
         "description",
         "hasPart",
@@ -75,7 +75,7 @@
         "property": "hasPart",
         "item_type": "CollectionPage",
         "urls": [
-          "https://alexandr-sidorenko.me/tags/%D1%84%D0%B8%D0%BB%D0%BE%D1%81%D0%BE%D1%84%D0%B8%D1%8F"
+          "https://alexandr-sidorenko.me/library/topics/%D1%84%D0%B8%D0%BB%D0%BE%D1%81%D0%BE%D1%84%D0%B8%D1%8F"
         ]
       },
       "breadcrumb": [
@@ -84,19 +84,19 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Теги",
-          "https://alexandr-sidorenko.me/tags"
+          "Темы",
+          "https://alexandr-sidorenko.me/library/topics"
         ]
       ]
     },
     {
-      "html": "tags/философия/index.html",
+      "html": "library/topics/философия/index.html",
       "blocks": [
         "CollectionPage",
         "BreadcrumbList"
       ],
       "name": "Философия",
-      "url": "https://alexandr-sidorenko.me/tags/%D1%84%D0%B8%D0%BB%D0%BE%D1%81%D0%BE%D1%84%D0%B8%D1%8F",
+      "url": "https://alexandr-sidorenko.me/library/topics/%D1%84%D0%B8%D0%BB%D0%BE%D1%81%D0%BE%D1%84%D0%B8%D1%8F",
       "required_properties": [
         "name",
         "url",
@@ -115,12 +115,12 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Теги",
-          "https://alexandr-sidorenko.me/tags"
+          "Темы",
+          "https://alexandr-sidorenko.me/library/topics"
         ],
         [
           "Философия",
-          "https://alexandr-sidorenko.me/tags/%D1%84%D0%B8%D0%BB%D0%BE%D1%81%D0%BE%D1%84%D0%B8%D1%8F"
+          "https://alexandr-sidorenko.me/library/topics/%D1%84%D0%B8%D0%BB%D0%BE%D1%81%D0%BE%D1%84%D0%B8%D1%8F"
         ]
       ]
     },
@@ -476,7 +476,7 @@
         "CollectionPage",
         "BreadcrumbList"
       ],
-      "name": "Статья",
+      "name": "Статьи",
       "url": "https://alexandr-sidorenko.me/library/types/article",
       "required_properties": [
         "description",
@@ -499,7 +499,7 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Статья",
+          "Статьи",
           "https://alexandr-sidorenko.me/library/types/article"
         ]
       ]
@@ -544,7 +544,7 @@
         "CollectionPage",
         "BreadcrumbList"
       ],
-      "name": "Научная работа",
+      "name": "Научные работы",
       "url": "https://alexandr-sidorenko.me/library/types/paper",
       "required_properties": [
         "description",
@@ -567,7 +567,7 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Научная работа",
+          "Научные работы",
           "https://alexandr-sidorenko.me/library/types/paper"
         ]
       ]
@@ -578,7 +578,7 @@
         "CollectionPage",
         "BreadcrumbList"
       ],
-      "name": "Стих",
+      "name": "Стихи",
       "url": "https://alexandr-sidorenko.me/library/types/poem",
       "required_properties": [
         "description",
@@ -601,7 +601,7 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Стих",
+          "Стихи",
           "https://alexandr-sidorenko.me/library/types/poem"
         ]
       ]
@@ -612,7 +612,7 @@
         "CollectionPage",
         "BreadcrumbList"
       ],
-      "name": "Подборка стихов",
+      "name": "Подборки стихов",
       "url": "https://alexandr-sidorenko.me/library/types/poetry-collection",
       "required_properties": [
         "description",
@@ -635,7 +635,7 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Подборка стихов",
+          "Подборки стихов",
           "https://alexandr-sidorenko.me/library/types/poetry-collection"
         ]
       ]
@@ -646,7 +646,7 @@
         "CollectionPage",
         "BreadcrumbList"
       ],
-      "name": "Трек",
+      "name": "Треки",
       "url": "https://alexandr-sidorenko.me/library/types/track",
       "required_properties": [
         "description",
@@ -669,7 +669,7 @@
           "https://alexandr-sidorenko.me/"
         ],
         [
-          "Трек",
+          "Треки",
           "https://alexandr-sidorenko.me/library/types/track"
         ]
       ]

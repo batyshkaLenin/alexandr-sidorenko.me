@@ -1,31 +1,33 @@
 {{- /*
-Site override of the theme's term.html: identical markup, but publication
-links go through canonical-url.html so the site emits a single URL form (T56).
+One topic (§38, T153): the same Library frame as Types' own page — sidebar,
+count, feed links, MaterialRow — because a topic is a filtered view of the
+Library, not a page of its own kind. `showType` stays on (material-row.html):
+one topic can hold several material types, unlike a Types page which by
+construction cannot.
 */ -}}
 {{ define "main" }}
-<section class="dc-panel dc-panel--wide">
-  <h1 class="dc-visually-hidden">{{ .Title }}</h1>
-  {{ partial "declassified/panel-label.html" (printf "$ grep -rl %s ~/" .Title) }}
-  {{- /* A topic says how much it holds and offers itself as a feed (§38). */ -}}
-  <p class="dc-section-meta">
-    {{ len .Pages }} {{ i18n "materialsCount" (len .Pages) }}
-    {{ partial "publication/feed-links.html" . }}
-  </p>
-  <div class="dc-panel__body">
-    {{ partial "declassified/component.html" "dc-listnav" }}
-    <dc-listnav>
-    <ul class="dc-list">
-      {{ range .Pages.ByDate.Reverse }}
-      <li class="dc-list__item">
-        <h2 class="dc-list__title"><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></h2>
-        {{ partial "declassified/hooks/publication-extra.html" . }}
-        {{ with .Summary }}<div class="dc-list__excerpt">{{ . }}</div>{{ end }}
-      </li>
-      {{ else }}
-      <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
-      {{ end }}
-    </ul>
-    </dc-listnav>
-  </div>
-</section>
+<div class="dc-library">
+  {{ partial "library/views-nav.html" . }}
+  <section class="dc-panel dc-panel--primary dc-panel--doc">
+    {{ partial "declassified/panel-label.html" (printf "$ ls ~/library --topic %s" .Title) }}
+    <h1 class="dc-section-title">{{ .Title }}</h1>
+    <p class="dc-section-meta">
+      {{ len .Pages }} {{ i18n "materialsCount" (len .Pages) }}
+      {{ partial "publication/feed-links.html" . }}
+    </p>
+    {{ with .Content }}<div class="dc-panel__body dc-prose">{{ . }}</div>{{ end }}
+    <div class="dc-panel__body">
+      {{ partial "declassified/component.html" "dc-listnav" }}
+      <dc-listnav>
+      <ul class="dc-material-list dc-material-list--dense h-feed">
+        {{ range .Pages.ByDate.Reverse }}
+        {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+        {{ else }}
+        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+        {{ end }}
+      </ul>
+      </dc-listnav>
+    </div>
+  </section>
+</div>
 {{ end }}

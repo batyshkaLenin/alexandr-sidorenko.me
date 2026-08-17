@@ -6,7 +6,9 @@ plain row on a phone — one list, three arrangements, no duplicate markup.
 not a panel with a surface of its own. Types and Topics are secondary and sit
 apart from the two primary views (§6.2).
 */ -}}
-{{- $current := cond (eq .Kind "section") "recent" (default "" .Params.view) -}}
+{{- $isTopic := in (slice "term" "taxonomy") .Kind -}}
+{{- $isType := ne (default "" .Params.material_type) "" -}}
+{{- $current := cond (eq .Kind "section") "recent" (cond $isTopic "topics" (cond $isType "types" (default "" .Params.view))) -}}
 <nav class="dc-library__views" aria-label="Представления библиотеки">
   <ul class="dc-library__views-list">
     <li{{ if eq $current "recent" }} class="dc-library__view--current"{{ end }}>
@@ -26,8 +28,8 @@ apart from the two primary views (§6.2).
     <li{{ if eq $current "types" }} class="dc-library__view--current"{{ end }}>
       <a href="{{ partial "canonical-url.html" ("/library/types" | relLangURL) }}"{{ if eq $current "types" }} aria-current="page"{{ end }}>types</a>
     </li>
-    <li>
-      <a href="{{ partial "canonical-url.html" ("/tags" | relLangURL) }}">topics</a>
+    <li{{ if eq $current "topics" }} class="dc-library__view--current"{{ end }}>
+      <a href="{{ partial "canonical-url.html" ("/library/topics" | relLangURL) }}"{{ if eq $current "topics" }} aria-current="page"{{ end }}>topics</a>
     </li>
   </ul>
 </nav>

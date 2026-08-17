@@ -1,5 +1,5 @@
 ---
-title: "Трек"
+title: "Треки"
 description: "Треки Александра Сидоренко."
 url: "/library/types/track"
 layout: "library-type"
