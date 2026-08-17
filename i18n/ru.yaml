@@ -88,3 +88,27 @@ helpOriginal:
   other: "показать оригинал"
 imageKeys:
   other: "o оригинал"
+commandLabel:
+  other: "Командная строка"
+commandHint:
+  other: "команды: library, read, play, open, find, help"
+commandUnknown:
+  other: "%s: нет такой команды"
+commandEmpty:
+  other: "ничего подходящего"
+commandLibrary:
+  other: "открыть библиотеку"
+commandRead:
+  other: "открыть текст"
+commandPlay:
+  other: "включить запись"
+commandOpen:
+  other: "открыть что угодно"
+commandFind:
+  other: "искать"
+commandHelp:
+  other: "показать клавиши"
+promptKeys:
+  other: ": команда"
+helpPrompt:
+  other: "командная строка"

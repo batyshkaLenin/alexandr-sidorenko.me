@@ -17,6 +17,11 @@ and `scripts/check-search-index.py` asserts it.
 
 `path` is the address in the shape the top bar prints (`~/library/skver`), so
 searching for a path finds what a visitor has seen on screen.
+
+`kind` is the machine-readable half of `type`: the label is Russian and belongs
+to readers, while `audio`/`text`/`view`/`section`/`topic` is what a component
+can act on — the prompt's `play` offers audio and its `read` offers text
+without either side learning the other's vocabulary.
 */ -}}
 {{- $entries := slice -}}
 
@@ -28,6 +33,7 @@ for content, and with six materials the file stays small. */ -}}
     "url" (partial "canonical-url.html" .RelPermalink)
     "path" (partial "search/path.html" .RelPermalink)
     "type" (partial "publication/type-label.html" (dict "type" .Params.type "page" .))
+    "kind" (cond (eq (index hugo.Data.creative_types .Params.type).family "audio") "audio" "text")
     "topics" (default (slice) .Params.tags)
     "summary" (partial "publication/summary.txt" .)
     "text" (partial "search/plain.html" .)
@@ -42,6 +48,7 @@ for content, and with six materials the file stays small. */ -}}
     "url" (partial "canonical-url.html" .RelPermalink)
     "path" (partial "search/path.html" .RelPermalink)
     "type" (i18n "searchKindView")
+    "kind" "view"
     "topics" (slice)
     "summary" .Description
     "text" ""
@@ -54,6 +61,7 @@ for content, and with six materials the file stays small. */ -}}
     "url" (partial "canonical-url.html" .RelPermalink)
     "path" (partial "search/path.html" .RelPermalink)
     "type" (i18n "searchKindSection")
+    "kind" "section"
     "topics" (slice)
     "summary" .Description
     "text" ""
@@ -69,6 +77,7 @@ for content, and with six materials the file stays small. */ -}}
       "url" (partial "canonical-url.html" .RelPermalink)
       "path" (printf "~/tags/%s" (lower .Title))
       "type" (i18n "searchKindTopic")
+      "kind" "topic"
       "topics" (slice .Title)
       "summary" .Description
       "text" ""

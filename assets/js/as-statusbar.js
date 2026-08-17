@@ -89,6 +89,7 @@ class AsStatusbar extends HTMLElement {
     const parts = [
       document.querySelector("dc-listnav") && this.getAttribute("keys-list"),
       document.querySelector("dc-command-palette") && this.getAttribute("keys-search"),
+      document.querySelector("dc-prompt") && this.getAttribute("keys-prompt"),
       document.querySelector("dc-image-toggle") && this.getAttribute("keys-image"),
       document.querySelector("dc-help") && this.getAttribute("keys-help"),
     ];

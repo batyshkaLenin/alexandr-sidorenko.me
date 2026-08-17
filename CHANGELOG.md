@@ -109,6 +109,13 @@ is folded into the entry describing the finished behaviour rather than listed as
   and status line say which mode it is. Without JavaScript they stay two
   ordinary links to two pages. A phone is not offered the table at all — its
   columns only fit sideways there.
+- The command line in the top bar works. `:` opens it, and it takes the small
+  vocabulary it has always displayed — `library`, `read`, `play`, `open`,
+  `find`, `help` — completing material names as you type and going where it
+  says. `find` opens the search palette with what you typed, `help` shows the
+  keys. An unknown command is answered in one quiet line. Without JavaScript
+  there is no input at all: the line stays what it was, a statement of where
+  you are, and every destination remains a link away.
 - The keyboard reaches the whole shell. Arrows and `j`/`k` walk a list of
   materials once focus is in it, Enter opens what is focused, `1`/`2` go to the
   sections, Esc goes back up, and `?` opens a sheet listing exactly the keys

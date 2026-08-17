@@ -36,7 +36,10 @@ INDEX = "search-index.json"
 MAX_BYTES_PER_ENTRY = 32 * 1024
 MAX_BYTES_TOTAL = 512 * 1024
 
-REQUIRED_FIELDS = ("title", "url", "path", "type", "topics", "summary", "text")
+REQUIRED_FIELDS = ("title", "url", "path", "type", "kind", "topics", "summary", "text")
+
+# `type` is the label a reader sees; `kind` is what a component can act on.
+KINDS = {"audio", "text", "view", "section", "topic"}
 
 # What the redaction shortcode prints in place of a fragment.
 REDACTION_MARKERS = ("[вымарано]", "[вымарана строка]", "[вымаран фрагмент текста]")
@@ -85,6 +88,8 @@ def check_entries(errors: list[str], entries: list[dict], public: Path) -> None:
             errors.append(f"{url!r}: address is not root-relative")
         if url != "/" and url.endswith("/"):
             errors.append(f"{url!r}: trailing slash, the canonical form has none")
+        if entry.get("kind") not in KINDS:
+            errors.append(f"{url!r}: kind is {entry.get('kind')!r}, expected one of {sorted(KINDS)}")
         if not entry.get("title"):
             errors.append(f"{url!r}: entry without a title cannot be shown as a result")
         if url in seen:

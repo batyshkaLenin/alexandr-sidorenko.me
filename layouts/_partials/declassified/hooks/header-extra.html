@@ -40,7 +40,29 @@ a page load (T136); <as-prompt> keeps the line true. */ -}}
 {{- if and $isLibraryView (in (slice "all" "table") .Params.view) -}}
   {{- $modePrompts = dict "list" "library --all" "table" "library --table" | jsonify -}}
 {{- end }}
+{{- /* With JavaScript the line accepts the small vocabulary of §11.3 and goes
+where it says; without it the same line is what it always was — a statement of
+where the reader is. The vocabulary is ours: the component knows how to
+complete and dispatch, not what `play` means here. `find` and `help` ask the
+palette and the sheet by name rather than reaching into them. */ -}}
+{{- $commands := dict
+  "library" (dict "url" (partial "canonical-url.html" ("/library" | relLangURL)) "hint" (i18n "commandLibrary"))
+  "read" (dict "kind" "text" "hint" (i18n "commandRead"))
+  "play" (dict "kind" "audio" "hint" (i18n "commandPlay"))
+  "open" (dict "kind" (slice "text" "audio" "view" "section" "topic") "hint" (i18n "commandOpen"))
+  "find" (dict "event" "dc-command-palette:open-request" "hint" (i18n "commandFind"))
+  "help" (dict "event" "dc-help:open-request" "hint" (i18n "commandHelp"))
+-}}
 {{ with $modePrompts }}{{ partial "declassified/component.html" "as-prompt" }}<as-prompt modes="{{ . }}">{{ end }}
+{{ if not $isPublication }}{{ partial "declassified/component.html" "dc-prompt" }}<dc-prompt
+  src="/search-index.json"
+  data-commands="{{ $commands | jsonify }}"
+  data-label="{{ i18n "commandLabel" }}"
+  data-hint="{{ i18n "commandHint" }}"
+  data-unknown="{{ i18n "commandUnknown" }}"
+  data-empty="{{ i18n "commandEmpty" }}"
+  data-loading="{{ i18n "searchLoading" }}"
+  data-error="{{ i18n "searchError" }}">{{ end }}
 <p class="dc-identity{{ if $isPublication }} dc-identity--quiet{{ end }}">
   {{- if $isPublication -}}
     <span class="dc-identity__command">$ {{ $command }}</span>
@@ -48,6 +70,7 @@ a page load (T136); <as-prompt> keeps the line true. */ -}}
     guest<span class="dc-identity__sep">@{{ $host }} {{ $path }} $ </span><span data-prompt-command>{{ $command }}</span><span class="dc-blink dc-identity__cursor" aria-hidden="true">_</span>
   {{- end -}}
 </p>
+{{ if not $isPublication }}</dc-prompt>{{ end }}
 {{ with $modePrompts }}</as-prompt>{{ end }}
 {{- if $isPublication }}
 {{- with .Parent }}
@@ -86,6 +109,7 @@ into loose strings. */ -}}
 {{- $shortcuts = $shortcuts | append (slice "↑↓ / j k" (i18n "helpList") "dc-listnav") -}}
 {{- $shortcuts = $shortcuts | append (slice "↵" (i18n "helpOpen") "dc-listnav") -}}
 {{- $shortcuts = $shortcuts | append (slice "o" (i18n "helpOriginal") "dc-image-toggle") -}}
+{{- $shortcuts = $shortcuts | append (slice ":" (i18n "helpPrompt") "dc-prompt") -}}
 {{- with $digits -}}
   {{- $shortcuts = $shortcuts | append (slice (delimit . " ") (i18n "helpNav")) -}}
 {{- end -}}

@@ -336,6 +336,17 @@
   color: var(--dc-accent);
 }
 
+/* While the line is a real input it has a real caret; the drawn one would be a
+   second cursor sitting next to it. */
+dc-prompt[open] .dc-identity__cursor,
+dc-prompt[open] .dc-identity__sep {
+  opacity: 0.5;
+}
+
+dc-prompt[open] .dc-identity__cursor {
+  display: none;
+}
+
 /* Moves between neighbours (T55). Sizes and colours reuse the panel's existing
    .dc-back / .dc-panel__more scale instead of introducing another one. */
 .dc-adjacent {
