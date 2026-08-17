@@ -60,7 +60,6 @@ palette and the sheet by name rather than reaching into them. */ -}}
   src="/search-index.json"
   data-commands="{{ $commands | jsonify }}"
   data-label="{{ i18n "commandLabel" }}"
-  data-hint="{{ i18n "commandHint" }}"
   data-unknown="{{ i18n "commandUnknown" }}"
   data-empty="{{ i18n "commandEmpty" }}"
   data-loading="{{ i18n "searchLoading" }}"
@@ -117,10 +116,21 @@ into loose strings. */ -}}
 {{- end -}}
 {{- $shortcuts = $shortcuts | append (slice "Esc" (i18n "helpBack")) -}}
 {{ partial "declassified/component.html" "dc-help" -}}
+{{- /* The command line's vocabulary lives here, next to the keys: both are
+things the reader can type, and the sheet is where they are explained. */ -}}
+{{- $cli := slice (slice "library" (i18n "commandLibrary")) -}}
+{{- $cli = $cli | append (slice "read <материал>" (i18n "commandRead")) -}}
+{{- $cli = $cli | append (slice "play <запись>" (i18n "commandPlay")) -}}
+{{- $cli = $cli | append (slice "open <что угодно>" (i18n "commandOpen")) -}}
+{{- $cli = $cli | append (slice "find <запрос>" (i18n "commandFind")) -}}
+{{- $cli = $cli | append (slice "help" (i18n "commandHelp")) -}}
 <dc-help
   data-title="{{ i18n "helpTitle" }}"
+  data-title-keys="{{ i18n "helpKeysTitle" }}"
+  data-title-commands="{{ i18n "helpCommandsTitle" }}"
   data-label="{{ i18n "helpLabel" }}"
-  data-shortcuts="{{ $shortcuts | jsonify }}"></dc-help>
+  data-shortcuts="{{ $shortcuts | jsonify }}"
+  {{ if not $isPublication }}data-commands="{{ $cli | jsonify }}"{{ end }}></dc-help>
 {{ partial "declassified/component.html" "dc-clock" -}}
 <dc-clock aria-hidden="true"></dc-clock>
 </span>

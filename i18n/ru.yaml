@@ -67,7 +67,7 @@ searchKey:
 helpKey:
   other: "? справка"
 helpTitle:
-  other: "Клавиши"
+  other: "Справка"
 helpLabel:
   other: "? help"
 searchLabel:
@@ -90,8 +90,6 @@ imageKeys:
   other: "o оригинал"
 commandLabel:
   other: "Командная строка"
-commandHint:
-  other: "команды: library, read, play, open, find, help"
 commandUnknown:
   other: "%s: нет такой команды"
 commandEmpty:
@@ -112,3 +110,7 @@ promptKeys:
   other: ": команда"
 helpPrompt:
   other: "командная строка"
+helpKeysTitle:
+  other: "клавиши"
+helpCommandsTitle:
+  other: "cli"
