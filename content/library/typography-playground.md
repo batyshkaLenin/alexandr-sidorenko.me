@@ -252,24 +252,6 @@ async function loadUser(id: string): Promise<User> {
   {{< figure src="/assets/library/23/strange-hat.jpg" alt="Человек в странной шляпе" caption="И у третьей тоже." >}}
 {{< /gallery >}}
 
-## Вымарывание
-
-Три геометрии из §27.6. Ширина приходит классом, а не инлайновым стилем:
-`style-src 'self'` отбрасывает атрибут `style`, и вымарывание схлопывалось до
-минимальной ширины (T145).
-
-Инлайновое: обычный текст, {{< redacted id="fixture-01" rule="П1" len="18" >}}, и предложение продолжается дальше.
-
-Строка целиком:
-
-{{< redacted id="fixture-02" rule="П1" len="46" geometry="line" >}}
-
-Блок из трёх строк:
-
-{{< redacted id="fixture-03" rule="П1" geometry="block" lines="1,0.72,0.88" >}}
-
-Нормализованная ширина (длина фрагмента не раскрывается): {{< redacted id="fixture-04" rule="П1" len="7" mode="normalized" >}}.
-
 ## Видео
 
 {{< video

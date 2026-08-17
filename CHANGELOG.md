@@ -109,17 +109,14 @@ is folded into the entry describing the finished behaviour rather than listed as
   It is a map, not a second feed: bodies stay out. The URL contract check reads
   the file too, so the map cannot become the one place that publishes an
   address in the wrong form.
-- Redaction. A publication can black out a fragment that carries a legal risk.
-  The text is not hidden behind a control and not present in the markup — it is
-  gone from the published source, in the page, in both feeds and in
-  `/llms.txt`. What stands in its place is a quiet textured surface drawn by
-  CSS, keeping the typographic width of what was removed and, for a whole
-  paragraph, its number of lines and their relative lengths; it survives
-  printing and forced colours. A screen reader, and any feed reader without a
-  stylesheet, gets the words «вымарано» instead. Three fragments are redacted so
-  far; every decision, including the ones to leave a fragment alone, is recorded
-  in `data/redactions.yaml` with its ground, its date and the edition of the
-  rules it was made under.
+- Redaction. A publication can black out a fragment that carries a legal risk:
+  the text is replaced by U+2588 blocks in the page, in both feeds and in
+  `/llms.txt`. It is not hidden behind a control and not present in the markup
+  — it is gone from the published source. A screen reader announces one word,
+  «вымарано», instead of a run of blocks. Three fragments are redacted so far;
+  every decision, including the ones to leave a fragment alone, is recorded in
+  `data/redactions.yaml` with its ground, its date and the edition of the rules
+  it was made under.
 
 ### Changed
 
