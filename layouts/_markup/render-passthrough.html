@@ -1,0 +1,24 @@
+{{- /*
+Mathematics, rendered while the site is built (§29, ADR
+redesign-math-mathml-build-time). goldmark hands over what stood between the
+delimiters, untouched; KaTeX — the one built into Hugo, not a script on the
+page — turns it into MathML, and the browser lays it out with its own maths
+font. Nothing here waits for JavaScript, and no font file comes with it.
+
+`throwOnError` is on purpose: a formula with a typo fails the build instead of
+publishing an error message coloured red in the middle of a paragraph.
+
+A display formula is wrapped, because §29.1 wants a very wide expression to
+scroll inside its own container rather than shrink or widen the page; an inline
+one is part of the sentence and gets no box of its own.
+*/ -}}
+{{- $display := eq .Type "block" -}}
+{{- $math := transform.ToMath .Inner (dict
+      "output" "mathml"
+      "displayMode" $display
+      "throwOnError" true) -}}
+{{- if $display -}}
+<div class="dc-math">{{ $math }}</div>
+{{- else -}}
+{{- $math -}}
+{{- end -}}

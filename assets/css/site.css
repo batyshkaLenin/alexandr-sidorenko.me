@@ -1416,6 +1416,46 @@
 }
 
 /*
+ * Math (§29). Formulas are MathML, produced on the build (T60), so the browser
+ * lays them out itself and nothing here waits for a script. The stack names the
+ * math fonts a system is likely to have and then falls through to the body
+ * serif: MathML keeps its structure either way, only the glyphs change.
+ */
+.dc-prose math {
+  font-family: "Latin Modern Math", "STIX Two Math", "XITS Math", "Cambria Math",
+    "DejaVu Math TeX Gyre", var(--dc-font-prose);
+  font-size: 1.05em;
+}
+
+/*
+ * A display formula gets its own line and its own scrollbar: §29.1 asks for a
+ * wide formula to overflow inside its container rather than shrink to an
+ * unreadable size. The padding is what keeps a descender or an integral sign
+ * from touching the scroll edge.
+ */
+.dc-math {
+  overflow-x: auto;
+  /* A grid or flex child refuses to shrink below its content without this. */
+  min-width: 0;
+  margin: 1.6em 0;
+  padding-block: 0.2em;
+  text-align: center;
+}
+
+/* An inline formula sits in a line of prose and must not stretch it. */
+.dc-prose :not(.dc-math) > .katex math {
+  font-size: 1.02em;
+}
+
+@media print {
+  /* Paper cannot scroll, so a wide formula is allowed to break out of its box
+     rather than be cut off at the edge of one. */
+  .dc-math {
+    overflow: visible;
+  }
+}
+
+/*
  * A table inside a publication (§27.5). The Library's own table is a data
  * primitive with monospace metadata and sortable headers — `.dc-table`, far
  * below; this one is a paragraph that happens to have columns: the body type,

@@ -41,6 +41,14 @@ is folded into the entry describing the finished behaviour rather than listed as
   heads, and a table too wide for a phone scrolls inside its own box, which
   the keyboard can reach and a screen reader announces, instead of dragging
   the page sideways.
+- Mathematics. A publication can set formulas — inline between `\(` and `\)`,
+  display between `$$` and `$$` — and they are rendered to MathML while the site
+  is built: inline and display, numbered equations, matrices, multi-line
+  alignments, nested fractions and expressions too wide for a phone, which
+  scroll inside their own block instead of stretching the page. No client-side
+  renderer, no external script and not one new font file: the formulas are set
+  in the reader's own maths font, and where there is none they keep their
+  structure in the body serif.
 - Footnotes read in both directions: the mark in the text and the way back are
   both links, both reachable by keyboard, and whichever end the reader lands
   on is marked so the line is findable.

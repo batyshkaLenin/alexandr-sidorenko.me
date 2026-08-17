@@ -128,3 +128,15 @@ theme = 'declassified'
 [markup.highlight]
   noClasses = false
   lineNumbersInTable = false
+
+# Math is rendered at build time (§29.2, §44.7): goldmark hands the delimited
+# source through untouched, and `layouts/_markup/render-passthrough.html` turns
+# it into MathML. No client-side renderer is involved (T60).
+[markup.goldmark.extensions.passthrough]
+  enable = true
+  [markup.goldmark.extensions.passthrough.delimiters]
+    # Only `$$ … $$` opens a display formula. The other common pair, `\[ … \]`,
+    # would swallow an escaped square bracket in ordinary prose — the fixture's
+    # `\[скобки\]` was parsed as mathematics the moment it was enabled.
+    block = [['$$', '$$']]
+    inline = [['\(', '\)']]
