@@ -101,8 +101,9 @@ is folded into the entry describing the finished behaviour rather than listed as
   screen reader, revealed on hover or focus.
 - Search. A `/ search` button sits in the top bar and `/` opens the same
   palette from the keyboard: it looks through titles, bodies, types, topics and
-  addresses, and shows the line around the match, so a hit inside a long text
-  says why it is a hit. Arrows and Enter work, Esc closes it, and focus returns
+  addresses, and shows the line around the match with the searched words
+  highlighted in it and in the title, so a hit inside a long text says why it
+  is a hit. Arrows and Enter work, Esc closes it, and focus returns
   to where it was. With JavaScript off there is no button, no field and no
   broken promise — the library, its views and the topic pages remain the way to
   everything, as they were. A redacted fragment is as absent from the search
