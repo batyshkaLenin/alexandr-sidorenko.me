@@ -55,6 +55,7 @@ the theme's and knows no Russian. */ -}}
 {{ partial "declassified/component.html" "dc-command-palette" -}}
 <dc-command-palette
   src="/search-index.json"
+  data-label="{{ i18n "searchLabel" }}"
   data-hint="{{ i18n "searchHint" }}"
   data-loading="{{ i18n "searchLoading" }}"
   data-empty="{{ i18n "searchEmpty" }}"

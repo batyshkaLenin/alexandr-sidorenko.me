@@ -56,3 +56,5 @@ searchMode:
   other: "SEARCH"
 searchKeys:
   other: "↑↓ выбор · ↵ открыть · Esc закрыть"
+searchLabel:
+  other: "Поиск по сайту"

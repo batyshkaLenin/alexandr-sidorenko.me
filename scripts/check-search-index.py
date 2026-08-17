@@ -62,10 +62,11 @@ def published_materials(public: Path) -> dict[str, PageFacts]:
     materials = {}
     library = public / "library"
     for path in sorted(library.glob("*/index.html")):
-        # Library views (all, table, timeline…) are pages about the library,
-        # not materials; they carry no publication metadata.
+        # A material is the page that renders one publication, and <article> is
+        # what marks it. Library views (all, table, timeline…) live at the same
+        # depth but are pages *about* the library and carry no article.
         html = path.read_text(encoding="utf-8")
-        if 'data-publication="true"' not in html and "<article" not in html:
+        if "<article" not in html:
             continue
         facts = PageFacts()
         facts.feed(html)
