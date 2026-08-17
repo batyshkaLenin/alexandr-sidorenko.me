@@ -11,7 +11,9 @@ Parameters, named, and deliberately excluding the original:
   mode     — preserve (default) | normalized.
 
 The surface is drawn by CSS, never by characters: §47.24 rejects the U+2588
-implementation outright. What ships is an empty visual element plus an
+implementation outright. Its width is a class, never a `style` attribute: this
+site serves `style-src 'self'`, so an inline style is dropped by the browser and
+every redaction collapses to `--dc-redaction-min-width` (T145). What ships is an empty visual element plus an
 accessible replacement, so the fragment is absent from the DOM, the clipboard,
 the accessibility tree and any search index.
 
@@ -50,7 +52,12 @@ three fixed sizes, same surface, same semantics.
   <span class="dc-redaction dc-redaction--block" data-redaction="{{ $id }}" data-redaction-rule="{{ $rule }}">
   {{- range $lines -}}
     {{- $share := float (strings.TrimSpace .) -}}
-    <span class="dc-redaction__line" aria-hidden="true" style="width: {{ mul $share 100 }}%"></span>
+    {{- /* Quantised to 5% so a fixed set of classes can carry every line: the
+           point is the relative length of the lines, not a percent of it. */ -}}
+    {{- $percent := mul 5 (int (math.Round (div (mul $share 100) 5))) -}}
+    {{- if lt $percent 5 }}{{ $percent = 5 }}{{ end -}}
+    {{- if gt $percent 100 }}{{ $percent = 100 }}{{ end -}}
+    <span class="dc-redaction__line dc-redaction__line--p{{ $percent }}" aria-hidden="true"></span>
   {{- end -}}
     <span class="dc-visually-hidden">[вымаран фрагмент текста]</span>
   </span>
@@ -72,7 +79,11 @@ three fixed sizes, same surface, same semantics.
   {{- range $i := seq $count -}}
     {{- $last := eq $i $count -}}
     {{- $w := cond $last (sub $width (mul (sub $count 1) $segment)) $segment -}}
-    <span class="dc-redaction__surface" aria-hidden="true" style="width: {{ $w }}em"></span>
+    {{- /* Every width the arithmetic above can produce is a multiple of half
+           an em — `len` is halved, and segments are cut at 4em — so eight
+           classes cover all of them exactly. */ -}}
+    {{- $tenths := int (math.Round (mul $w 10)) -}}
+    <span class="dc-redaction__surface dc-redaction__surface--w{{ $tenths }}" aria-hidden="true"></span>
     {{- if not $last }}<wbr>{{ end -}}
   {{- end -}}
     <span class="dc-visually-hidden">{{ $label }}</span>
