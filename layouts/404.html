@@ -13,11 +13,14 @@ away from the navigation.
   {{ with .Site.Menus.main }}
   <div class="dc-404__sections">
     <p class="dc-filetree__label">{{ i18n "notFoundSectionsLabel" }}</p>
+    {{ partial "declassified/component.html" "dc-listnav" }}
+    <dc-listnav>
     <ul class="dc-filetree">
       {{ range . }}
       <li><a href="{{ partial "canonical-url.html" .URL }}">{{ .Name }}</a></li>
       {{ end }}
     </ul>
+    </dc-listnav>
   </div>
   {{ end }}
 </section>
