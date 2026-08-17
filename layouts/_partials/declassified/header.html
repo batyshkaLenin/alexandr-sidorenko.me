@@ -8,11 +8,12 @@ The no-trailing-slash policy is this site's ADR, not a theme concern.
     {{ partial "declassified/hooks/header-extra.html" . }}
   </div>
   {{ with .Site.Menus.main }}
-  {{- /* Esc leads here, and the enhance script reads the address from this
-  attribute rather than having it printed into its body — that is what keeps
-  the script identical on every page, and `script-src 'self'` free of hashes
-  (T95). Absent on pages without a parent, where Esc then does nothing. */ -}}
-  <nav class="dc-nav" aria-label="{{ $.Site.Title }}"{{ with $.Parent }} data-parent-url="{{ partial "canonical-url.html" .RelPermalink }}"{{ end }}>
+  {{ partial "declassified/component.html" "dc-keynav" }}
+  {{- /* Esc leads to the parent section; the address goes through
+  canonical-url.html like every other link on this site, so the shortcut lands
+  on the single URL form the no-trailing-slash ADR allows (T56). */ -}}
+  <dc-keynav{{ with $.Parent }} parent-url="{{ partial "canonical-url.html" .RelPermalink }}"{{ end }}>
+  <nav class="dc-nav" aria-label="{{ $.Site.Title }}">
     <ul class="dc-nav__list">
       {{ range $i, $item := . }}
       <li>
@@ -24,10 +25,11 @@ The no-trailing-slash policy is this site's ADR, not a theme concern.
       </li>
       {{ end }}
     </ul>
-    {{- /* Hidden until the enhance hook actually registers the key handler:
-    the hint must not promise behaviour that never arrives (T54). It sits
-    inside the nav row, so revealing it does not change the row's height. */ -}}
-    <p class="dc-nav__hint" id="dc-nav-hint" hidden>{{ i18n "navKeysHint" }}</p>
+    {{- /* Hidden until <dc-keynav> attaches the key handler: the hint must not
+    promise behaviour that never arrives (T54). It sits inside the nav row, so
+    revealing it does not change the row's height. */ -}}
+    <p class="dc-nav__hint" data-keynav-hint hidden>{{ i18n "navKeysHint" }}</p>
   </nav>
+  </dc-keynav>
   {{ end }}
 </header>

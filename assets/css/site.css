@@ -440,53 +440,9 @@
   margin: 4px 0 0;
 }
 
-/* Keyboard hint (T54). It shares the nav's row, so revealing it costs no
-   height and the page does not move. Below the dashboard breakpoint it is
-   dropped entirely: there it would wrap onto a line of its own and push the
-   page down, and a viewport that narrow rarely has a physical keyboard.
-   Deliberately sets no display, so the markup's `hidden` keeps working until
-   the handler is attached. */
-.dc-nav {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-.dc-nav__hint {
-  margin: 0;
-  padding: 14px 32px;
-  color: var(--dc-faint);
-  font-size: var(--dc-fs-meta);
-}
-
-@media (max-width: 860px) {
-  .dc-nav__hint {
-    display: none;
-  }
-}
-
-/* Empty by default — filled by the enhance hook's script with the
-   visitor's own local time. Stays empty and invisible with JS off.
-
-   min-height reserves the line before the script fills it (T62) — without it
-   the clock's arrival grows the bar and pushes the whole page down. */
-.dc-clock {
-  margin: 0;
-  min-height: 1.5em;
-  color: var(--dc-muted);
-  font-size: var(--dc-fs-ui);
-}
-
-/* On a phone the clock cost a whole row of the top bar before any content was
-   visible, and the owner asked for that row back (T82). display:none is also
-   what the script reads to decide whether to tick at all, so the breakpoint
-   stays defined here and in one place. */
-@media (max-width: 860px) {
-  .dc-clock {
-    display: none;
-  }
-}
+/* The keyboard hint (T54) and the clock (T62, T82) are styled by the theme:
+   both belong to its <dc-keynav> and <dc-clock>, and a component's styles ship
+   with the component. */
 
 /* Home page: three rows mirror the accepted Sidorenko TUI mockup layout
    (240px filetree / 1fr about / 300px portrait, then posts+links, then

@@ -11,8 +11,8 @@ A reader lowers the shell's voice (§12, §19): no `guest@host` prefix, just the
 command and a way back. On a phone the full prompt does not fit and is not
 attempted; the bar becomes «← library» plus the material's own title.
 
-#dc-clock is empty markup only: optional progressive enhancement fills it with
-the *visitor's own* local clock. No JS means no clock text at all, not a stale
+<dc-clock> is empty markup only: the theme's component fills it with the
+*visitor's own* local clock. No JS means no clock text at all, not a stale
 placeholder — and its reserved height keeps the bar from growing when it
 arrives (T62).
 */ -}}
@@ -46,4 +46,5 @@ elsewhere; the prompt follows the address a visitor sees, not the folder. */ -}}
 <p class="dc-identity__back"><a href="{{ partial "canonical-url.html" .RelPermalink }}"><span aria-hidden="true">← </span>library</a></p>
 {{- end }}
 {{- end }}
-<p class="dc-clock" id="dc-clock" aria-hidden="true"></p>
+{{ partial "declassified/component.html" "dc-clock" -}}
+<dc-clock aria-hidden="true"></dc-clock>
