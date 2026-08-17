@@ -469,6 +469,210 @@
           "https://alexandr-sidorenko.me/library/music"
         ]
       ]
+    },
+    {
+      "html": "library/types/article/index.html",
+      "blocks": [
+        "CollectionPage",
+        "BreadcrumbList"
+      ],
+      "name": "Статья",
+      "url": "https://alexandr-sidorenko.me/library/types/article",
+      "required_properties": [
+        "description",
+        "name",
+        "url",
+        "hasPart"
+      ],
+      "list": {
+        "property": "hasPart",
+        "item_type": [
+          "BlogPosting"
+        ],
+        "urls": [
+          "https://alexandr-sidorenko.me/library/bluredu-new-teachers"
+        ]
+      },
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Статья",
+          "https://alexandr-sidorenko.me/library/types/article"
+        ]
+      ]
+    },
+    {
+      "html": "library/types/fiction/index.html",
+      "blocks": [
+        "CollectionPage",
+        "BreadcrumbList"
+      ],
+      "name": "Проза",
+      "url": "https://alexandr-sidorenko.me/library/types/fiction",
+      "required_properties": [
+        "description",
+        "name",
+        "url",
+        "hasPart"
+      ],
+      "list": {
+        "property": "hasPart",
+        "item_type": [
+          "CreativeWork"
+        ],
+        "urls": [
+          "https://alexandr-sidorenko.me/library/skver"
+        ]
+      },
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Проза",
+          "https://alexandr-sidorenko.me/library/types/fiction"
+        ]
+      ]
+    },
+    {
+      "html": "library/types/paper/index.html",
+      "blocks": [
+        "CollectionPage",
+        "BreadcrumbList"
+      ],
+      "name": "Научная работа",
+      "url": "https://alexandr-sidorenko.me/library/types/paper",
+      "required_properties": [
+        "description",
+        "name",
+        "url",
+        "hasPart"
+      ],
+      "list": {
+        "property": "hasPart",
+        "item_type": [
+          "BlogPosting"
+        ],
+        "urls": [
+          "https://alexandr-sidorenko.me/library/philosophy-of-freedom"
+        ]
+      },
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Научная работа",
+          "https://alexandr-sidorenko.me/library/types/paper"
+        ]
+      ]
+    },
+    {
+      "html": "library/types/poem/index.html",
+      "blocks": [
+        "CollectionPage",
+        "BreadcrumbList"
+      ],
+      "name": "Стих",
+      "url": "https://alexandr-sidorenko.me/library/types/poem",
+      "required_properties": [
+        "description",
+        "name",
+        "url",
+        "hasPart"
+      ],
+      "list": {
+        "property": "hasPart",
+        "item_type": [
+          "CreativeWork"
+        ],
+        "urls": [
+          "https://alexandr-sidorenko.me/library/23"
+        ]
+      },
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Стих",
+          "https://alexandr-sidorenko.me/library/types/poem"
+        ]
+      ]
+    },
+    {
+      "html": "library/types/poetry-collection/index.html",
+      "blocks": [
+        "CollectionPage",
+        "BreadcrumbList"
+      ],
+      "name": "Подборка стихов",
+      "url": "https://alexandr-sidorenko.me/library/types/poetry-collection",
+      "required_properties": [
+        "description",
+        "name",
+        "url",
+        "hasPart"
+      ],
+      "list": {
+        "property": "hasPart",
+        "item_type": [
+          "CreativeWork"
+        ],
+        "urls": [
+          "https://alexandr-sidorenko.me/library/humility-and-open-mindedness"
+        ]
+      },
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Подборка стихов",
+          "https://alexandr-sidorenko.me/library/types/poetry-collection"
+        ]
+      ]
+    },
+    {
+      "html": "library/types/track/index.html",
+      "blocks": [
+        "CollectionPage",
+        "BreadcrumbList"
+      ],
+      "name": "Трек",
+      "url": "https://alexandr-sidorenko.me/library/types/track",
+      "required_properties": [
+        "description",
+        "name",
+        "url",
+        "hasPart"
+      ],
+      "list": {
+        "property": "hasPart",
+        "item_type": [
+          "CreativeWork"
+        ],
+        "urls": [
+          "https://alexandr-sidorenko.me/library/regular-visitor"
+        ]
+      },
+      "breadcrumb": [
+        [
+          "Александр Сидоренко",
+          "https://alexandr-sidorenko.me/"
+        ],
+        [
+          "Трек",
+          "https://alexandr-sidorenko.me/library/types/track"
+        ]
+      ]
     }
   ],
   "pages_without_structured_data": [

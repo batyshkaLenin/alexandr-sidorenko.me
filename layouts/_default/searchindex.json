@@ -55,6 +55,21 @@ for content, and with six materials the file stays small. */ -}}
   ) -}}
 {{- end -}}
 
+{{- /* A material type is an address like any other, and a reader who types
+«стих» is looking for one (T142). */ -}}
+{{- range where site.RegularPages "Params.material_type" "!=" nil -}}
+  {{- $entries = $entries | append (dict
+    "title" .Title
+    "url" (partial "canonical-url.html" .RelPermalink)
+    "path" (partial "search/path.html" .RelPermalink)
+    "type" (i18n "searchKindType")
+    "kind" "type"
+    "topics" (slice)
+    "summary" .Description
+    "text" ""
+  ) -}}
+{{- end -}}
+
 {{- with site.GetPage "/library" -}}
   {{- $entries = $entries | append (dict
     "title" .Title

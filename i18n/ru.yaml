@@ -46,6 +46,8 @@ searchKindSection:
   other: "Раздел"
 searchKindTopic:
   other: "Тема"
+searchKindType:
+  other: "Тип"
 searchHint:
   other: "ищет по названиям, тексту, типам, темам и путям"
 searchLoading:

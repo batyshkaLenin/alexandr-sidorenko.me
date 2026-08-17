@@ -22,12 +22,18 @@ that vocabulary for navigation long ago.
   "mainEntity" (merge $person (dict "description" .Site.Params.description))
 }}
 <script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>
-{{ else if in (slice "section" "taxonomy" "term") .Kind }}
-{{/* Same selection and order as the HTML list in section/taxonomy/term.html. */}}
+{{ else if or (in (slice "section" "taxonomy" "term") .Kind) .Params.material_type }}
+{{/* Same selection and order as the HTML list in section/taxonomy/term.html —
+     and, since T142, in library-type.html: a type page is a collection of
+     materials exactly like a topic, and says so with the same vocabulary. */}}
 {{ $parts := slice }}
 {{ if eq .Kind "taxonomy" }}
 {{ range .Pages }}
 {{ $parts = $parts | append (dict "@type" "CollectionPage" "name" .Title "url" (partial "canonical-url.html" .Permalink)) }}
+{{ end }}
+{{ else if .Params.material_type }}
+{{ range (where (where site.RegularPages "Section" "library") "Params.type" .Params.material_type).ByDate.Reverse }}
+{{ $parts = $parts | append (partial "schema/publication.html" .) }}
 {{ end }}
 {{ else }}
 {{ range .Pages.ByDate.Reverse }}

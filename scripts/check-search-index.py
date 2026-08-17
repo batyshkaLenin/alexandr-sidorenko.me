@@ -39,7 +39,7 @@ MAX_BYTES_TOTAL = 512 * 1024
 REQUIRED_FIELDS = ("title", "url", "path", "type", "kind", "topics", "summary", "text")
 
 # `type` is the label a reader sees; `kind` is what a component can act on.
-KINDS = {"audio", "text", "view", "section", "topic"}
+KINDS = {"audio", "text", "view", "type", "section", "topic"}
 
 # What the redaction shortcode prints in place of a fragment.
 REDACTION_MARKERS = ("[вымарано]", "[вымарана строка]", "[вымаран фрагмент текста]")
