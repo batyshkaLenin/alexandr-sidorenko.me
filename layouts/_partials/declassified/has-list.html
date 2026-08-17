@@ -1,0 +1,18 @@
+{{- /*
+Does this page print a list the keyboard can walk? Decided by page kind rather
+than by what has been rendered: the top bar, where the help sheet lives, is
+printed before the body, so nothing can be asked of the body yet.
+
+A publication is the one page with no list of its own — it is the thing lists
+point at.
+*/ -}}
+{{- $has := false -}}
+{{- if .IsHome -}}
+  {{- $has = true -}}
+{{- else if eq .Kind "page" -}}
+  {{- $has = ne .Section "library" -}}
+  {{- if .Params.view -}}{{- $has = true -}}{{- end -}}
+{{- else if or (eq .Kind "section") (eq .Kind "term") (eq .Kind "taxonomy") -}}
+  {{- $has = true -}}
+{{- end -}}
+{{- return $has -}}

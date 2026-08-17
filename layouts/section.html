@@ -28,6 +28,8 @@ does not.
     <div class="dc-panel__body dc-prose">{{ . }}</div>
     {{ end }}
     <div class="dc-panel__body">
+      {{ partial "declassified/component.html" "dc-listnav" }}
+      <dc-listnav>
       <ul class="dc-material-list h-feed">
         {{ range .Pages.ByDate.Reverse }}
         {{ partial "library/material-row.html" (dict "page" . "density" "rich") }}
@@ -35,6 +37,7 @@ does not.
         <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
         {{ end }}
       </ul>
+      </dc-listnav>
     </div>
   </section>
 </div>

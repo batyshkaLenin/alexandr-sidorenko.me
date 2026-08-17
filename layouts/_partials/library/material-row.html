@@ -8,6 +8,12 @@ hierarchy the design system is explicit about.
     rich   title, type, date, excerpt — Home recent, Library Recent, topic pages
     dense  title, type, date, markers on one line — for scanning many at once
 
+`level` is the heading level of the row's title, default 2: a list under the
+page's own h1 starts at h2, and only a list that sits under a group heading
+(Types) passes 3. Guessing one level for every context skips a level somewhere,
+and a skipped level is a page a screen-reader user navigates by headings and
+falls through.
+
 One primitive, two densities, not two templates: the difference is what is
 shown, not how it is built.
 
@@ -22,11 +28,12 @@ mechanical change once the theme owns that vocabulary too.
 */ -}}
 {{- $page := .page -}}
 {{- $density := default "rich" .density -}}
+{{- $level := default 2 .level -}}
 {{- $capabilities := partialCached "publication/capabilities.html" $page $page.RelPermalink -}}
 <li class="dc-material dc-material--{{ $density }} h-entry">
-  <h3 class="dc-material__title">
+  <h{{ $level }} class="dc-material__title">
     <a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
-  </h3>
+  </h{{ $level }}>
   <p class="dc-material__meta">
     {{- with $page.Params.type -}}
     <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>

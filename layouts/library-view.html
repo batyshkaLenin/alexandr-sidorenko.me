@@ -16,6 +16,8 @@ MaterialRow.
     <h1 class="dc-section-title">{{ .Title }}</h1>
     {{ with .Content }}<div class="dc-panel__body dc-prose">{{ . }}</div>{{ end }}
     <div class="dc-panel__body">
+      {{ partial "declassified/component.html" "dc-listnav" }}
+      <dc-listnav>
       {{ if eq .Params.view "music" }}
         {{- /* Music Library (§26.1, direction C): a local library, not a
         release page — a list with the current state, and no buttons for
@@ -98,7 +100,7 @@ MaterialRow.
         </h2>
         <ul class="dc-material-list dc-material-list--dense h-feed">
           {{ range $group.ByDate.Reverse }}
-          {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+          {{ partial "library/material-row.html" (dict "page" . "density" "dense" "level" 3) }}
           {{ end }}
         </ul>
         {{ end }}
@@ -115,6 +117,7 @@ MaterialRow.
           {{ end }}
         </ul>
       {{ end }}
+      </dc-listnav>
     </div>
   </section>
 </div>

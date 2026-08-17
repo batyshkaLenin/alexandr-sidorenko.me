@@ -14,6 +14,12 @@ system (T116); this is the migrated shape, not the target one.
 {{- partial "publication/identity-invariants.html" . -}}
 <h1 class="dc-visually-hidden">{{ .Site.Title }}</h1>
 
+{{- /* One walk for the whole workspace rather than one per panel: the arrows
+follow the page in reading order, which is what a reader expects of a screen
+made of lists (T135). */ -}}
+{{ partial "declassified/component.html" "dc-listnav" }}
+<dc-listnav>
+
 <div class="dc-home-row dc-home-row--identity">
 
   {{/* Tree entries are data, not markup, so the panel label can count them:
@@ -167,4 +173,5 @@ system (T116); this is the migrated shape, not the target one.
   {{- end }}
 
 </div>
+</dc-listnav>
 {{ end }}

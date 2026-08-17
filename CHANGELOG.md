@@ -99,6 +99,12 @@ is folded into the entry describing the finished behaviour rather than listed as
   in grayscale, by their own `+`/`-` and by a rule in the margin.
 - Heading anchors in publication bodies: reachable by keyboard, named for a
   screen reader, revealed on hover or focus.
+- The keyboard reaches the whole shell. Arrows and `j`/`k` walk a list of
+  materials once focus is in it, Enter opens what is focused, `1`/`2` go to the
+  sections, Esc goes back up, and `?` opens a sheet listing exactly the keys
+  that work on the page in front of you. Every one of them has something to
+  click instead. The status bar names the mode and the keys — and prints
+  neither without JavaScript, where none of them exist.
 - Search. A `/ search` button sits in the top bar and `/` opens the same
   palette from the keyboard: it looks through titles, bodies, types, topics and
   addresses, and shows the line around the match with the searched words

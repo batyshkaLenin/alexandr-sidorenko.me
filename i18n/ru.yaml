@@ -56,5 +56,29 @@ searchMode:
   other: "SEARCH"
 searchKeys:
   other: "↑↓ выбор · ↵ открыть · Esc закрыть"
+normalMode:
+  other: "NORMAL"
+listKeys:
+  other: "↑↓ / j k — по списку · ↵ открыть"
+searchKey:
+  other: "/ поиск"
+helpKey:
+  other: "? справка"
+helpTitle:
+  other: "Клавиши"
+helpLabel:
+  other: "? help"
 searchLabel:
   other: "Поиск по сайту"
+helpList:
+  other: "по списку"
+helpOpen:
+  other: "открыть выбранное"
+helpNav:
+  other: "разделы меню"
+helpSearch:
+  other: "поиск"
+helpBack:
+  other: "назад в раздел"
+helpSelf:
+  other: "эта справка"

@@ -39,15 +39,24 @@ shortcuts have no keyboard to come from (§13.3).
   {{- $mode = "TOPIC" -}}
   {{- $state = printf "%d %s" (len .Pages) (i18n "materialsCount" (len .Pages)) -}}
 {{- end -}}
-{{- /* <as-statusbar> swaps the mode for SEARCH while the palette is open (T134)
-and puts the static one back afterwards. It creates no bar of its own: a page
-without one — Home — stays without one. */ -}}
-{{- with $mode }}
+{{- /* <as-statusbar> adds what only exists with JavaScript (T135): the keyboard
+hints, and SEARCH while the palette is open. It is printed even where the
+template has no static bar — on Home `NORMAL` says nothing on its own, but
+`NORMAL` plus working shortcuts does, so there the element builds the bar
+itself and `mode-default` is the word it uses. */ -}}
 {{ partial "declassified/component.html" "as-statusbar" -}}
-<as-statusbar mode-search="{{ i18n "searchMode" }}" keys-search="{{ i18n "searchKeys" }}">
+<as-statusbar
+  {{ if not $mode }}mode-default="{{ i18n "normalMode" }}"{{ end }}
+  mode-search="{{ i18n "searchMode" }}"
+  keys-palette="{{ i18n "searchKeys" }}"
+  keys-list="{{ i18n "listKeys" }}"
+  keys-search="{{ i18n "searchKey" }}"
+  keys-help="{{ i18n "helpKey" }}">
+{{- with $mode }}
 <p class="dc-statusbar" role="status">
   <span class="dc-statusbar__mode" data-statusbar-mode>{{ . }}</span>
   {{- with $state }}<span class="dc-statusbar__state" data-statusbar-state>{{ . }}</span>{{ end -}}
+  <span class="dc-statusbar__keys" data-statusbar-keys></span>
 </p>
+{{- end }}
 </as-statusbar>
-{{- end -}}

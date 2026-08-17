@@ -1601,6 +1601,14 @@ as-statusbar {
   color: var(--dc-muted);
 }
 
+/* The shortcut hints sit at the far end of the bar and only ever arrive with
+   JavaScript (§13.4): the template prints an empty span, <as-statusbar> fills
+   it with the keys that actually work on this page. */
+.dc-statusbar__keys {
+  margin-left: auto;
+  color: var(--dc-faint);
+}
+
 .dc-statusbar__mode {
   color: var(--dc-primary);
   font-weight: 700;

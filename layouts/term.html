@@ -7,6 +7,8 @@ links go through canonical-url.html so the site emits a single URL form (T56).
   <h1 class="dc-visually-hidden">{{ .Title }}</h1>
   {{ partial "declassified/panel-label.html" (printf "$ grep -rl %s ~/" .Title) }}
   <div class="dc-panel__body">
+    {{ partial "declassified/component.html" "dc-listnav" }}
+    <dc-listnav>
     <ul class="dc-list">
       {{ range .Pages.ByDate.Reverse }}
       <li class="dc-list__item">
@@ -18,6 +20,7 @@ links go through canonical-url.html so the site emits a single URL form (T56).
       <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
       {{ end }}
     </ul>
+    </dc-listnav>
   </div>
 </section>
 {{ end }}
