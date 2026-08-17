@@ -15,7 +15,10 @@ Two jobs.
    the page actually printed.
 
 2. The mode. While the palette is open the mode reads SEARCH, with the keys the
-   palette itself offers; closing restores what the page shipped with.
+   palette itself offers; closing restores what the page shipped with. When a
+   view switches in place (`dc-modes:change`), the mode the page "shipped with"
+   changes too — otherwise the bar would keep announcing the view the reader
+   just left.
 
 On a page whose template printed no bar — Home, where nothing static is worth a
 row — the bar is created here, because with a keyboard attached `NORMAL` plus
@@ -37,15 +40,31 @@ class AsStatusbar extends HTMLElement {
     this.staticMode = this.mode.textContent;
     if (this.keys) this.keys.textContent = this.hints();
 
+    try {
+      this.modes = JSON.parse(this.getAttribute("modes") || "{}");
+    } catch (error) {
+      this.modes = {};
+    }
+
     this.onOpen = () => this.enter();
     this.onClose = () => this.leave();
+    this.onMode = (event) => this.rename(event.detail && event.detail.mode);
     document.addEventListener("dc-command-palette:open", this.onOpen);
     document.addEventListener("dc-command-palette:close", this.onClose);
+    document.addEventListener("dc-modes:change", this.onMode);
   }
 
   disconnectedCallback() {
     document.removeEventListener("dc-command-palette:open", this.onOpen);
     document.removeEventListener("dc-command-palette:close", this.onClose);
+    document.removeEventListener("dc-modes:change", this.onMode);
+  }
+
+  rename(mode) {
+    const name = this.modes[mode];
+    if (!name) return;
+    this.staticMode = name;
+    if (this.mode.textContent !== this.getAttribute("mode-search")) this.mode.textContent = name;
   }
 
   /* Only for a page the template left without a bar: `mode-default` is the
@@ -70,6 +89,7 @@ class AsStatusbar extends HTMLElement {
     const parts = [
       document.querySelector("dc-listnav") && this.getAttribute("keys-list"),
       document.querySelector("dc-command-palette") && this.getAttribute("keys-search"),
+      document.querySelector("dc-image-toggle") && this.getAttribute("keys-image"),
       document.querySelector("dc-help") && this.getAttribute("keys-help"),
     ];
     return parts.filter(Boolean).join(" · ");

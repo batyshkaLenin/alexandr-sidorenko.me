@@ -102,6 +102,8 @@ made of lists (T135). */ -}}
       {{ if not $portrait }}
         {{ errorf "portrait %q has no dithered derivative — run scripts/dither-images.py" $owner.avatar }}
       {{ end }}
+      {{ partial "declassified/component.html" "dc-image-toggle" }}
+      <dc-image-toggle data-label-processed="{{ i18n "imageProcessed" }}">
       {{ partial "dithered-img.html" (dict
            "entry" $portrait
            "alt" $owner.avatar_alt
@@ -113,8 +115,9 @@ made of lists (T135). */ -}}
            original one plain link away (§30.5). */}}
       {{ $source := partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}
       <p class="dc-portrait-original">
-        <a class="dc-figure__original" href="{{ ($source.Process "fill 848x848").RelPermalink }}">{{ i18n "imageOriginal" }}</a>
+        <a class="dc-figure__original" data-image-original href="{{ ($source.Process "fill 848x848").RelPermalink }}">{{ i18n "imageOriginal" }}</a>
       </p>
+      </dc-image-toggle>
     </div>
   </section>
 

@@ -61,35 +61,7 @@ MaterialRow.
         </section>
         {{ end }}
       {{ else if eq .Params.view "table" }}
-        {{- /* Index mode (§9.3): TITLE first, then TYPE, DATE, SIZE. The date
-        may sort the list without leading it — hierarchy is not obliged to
-        repeat the sorting criterion. */ -}}
-        <p class="dc-mode-switch">
-          <a href="{{ partial "canonical-url.html" ("/library/all" | relLangURL) }}">[list]</a>
-          <span class="dc-mode-switch__current">[table]</span>
-        </p>
-        <div class="dc-table-scroll">
-          <table class="dc-table">
-            <thead>
-              <tr>
-                <th scope="col">название</th>
-                <th scope="col">тип</th>
-                <th scope="col">дата <span aria-hidden="true">↓</span></th>
-                <th scope="col">объём</th>
-              </tr>
-            </thead>
-            <tbody>
-              {{ range $materials.ByDate.Reverse }}
-              <tr>
-                <td><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></td>
-                <td>{{- with .Params.type -}}<span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{- end -}}</td>
-                <td>{{ partial "publication/date.html" (dict "date" .Date "form" "iso") }}</td>
-                <td>{{ partial "library/material-size.html" . }}</td>
-              </tr>
-              {{ end }}
-            </tbody>
-          </table>
-        </div>
+        {{ partial "library/mode-panels.html" (dict "materials" $materials "mode" "table") }}
       {{ else if eq .Params.view "types" }}
         {{ range $materials.GroupByParam "type" }}
         {{ $type := .Key }}
@@ -105,17 +77,10 @@ MaterialRow.
         </ul>
         {{ end }}
       {{ else }}
-        {{- /* list ↔ table is a mode of All, not a section of its own (§6.3).
-        Without JavaScript the switch is two links; T136 makes it instant. */ -}}
-        <p class="dc-mode-switch">
-          <span class="dc-mode-switch__current">[list]</span>
-          <a href="{{ partial "canonical-url.html" ("/library/table" | relLangURL) }}">[table]</a>
-        </p>
-        <ul class="dc-material-list dc-material-list--dense h-feed">
-          {{ range $materials.ByDate.Reverse }}
-          {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
-          {{ end }}
-        </ul>
+        {{- /* list ↔ table is a mode of All, not a section of its own (§6.3):
+        both panels ship here and <dc-modes> swaps them, while the two
+        addresses stay real for a reader without JavaScript. */ -}}
+        {{ partial "library/mode-panels.html" (dict "materials" $materials "mode" "list") }}
       {{ end }}
       </dc-listnav>
     </div>

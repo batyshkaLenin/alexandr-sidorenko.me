@@ -112,13 +112,19 @@ The ladder is the common recommendation for a 700-800px article column —
 {{- /* A figcaption is needed whenever anything belongs under the image: a
        caption, a credit, or the link a dithered image owes its original. */ -}}
 {{- $hasLine := or $caption $source $dithered -}}
+{{- /* A dithered figure becomes a toggle: the link to the original stays a
+link (§30.5), and with JavaScript it swaps the image in place instead of
+leaving the page (T136). */ -}}
+{{- if $dithered }}{{ partial "declassified/component.html" "dc-image-toggle" }}{{ end }}
+{{ if $dithered }}<dc-image-toggle data-label-processed="{{ i18n "imageProcessed" }}">{{ end }}
 <figure class="dc-figure{{ if $dithered }} dc-figure--dithered{{ end }}"{{ if $dithered }} data-dither="{{ (index hugo.Data.dither $src).family }}"{{ end }}>
   {{ $image }}
   {{- if $hasLine }}
   <figcaption>
     {{- with $caption }}<span class="dc-figure__caption">{{ . }}</span>{{ end -}}
     {{- with $source }}<span class="dc-figure__source">{{ with $sourceURL }}<a href="{{ . }}">{{ $source }}</a>{{ else }}{{ . }}{{ end }}</span>{{ end -}}
-    {{- if $dithered }}<a class="dc-figure__original" href="{{ $original }}">{{ i18n "imageOriginal" }}</a>{{ end -}}
+    {{- if $dithered }}<a class="dc-figure__original" data-image-original href="{{ $original }}">{{ i18n "imageOriginal" }}</a>{{ end -}}
   </figcaption>
   {{- end }}
 </figure>
+{{ if $dithered }}</dc-image-toggle>{{ end }}

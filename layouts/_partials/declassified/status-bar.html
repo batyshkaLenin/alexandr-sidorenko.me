@@ -44,13 +44,19 @@ hints, and SEARCH while the palette is open. It is printed even where the
 template has no static bar — on Home `NORMAL` says nothing on its own, but
 `NORMAL` plus working shortcuts does, so there the element builds the bar
 itself and `mode-default` is the word it uses. */ -}}
+{{- $modeNames := "" -}}
+{{- if and (eq .Kind "page") (in (slice "all" "table") (default "" .Params.view)) -}}
+  {{- $modeNames = dict "list" "ALL" "table" "TABLE" | jsonify -}}
+{{- end -}}
 {{ partial "declassified/component.html" "as-statusbar" -}}
 <as-statusbar
+  {{ with $modeNames }}modes="{{ . }}"{{ end }}
   {{ if not $mode }}mode-default="{{ i18n "normalMode" }}"{{ end }}
   mode-search="{{ i18n "searchMode" }}"
   keys-palette="{{ i18n "searchKeys" }}"
   keys-list="{{ i18n "listKeys" }}"
   keys-search="{{ i18n "searchKey" }}"
+  keys-image="{{ i18n "imageKeys" }}"
   keys-help="{{ i18n "helpKey" }}">
 {{- with $mode }}
 <p class="dc-statusbar" role="status">

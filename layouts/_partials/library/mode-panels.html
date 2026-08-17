@@ -1,0 +1,57 @@
+{{- /*
+The two modes of All (§6.3, §9.3): the same materials as a list and as an index
+table. Both ship in the markup and the inactive one is `hidden`, so a page
+without JavaScript shows exactly one of them and <dc-modes> can swap them in
+place with the address following along (T136).
+
+Call with a dict:
+  materials — the pages to show
+  mode      — which one this address is: "list" or "table"
+*/ -}}
+{{- $materials := .materials -}}
+{{- $mode := .mode -}}
+{{- $listURL := partial "canonical-url.html" ("/library/all" | relLangURL) -}}
+{{- $tableURL := partial "canonical-url.html" ("/library/table" | relLangURL) -}}
+{{ partial "declassified/component.html" "dc-modes" }}
+<dc-modes>
+  <p class="dc-mode-switch">
+    <a href="{{ $listURL }}" data-mode="list"{{ if eq $mode "list" }} aria-current="true"{{ end }}>[list]</a>
+    <a href="{{ $tableURL }}" data-mode="table"{{ if eq $mode "table" }} aria-current="true"{{ end }}>[table]</a>
+  </p>
+
+  <div data-mode-panel="list"{{ if ne $mode "list" }} hidden{{ end }}>
+    <ul class="dc-material-list dc-material-list--dense h-feed">
+      {{ range $materials.ByDate.Reverse }}
+      {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+      {{ end }}
+    </ul>
+  </div>
+
+  {{- /* Index mode (§9.3): TITLE first, then TYPE, DATE, SIZE. The date may
+  sort the list without leading it — hierarchy is not obliged to repeat the
+  sorting criterion. */ -}}
+  <div data-mode-panel="table"{{ if ne $mode "table" }} hidden{{ end }}>
+    <div class="dc-table-scroll">
+      <table class="dc-table">
+        <thead>
+          <tr>
+            <th scope="col">название</th>
+            <th scope="col">тип</th>
+            <th scope="col">дата <span aria-hidden="true">↓</span></th>
+            <th scope="col">объём</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{ range $materials.ByDate.Reverse }}
+          <tr>
+            <td><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></td>
+            <td>{{- with .Params.type -}}<span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{- end -}}</td>
+            <td>{{ partial "publication/date.html" (dict "date" .Date "form" "iso") }}</td>
+            <td>{{ partial "library/material-size.html" . }}</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</dc-modes>

@@ -99,6 +99,16 @@ is folded into the entry describing the finished behaviour rather than listed as
   in grayscale, by their own `+`/`-` and by a rule in the margin.
 - Heading anchors in publication bodies: reachable by keyboard, named for a
   screen reader, revealed on hover or focus.
+- A dithered photograph swaps to the original where it stands, and back —
+  by the same link that used to open it as a page, or with `o`. The link still
+  works with JavaScript off, and nothing moves when the picture changes: it is
+  the same photograph at the same size.
+- The library's list and table are two modes of one view rather than two
+  destinations: switching is instant and the address follows, so a copied link
+  opens what was on screen, Back returns to the previous mode, and the prompt
+  and status line say which mode it is. Without JavaScript they stay two
+  ordinary links to two pages. A phone is not offered the table at all — its
+  columns only fit sideways there.
 - The keyboard reaches the whole shell. Arrows and `j`/`k` walk a list of
   materials once focus is in it, Enter opens what is focused, `1`/`2` go to the
   sections, Esc goes back up, and `?` opens a sheet listing exactly the keys

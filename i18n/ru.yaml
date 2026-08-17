@@ -32,6 +32,8 @@ minutesCount:
   other: "минуты"
 imageOriginal:
   other: "оригинал →"
+imageProcessed:
+  other: "← дизеринг"
 audioReading:
   other: "Авторское чтение"
 videoCaptions:
@@ -82,3 +84,7 @@ helpBack:
   other: "назад в раздел"
 helpSelf:
   other: "эта справка"
+helpOriginal:
+  other: "показать оригинал"
+imageKeys:
+  other: "o оригинал"

@@ -1992,8 +1992,19 @@ body:has(.dc-statusbar) {
   color: var(--dc-faint);
 }
 
-.dc-mode-switch__current {
+.dc-mode-switch [aria-current="true"] {
   color: var(--dc-primary);
+  text-decoration: none;
+}
+
+/* A phone is not offered the table as a way of looking at the library (§13.3,
+   §36): the columns only fit sideways there, and a switch that leads to a
+   sideways scroll is not a mode, it is a trap. /library/table still opens for
+   anyone who asks for it by address. */
+@media (max-width: 640px) {
+  .dc-mode-switch {
+    display: none;
+  }
 }
 
 @media (max-width: 640px) {

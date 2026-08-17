@@ -34,13 +34,21 @@ elsewhere; the prompt follows the address a visitor sees, not the folder. */ -}}
 {{- else -}}
   {{- $path = printf "~/%s" .Section -}}
 {{- end -}}
+{{- /* On a Library view the command follows the mode, which can change without
+a page load (T136); <as-prompt> keeps the line true. */ -}}
+{{- $modePrompts := "" -}}
+{{- if and $isLibraryView (in (slice "all" "table") .Params.view) -}}
+  {{- $modePrompts = dict "list" "library --all" "table" "library --table" | jsonify -}}
+{{- end }}
+{{ with $modePrompts }}{{ partial "declassified/component.html" "as-prompt" }}<as-prompt modes="{{ . }}">{{ end }}
 <p class="dc-identity{{ if $isPublication }} dc-identity--quiet{{ end }}">
   {{- if $isPublication -}}
     <span class="dc-identity__command">$ {{ $command }}</span>
   {{- else -}}
-    guest<span class="dc-identity__sep">@{{ $host }} {{ $path }} $ </span>{{ $command }}<span class="dc-blink dc-identity__cursor" aria-hidden="true">_</span>
+    guest<span class="dc-identity__sep">@{{ $host }} {{ $path }} $ </span><span data-prompt-command>{{ $command }}</span><span class="dc-blink dc-identity__cursor" aria-hidden="true">_</span>
   {{- end -}}
 </p>
+{{ with $modePrompts }}</as-prompt>{{ end }}
 {{- if $isPublication }}
 {{- with .Parent }}
 <p class="dc-identity__back"><a href="{{ partial "canonical-url.html" .RelPermalink }}"><span aria-hidden="true">← </span>library</a></p>
@@ -69,14 +77,15 @@ handles 1–3, and the menu decides how many of them exist. */ -}}
 {{- range $i, $item := first 3 site.Menus.main -}}
   {{- $digits = $digits | append (string (add $i 1)) -}}
 {{- end -}}
-{{- /* Starts from the pair that is always true, because `append` on an empty
-`slice` would flatten the first pair into two strings. */ -}}
+{{- /* Rows with a third field appear only where that element is on the page:
+the words are ours, the check is the component's. Starts from a pair that is
+always true, because `append` on an empty `slice` would flatten the first row
+into loose strings. */ -}}
 {{- $shortcuts := slice (slice "/" (i18n "helpSearch")) -}}
 {{- $shortcuts = $shortcuts | append (slice "?" (i18n "helpSelf")) -}}
-{{- if partial "declassified/has-list.html" . -}}
-  {{- $shortcuts = $shortcuts | append (slice "↑↓ / j k" (i18n "helpList")) -}}
-  {{- $shortcuts = $shortcuts | append (slice "↵" (i18n "helpOpen")) -}}
-{{- end -}}
+{{- $shortcuts = $shortcuts | append (slice "↑↓ / j k" (i18n "helpList") "dc-listnav") -}}
+{{- $shortcuts = $shortcuts | append (slice "↵" (i18n "helpOpen") "dc-listnav") -}}
+{{- $shortcuts = $shortcuts | append (slice "o" (i18n "helpOriginal") "dc-image-toggle") -}}
 {{- with $digits -}}
   {{- $shortcuts = $shortcuts | append (slice (delimit . " ") (i18n "helpNav")) -}}
 {{- end -}}
