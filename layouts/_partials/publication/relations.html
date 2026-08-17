@@ -1,0 +1,103 @@
+{{- /*
+`relations/` — a material's own declared connections, both ways (T143).
+
+§6.6 defers the graph itself but keeps `Related`, `References`, `Part of` as
+its no-JS replacement, and §37.4 draws the line this partial exists to keep:
+what a material links to and what links back to it are relations
+(data/relation_types.yaml, T109); what a stranger's site said about it is a
+response (publication/webmentions.html, T141). The two never share a heading,
+a group label or a class here.
+
+Outgoing relations come straight from front matter. Backlinks — other
+materials in the library whose own `relations` name this one by `id` — are
+found by scanning the library at build time (§45.1), never in the browser.
+Both directions resolve a target by Material ID (ADR
+redesign-material-identity-and-routing), so a `slug` rename cannot break a
+relation the way a path-based link would.
+
+Grouped by relation type for a "understand at a glance" reading, and drawn
+only when there is something to show: a material with no outgoing relations
+and no backlinks renders nothing, same as publication/webmentions.html with
+nothing approved.
+*/ -}}
+{{- $page := . -}}
+{{- $ownID := $page.Params.id -}}
+{{- $library := where site.RegularPages "Section" "library" -}}
+{{- $types := hugo.Data.relation_types -}}
+
+{{- $byID := dict -}}
+{{- range $library -}}
+  {{- $material := . -}}
+  {{- with .Params.id -}}
+    {{- $byID = merge $byID (dict . $material) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $outgoingGroups := slice -}}
+{{- range $key, $meta := $types -}}
+  {{- $items := slice -}}
+  {{- range $page.Params.relations -}}
+    {{- if eq .rel $key -}}
+      {{- if .id -}}
+        {{- with index $byID .id -}}
+        {{- $items = $items | append (dict "href" (partial "canonical-url.html" .RelPermalink) "text" .Title "external" false) -}}
+        {{- end -}}
+      {{- else if .url -}}
+        {{- $items = $items | append (dict "href" .url "text" (or .title .url) "external" true) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if $items -}}
+    {{- $outgoingGroups = $outgoingGroups | append (dict "label" $meta.label "items" $items) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $backlinkItems := slice -}}
+{{- if $ownID -}}
+  {{- range $key, $meta := $types -}}
+    {{- range $library -}}
+      {{- $source := . -}}
+      {{- if ne $source.Params.id $ownID -}}
+        {{- range $source.Params.relations -}}
+          {{- if and (eq .rel $key) (eq .id $ownID) -}}
+            {{- $backlinkItems = $backlinkItems | append (dict "href" (partial "canonical-url.html" $source.RelPermalink) "text" $source.Title "rel" $meta.label) -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if or $outgoingGroups $backlinkItems }}
+<section class="dc-relations" aria-labelledby="relations-heading">
+  {{ partial "declassified/panel-label.html" "relations/" }}
+  <h2 class="dc-visually-hidden" id="relations-heading">{{ i18n "relationsHeading" }}</h2>
+
+  {{- range $outgoingGroups }}
+  <div class="dc-relations__group">
+    <h3 class="dc-relations__label">{{ .label }}</h3>
+    <ul class="dc-relations__list">
+      {{- range .items }}
+      <li class="dc-relations__item{{ if .external }} dc-relations__item--external{{ end }}">
+        <a href="{{ .href }}">{{ .text }}</a>
+      </li>
+      {{- end }}
+    </ul>
+  </div>
+  {{- end }}
+
+  {{- with $backlinkItems }}
+  <div class="dc-relations__group dc-relations__group--backlinks">
+    <h3 class="dc-relations__label">{{ i18n "relationsBacklinks" }}</h3>
+    <ul class="dc-relations__list">
+      {{- range . }}
+      <li class="dc-relations__item">
+        <a href="{{ .href }}">{{ .text }}</a>
+        <span class="dc-relations__rel">{{ .rel }}</span>
+      </li>
+      {{- end }}
+    </ul>
+  </div>
+  {{- end }}
+</section>
+{{- end }}

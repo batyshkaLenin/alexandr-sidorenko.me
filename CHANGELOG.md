@@ -122,6 +122,13 @@ is folded into the entry describing the finished behaviour rather than listed as
   site and send a Webmention, with the publication's permanent address written
   out, copyable in one click, and two links for anyone who has not met the
   protocol before.
+- A publication can show its own connections: what it is part of, what it
+  cites, what it relates to — and, underneath, which other materials on this
+  site point back at it. Both directions are ordinary links, grouped by the
+  kind of relation, and resolved by the material's identity rather than its
+  current address, so renaming a page does not break them. A material with
+  nothing to show prints nothing. These are not Webmentions: replies from
+  other sites stay in their own block.
 - The activity panel gained a third module: how many hours went into code this
   week, and a small graph of how the days compared. The hours come from the
   build's own snapshot; the graph refreshes itself from a public endpoint when

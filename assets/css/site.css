@@ -2573,3 +2573,48 @@ body:has(.dc-statusbar) {
   font-size: var(--dc-fs-meta);
   color: var(--dc-faint);
 }
+/* `relations/` (§6.6, T143). Sits between the work and its responses: what the
+   material itself points at, and what points back — the no-JS graph. */
+.dc-relations {
+  max-width: var(--dc-detail-width);
+  margin: 24px auto 0;
+  padding: 0 26px;
+  color: var(--dc-muted);
+  font-size: var(--dc-fs-ui);
+}
+
+.dc-relations__group + .dc-relations__group {
+  margin-top: 16px;
+}
+
+.dc-relations__label {
+  margin: 0 0 6px;
+  color: var(--dc-faint);
+  font-size: var(--dc-fs-meta);
+  font-weight: normal;
+  text-transform: lowercase;
+  letter-spacing: 0.08em;
+}
+
+.dc-relations__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dc-relations__item + .dc-relations__item {
+  margin-top: 6px;
+}
+
+/* An external target reads as leaving the site, without a forced new tab —
+   consistent with every other outbound link in a material's own body. */
+.dc-relations__item--external a::after {
+  content: " ↗";
+}
+
+.dc-relations__rel {
+  margin-left: 6px;
+  color: var(--dc-faint);
+  font-size: var(--dc-fs-meta);
+}
+

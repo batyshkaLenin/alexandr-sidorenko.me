@@ -157,3 +157,7 @@ responsesReactions:
   few: "{{ . }} отметки"
   many: "{{ . }} отметок"
   other: "{{ . }} отметки"
+relationsHeading:
+  other: "Связи"
+relationsBacklinks:
+  other: "Ссылаются на этот материал"
