@@ -34,8 +34,8 @@ REVALIDATE = "public, max-age=0, must-revalidate"
 SECURITY = {
     "Content-Security-Policy": (
         "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; "
-        "font-src 'self'; media-src 'self'; connect-src 'self'; form-action 'none'; "
-        "frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
+        "font-src 'self'; media-src 'self'; connect-src 'self' https://codestats.net; "
+        "form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
     ),
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "X-Content-Type-Options": "nosniff",

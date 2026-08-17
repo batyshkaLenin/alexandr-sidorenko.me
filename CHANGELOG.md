@@ -109,6 +109,12 @@ is folded into the entry describing the finished behaviour rather than listed as
   and status line say which mode it is. Without JavaScript they stay two
   ordinary links to two pages. A phone is not offered the table at all — its
   columns only fit sideways there.
+- The activity panel gained a third module: how many hours went into code this
+  week, and a small graph of how the days compared. The hours come from the
+  build's own snapshot; the graph refreshes itself from a public endpoint when
+  JavaScript is available and otherwise stays as the build left it. Hovering
+  any line says which service the numbers came from and when they were taken.
+  No counts are published beyond the hours — the bars show shape, not scores.
 - The command line in the top bar works. `:` opens it, and it takes the small
   vocabulary it has always displayed — `library`, `read`, `play`, `open`,
   `find`, `help` — completing material names as you type and going where it

@@ -1,0 +1,8 @@
+{{- /*
+The moment a snapshot was taken, in the same shape the pane prints its build
+time. Input: the snapshot map (`hugo.Data.dev`, `hugo.Data.lastfm`); an empty
+one yields an empty string, and the caller decides what to do with that.
+*/ -}}
+{{- with .fetched_at -}}
+  {{- (time.AsTime .).UTC.Format "02.01.2006 15:04 UTC" -}}
+{{- end -}}

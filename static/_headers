@@ -12,8 +12,12 @@
 # changes the URL. Fonts and audio live at stable addresses, so they get a week
 # with revalidation instead of a year without it.
 
+# connect-src carries one external host: the activity pane's dev module refreshes
+# the shape of the week from the public Code::Stats endpoint when JavaScript is
+# available (ADR redesign-activity-dev-module). Nothing else on the page fetches
+# anything from anywhere.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self' https://codestats.net; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff
   Cross-Origin-Resource-Policy: same-origin

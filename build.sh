@@ -100,6 +100,12 @@ main() {
     python3 scripts/fetch-lastfm.py
   fi
 
+  # The dev module's snapshot (T149): weekly hours need WAKATIME_API_KEY, the
+  # shape of the week is public. Runs regardless — the script keeps whatever it
+  # cannot refresh and never fails the build, like the Last.fm import above.
+  echo "Refreshing the dev activity snapshot..."
+  python3 scripts/fetch-dev-activity.py || true
+
   echo "Building the project (environment: preview)..."
   hugo build --gc --minify --cleanDestinationDir --environment preview
 

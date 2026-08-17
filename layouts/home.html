@@ -148,6 +148,7 @@ made of lists (T135). */ -}}
 modules are ordinary static markup first; <as-activity> only annotates an old
 build as a snapshot when JavaScript is available. */ -}}
 {{ partial "declassified/component.html" "as-activity" }}
+{{ with (default dict hugo.Data.dev).levels }}{{ partial "declassified/component.html" "as-dev" }}{{ end }}
 {{ $builtAt := now.UTC }}
 {{- /* GitInfo is page-scoped and Home may point at content/_index.md's last
 commit rather than the revision being built. The build wrapper exports the
@@ -162,17 +163,44 @@ as a clearly build-time fallback. */ -}}
     {{- with (index (default dict hugo.Data.lastfm) "track") }}
     <section class="as-activity__module" data-activity-module="music" aria-labelledby="activity-music">
       <h2 class="as-activity__name" id="activity-music">music</h2>
+      {{- /* The line is the link, but a quiet one: it wears the colour of its
+      own role and shows itself only under the pointer or the keyboard. Its
+      tooltip names the service and the moment the snapshot was taken — the
+      pane itself never prints the source (owner's call, 17 August 2026). */ -}}
       <p class="as-activity__value">
-        <a href="{{ .url }}" target="_blank" rel="noopener">{{ .artist }} — {{ .name }}</a>
+        <a href="{{ .url }}" target="_blank" rel="noopener"
+           title="{{ partial "activity/source-title.html" (dict "source" "Last.fm" "snapshot" (default dict hugo.Data.lastfm)) }}">{{ .artist }} — {{ .name }}</a>
       </p>
-      {{- /* The pane shows data, not the name of whoever supplied it: the
-      source lives in the link's tooltip together with the moment the snapshot
-      was taken (owner's call, 17 August 2026 — same rule as the dev module in
-      ADR redesign-activity-dev-module). */ -}}
-      <p class="as-activity__meta">
-        <a href="https://www.last.fm/user/batyshkaLenin" target="_blank" rel="noopener"
-           title="{{ i18n "activityMusicSource" }}">слушал {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}</a>
+      <p class="as-activity__meta">слушал {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}</p>
+    </section>
+    {{- end }}
+
+    {{- /* dev: weekly hours from the WakaTime snapshot and the shape of the week
+    from Code::Stats. XP is never printed as a number — the bars say how the days
+    compare, nothing more (ADR redesign-activity-dev-module). Missing snapshot
+    removes the module entirely (§16.2). */ -}}
+    {{- with (default dict hugo.Data.dev) }}
+    {{- $bars := slice "▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" }}
+    <section class="as-activity__module" data-activity-module="dev" aria-labelledby="activity-dev">
+      <h2 class="as-activity__name" id="activity-dev">dev</h2>
+      {{- with .weekly_seconds }}
+      {{- $hours := math.Floor (div . 3600) }}
+      {{- $minutes := math.Floor (div (mod (int .) 3600) 60) }}
+      <p class="as-activity__value">
+        <a href="https://wakatime.com/@batyshkaLenin" target="_blank" rel="noopener"
+           title="{{ partial "activity/source-title.html" (dict "source" "WakaTime" "snapshot" (default dict hugo.Data.dev)) }}">{{ i18n "activityDevWeek" (dict "Hours" $hours "Minutes" $minutes) }}</a>
       </p>
+      {{- end }}
+      {{- with .levels }}
+      <as-dev data-src="https://codestats.net/api/users/batyshkaLenin">
+      <p class="as-activity__meta as-activity__spark" data-dev-levels="{{ delimit . "," }}">
+        <a href="https://codestats.net/users/batyshkaLenin" target="_blank" rel="noopener"
+           title="{{ partial "activity/source-title.html" (dict "source" "Code::Stats" "snapshot" (default dict hugo.Data.dev)) }}"
+          ><span aria-hidden="true" data-dev-bars>{{- range . }}{{ index $bars (int .) }}{{ end -}}</span
+          ><span class="dc-visually-hidden">{{ i18n "activityDevShape" }}</span></a>
+      </p>
+      </as-dev>
+      {{- end }}
     </section>
     {{- end }}
 

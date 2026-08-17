@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Verify the built Home activity pane contract (T138)."""
+"""Verify the built Home activity pane contract (T138, T149).
+
+The pane is three modules in a fixed order: what was listened to, what was
+coded, what was deployed. Each disappears with its data (§16.2), so the check
+takes the expected set as an argument rather than assuming all three.
+
+The `dev` module has one rule of its own worth asserting: XP is never printed.
+The page shows weekly hours and seven bars, and the numbers behind the bars stay
+in the importer (ADR redesign-activity-dev-module).
+"""
 
 from __future__ import annotations
 
@@ -43,7 +52,7 @@ class ActivityFacts(HTMLParser):
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--public-dir", default="public")
-    parser.add_argument("--expect-modules", default="music,site")
+    parser.add_argument("--expect-modules", default="music,dev,site")
     args = parser.parse_args()
 
     public = Path(args.public_dir).resolve()
@@ -68,6 +77,12 @@ def main() -> int:
     for text in required_text:
         if text not in html:
             errors.append(f"activity pane is missing {text!r}")
+    if "dev" in expected_modules:
+        if not re.search(r"data-dev-levels=[\"']?[0-7](,[0-7]){6}", html):
+            errors.append("the dev module carries no seven-day shape")
+        if re.search(r"\bXP\b", html):
+            errors.append("XP appears on the page: the dev module publishes intensity, not counts")
+
     if "site" in expected_modules and not re.search(r"main@[0-9a-f]{7}(?![0-9a-f])", html):
         errors.append("site module does not carry a seven-character Git commit")
     if "сейчас играет" in html.lower() or "now playing" in html.lower():

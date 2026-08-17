@@ -767,6 +767,52 @@ dc-prompt[open] .dc-identity__sep {
   color: var(--dc-faint);
 }
 
+/* Every line of the pane is a link, and underlining all of them turned the
+   panel into a wall of pink. At rest a line wears the colour of its own role
+   and looks like text; under the pointer or the keyboard it shows what it is. */
+.as-activity__value a,
+.as-activity__meta a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.as-activity__value a:hover,
+.as-activity__value a:focus-visible,
+.as-activity__meta a:hover,
+.as-activity__meta a:focus-visible {
+  color: var(--dc-accent);
+  border-bottom-color: currentColor;
+}
+
+/* The bars are a picture, not a phrase: they take the accent on hover but no
+   underline creeping beneath them. */
+.as-activity__spark a:hover,
+.as-activity__spark a:focus-visible {
+  border-bottom-color: transparent;
+}
+
+/* The graph is drawn with type, so it needs a size of its own: at the meta
+   size the bars are a smudge. It takes the lead step of the scale (§18.3) and
+   a tight line, so a taller row does not push the module around. */
+.as-activity__spark {
+  margin-top: 6px;
+  font-size: var(--dc-fs-lead);
+  line-height: 1;
+  letter-spacing: 0.12em;
+}
+
+/* Fira Code draws █ and ▄ one pixel below the baseline the other blocks sit
+   on, so the tallest bar looked like it had slipped off the row. Clipping the
+   run to its own box puts every bar back on one floor; measured with
+   measureText, the difference is descent 7 against 6 at 21px. */
+.as-activity__spark [data-dev-bars] {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
 @media (max-width: 640px) {
   .as-activity__body {
     grid-template-columns: 1fr;

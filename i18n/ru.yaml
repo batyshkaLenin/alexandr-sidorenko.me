@@ -114,5 +114,9 @@ helpKeysTitle:
   other: "клавиши"
 helpCommandsTitle:
   other: "cli"
-activityMusicSource:
-  other: "Последний трек по данным Last.fm, обновляется при сборке сайта"
+activityDevWeek:
+  other: "{{ .Hours }} ч {{ .Minutes }} мин за неделю"
+activityDevShape:
+  other: "Интенсивность последних семи дней"
+activitySourceAt:
+  other: "Согласно данным {{ .Source }} от {{ .At }}"

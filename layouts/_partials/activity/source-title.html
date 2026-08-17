@@ -1,0 +1,10 @@
+{{- /*
+The tooltip of an activity line: which service the numbers came from and when
+they were taken. The pane prints neither — this is what a reader gets on hover
+or focus, and what a screen reader reads from the link.
+
+Call with a dict:
+  source   — the service's name, as a reader would say it
+  snapshot — the data map the line was built from, for its `fetched_at`
+*/ -}}
+{{- return (i18n "activitySourceAt" (dict "Source" .source "At" (partial "activity/fetched-at.html" .snapshot))) -}}
