@@ -181,7 +181,9 @@ is folded into the entry describing the finished behaviour rather than listed as
   `data/redactions.yaml` with its ground, its date and the edition of the rules
   it was made under.
 
-### Changed
+- Window labels speak one resource vocabulary: `site/`, `about.md`,
+  `library/`, `activity/`. The command line still names actions and views.
+  They agree in meaning and are not copies of each other.
 
 - Home no longer pretends the missing footer is an open question. `neofetch`
   shows how long the site has been up and links to the repository; the

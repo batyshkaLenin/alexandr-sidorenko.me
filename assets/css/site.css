@@ -2064,11 +2064,17 @@ body:has(.dc-statusbar) {
 /* Identity links in the about pane: a quiet row, not a badge wall. They are
    part of the note about who this is, so they read at metadata size and stay
    below the prose (§15.1). */
+.dc-region-label {
+  margin: 14px 0 0;
+  color: var(--dc-primary);
+  font-size: var(--dc-fs-meta);
+}
+
 .dc-identity-links {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 14px;
-  margin: 14px 0 0;
+  margin: 6px 0 0;
   padding: 0;
   list-style: none;
   font-size: var(--dc-fs-meta);

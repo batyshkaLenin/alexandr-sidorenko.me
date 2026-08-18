@@ -7,7 +7,7 @@ world of its own (§6.2). Its address reads that way too: /library/topics.
 <div class="dc-library">
   {{ partial "library/views-nav.html" . }}
   <section class="dc-panel dc-panel--primary dc-panel--doc">
-    {{ partial "declassified/panel-label.html" "$ ls ~/library --topics" }}
+    {{ partial "declassified/panel-label.html" "library/" }}
     <h1 class="dc-section-title">{{ .Title }}</h1>
     <p class="dc-section-meta">{{ len .Pages }} {{ i18n "topicsCount" (len .Pages) }}</p>
     {{ with .Content }}<div class="dc-panel__body dc-prose">{{ . }}</div>{{ end }}

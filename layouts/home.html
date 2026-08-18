@@ -39,7 +39,7 @@ made of lists (T135). */ -}}
     (dict "icon" "📁" "label" "library/" "url" ("/library" | relLangURL))
   }}
   <section class="dc-panel dc-panel--structural">
-    {{ partial "declassified/panel-label.html" (printf "$ ls -la ~/site (%d)" (len $tree)) }}
+    {{ partial "declassified/panel-label.html" "site/" }}
     <div class="dc-panel__body">
       <ul class="dc-filetree">
         {{- range $tree }}
@@ -47,7 +47,7 @@ made of lists (T135). */ -}}
         {{- end }}
       </ul>
       <div class="dc-filetree__rule"></div>
-      <p class="dc-filetree__label">$ neofetch</p>
+      <p class="dc-filetree__label">neofetch</p>
       <dl class="dc-neofetch">
         <div><dt>OS</dt><dd>human</dd></div>
         <div><dt>HOST</dt><dd>{{ strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) }}</dd></div>
@@ -83,7 +83,7 @@ made of lists (T135). */ -}}
 
   {{ $owner := partial "authors/owner.html" . }}
   <section class="dc-panel dc-panel--primary h-card">
-    {{ partial "declassified/panel-label.html" "$ cat about.md" }}
+    {{ partial "declassified/panel-label.html" "about.md" }}
     <div class="dc-panel__body dc-prose">
       {{/* Two visual lines, one name: the parts stay separate elements so
            uppercase is CSS-only and a microformats parser still reads
@@ -106,6 +106,7 @@ made of lists (T135). */ -}}
            T43). Those marked `visible` carry rel=me here instead of in the
            head, so discovery counts them exactly once. */}}
       {{ with where hugo.Data.links "visible" true }}
+      <p class="dc-region-label">socials/</p>
       <ul class="dc-identity-links">
         {{ range . }}
         <li><a rel="me" href="{{ .url }}">{{ .label }}</a></li>
@@ -116,7 +117,7 @@ made of lists (T135). */ -}}
   </section>
 
   <section class="dc-panel dc-panel--utility">
-    {{ partial "declassified/panel-label.html" "$ render --style=dither" }}
+    {{ partial "declassified/panel-label.html" "avatar.jpg" }}
     <div class="dc-panel__body dc-portrait-body">
       {{/* The alternative text describes the photograph, not just who is in
            it; it comes from the same data/authors.yaml entry the head uses. */}}
@@ -157,7 +158,7 @@ made of lists (T135). */ -}}
 <div class="dc-home-row dc-home-row--recent">
 
   <section class="dc-panel dc-panel--primary">
-    {{ partial "declassified/panel-label.html" "$ tail -n3 ~/library/*.md" }}
+    {{ partial "declassified/panel-label.html" "library/" }}
     <div class="dc-panel__body">
       {{- /* Same MaterialRow as a Types group: a scan line, not a reading
       card. The pane is `tail -n3`; excerpts belong in Library Recent. */ -}}

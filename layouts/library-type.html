@@ -11,7 +11,7 @@ inventing markup: this is the library filtered, not a new kind of screen.
 <div class="dc-library">
   {{ partial "library/views-nav.html" . }}
   <section class="dc-panel dc-panel--primary dc-panel--doc">
-    {{ partial "declassified/panel-label.html" (printf "$ ls ~/library --type %s" .Params.material_type) }}
+    {{ partial "declassified/panel-label.html" "library/" }}
     <h1 class="dc-section-title">{{ .Title }}</h1>
     <p class="dc-section-meta">
       {{ len $materials }} {{ i18n "materialsCount" (len $materials) }}

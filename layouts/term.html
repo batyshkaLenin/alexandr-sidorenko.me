@@ -9,7 +9,7 @@ construction cannot.
 <div class="dc-library">
   {{ partial "library/views-nav.html" . }}
   <section class="dc-panel dc-panel--primary dc-panel--doc">
-    {{ partial "declassified/panel-label.html" (printf "$ ls ~/library --topic %s" .Title) }}
+    {{ partial "declassified/panel-label.html" "library/" }}
     <h1 class="dc-section-title">{{ .Title }}</h1>
     <p class="dc-section-meta">
       {{ len .Pages }} {{ i18n "materialsCount" (len .Pages) }}
