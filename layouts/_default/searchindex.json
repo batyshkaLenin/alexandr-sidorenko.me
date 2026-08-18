@@ -55,6 +55,21 @@ for content, and with six materials the file stays small. */ -}}
   ) -}}
 {{- end -}}
 
+{{- /* Topics is a taxonomy, not a view page, but the prompt and the palette
+treat `/library/topics` like the other ways to browse (T157). */ -}}
+{{- with site.GetPage "/tags" -}}
+  {{- $entries = $entries | append (dict
+    "title" .Title
+    "url" (partial "canonical-url.html" .RelPermalink)
+    "path" (partial "search/path.html" .RelPermalink)
+    "type" (i18n "searchKindView")
+    "kind" "view"
+    "topics" (slice)
+    "summary" .Description
+    "text" ""
+  ) -}}
+{{- end -}}
+
 {{- /* A material type is an address like any other, and a reader who types
 «стих» is looking for one (T142). */ -}}
 {{- range where site.RegularPages "Params.material_type" "!=" nil -}}

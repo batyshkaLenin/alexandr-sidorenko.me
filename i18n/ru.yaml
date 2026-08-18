@@ -101,8 +101,28 @@ commandUnknown:
   other: "%s: нет такой команды"
 commandEmpty:
   other: "ничего подходящего"
+commandHome:
+  other: "открыть главную"
 commandLibrary:
   other: "открыть библиотеку"
+commandLibraryRecent:
+  other: "недавние"
+commandLibraryAll:
+  other: "все материалы"
+commandLibraryTable:
+  other: "таблица"
+commandLibraryTimeline:
+  other: "лента"
+commandLibraryMusic:
+  other: "музыка"
+commandLibraryTypes:
+  other: "типы"
+commandLibraryType:
+  other: "материалы типа"
+commandLibraryTopics:
+  other: "темы"
+commandLibraryTopic:
+  other: "материалы темы"
 commandRead:
   other: "открыть текст"
 commandPlay:
@@ -121,6 +141,10 @@ helpKeysTitle:
   other: "клавиши"
 helpCommandsTitle:
   other: "cli"
+helpRun:
+  other: "запустить"
+helpClose:
+  other: "закрыть"
 activityDevWeek:
   other: "{{ .Hours }} ч {{ .Minutes }} мин за неделю"
 activityDevShape:

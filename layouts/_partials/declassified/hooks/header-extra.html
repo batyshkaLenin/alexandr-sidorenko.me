@@ -5,7 +5,8 @@ The session belongs to the visitor, not to the owner — §11.1 is explicit that
 `owner@…` is the wrong default, and §11.2 that `whoami` must answer with the
 current user rather than with Alexandr's biography. So the prompt says `guest`
 and the command says what the page is: the small vocabulary of §11.3 —
-`library`, `read`, `play` — and nothing invented beyond it.
+`home`, `library` with its `--` flags, `read`, `play` — and nothing invented
+beyond it.
 
 A reader lowers the shell's voice (§12, §19): no `guest@host` prefix, just the
 command and a way back. On a phone the full prompt does not fit and is not
@@ -18,21 +19,34 @@ arrives (T62).
 */ -}}
 {{- $host := strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) -}}
 {{- $isPublication := and (eq .Kind "page") (eq .Section "library") -}}
+{{- $isTypePage := ne (default "" .Params.material_type) "" -}}
+{{- $isTopicIndex := eq .Kind "taxonomy" -}}
+{{- $isTopicPage := eq .Kind "term" -}}
 {{- /* A Library view lives at /library/<view> even though its source sits
-elsewhere; the prompt follows the address a visitor sees, not the folder. */ -}}
-{{- $isLibraryView := and (eq .Kind "page") (hasPrefix .RelPermalink "/library/") (not $isPublication) -}}
+under content/views/; the prompt follows `Params.view`, not Hugo's section
+name. Topics are still the `tags` taxonomy (T153) — never print `~/tags`. */ -}}
+{{- $isLibraryView := ne (default "" .Params.view) "" -}}
 {{- $path := "~" -}}
 {{- $command := "" -}}
 {{- if .IsHome -}}
-  {{- $command = "" -}}
+  {{- $command = "home" -}}
 {{- else if $isPublication -}}
   {{- $path = "~/library" -}}
   {{- $command = printf "%s %s" (cond (eq .Params.type "track") "play" "read") (printf "~/library/%s" .File.BaseFileName) -}}
-{{- else if or (eq .Section "library") $isLibraryView -}}
+{{- else if $isTypePage -}}
+  {{- $command = printf "library --type %s" .Params.material_type -}}
+{{- else if $isTopicIndex -}}
+  {{- $command = "library --topics" -}}
+{{- else if $isTopicPage -}}
+  {{- $command = printf "library --topic %s" .Title -}}
+{{- else if $isLibraryView -}}
+  {{- $command = printf "library --%s" .Params.view -}}
+{{- else if eq .Section "library" -}}
   {{- /* The path stays `~`, because `library` is the command that opens the
-  library — printing `~/library $ library` says the same thing twice. This is
-  §11.3's own example: `guest@… ~ $ library`. */ -}}
-  {{- $command = cond $isLibraryView (printf "library --%s" (default "" .Params.view)) "library" -}}
+  library — printing `~/library $ library --recent` would say the same
+  destination twice. This is §11.3's own example, with the Recent flag the
+  other views already print. */ -}}
+  {{- $command = "library --recent" -}}
 {{- else -}}
   {{- $path = printf "~/%s" .Section -}}
 {{- end -}}
@@ -47,11 +61,30 @@ where it says; without it the same line is what it always was — a statement of
 where the reader is. The vocabulary is ours: the component knows how to
 complete and dispatch, not what `play` means here. `find` and `help` ask the
 palette and the sheet by name rather than reaching into them. */ -}}
+{{- $urlLibrary := partial "canonical-url.html" ("/library" | relLangURL) -}}
+{{- $urlAll := partial "canonical-url.html" ("/library/all" | relLangURL) -}}
+{{- $urlTable := partial "canonical-url.html" ("/library/table" | relLangURL) -}}
+{{- $urlTimeline := partial "canonical-url.html" ("/library/timeline" | relLangURL) -}}
+{{- $urlMusic := partial "canonical-url.html" ("/library/music" | relLangURL) -}}
+{{- $urlTypes := partial "canonical-url.html" ("/library/types" | relLangURL) -}}
+{{- $urlTopics := partial "canonical-url.html" ("/library/topics" | relLangURL) -}}
+{{- $libraryFlags := dict
+  "recent" (dict "url" $urlLibrary "hint" (i18n "commandLibraryRecent"))
+  "all" (dict "url" $urlAll "hint" (i18n "commandLibraryAll"))
+  "table" (dict "url" $urlTable "hint" (i18n "commandLibraryTable"))
+  "timeline" (dict "url" $urlTimeline "hint" (i18n "commandLibraryTimeline"))
+  "music" (dict "url" $urlMusic "hint" (i18n "commandLibraryMusic"))
+  "types" (dict "url" $urlTypes "kind" "type" "hint" (i18n "commandLibraryTypes"))
+  "type" (dict "kind" "type" "hint" (i18n "commandLibraryType"))
+  "topics" (dict "url" $urlTopics "kind" "topic" "hint" (i18n "commandLibraryTopics"))
+  "topic" (dict "kind" "topic" "hint" (i18n "commandLibraryTopic"))
+-}}
 {{- $commands := dict
-  "library" (dict "url" (partial "canonical-url.html" ("/library" | relLangURL)) "hint" (i18n "commandLibrary"))
+  "home" (dict "url" (partial "canonical-url.html" ("/" | relLangURL)) "hint" (i18n "commandHome"))
+  "library" (dict "url" $urlLibrary "flags" $libraryFlags "hint" (i18n "commandLibrary"))
   "read" (dict "kind" "text" "hint" (i18n "commandRead"))
   "play" (dict "kind" "audio" "hint" (i18n "commandPlay"))
-  "open" (dict "kind" (slice "text" "audio" "view" "section" "topic") "hint" (i18n "commandOpen"))
+  "open" (dict "kind" (slice "text" "audio" "view" "type" "section" "topic") "hint" (i18n "commandOpen"))
   "find" (dict "event" "dc-command-palette:open-request" "hint" (i18n "commandFind"))
   "help" (dict "event" "dc-help:open-request" "hint" (i18n "commandHelp"))
 -}}
@@ -118,7 +151,16 @@ into loose strings. */ -}}
 {{ partial "declassified/component.html" "dc-help" -}}
 {{- /* The command line's vocabulary lives here, next to the keys: both are
 things the reader can type, and the sheet is where they are explained. */ -}}
-{{- $cli := slice (slice "library" (i18n "commandLibrary")) -}}
+{{- $cli := slice (slice "home" (i18n "commandHome")) -}}
+{{- $cli = $cli | append (slice "library --recent" (i18n "commandLibraryRecent")) -}}
+{{- $cli = $cli | append (slice "library --all" (i18n "commandLibraryAll")) -}}
+{{- $cli = $cli | append (slice "library --table" (i18n "commandLibraryTable")) -}}
+{{- $cli = $cli | append (slice "library --timeline" (i18n "commandLibraryTimeline")) -}}
+{{- $cli = $cli | append (slice "library --music" (i18n "commandLibraryMusic")) -}}
+{{- $cli = $cli | append (slice "library --types" (i18n "commandLibraryTypes")) -}}
+{{- $cli = $cli | append (slice "library --topics" (i18n "commandLibraryTopics")) -}}
+{{- $cli = $cli | append (slice "library --type <тип>" (i18n "commandLibraryType")) -}}
+{{- $cli = $cli | append (slice "library --topic <тема>" (i18n "commandLibraryTopic")) -}}
 {{- $cli = $cli | append (slice "read <материал>" (i18n "commandRead")) -}}
 {{- $cli = $cli | append (slice "play <запись>" (i18n "commandPlay")) -}}
 {{- $cli = $cli | append (slice "open <что угодно>" (i18n "commandOpen")) -}}
@@ -129,6 +171,8 @@ things the reader can type, and the sheet is where they are explained. */ -}}
   data-title-keys="{{ i18n "helpKeysTitle" }}"
   data-title-commands="{{ i18n "helpCommandsTitle" }}"
   data-label="{{ i18n "helpLabel" }}"
+  data-run="{{ i18n "helpRun" }}"
+  data-close="{{ i18n "helpClose" }}"
   data-shortcuts="{{ $shortcuts | jsonify }}"
   {{ if not $isPublication }}data-commands="{{ $cli | jsonify }}"{{ end }}></dc-help>
 {{ partial "declassified/component.html" "dc-clock" -}}

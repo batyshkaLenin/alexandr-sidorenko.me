@@ -15,7 +15,7 @@
 - label: "ВКонтакте"
   url: "https://vk.com/batyshkalenin"
   rel: "me"
-  visible: true
+  visible: false
 - label: "Twitter"
   url: "https://twitter.com/batyshkaLenin"
   rel: "me"

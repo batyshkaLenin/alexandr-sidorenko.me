@@ -14,7 +14,11 @@ does not.
 <div class="dc-library">
   {{ partial "library/views-nav.html" . }}
   <section class="dc-panel dc-panel--primary dc-panel--doc">
+    {{ if eq .Section "library" }}
+    {{ partial "declassified/panel-label.html" "$ ls ~/library --recent" }}
+    {{ else }}
     {{ partial "declassified/panel-label.html" (printf "$ ls ~/%s" .Section) }}
+    {{ end }}
     {{/* Feed paths come from .OutputFormats, never written out by hand, so the
          section's own feeds stay correct if an output format is renamed. */}}
     <div class="dc-section-head">
