@@ -7,7 +7,8 @@ a material *is* (`type`), the body says what it *has*.
 A capability never stands in for identity — a poem with the author reading it
 is still a POEM with `audio`.
 
-Returns a sorted slice. Call it through partialCached, keyed by the page, so
+Returns the computed set in display order (PRIM-CAPABILITY-MARKER), not
+lexicographically. Call it through partialCached, keyed by the page, so
 one material is inspected once per build:
 
     {{ partialCached "publication/capabilities.html" . .RelPermalink }}
@@ -58,4 +59,27 @@ produce them exist (S22), rather than being guessed from prose.
   {{- $capabilities = $capabilities | append "footnotes" -}}
 {{- end -}}
 
-{{- return sort $capabilities -}}
+{{- /* Visible markers follow the design-system order, not the alphabet:
+     audio → code → math → image → gallery → video (T173). `text` and
+     `footnotes` stay in the set but have no glyph, so they trail. Anything
+     newly computed and not yet named here still ships, after the known
+     names, instead of vanishing. */ -}}
+{{- $display := slice "audio" "code" "math" "image" "gallery" "video" -}}
+{{- $silent := slice "text" "footnotes" -}}
+{{- $ordered := slice -}}
+{{- range $display -}}
+  {{- if in $capabilities . -}}
+    {{- $ordered = $ordered | append . -}}
+  {{- end -}}
+{{- end -}}
+{{- range $silent -}}
+  {{- if in $capabilities . -}}
+    {{- $ordered = $ordered | append . -}}
+  {{- end -}}
+{{- end -}}
+{{- range $capabilities -}}
+  {{- if not (in $ordered .) -}}
+    {{- $ordered = $ordered | append . -}}
+  {{- end -}}
+{{- end -}}
+{{- return $ordered -}}

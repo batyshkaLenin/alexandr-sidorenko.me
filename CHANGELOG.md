@@ -243,6 +243,9 @@ is folded into the entry describing the finished behaviour rather than listed as
 - `/library/table` is a bookmark, not a search result: it carries
   `noindex` and is omitted from the sitemap, while the `[table]` switch
   stays an ordinary link.
+- Capability markers on a library row follow a fixed order — audio, then
+  code, math, image, gallery, video — instead of the alphabet of their
+  keys, so mathematics sits with code rather than after a photograph.
 
 ### Removed
 
