@@ -166,20 +166,20 @@ is folded into the entry describing the finished behaviour rather than listed as
   leaving an empty card, and an old build is labelled as a quiet snapshot,
   never live telemetry. The complete pane remains useful without JavaScript
   and makes no browser request outside the site.
-- `/llms.txt`: the site as one Markdown map — a heading, a short description
-  and a linked list of every publication with its summary — so a language model
-  can read the structure in a single request instead of walking the sections.
-  It is a map, not a second feed: bodies stay out. The URL contract check reads
-  the file too, so the map cannot become the one place that publishes an
-  address in the wrong form.
+- `/llms.txt`: a Markdown map of the site — a heading, a short description
+  and the library entry points a language model should start from, plus
+  the feeds and protocol files where the rest lives. It is not an inventory
+  of publications and not a second feed: bodies stay in HTML, RSS and JSON
+  Feed. The URL contract check reads the file too, so the map cannot become
+  the one place that publishes an address in the wrong form.
 - Redaction. A publication can black out a fragment that carries a legal risk:
-  the text is replaced by U+2588 blocks in the page, in both feeds and in
-  `/llms.txt`. It is not hidden behind a control and not present in the markup
-  — it is gone from the published source. A screen reader announces one word,
-  «вымарано», instead of a run of blocks. Three fragments are redacted so far;
-  every decision, including the ones to leave a fragment alone, is recorded in
-  `data/redactions.yaml` with its ground, its date and the edition of the rules
-  it was made under.
+  the text is replaced by U+2588 blocks in the page and in both feeds. It is
+  not hidden behind a control and not present in the markup — it is gone from
+  the published source. A screen reader announces one word, «вымарано»,
+  instead of a run of blocks. Three fragments are redacted so far; every
+  decision, including the ones to leave a fragment alone, is recorded in
+  `data/redactions.yaml` with its ground, its date and the edition of the
+  rules it was made under.
 
 - Window labels speak one resource vocabulary: `site/`, `about.md`,
   `library/`, `activity/`. The command line still names actions and views.

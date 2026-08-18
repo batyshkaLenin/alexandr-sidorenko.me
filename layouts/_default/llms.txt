@@ -1,26 +1,50 @@
 {{- /*
-/llms.txt (T67) — the site as one Markdown map, in the shape llmstxt.org
-describes: a single H1, a blockquote summary, then sections of links.
+/llms.txt — one Markdown map of the site (llmstxt.org: H1, blockquote, sections
+of links). MACHINE-LLMS: structure and entry points, not an inventory of
+publications (T174). Bodies stay in HTML, RSS and JSON Feed.
 
-A map, not a second feed. Bodies stay out of it: a reader that wants the text
-already has the HTML page, RSS and JSON Feed, and repeating it here would mean
-a fourth place for the body to drift out of step. What each entry carries is
-the same summary the cards and the feeds show.
-
-Addresses go through canonical-url.html like every other representation, so
-this file cannot become the one place that publishes a trailing slash.
+Addresses go through canonical-url.html like every other representation.
 */ -}}
-{{- $sections := slice (site.GetPage "/library") -}}
+{{- $origin := strings.TrimSuffix "/" site.BaseURL -}}
+{{- /* GetPage wants the content path. Views live under content/views with
+       url: /library/...; topics is the tags taxonomy at /library/topics. */ -}}
+{{- $entry := slice
+  (dict "get" "" "label" "Главная")
+  (dict "get" "/library" "label" "")
+  (dict "get" "/views/all" "label" "")
+  (dict "get" "/views/timeline" "label" "")
+  (dict "get" "/views/types" "label" "")
+  (dict "get" "/tags" "label" "")
+  (dict "get" "/views/music" "label" "")
+-}}
 # {{ site.Title }}
 
 > {{ site.Params.description }}
 
-{{/* .Plain drops the tags but leaves the typographer's &ldquo;/&rdquo; behind,
-     and this file is read as plain text, not parsed as HTML. */}}
-{{- with site.GetPage "/" }}{{ .Plain | htmlUnescape | strings.TrimSpace | replaceRE `\s+` " " }}{{ end }}
-{{ range $sections }}
-## {{ .Title }}
-{{ range (where .Pages "Section" "library").ByDate.Reverse }}
-- [{{ .Title }}]({{ partial "canonical-url.html" .Permalink }}) — {{ partial "publication/type-label.html" (dict "type" .Params.type "page" .) }}{{ range partialCached "publication/capabilities.html" . .RelPermalink }} has:{{ . }}{{ end }}{{ with partial "publication/summary.txt" . }}: {{ . }}{{ end }}
-{{- end }}
+Полные тексты — на HTML-страницах и в фидах. Этот файл — карта входных точек,
+не вторая копия библиотеки.
+## Сайт
+{{ range $entry -}}
+{{- $page := cond (eq .get "") site.Home (site.GetPage .get) -}}
+{{- if not $page }}{{ errorf "llms.txt: missing entry point %q" .get }}{{ end -}}
+{{- $label := cond (ne .label "") .label $page.Title -}}
+- [{{ $label }}]({{ partial "canonical-url.html" $page.Permalink }})
 {{ end -}}
+## Фиды
+{{- with site.Home.OutputFormats.Get "rss" }}
+- [RSS]({{ partial "canonical-url.html" .Permalink }})
+{{- end }}
+{{- with site.Home.OutputFormats.Get "jsonfeed" }}
+- [JSON Feed]({{ partial "canonical-url.html" .Permalink }})
+{{- end }}
+{{- with site.GetPage "/library" }}
+{{- with .OutputFormats.Get "rss" }}
+- [RSS библиотеки]({{ partial "canonical-url.html" .Permalink }})
+{{- end }}
+{{- with .OutputFormats.Get "jsonfeed" }}
+- [JSON Feed библиотеки]({{ partial "canonical-url.html" .Permalink }})
+{{- end }}
+{{- end }}
+## Протокол
+- [Sitemap]({{ partial "canonical-url.html" (printf "%s/sitemap.xml" $origin) }})
+- [robots.txt]({{ partial "canonical-url.html" (printf "%s/robots.txt" $origin) }})

@@ -23,6 +23,17 @@ from urllib.parse import quote, urlsplit
 
 SITE_ORIGIN = "https://alexandr-sidorenko.me"
 PUBLICATION_SECTIONS = ("library",)
+# Surfaces whose matrix 9.1 L flag is yes (T174). Table, type/topic pages and
+# publications are addressable HTML and must not appear here.
+LLMS_ENTRY_POINTS = (
+    f"{SITE_ORIGIN}/",
+    f"{SITE_ORIGIN}/library",
+    f"{SITE_ORIGIN}/library/all",
+    f"{SITE_ORIGIN}/library/timeline",
+    f"{SITE_ORIGIN}/library/types",
+    f"{SITE_ORIGIN}/library/topics",
+    f"{SITE_ORIGIN}/library/music",
+)
 # meta tags whose content is a URL; other meta content is prose and must not
 # be mistaken for an address.
 URL_META = {"og:url", "og:image", "twitter:image"}
@@ -230,10 +241,11 @@ def main() -> int:
                 check(errors, not has_trailing_slash(url), f"{name}: JSON-LD {location} {url!r} has a trailing slash")
 
     # /llms.txt is Markdown, so its addresses live in link syntax rather than in
-    # markup a parser would find above (T67). Without this the map would be the
-    # one representation free to publish a trailing slash.
+    # markup a parser would find above (T67, T174). Without this the map would
+    # be the one representation free to publish a trailing slash.
     llms_path = public_dir / "llms.txt"
     llms_urls: set[str] = set()
+    check(errors, llms_path.exists(), "missing llms.txt")
     if llms_path.exists():
         for url in re.findall(r"\]\((https?://[^)]+)\)", llms_path.read_text()):
             if not is_internal(url):
@@ -241,6 +253,14 @@ def main() -> int:
             llms_urls.add(url)
             checked_urls += 1
             check(errors, not has_trailing_slash(url), f"llms.txt: {url!r} has a trailing slash")
+        for expected in LLMS_ENTRY_POINTS:
+            check(errors, expected in llms_urls, f"llms.txt: entry point {expected!r} missing")
+        for url in llms_urls:
+            parts = [part for part in urlsplit(url).path.split("/") if part]
+            if parts == ["library", "table"]:
+                check(errors, False, f"llms.txt: table view {url!r} is not advertised")
+            if len(parts) >= 3 and parts[0] == "library" and parts[1] in {"types", "topics"}:
+                check(errors, False, f"llms.txt: facet page {url!r} is not advertised")
 
     sitemap_locs: set[str] = set()
     sitemap_path = public_dir / "sitemap.xml"
@@ -330,8 +350,13 @@ def main() -> int:
             check(errors, parsed.u_url == expected, f"{name}: u-url {parsed.u_url!r} != {expected!r}")
             check(errors, expected in all_rss_links, f"{name}: {expected!r} missing from RSS <link>")
             check(errors, expected in all_json_feed_urls, f"{name}: {expected!r} missing from JSON Feed url")
+            # MACHINE-LLMS is a map of entry points, not an inventory (T174).
             if llms_path.exists():
-                check(errors, expected in llms_urls, f"{name}: {expected!r} missing from llms.txt")
+                check(
+                    errors,
+                    expected not in llms_urls,
+                    f"{name}: publication {expected!r} listed in llms.txt",
+                )
 
     if errors:
         print("URL contract check failed:", file=sys.stderr)
