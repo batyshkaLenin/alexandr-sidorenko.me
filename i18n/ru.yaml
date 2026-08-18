@@ -151,6 +151,12 @@ activityDevShape:
   other: "Интенсивность последних семи дней"
 activitySourceAt:
   other: "Согласно данным {{ .Source }} от {{ .At }}"
+siteSince:
+  other: "сайт с {{ . }}"
+neofetchSource:
+  other: "исходный код на GitHub"
+activityRevision:
+  other: "снимок {{ . }}"
 relationsHeading:
   other: "Связи"
 relationsBacklinks:

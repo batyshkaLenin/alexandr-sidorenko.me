@@ -17,6 +17,9 @@ theme = 'declassified'
 [params]
   # The author lives in data/authors.yaml, on the entry flagged `site_owner`.
   description = 'Заметки, статьи, стихи, проза и музыка Александра Сидоренко.'
+  # owner/name, not a URL: Hugo parses URL-shaped params as url.URL and
+  # stringifies them to the path, which would turn the repo into `/`.
+  github_repo = 'batyshkaLenin/alexandr-sidorenko.me'
 
 # Home and Library are the whole of the navigation (content-model ADR).
 # Names are lowercase English because the menu is shell, not document: the

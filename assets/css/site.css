@@ -694,6 +694,14 @@ dc-copy[copied] .dc-copy__button {
     margin-top: 2px;
   }
 
+  .dc-home .dc-home-recent__more {
+    margin-top: 2px;
+  }
+
+  .dc-home .dc-home-recent__more .dc-panel__more {
+    margin-top: 0;
+  }
+
   .dc-home .dc-material--dense .dc-material__row {
     flex-wrap: nowrap;
   }
@@ -886,6 +894,18 @@ dc-copy[copied] .dc-copy__button {
   color: var(--dc-text);
 }
 
+.dc-neofetch a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.dc-neofetch a:hover,
+.dc-neofetch a:focus-visible {
+  color: var(--dc-accent);
+  border-bottom-color: currentColor;
+}
+
 .dc-hero-name {
   margin: 0 0 4px;
   color: var(--dc-primary);
@@ -896,6 +916,18 @@ dc-copy[copied] .dc-copy__button {
 
 .dc-hero-name__part {
   display: block;
+}
+
+.dc-home-recent__more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+  margin-top: 8px;
+}
+
+.dc-home-recent__more .dc-panel__more {
+  margin-top: 0;
 }
 
 .dc-hero-meta {

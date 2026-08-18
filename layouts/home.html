@@ -12,6 +12,10 @@ system (T116); this is the migrated shape, not the target one.
 */ -}}
 {{ define "main" }}
 {{- partial "publication/identity-invariants.html" . -}}
+{{ $projectRepo := printf "https://github.com/%s" .Site.Params.github_repo }}
+{{ if not .Site.Params.github_repo }}
+  {{ errorf "hugo.toml: params.github_repo must be the project repository (owner/name) (T147)" }}
+{{ end }}
 <h1 class="dc-visually-hidden">{{ .Site.Title }}</h1>
 
 {{- /* One walk for the whole workspace rather than one per panel: the arrows
@@ -51,6 +55,28 @@ made of lists (T135). */ -}}
              "role = Александр Сидоренко" (research B3). */}}
         {{ with .Params.roles }}<div><dt>ROLE</dt><dd>{{ . }}</dd></div>{{ end }}
         {{ with .Params.status }}<div><dt>STATUS</dt><dd>{{ . }}</dd></div>{{ end }}
+        {{/* Age of the site, not a copyright and not a process clock (T147).
+             The launch year stays in front matter; only ~N years is drawn. */}}
+        {{ with .Params.since }}
+        {{ $sinceYear := int . }}
+        {{ if or (lt $sinceYear 1990) (gt $sinceYear now.Year) }}
+          {{ errorf "home: since must be the launch year, got %v" . }}
+        {{ end }}
+        {{ $years := math.Max 1 (sub now.Year $sinceYear) }}
+        <div>
+          <dt>uptime</dt>
+          <dd>
+            <span class="dc-visually-hidden">{{ i18n "siteSince" $sinceYear }}</span>
+            <span aria-hidden="true">~{{ $years }} {{ cond (eq $years 1) "year" "years" }}</span>
+          </dd>
+        </div>
+        {{ else }}
+          {{ errorf "home: Params.since is required to compute neofetch uptime (T147)" }}
+        {{ end }}
+        <div>
+          <dt>source</dt>
+          <dd><a href="{{ $projectRepo }}" target="_blank" rel="noopener" aria-label="{{ i18n "neofetchSource" }}">github</a></dd>
+        </div>
       </dl>
     </div>
   </section>
@@ -71,8 +97,8 @@ made of lists (T135). */ -}}
       <div class="p-note">
         {{ .Content }}
       </div>
-      {{ if or .Params.location .Params.since }}
-      <p class="dc-hero-meta">{{ with .Params.location }}# location: {{ . }}{{ end }}{{ with .Params.since }}<span class="dc-hero-meta__gap"></span># since: {{ . }}{{ end }}</p>
+      {{ with .Params.location }}
+      <p class="dc-hero-meta"># location: {{ . }}</p>
       {{ end }}
       {{/* Identity links a reader can actually follow. Until now all twelve
            approved profiles existed only as <link rel="me"> in <head>: correct
@@ -142,7 +168,14 @@ made of lists (T135). */ -}}
         <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
         {{ end }}
       </ul>
-      <a class="dc-panel__more" href="{{ "/library" | relLangURL }}">Библиотека →</a>
+      <p class="dc-home-recent__more">
+        {{ with .OutputFormats.Get "rss" }}
+        <a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">rss</a>
+        {{ else }}
+        {{ errorf "home: RSS output is required on Recent (T147)" }}
+        {{ end }}
+        <a class="dc-panel__more" href="{{ "/library" | relLangURL }}">Библиотека →</a>
+      </p>
     </div>
   </section>
 
@@ -157,8 +190,10 @@ build as a snapshot when JavaScript is available. */ -}}
 {{- /* GitInfo is page-scoped and Home may point at content/_index.md's last
 commit rather than the revision being built. The build wrapper exports the
 site revision explicitly; local bare `hugo` remains useful with the page hash
-as a clearly build-time fallback. */ -}}
-{{ $buildCommit := default .GitInfo.AbbreviatedHash (os.Getenv "HUGO_BUILD_COMMIT") }}
+as a clearly build-time fallback. Full hash for the commit URL, short for
+the label (T147). */ -}}
+{{ $buildCommit := strings.TrimSpace (default "" (os.Getenv "HUGO_BUILD_COMMIT")) }}
+{{ if not $buildCommit }}{{ with .GitInfo }}{{ $buildCommit = .Hash }}{{ end }}{{ end }}
 <as-activity class="dc-panel dc-panel--utility as-activity" data-built-at="{{ $builtAt.Format "2006-01-02T15:04:05Z07:00" }}">
   {{ partial "declassified/panel-label.html" "activity/" }}
   <div class="dc-panel__body as-activity__body">
@@ -209,9 +244,15 @@ as a clearly build-time fallback. */ -}}
     {{- end }}
 
     {{- with $buildCommit }}
+    {{ $full := strings.TrimSpace . }}
+    {{ $short := $full | truncate 7 "" }}
     <section class="as-activity__module" data-activity-module="site" aria-labelledby="activity-site">
       <h2 class="as-activity__name" id="activity-site">site</h2>
-      <p class="as-activity__value">main@{{ strings.TrimSpace . | truncate 7 "" }}</p>
+      <p class="as-activity__value">
+        <a href="{{ printf "%s/commit/%s" $projectRepo $full }}" target="_blank" rel="noopener"
+           aria-label="{{ i18n "activityRevision" $short }}"
+           title="собрано {{ $builtAt.Format "02.01.2006 15:04 UTC" }}">{{ $short }}</a>
+      </p>
       <p class="as-activity__meta" data-activity-freshness>собрано <time datetime="{{ $builtAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ $builtAt.Format "02.01.2006 15:04 UTC" }}</time></p>
     </section>
     {{- end }}

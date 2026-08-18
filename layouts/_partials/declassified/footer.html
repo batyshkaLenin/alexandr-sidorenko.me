@@ -5,11 +5,11 @@ document's ending, not the interface's.)
 
 The status bar (§13) is fixed to the bottom of the viewport and is the bottom
 of the working area; a document footer underneath it made two endings in a
-row. What the footer used to carry — the link to the source, the feed and the
-copyright line — is not reprinted here: RSS and JSON Feed stay discoverable
-through <head> and the library's own buttons, the licence and authorship stay
-in the JSON-LD, and where the visible versions belong is an open question the
-owner will answer separately (T137 review, 17 August 2026).
+row. What the footer used to carry lives with its layer (T147): `source` and
+uptime in Home neofetch, revision and build time in activity/site, primary RSS
+on Home Recent, RSS·JSON on Library collections, machine-readable copyright in
+feeds and JSON-LD authorship. Human-readable legal inventory is later
+`/colophon` (T11). Status bar and prompt stay out of this.
 */ -}}
 {{- partial "declassified/status-bar.html" . -}}
 {{- partial "declassified/component.html" "as-prefetch" -}}

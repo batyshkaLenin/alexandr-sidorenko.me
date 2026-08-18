@@ -183,6 +183,13 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 ### Changed
 
+- Home no longer pretends the missing footer is an open question. `neofetch`
+  shows how long the site has been up and links to the repository; the
+  activity `site` module links the deployed commit and still says when it was
+  built; Recent carries the primary RSS; Library collections keep RSS and JSON
+  Feed. Copyright stays machine-readable in the feeds and is not drawn on the
+  shell — a human colophon is later work.
+
 - Every internal address the site publishes — links, `canonical`, `og:url`,
   microformats `u-url`, sitemap, RSS, JSON Feed, and JSON-LD — now uses a
   single form without a trailing slash (the root stays `/`), so a page no
