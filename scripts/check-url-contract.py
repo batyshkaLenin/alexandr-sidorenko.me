@@ -155,6 +155,20 @@ def page_url(public_dir: Path, html_path: Path) -> str:
     return f"{SITE_ORIGIN}/{quote(relative, safe='/')}"
 
 
+def manifest_target_exists(public_dir: Path, url: str) -> bool:
+    """True when an internal manifest address resolves to a built file."""
+    if not is_internal(url):
+        return True
+    path = urlsplit(url).path
+    if path == "/":
+        return (public_dir / "index.html").is_file()
+    relative = path.lstrip("/")
+    direct = public_dir / relative
+    if direct.is_file():
+        return True
+    return (public_dir / relative / "index.html").is_file()
+
+
 def rss_urls(feed_path: Path) -> tuple[list[tuple[str, str]], dict[str, str]]:
     """(location, url) pairs for form checking, plus item link by guid-free
     key so the cross-representation comparison can find a publication."""
@@ -265,6 +279,11 @@ def main() -> int:
                 continue
             checked_urls += 1
             check(errors, not has_trailing_slash(url), f"site.webmanifest: {location} {url!r} has a trailing slash")
+            check(
+                errors,
+                manifest_target_exists(public_dir, url),
+                f"site.webmanifest: {location} {url!r} does not resolve in the build",
+            )
 
     # 2. Agreement: every representation of one page must be the same byte
     #    string, not merely slash-free.

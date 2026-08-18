@@ -1,7 +1,7 @@
 {
   "short_name": "Александр Сидоренко",
   "name": "Александр Сидоренко",
-  "description": "Блог и творчество Александра Сидоренко: заметки и статьи о разработке, музыке и жизни.",
+  "description": "Личный сайт Александра Сидоренко.",
   "lang": "ru",
   "icons": [
     { "src": "/favicon.ico", "sizes": "64x64 32x32 24x24 16x16", "type": "image/x-icon" },
@@ -10,8 +10,7 @@
   ],
   "shortcuts": [
     { "name": "Обо мне", "url": "/" },
-    { "name": "Блог", "url": "/posts" },
-    { "name": "Творчество", "url": "/creativity" }
+    { "name": "Библиотека", "url": "/library" }
   ],
   "start_url": "/",
   "orientation": "portrait",
