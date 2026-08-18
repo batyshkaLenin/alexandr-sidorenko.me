@@ -108,12 +108,45 @@ kinds — adding a feed somewhere must not require editing this line. */ -}}
 
 {{/* The approved identity set (T40). A link the page already shows as a
 visible <a rel="me"> is not repeated here: rel=me discovery counts the union,
-and IndieWeb prefers the visible one. Home shows four of them (T116), so only
-there does this list get shorter. */}}
+and IndieWeb prefers the visible one. Home shows the `visible` subset (T116),
+so only there does this list get shorter. */}}
 {{ $home := .IsHome }}
 {{ range hugo.Data.links }}
 {{ if not (and $home .visible) }}<link rel="me" href="{{ .url }}">{{ end }}
 {{ end }}
 {{ end }}
+
+{{- /* Static prefetch: the destinations a visitor is most likely to follow
+from this page. Hover/focus prefetch for everything else is handled by
+<as-prefetch> in the footer. Only internal canonical URLs. */ -}}
+{{- $prefetch := slice -}}
+{{- if .IsHome -}}
+  {{- $prefetch = $prefetch | append (partial "canonical-url.html" ("/library" | relLangURL)) -}}
+{{- else if and (eq .Kind "page") (eq .Section "library") -}}
+  {{- $prefetch = $prefetch | append (partial "canonical-url.html" ("/library" | relLangURL)) -}}
+  {{- /* Prev/next neighbours — the reader who finishes a publication is likely
+  to follow one of them (T55). */ -}}
+  {{- with .Parent -}}
+    {{- $pages := .Pages.ByDate.Reverse -}}
+    {{- $idx := -1 -}}
+    {{- range $i, $p := $pages -}}
+      {{- if eq $p.RelPermalink $.RelPermalink -}}{{- $idx = $i -}}{{- end -}}
+    {{- end -}}
+    {{- if gt $idx 0 -}}
+      {{- $prefetch = $prefetch | append (partial "canonical-url.html" (index $pages (sub $idx 1)).RelPermalink) -}}
+    {{- end -}}
+    {{- if and (ge $idx 0) (lt (add $idx 1) (len $pages)) -}}
+      {{- $prefetch = $prefetch | append (partial "canonical-url.html" (index $pages (add $idx 1)).RelPermalink) -}}
+    {{- end -}}
+  {{- end -}}
+{{- else if and (eq .Kind "section") (eq .Section "library") -}}
+  {{- /* Library hub: the reader picks a view. */ -}}
+  {{- range (slice "/library/all" "/library/topics" "/library/types" "/library/music" "/library/timeline") -}}
+    {{- $prefetch = $prefetch | append (partial "canonical-url.html" (. | relLangURL)) -}}
+  {{- end -}}
+{{- end -}}
+{{- range $prefetch }}
+<link rel="prefetch" href="{{ . }}">
+{{- end }}
 
 {{ partial "schema.html" . }}
