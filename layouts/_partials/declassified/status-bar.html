@@ -29,6 +29,12 @@ shortcuts have no keyboard to come from (§13.3).
     "Статья") — `upper` of the front-matter key, no separate vocabulary entry. */ -}}
     {{- $mode = cond (eq .Params.type "track") "PLAY" "READ" -}}
     {{- $state = upper .Params.type -}}
+  {{- else if .Params.material_type -}}
+    {{- $mt := .Params.material_type -}}
+    {{- $materials := where (where site.RegularPages "Section" "library") "Params.type" $mt -}}
+    {{- $prefix = "LIBRARY" -}}
+    {{- $mode = upper $mt -}}
+    {{- $state = printf "%d %s" (len $materials) (i18n "materialsCount" (len $materials)) -}}
   {{- else if .Params.view -}}
     {{- /* A Library view counts what it actually lists, not the library as a
     whole (§13.4) — Music was reporting the total material count instead of

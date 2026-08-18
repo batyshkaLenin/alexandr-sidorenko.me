@@ -120,6 +120,7 @@ theme = 'declassified'
 [imaging]
   quality = 82
   resampleFilter = 'Lanczos'
+  anchor = 'Center'
 
   [imaging.exif]
     disableLatLong = true
