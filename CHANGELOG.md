@@ -236,8 +236,10 @@ is folded into the entry describing the finished behaviour rather than listed as
   the same library chrome as the other views, including which item in the view
   list is current.
 - A dense library row — Music, a Types group, a type page, a topic page —
-  reads title, then type, then date, then markers. Feed links in a section
-  heading no longer sit against each other.
+  reads title, then type, then date, then markers. On a phone that becomes
+  two zones, title with markers then type and date, instead of tearing the
+  line. Library views on a narrow screen stay one row and scroll sideways.
+  Feed links in a section heading no longer sit against each other.
 
 ### Removed
 

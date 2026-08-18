@@ -2157,6 +2157,15 @@ html:has(.dc-library) {
   font-size: var(--dc-fs-meta);
 }
 
+.dc-library__views:focus {
+  outline: none;
+}
+
+.dc-library__views:focus-visible {
+  outline: 1px solid var(--dc-primary);
+  outline-offset: 4px;
+}
+
 .dc-library__views-list {
   margin: 0 0 14px;
   padding: 0;
@@ -2226,13 +2235,21 @@ html:has(.dc-library) {
     gap: 12px;
   }
 
+  /* T161: one horizontal sibling row with an explicit scroll, not wrap.
+     The scrollbar stays visible — hiding it would make overflow look like
+     clipped content. A late fade leaves a sliver of the next item. */
   .dc-library__views {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0 20px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    white-space: nowrap;
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 1.5rem), transparent);
   }
 
   .dc-library__views-list {
+    flex: none;
     flex-direction: row;
     gap: 16px;
     margin-bottom: 0;
@@ -2296,7 +2313,9 @@ html:has(.dc-library) {
 
 /* Dense is one line — TITLE → TYPE → DATE, markers tertiary — not the rich
    title-then-meta stack: a container that already filtered or grouped the
-   list needs a row to scan, not a card per item. */
+   list needs a row to scan, not a card per item. Markup is title, markers,
+   type, date; flex order restores TITLE → TYPE → DATE → markers on a
+   wide screen (T171 / T161). */
 .dc-material--dense .dc-material__row {
   display: flex;
   flex-wrap: wrap;
@@ -2309,6 +2328,32 @@ html:has(.dc-library) {
 
 .dc-material--dense .dc-material__title {
   font-size: var(--dc-fs-ui);
+  order: 1;
+}
+
+.dc-material--dense .dc-material__primary {
+  display: contents;
+}
+
+.dc-material--dense .dc-material__sep--type,
+.dc-material--dense .dc-list__type {
+  order: 2;
+}
+
+.dc-material--dense .dc-material__sep--date,
+.dc-material--dense .dc-material__date {
+  order: 3;
+}
+
+.dc-material--dense .dc-material__markers {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  order: 4;
+}
+
+.dc-material--dense .dc-material__break {
+  display: none;
 }
 
 .dc-material__sep {
@@ -2341,6 +2386,60 @@ html:has(.dc-library) {
     display: block;
     padding: 10px 0;
     min-height: 44px;
+  }
+
+  /* T161 phone: TITLE(+markers) then TYPE · DATE. Primary is inline so
+     markers follow the last line of the title instead of becoming a
+     third row under a block heading. */
+  .dc-material--dense {
+    min-height: 44px;
+  }
+
+  .dc-material--dense .dc-material__primary {
+    display: block;
+    flex: 1 1 100%;
+    min-width: 0;
+    order: 0;
+  }
+
+  .dc-material--dense .dc-material__title,
+  .dc-material--dense .dc-material__markers,
+  .dc-material--dense .dc-material__break,
+  .dc-material--dense .dc-material__sep--type,
+  .dc-material--dense .dc-list__type,
+  .dc-material--dense .dc-material__sep--date,
+  .dc-material--dense .dc-material__date {
+    order: 0;
+  }
+
+  .dc-material--dense .dc-material__title {
+    display: inline;
+    flex: none;
+    min-width: 0;
+  }
+
+  .dc-material--dense .dc-material__title a {
+    display: inline;
+    padding: 0;
+    min-height: 0;
+  }
+
+  .dc-material--dense .dc-material__markers {
+    display: inline-flex;
+    flex: none;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    vertical-align: baseline;
+  }
+
+  .dc-material--dense .dc-material__break {
+    display: none;
+  }
+
+  .dc-material--dense .dc-material__sep--type,
+  .dc-material--dense .dc-material__break + .dc-material__sep--date {
+    display: none;
   }
 }
 

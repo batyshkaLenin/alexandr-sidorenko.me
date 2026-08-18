@@ -9,7 +9,7 @@ apart from the two primary views (§6.2).
 {{- $isTopic := in (slice "term" "taxonomy") .Kind -}}
 {{- $isType := ne (default "" .Params.material_type) "" -}}
 {{- $current := cond (eq .Kind "section") "recent" (cond $isTopic "topics" (cond $isType "types" (default "" .Params.view))) -}}
-<nav class="dc-library__views" aria-label="Представления библиотеки">
+<nav class="dc-library__views" aria-label="Представления библиотеки" tabindex="0">
   <ul class="dc-library__views-list">
     <li{{ if eq $current "recent" }} class="dc-library__view--current"{{ end }}>
       <a href="{{ partial "canonical-url.html" ("/library" | relLangURL) }}"{{ if eq $current "recent" }} aria-current="page"{{ end }}>recent</a>

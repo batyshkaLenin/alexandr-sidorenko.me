@@ -6,11 +6,10 @@ MaterialRow — one material in a list.
     rich   title first (§9): the name is what a person scans for, so nothing
            sits ahead of it. Type · date sit under it, an excerpt below that.
            Home recent, Library Recent.
-    dense  one line, TITLE → TYPE → DATE, markers tertiary (COMP-MATERIAL-ROW,
-           ACCEPTED-DECISIONS «Dense-строка») — for scanning many rows a
-           container already grouped or filtered: Music, a Types group, a
-           type's own page, a topic's own page. Chronological views
-           (Timeline, activity) keep date-first in their own markup.
+    dense  one line, TITLE → TYPE → DATE, markers tertiary. On a phone the
+           same markup becomes two zones — TITLE(+markers), then TYPE · DATE
+           — because title and markers share an inline wrapper, not because
+           a second template exists (T161).
 
 `showType` (default true) drops the per-row type badge when the list's own
 container already said it once — a Types group heading, a type's own page —
@@ -52,36 +51,36 @@ mechanical change once the theme owns that vocabulary too.
     {{- $markers = $markers | append $glyph -}}
   {{- end -}}
 {{- end -}}
-{{- $typeBadge := "" -}}
-{{- if $showType -}}
-  {{- with $page.Params.type -}}
-    {{- $typeBadge = printf `<span class="dc-list__type dc-type--%s">%s</span>` (partial "publication/type-family.html" .) (partial "publication/type-label.html" (dict "type" . "page" $page)) | safeHTML -}}
-  {{- end -}}
-{{- end -}}
 <li class="dc-material dc-material--{{ $density }} h-entry">
 {{- if $dense }}
   <div class="dc-material__row">
-    <h{{ $level }} class="dc-material__title">
-      <a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
-    </h{{ $level }}>
-    {{- with $typeBadge }}
-    <span class="dc-material__sep" aria-hidden="true">·</span>
-    {{ . }}
+    <div class="dc-material__primary">
+      <h{{ $level }} class="dc-material__title">
+        <a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
+      </h{{ $level }}>
+      {{- if $markers }}
+      <span class="dc-material__markers">
+        {{- range $markers }}
+        <span class="dc-material__marker" title="{{ index . "meaning" }}"><span aria-hidden="true">{{ index . "glyph" }}</span><span class="dc-visually-hidden">{{ index . "text" }}</span></span>
+        {{- end }}
+      </span>
+      {{- end }}
+    </div>
+    <span class="dc-material__break" aria-hidden="true"></span>
+    {{- if $showType }}
+    <span class="dc-material__sep dc-material__sep--type" aria-hidden="true">·</span>
+    {{ partial "library/type-badge.html" (dict "page" $page) }}
     {{- end }}
-    <span class="dc-material__sep" aria-hidden="true">·</span>
+    <span class="dc-material__sep dc-material__sep--date" aria-hidden="true">·</span>
     {{ partial "publication/date.html" (dict "date" $page.Date "form" "iso" "class" "dc-material__date dt-published") }}
-    {{- range $markers }}
-    <span class="dc-material__sep" aria-hidden="true">·</span>
-    <span class="dc-material__marker" title="{{ index . "meaning" }}"><span aria-hidden="true">{{ index . "glyph" }}</span><span class="dc-visually-hidden">{{ index . "text" }}</span></span>
-    {{- end }}
   </div>
 {{- else }}
   <h{{ $level }} class="dc-material__title">
     <a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
   </h{{ $level }}>
   <p class="dc-material__meta">
-    {{- with $typeBadge }}
-    {{ . }}
+    {{- if $showType }}
+    {{ partial "library/type-badge.html" (dict "page" $page) }}
     <span class="dc-material__sep" aria-hidden="true">·</span>
     {{- end }}
     {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-material__date dt-published") }}
