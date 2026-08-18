@@ -12,7 +12,9 @@ The 404 kind is not a real, indexable resource (T39): it gets noindex
 instead of a canonical (there is no canonical URL for a page that doesn't
 exist) and skips the whole content-identity block — Open Graph/Twitter
 card, webmention, and JSON-LD (schema.html only emits for IsHome/Kind
-"page" anyway, but this keeps the intent explicit here too).
+"page" anyway, but this keeps the intent explicit here too). A real page
+can still ask for `robots: noindex` while keeping its canonical — the
+table view does (T172): bookmarkable, not a search result.
 */ -}}
 {{- /*
 No font markup here any more (T93). Fira Code and PT Serif used to arrive as a
@@ -49,6 +51,9 @@ paint (.ai/research/s15-ab-measurement.md).
 <meta name="robots" content="noindex">
 {{ else }}
 <link rel="canonical" href="{{ partial "canonical-url.html" .Permalink }}">
+{{ if eq .Params.robots "noindex" }}
+<meta name="robots" content="noindex">
+{{ end }}
 {{ end }}
 {{ with (resources.Get "css/site.css") | minify | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">

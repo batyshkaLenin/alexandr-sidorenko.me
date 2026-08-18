@@ -79,6 +79,7 @@ class UrlHtmlParser(HTMLParser):
         super().__init__()
         self.urls: list[tuple[str, str]] = []
         self.canonical: str | None = None
+        self.robots: str | None = None
         self.og_url: str | None = None
         self.u_url: str | None = None
         # Identity marker: only a publication carries one (T117).
@@ -98,6 +99,8 @@ class UrlHtmlParser(HTMLParser):
         if tag == "meta":
             key = attributes.get("property") or attributes.get("name")
             value = attributes.get("content")
+            if key == "robots" and value:
+                self.robots = value
             if key in URL_META and value:
                 self.urls.append((f"<meta {key}>", value))
                 if key == "og:url":
@@ -303,7 +306,17 @@ def main() -> int:
             for field in ("url", "mainEntityOfPage"):
                 if field in block:
                     check(errors, block[field] == expected, f"{name}: JSON-LD {field} {block[field]!r} != {expected!r}")
-        check(errors, expected in sitemap_locs, f"{name}: {expected!r} missing from sitemap.xml")
+        noindex = parsed.robots is not None and "noindex" in parsed.robots.lower()
+        if noindex:
+            # Bookmarkable noindex pages keep a canonical (T172 table) but
+            # must not appear in the sitemap of indexable resources.
+            check(
+                errors,
+                expected not in sitemap_locs,
+                f"{name}: noindex page {expected!r} listed in sitemap.xml",
+            )
+        else:
+            check(errors, expected in sitemap_locs, f"{name}: {expected!r} missing from sitemap.xml")
 
         section = name.parts[0] if len(name.parts) > 1 else ""
         # Identity, not location, says what a publication is: /library/all and

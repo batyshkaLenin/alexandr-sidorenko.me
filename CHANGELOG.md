@@ -240,6 +240,9 @@ is folded into the entry describing the finished behaviour rather than listed as
   two zones, title with markers then type and date, instead of tearing the
   line. Library views on a narrow screen stay one row and scroll sideways.
   Feed links in a section heading no longer sit against each other.
+- `/library/table` is a bookmark, not a search result: it carries
+  `noindex` and is omitted from the sitemap, while the `[table]` switch
+  stays an ordinary link.
 
 ### Removed
 

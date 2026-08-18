@@ -1,6 +1,8 @@
 {{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{{- range .Pages }}
+{{- /* Indexable HTML only (MACHINE-SITEMAP). A page with sitemap.disable,
+       such as /library/table (T172), is addressable but not listed. */ -}}
+{{- range where .Pages "Sitemap.Disable" "ne" true }}
   <url>
     <loc>{{ partial "canonical-url.html" .Permalink }}</loc>
     {{- if not .Lastmod.IsZero }}

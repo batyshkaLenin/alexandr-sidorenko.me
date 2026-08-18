@@ -4,4 +4,7 @@ description: "Материалы Александра Сидоренко таб�
 url: "/library/table"
 layout: "library-view"
 view: "table"
+robots: "noindex"
+sitemap:
+  disable: true
 ---
