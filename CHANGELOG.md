@@ -135,13 +135,15 @@ is folded into the entry describing the finished behaviour rather than listed as
   JavaScript is available and otherwise stays as the build left it. Hovering
   any line says which service the numbers came from and when they were taken.
   No counts are published beyond the hours — the bars show shape, not scores.
-- The command line in the top bar works. `:` opens it, and it takes the small
-  vocabulary it has always displayed — `library`, `read`, `play`, `open`,
-  `find`, `help` — completing material names as you type and going where it
-  says. `find` opens the search palette with what you typed, `help` shows the
-  keys. An unknown command is answered in one quiet line. Without JavaScript
-  there is no input at all: the line stays what it was, a statement of where
-  you are, and every destination remains a link away.
+- The command line in the top bar works. Until it is opened the line keeps a
+  blinking `_`, so it looks like a place to type; once the real caret is in,
+  that mark is gone. `:` opens it, and it takes the small vocabulary it has
+  always displayed — `library`, `read`, `play`, `open`, `find`, `help` —
+  completing material names as you type and going where it says. `find` opens
+  the search palette with what you typed, `help` shows the keys. An unknown
+  command is answered in one quiet line. Without JavaScript there is no input
+  at all: the line stays what it was, a statement of where you are, and every
+  destination remains a link away. The `_` still sits on that static line.
 - The keyboard reaches the whole shell. Arrows and `j`/`k` walk a list of
   materials once focus is in it, Enter opens what is focused, `1`/`2` go to the
   sections, Esc goes back up, and `?` opens a sheet listing exactly the keys

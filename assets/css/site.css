@@ -350,10 +350,10 @@ dc-prompt[open] .dc-identity__sep {
   white-space: pre;
 }
 
-/* The drawn cursor belongs to the static line. Once <dc-prompt> is alive the
-   line has a real caret the moment it is opened, and a `_` blinking at the end
-   of the printed command points at a place the caret never appears. */
-dc-prompt[ready] .dc-identity__cursor {
+/* The drawn `_` says the line is typeable. Hide it only while the prompt is
+   open: that is when the real caret exists, and both at once was the reason
+   the mark was removed (T158). Closed-but-ready still shows it. */
+dc-prompt[open] .dc-identity__cursor {
   display: none;
 }
 
