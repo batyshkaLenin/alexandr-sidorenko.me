@@ -6,9 +6,11 @@ MaterialRow — one material in a list.
     rich   title first (§9): the name is what a person scans for, so nothing
            sits ahead of it. Type · date sit under it, an excerpt below that.
            Home recent, Library Recent.
-    dense  one line, oldest-first-signal order — date, type, title, markers —
-           for scanning many rows a container already grouped or filtered:
-           Music, a Types group, a type's own page, a topic's own page.
+    dense  one line, TITLE → TYPE → DATE, markers tertiary (COMP-MATERIAL-ROW,
+           ACCEPTED-DECISIONS «Dense-строка») — for scanning many rows a
+           container already grouped or filtered: Music, a Types group, a
+           type's own page, a topic's own page. Chronological views
+           (Timeline, activity) keep date-first in their own markup.
 
 `showType` (default true) drops the per-row type badge when the list's own
 container already said it once — a Types group heading, a type's own page —
@@ -59,16 +61,17 @@ mechanical change once the theme owns that vocabulary too.
 <li class="dc-material dc-material--{{ $density }} h-entry">
 {{- if $dense }}
   <div class="dc-material__row">
-    {{ partial "publication/date.html" (dict "date" $page.Date "form" "iso" "class" "dc-material__date dt-published") }}
+    <h{{ $level }} class="dc-material__title">
+      <a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
+    </h{{ $level }}>
     {{- with $typeBadge }}
     <span class="dc-material__sep" aria-hidden="true">·</span>
     {{ . }}
     {{- end }}
     <span class="dc-material__sep" aria-hidden="true">·</span>
-    <h{{ $level }} class="dc-material__title">
-      <a class="u-url p-name" href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
-    </h{{ $level }}>
+    {{ partial "publication/date.html" (dict "date" $page.Date "form" "iso" "class" "dc-material__date dt-published") }}
     {{- range $markers }}
+    <span class="dc-material__sep" aria-hidden="true">·</span>
     <span class="dc-material__marker" title="{{ index . "meaning" }}"><span aria-hidden="true">{{ index . "glyph" }}</span><span class="dc-visually-hidden">{{ index . "text" }}</span></span>
     {{- end }}
   </div>

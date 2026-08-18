@@ -707,6 +707,7 @@ dc-copy[copied] .dc-copy__button {
   }
 
   .dc-home .dc-material--dense .dc-material__title {
+    flex: 1 1 auto;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2293,7 +2294,7 @@ html:has(.dc-library) {
   color: var(--dc-faint);
 }
 
-/* Dense is one line — date, type, title, markers (T153) — not the rich
+/* Dense is one line — TITLE → TYPE → DATE, markers tertiary — not the rich
    title-then-meta stack: a container that already filtered or grouped the
    list needs a row to scan, not a card per item. */
 .dc-material--dense .dc-material__row {
