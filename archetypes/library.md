@@ -1,6 +1,6 @@
 {{- /*
 `hugo new` writes the file even when the archetype calls errorf, and it still
-exits 0 (Hugo 0.162.1), so this cannot be the guarantee — it is the message.
+exits 0 (Hugo Extended), so this cannot be the guarantee — it is the message.
 The placeholders below are deliberately invalid so a material created the wrong
 way is obvious on sight and fails the build; scripts/new-material.py is what
 actually fills the fields.

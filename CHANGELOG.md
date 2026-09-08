@@ -55,6 +55,9 @@ is folded into the entry describing the finished behaviour rather than listed as
 - Footer social links and an environment-aware `robots.txt` that disallows
   crawling outside production builds.
 - Cloudflare Workers Static Assets preview deployment.
+- A reproducible preview build (`./build.sh`) that installs Hugo Extended from
+  `.tool-versions` (`0.165.0`), verifies the theme gitlink, and rejects invalid
+  site config or library front matter before the pages are written.
 - RSS and JSON Feed 1.1, site-wide and per section, with full publication
   text, absolute media URLs and complete audio attachment metadata.
 - Sitemap driven by real per-page `lastmod`, not build time. A publication

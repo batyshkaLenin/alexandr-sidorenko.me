@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HUGO_VERSION=0.162.1
+# Single source of truth for the Hugo pin: .tool-versions. Workers Builds may
+# cache package managers, but it must not be able to substitute a different
+# Hugo — this script always installs the extended binary named here.
+# Tool name is `hugo-extended` (mise/aqua) or historically `hugo`; the version
+# token is what matters for the download URL.
+HUGO_VERSION="$(awk '/^(hugo-extended|hugo)[[:space:]]/ { print $2; exit }' .tool-versions)"
+if [[ -z "${HUGO_VERSION}" ]]; then
+  echo "ERROR: .tool-versions does not pin a hugo / hugo-extended version." >&2
+  exit 1
+fi
 
 build_temp_dir=$(mktemp -d)
 cleanup() { rm -rf "${build_temp_dir}"; }
@@ -67,6 +76,26 @@ ensure_submodules() {
   done < <(git config --file .gitmodules --get-regexp '\.path$' | awk '{print $2}')
 }
 
+require_hugo_extended() {
+  local reported
+  reported="$(hugo version)"
+  echo "Hugo: ${reported}"
+  # Upstream prints either `vX.Y.Z+extended` or `vX.Y.Z-<hash>+extended`.
+  # Match the version as a whole token: after it must come `+`, `-`, or end of
+  # the version word — so v0.165.10 cannot satisfy a pin of 0.165.0.
+  if [[ ! "${reported}" =~ v${HUGO_VERSION}([+-]|$) ]] || [[ "${reported}" != *"+extended"* ]]; then
+    echo "ERROR: need Hugo v${HUGO_VERSION}+extended, got: ${reported}" >&2
+    echo "       Version comes from .tool-versions; build.sh installs that exact extended binary." >&2
+    exit 1
+  fi
+}
+
+pre_build_checks() {
+  echo "PRE-BUILD: config and content schema..."
+  python3 scripts/check-config-contract.py
+  python3 scripts/check-content-schema.py
+}
+
 main() {
   git config --global core.quotepath false
   if [[ $(git rev-parse --is-shallow-repository) == true ]]; then
@@ -78,14 +107,15 @@ main() {
   export HUGO_BUILD_COMMIT="$(git rev-parse HEAD)"
   ensure_submodules
 
-  echo "Installing Hugo ${HUGO_VERSION}..."
+  echo "Installing Hugo ${HUGO_VERSION} (extended)..."
   curl -sfL --output-dir "${build_temp_dir}" -O \
     "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
   mkdir -p "${HOME}/.local/hugo"
   tar -C "${HOME}/.local/hugo" -xf "${build_temp_dir}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
   export PATH="${HOME}/.local/hugo:${PATH}"
+  require_hugo_extended
 
-  echo "Hugo: $(hugo version)"
+  pre_build_checks
 
   # This pipeline currently deploys the *.workers.dev preview subdomain,
   # not the production custom domain — keep it out of search indexes until
@@ -106,7 +136,7 @@ main() {
   python3 scripts/fetch-dev-activity.py || true
 
   echo "Building the project (environment: preview)..."
-  hugo build --gc --minify --cleanDestinationDir --environment preview
+  hugo build --gc --minify --cleanDestinationDir --panicOnWarning --environment preview
 
   # Opt-in measurement scaffolding. `wrangler deploy` runs this script
   # itself and rebuilds public/ from scratch, so anything generated beforehand

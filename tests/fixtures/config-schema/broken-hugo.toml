@@ -1,0 +1,13 @@
+# Broken config fixture for T29 controlled-failure proof.
+#
+# Not loaded by Hugo. Run:
+#   python3 scripts/check-config-contract.py --config tests/fixtures/config-schema/broken-hugo.toml
+# Expected: non-zero exit naming baseURL/theme/language/github_repo.
+
+baseURL = 'https://example.com/'
+locale = 'en-US'
+defaultContentLanguage = 'en'
+theme = 'wrong-theme'
+
+[params]
+  github_repo = 'not-a-repo-path'

@@ -3,7 +3,10 @@
 Build the site, then run the checkers against `public/`:
 
 ```sh
+# Or: ./build.sh  (pins Hugo from .tool-versions, runs config/content schema first)
 hugo build --gc --minify --panicOnWarning --environment preview
+python3 scripts/check-config-contract.py
+python3 scripts/check-content-schema.py
 python3 scripts/check-content-parity.py
 python3 scripts/check-feed-contract.py
 python3 scripts/check-uid-contract.py
@@ -13,6 +16,22 @@ python3 scripts/check-url-contract.py
 python3 scripts/check-schema-contract.py
 python3 scripts/check-webmention-contract.py
 python3 scripts/check-headers-contract.py
+```
+
+## Config and content schema (T29)
+
+`check-config-contract.py` pins `baseURL` / theme / locale / `github_repo` and
+checks that `build.sh` installs Hugo Extended from `.tool-versions` with
+`--panicOnWarning`. `check-content-schema.py` validates library front matter
+(authors, type, UUIDv7 `id`, dates, cover/audio shapes) before Hugo runs.
+
+Controlled failures:
+
+```sh
+python3 scripts/check-config-contract.py --config tests/fixtures/config-schema/broken-hugo.toml
+python3 scripts/check-content-schema.py --library tests/fixtures/content-schema
+python3 scripts/check-config-contract.py --self-test
+python3 scripts/check-content-schema.py --self-test
 ```
 
 Each script prints what it verified and exits non-zero on the first failure.

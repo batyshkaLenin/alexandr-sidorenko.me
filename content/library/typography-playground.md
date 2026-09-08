@@ -2,6 +2,7 @@
 title: "Полигон типографики"
 description: "Фикстура: проверка Markdown, типографики, кириллицы и подсветки кода. Черновик, в сборку сайта не попадает."
 date: 2026-08-01
+created: 2026-08-01
 lastmod: 2026-08-01
 draft: true
 authors: ["batyshkaLenin"]
