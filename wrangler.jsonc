@@ -2,13 +2,14 @@
   // Cloudflare Workers project name (becomes <name>.<subdomain>.workers.dev for preview)
   "name": "alexandr-sidorenko-me",
   "compatibility_date": "2026-08-06",
+  // T1: PR / Workers Builds entry — build.sh (T29) then validate.sh (T30).
+  // Dashboard build_command should stay empty so this repo file is the only
+  // source of truth; non-production deploy must remain `wrangler versions upload`.
   "build": {
-    "command": "chmod a+x build.sh && ./build.sh"
+    "command": "chmod a+x scripts/ci.sh && ./scripts/ci.sh"
   },
-  // Phase B (T31 / T1): enable commit/version preview evidence only when
-  // Cloudflare Git integration is activated. Do not set preview_urls here
-  // before that — manual wrangler previews stay ad-hoc until T1.
-  // "preview_urls": true,
+  // Commit/version preview URLs for Workers Builds evidence on PRs.
+  "preview_urls": true,
   "assets": {
     "directory": "./public",
     "not_found_handling": "404-page",

@@ -16,6 +16,7 @@ same way other source-level checks do.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 import tempfile
@@ -29,6 +30,9 @@ EXPECTED_LANGUAGE = "ru"
 EXPECTED_LOCALE = "ru-RU"
 GITHUB_REPO = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 HUGO_TOOL = re.compile(r"^(?:hugo-extended|hugo)\s+(\d+\.\d+\.\d+)\s*$", re.MULTILINE)
+PINNED_SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
+WRANGLER_CI_COMMAND = re.compile(r'"command"\s*:\s*"[^"]*scripts/ci\.sh[^"]*"')
+PREVIEW_URLS_TRUE = re.compile(r'"preview_urls"\s*:\s*true\b')
 
 
 def load_toml(path: Path) -> dict:
@@ -108,6 +112,58 @@ def config_errors(root: Path, config_path: Path | None = None) -> list[str]:
         if "--panicOnWarning" not in text:
             errors.append("build.sh: hugo build должен запускаться с --panicOnWarning")
 
+    errors.extend(pipeline_errors(root))
+    return errors
+
+
+def pipeline_errors(root: Path) -> list[str]:
+    """Workers Builds must run the repo CI wrapper and a pinned Wrangler."""
+    errors: list[str] = []
+    wrangler = root / "wrangler.jsonc"
+    package = root / "package.json"
+    ci_sh = root / "scripts" / "ci.sh"
+    lockfile = root / "package-lock.json"
+
+    # Fixture self-tests only ship hugo.toml — skip pipeline pins there.
+    if not wrangler.is_file() and not package.is_file():
+        return errors
+
+    if not ci_sh.is_file():
+        errors.append("scripts/ci.sh: отсутствует CI entry для Workers Builds")
+    elif not ci_sh.read_text(encoding="utf-8").strip():
+        errors.append("scripts/ci.sh: пустой файл")
+
+    if not wrangler.is_file():
+        errors.append("wrangler.jsonc: отсутствует")
+    else:
+        text = wrangler.read_text(encoding="utf-8")
+        if not WRANGLER_CI_COMMAND.search(text):
+            errors.append(
+                "wrangler.jsonc: build.command должен вызывать scripts/ci.sh "
+                "(pipeline в репозитории, не в дашборде)"
+            )
+        if not PREVIEW_URLS_TRUE.search(text):
+            errors.append("wrangler.jsonc: preview_urls должен быть true")
+
+    if not package.is_file():
+        errors.append("package.json: отсутствует pin Wrangler")
+    else:
+        try:
+            pkg = json.loads(package.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as error:
+            return errors + [f"package.json: невалидный JSON ({error})"]
+        deps = {
+            **(pkg.get("dependencies") or {}),
+            **(pkg.get("devDependencies") or {}),
+        }
+        version = deps.get("wrangler")
+        if not isinstance(version, str) or not PINNED_SEMVER.match(version):
+            errors.append(
+                f"package.json: wrangler должен быть exact pin (X.Y.Z), сейчас {version!r}"
+            )
+        if not lockfile.is_file():
+            errors.append("package-lock.json: отсутствует (нужен для pin Wrangler в Builds)")
+
     return errors
 
 
@@ -162,7 +218,8 @@ def main() -> int:
 
     pinned = tool_versions(root / ".tool-versions")
     print(
-        f"config-контракт: baseURL/theme/locale ок, Hugo {pinned} закреплён в .tool-versions"
+        "config-контракт: baseURL/theme/locale ок, "
+        f"Hugo {pinned} закреплён, Wrangler/CI pipeline в репозитории"
     )
     return 0
 

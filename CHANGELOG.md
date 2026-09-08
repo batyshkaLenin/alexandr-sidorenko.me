@@ -14,6 +14,12 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 ## [Unreleased]
 
+### Changed
+
+- Workers Builds / PR gate entry is now `scripts/ci.sh` (`build.sh` then
+  `validate.sh`), wired from `wrangler.jsonc` with `preview_urls` enabled and
+  Wrangler pinned in `package.json` for Git integration.
+
 ### Added
 
 - Hugo-based site (Russian only, canonical URLs without a `/ru` prefix, no

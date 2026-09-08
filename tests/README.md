@@ -1,6 +1,38 @@
 # Contract checks
 
-Build the site, then run the offline semantic suite:
+PR / Workers Builds entry (T1):
+
+```sh
+./scripts/ci.sh
+# equivalent: ./build.sh && ./scripts/validate.sh
+# alongside a live hugo server (it rewrites ./public with localhost):
+# HUGO_DESTINATION=tmp/ci-public PUBLIC_DIR=tmp/ci-public ./scripts/ci.sh
+```
+
+`ci.sh` is fail-fast between BUILD and POST-BUILD; `validate.sh` aggregates
+independent groups and exits non-zero if any failed. Wrangler’s
+`build.command` in `wrangler.jsonc` calls this wrapper — the dashboard must
+not redefine a different build pipeline.
+
+### Workers Builds activation (dashboard, owner)
+
+After Wrangler is pinned in `package.json` / lockfile:
+
+1. Connect **only** this GitHub repository (Cloudflare Git integration).
+2. Production branch = `main`; enable **non-production branch builds**.
+3. Leave dashboard **build command empty** (source of truth: `wrangler.jsonc` →
+   `scripts/ci.sh`).
+4. Production deploy: `npx wrangler deploy` (or default).
+5. Preview / PR deploy: `npx wrangler versions upload` — never `wrangler deploy`
+   on a PR branch (no production promotion).
+6. Confirm `preview_urls: true` in `wrangler.jsonc` so the PR gets native
+   preview evidence; build logs must show `BUILD CONTEXT: site=… theme=…` and
+   `[PASS]`/`[FAIL]` per validate group.
+
+Browser tooling and Lighthouse stay **out** of this gate (local
+`release-local.sh` only).
+
+Offline semantic suite alone (same as post-build half of `ci.sh`):
 
 ```sh
 ./build.sh && ./scripts/validate.sh
@@ -64,9 +96,12 @@ python3 scripts/check-budgets.py --self-test
 
 ## Config and content schema (T29)
 
-`check-config-contract.py` pins `baseURL` / theme / locale / `github_repo` and
+`check-config-contract.py` pins `baseURL` / theme / locale / `github_repo`,
 checks that `build.sh` installs Hugo Extended from `.tool-versions` with
-`--panicOnWarning`. `check-content-schema.py` validates library front matter
+`--panicOnWarning`, and that Workers Builds entry points stay in-repo:
+`scripts/ci.sh`, `wrangler.jsonc` → that wrapper, `preview_urls: true`, and an
+exact `wrangler` pin in `package.json` + lockfile.
+`check-content-schema.py` validates library front matter
 (authors, type, UUIDv7 `id`, dates, cover/audio shapes) before Hugo runs.
 
 Controlled failures:

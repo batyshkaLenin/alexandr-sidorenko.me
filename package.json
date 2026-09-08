@@ -1,13 +1,15 @@
 {
   "name": "alexandr-sidorenko.me",
   "private": true,
-  "description": "Local browser toolchain for T31 (Playwright Chromium). Not used by Workers Builds.",
+  "description": "Pinned Wrangler for Workers Builds (T1) plus local Playwright Chromium (T31).",
   "scripts": {
+    "ci": "./scripts/ci.sh",
     "test:browser": "playwright test",
     "test:browser:headed": "playwright test --headed"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
-    "@playwright/test": "1.56.1"
+    "@playwright/test": "1.56.1",
+    "wrangler": "4.129.1"
   }
 }
