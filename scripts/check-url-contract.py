@@ -7,6 +7,10 @@ the same form: no trailing slash, except the site root. A second form is a
 real defect once Cloudflare answers `drop-trailing-slash`: the page would
 declare a canonical URL that itself redirects.
 
+Also fails when an internal HTML href/src does not resolve inside `public/`,
+and when robots.txt is missing or lacks a User-agent stanza (offline shape
+only; live Allow/Disallow policy is an environment concern).
+
 Works offline over the built `public/` directory; no network access.
 """
 
@@ -19,9 +23,10 @@ import sys
 import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import quote, urlsplit
+from urllib.parse import quote, unquote, urljoin, urlsplit
 
 SITE_ORIGIN = "https://alexandr-sidorenko.me"
+SKIP_HREF_SCHEMES = ("mailto:", "tel:", "javascript:", "data:")
 PUBLICATION_SECTIONS = ("library",)
 # Surfaces listed in llms.txt. Table, type/topic pages and
 # publications are addressable HTML and must not appear here.
@@ -169,18 +174,45 @@ def page_url(public_dir: Path, html_path: Path) -> str:
     return f"{SITE_ORIGIN}/{quote(relative, safe='/')}"
 
 
-def manifest_target_exists(public_dir: Path, url: str) -> bool:
-    """True when an internal manifest address resolves to a built file."""
+def target_exists(public_dir: Path, url: str) -> bool:
+    """True when an internal address resolves to a built file under public/."""
     if not is_internal(url):
         return True
     path = urlsplit(url).path
     if path == "/":
         return (public_dir / "index.html").is_file()
-    relative = path.lstrip("/")
+    relative = unquote(path.lstrip("/"))
     direct = public_dir / relative
     if direct.is_file():
         return True
     return (public_dir / relative / "index.html").is_file()
+
+
+def manifest_target_exists(public_dir: Path, url: str) -> bool:
+    """True when an internal manifest address resolves to a built file."""
+    return target_exists(public_dir, url)
+
+
+def should_resolve_href(url: str) -> bool:
+    """Skip fragments-only and non-navigational schemes; keep internal targets."""
+    if not url or url.startswith("#"):
+        return False
+    lowered = url.lower()
+    if lowered.startswith(SKIP_HREF_SCHEMES):
+        return False
+    return is_internal(url) or not ("://" in url or url.startswith("//"))
+
+
+def absolute_internal(page_url_base: str, href: str) -> str | None:
+    """Resolve href against the page URL; return absolute internal URL or None."""
+    if href.startswith(SKIP_HREF_SCHEMES) or href.startswith("#"):
+        return None
+    absolute = urljoin(page_url_base, href)
+    if not is_internal(absolute):
+        return None
+    # Existence ignores fragment/query; form checks already saw the raw value.
+    cleaned = absolute.split("#", 1)[0].split("?", 1)[0]
+    return cleaned or None
 
 
 def rss_urls(feed_path: Path) -> tuple[list[tuple[str, str]], dict[str, str]]:
@@ -230,9 +262,21 @@ def main() -> int:
         parsed.feed(html_path.read_text())
         parsed_pages[html_path] = parsed
         name = html_path.relative_to(public_dir)
+        page_base = page_url(public_dir, html_path)
+        if not page_base.endswith("/"):
+            # urljoin treats .../slug as a file; page directories need a slash.
+            page_base = page_base + "/"
         for location, url in parsed.urls:
             checked_urls += 1
             check(errors, not has_trailing_slash(url), f"{name}: {location} {url!r} has a trailing slash")
+            if should_resolve_href(url) and location.startswith(("<a ", "<link ", "<img ", "<source ", "<audio ", "<video ")):
+                absolute = absolute_internal(page_base, url)
+                if absolute is not None:
+                    check(
+                        errors,
+                        target_exists(public_dir, absolute),
+                        f"{name}: {location} {url!r} does not resolve in the build",
+                    )
         for block in parsed.json_ld:
             for location, url in walk_json(block):
                 if not is_internal(url):
@@ -261,6 +305,16 @@ def main() -> int:
                 check(errors, False, f"llms.txt: table view {url!r} is not advertised")
             if len(parts) >= 3 and parts[0] == "library" and parts[1] in {"types", "topics"}:
                 check(errors, False, f"llms.txt: facet page {url!r} is not advertised")
+
+    robots_path = public_dir / "robots.txt"
+    check(errors, robots_path.is_file(), "missing robots.txt")
+    if robots_path.is_file():
+        robots_body = robots_path.read_text()
+        check(
+            errors,
+            re.search(r"(?im)^user-agent\s*:", robots_body) is not None,
+            "robots.txt: missing User-agent stanza",
+        )
 
     sitemap_locs: set[str] = set()
     sitemap_path = public_dir / "sitemap.xml"

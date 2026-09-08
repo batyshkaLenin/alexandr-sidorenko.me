@@ -1,0 +1,67 @@
+{
+  "schema": "semantic-manifest/v1",
+  "description": "Representative publication set and surface map for offline semantic validation. Feed and schema fixtures must agree with this list; per-surface detail stays in those fixtures.",
+  "origin": "https://alexandr-sidorenko.me",
+  "surfaces": {
+    "html": true,
+    "rss": "/index.xml",
+    "json_feed": "/feed.json",
+    "sitemap": "/sitemap.xml",
+    "robots": "/robots.txt",
+    "llms": "/llms.txt",
+    "webmanifest": "/site.webmanifest"
+  },
+  "aligned_fixtures": {
+    "feed": "tests/fixtures/feed-contract.json",
+    "schema": "tests/fixtures/schema-contract.json"
+  },
+  "publications": [
+    {
+      "id": "library/23",
+      "url_path": "/library/23",
+      "html": "library/23/index.html",
+      "material_id": "01a00aea-44db-7086-9b1c-c390069e6407",
+      "type": "poem"
+    },
+    {
+      "id": "library/regular-visitor",
+      "url_path": "/library/regular-visitor",
+      "html": "library/regular-visitor/index.html",
+      "material_id": "01a00aea-44dc-74e0-8834-895f0068f8d3",
+      "type": "track"
+    },
+    {
+      "id": "library/skver",
+      "url_path": "/library/skver",
+      "html": "library/skver/index.html",
+      "material_id": "01a00aea-44dc-74e0-8834-8960ccf9d4e8",
+      "type": "fiction"
+    },
+    {
+      "id": "library/bluredu-new-teachers",
+      "url_path": "/library/bluredu-new-teachers",
+      "html": "library/bluredu-new-teachers/index.html",
+      "material_id": "01a00aea-44da-718c-ab39-e1200764c2af",
+      "type": "article"
+    },
+    {
+      "id": "library/philosophy-of-freedom",
+      "url_path": "/library/philosophy-of-freedom",
+      "html": "library/philosophy-of-freedom/index.html",
+      "material_id": "01a00aea-44db-7086-9b1c-c38ed88a383d",
+      "type": "paper"
+    }
+  ],
+  "negative_discoverability": [
+    {
+      "path": "/library/table",
+      "html": "library/table/index.html",
+      "reason": "utility index: addressable, not indexable",
+      "expect": {
+        "noindex": true,
+        "in_sitemap": false,
+        "in_llms": false
+      }
+    }
+  ]
+}

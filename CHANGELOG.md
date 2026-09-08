@@ -58,6 +58,10 @@ is folded into the entry describing the finished behaviour rather than listed as
 - A reproducible preview build (`./build.sh`) that installs Hugo Extended from
   `.tool-versions` (`0.165.0`), verifies the theme gitlink, and rejects invalid
   site config or library front matter before the pages are written.
+- An offline semantic validation suite (`./scripts/validate.sh`) that reuses the
+  existing contract checkers after a build, aligns feed and schema fixtures
+  through one representative manifest, and fails on broken internal targets or
+  a noindex page that leaks into the sitemap.
 - RSS and JSON Feed 1.1, site-wide and per section, with full publication
   text, absolute media URLs and complete audio attachment metadata.
 - Sitemap driven by real per-page `lastmod`, not build time. A publication

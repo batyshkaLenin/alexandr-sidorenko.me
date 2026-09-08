@@ -1,10 +1,23 @@
 # Contract checks
 
-Build the site, then run the checkers against `public/`:
+Build the site, then run the offline semantic suite:
+
+```sh
+./build.sh && ./scripts/validate.sh
+```
+
+`validate.sh` prints `[PASS]` / `[FAIL]` per group (manifest, url, feeds, schema,
+uid, 404, rel-me, webmention, headers) and exits non-zero on any failure. It
+does **not** run `check-http-matrix` (runtime), `check-content-parity`
+(migration carve-out), or browser/a11y checks (T31). Config/content schema
+already run inside `build.sh`.
+
+Individual checkers (same contracts, without the orchestrator):
 
 ```sh
 # Or: ./build.sh  (pins Hugo from .tool-versions, runs config/content schema first)
 hugo build --gc --minify --panicOnWarning --environment preview
+python3 scripts/check-semantic-manifest.py
 python3 scripts/check-config-contract.py
 python3 scripts/check-content-schema.py
 python3 scripts/check-content-parity.py
@@ -16,6 +29,12 @@ python3 scripts/check-url-contract.py
 python3 scripts/check-schema-contract.py
 python3 scripts/check-webmention-contract.py
 python3 scripts/check-headers-contract.py
+```
+
+Controlled failures for the T30 suite (mutates a temp copy of `public/` only):
+
+```sh
+./scripts/prove-semantic-controlled-failures.sh
 ```
 
 ## Config and content schema (T29)
@@ -77,6 +96,18 @@ address, not the durable id.
 any trailing slash outside the root. All representations of one page must be
 the same byte string. Templates get that form from
 `layouts/_partials/canonical-url.html`.
+
+It also fails when an internal HTML navigational `href`/`src` does not resolve
+inside `public/`, when `robots.txt` is missing a User-agent stanza, and when a
+`noindex` page (e.g. `/library/table`) appears in `sitemap.xml` or `llms.txt`.
+
+## Semantic manifest
+
+`tests/fixtures/semantic-manifest.json` is the single representative
+publication + surface map. `check-semantic-manifest.py` only aligns
+`feed-contract.json` and `schema-contract.json` with that list (no second
+pass over `public/`). Negative discoverability expectations for Table live
+there; enforcement stays in `check-url-contract.py`.
 
 ## 404 page
 
