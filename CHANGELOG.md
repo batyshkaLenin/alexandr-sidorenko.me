@@ -62,6 +62,11 @@ is folded into the entry describing the finished behaviour rather than listed as
   existing contract checkers after a build, aligns feed and schema fixtures
   through one representative manifest, and fails on broken internal targets or
   a noindex page that leaks into the sitemap.
+- A local release command (`./scripts/release-local.sh`) that chains semantic
+  validate, filesystem artifact budgets (S15/T69), a pinned Chromium Playwright
+  suite (JS on/off, keyboard, runtime axe), and Lighthouse — with LCP/TBT/CLS as
+  the pass/fail gates and the performance score kept diagnostic. Browser tooling
+  stays off Workers Builds.
 - RSS and JSON Feed 1.1, site-wide and per section, with full publication
   text, absolute media URLs and complete audio attachment metadata.
 - Sitemap driven by real per-page `lastmod`, not build time. A publication

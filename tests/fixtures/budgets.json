@@ -1,0 +1,20 @@
+{
+  "schema": "artifact-budgets/v1",
+  "description": "Filesystem weight ceilings for the built public/ tree. Numbers consume S15/T69 outcomes (image weight after the adaptive ladder) with headroom; they are not invented Lighthouse score thresholds.",
+  "source": {
+    "story": "S15",
+    "task": "T69",
+    "image_weight_kib_after_s15": 2077
+  },
+  "limits": {
+    "css_total_bytes": 65536,
+    "js_total_bytes": 49152,
+    "image_total_bytes": 2621440,
+    "html_page_max_bytes": 131072
+  },
+  "image_extensions": [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"],
+  "notes": [
+    "Audio/video bodies are out of the image budget (a track recording is intentionally large).",
+    "search-index.json has its own ceiling in check-search-index.py."
+  ]
+}

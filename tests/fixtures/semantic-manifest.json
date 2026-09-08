@@ -63,5 +63,30 @@
         "in_llms": false
       }
     }
-  ]
+  ],
+  "browser": {
+    "description": "Runtime Chromium suite (T31). Shares publication URLs with this manifest; capabilities describe what the suite exercises.",
+    "pages": [
+      {
+        "path": "/",
+        "viewports": ["desktop", "mobile"],
+        "capabilities": ["shell", "search", "help", "prompt"]
+      },
+      {
+        "path": "/library",
+        "viewports": ["desktop", "mobile"],
+        "capabilities": ["shell", "prompt"]
+      },
+      {
+        "path": "/library/regular-visitor",
+        "viewports": ["desktop"],
+        "capabilities": ["audio", "publication"]
+      },
+      {
+        "path": "/library/bluredu-new-teachers",
+        "viewports": ["desktop"],
+        "capabilities": ["article", "publication"]
+      }
+    ]
+  }
 }

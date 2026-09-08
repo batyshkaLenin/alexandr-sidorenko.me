@@ -5,6 +5,10 @@
   "build": {
     "command": "chmod a+x build.sh && ./build.sh"
   },
+  // Phase B (T31 / T1): enable commit/version preview evidence only when
+  // Cloudflare Git integration is activated. Do not set preview_urls here
+  // before that — manual wrangler previews stay ad-hoc until T1.
+  // "preview_urls": true,
   "assets": {
     "directory": "./public",
     "not_found_handling": "404-page",

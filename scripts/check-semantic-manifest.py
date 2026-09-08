@@ -141,16 +141,36 @@ def main() -> int:
                 f"schema {html}: unexpected url for negative page",
             )
 
+    browser = manifest.get("browser") or {}
+    browser_pages = browser.get("pages") or []
+    if browser_pages:
+        pub_paths = {item["url_path"] for item in publications}
+        for page in browser_pages:
+            path = page.get("path")
+            fail(errors, isinstance(path, str) and path.startswith("/"), f"browser page path invalid: {path!r}")
+            fail(errors, bool(page.get("viewports")), f"browser {path}: viewports missing")
+            fail(errors, bool(page.get("capabilities")), f"browser {path}: capabilities missing")
+            # Publication URLs in the browser map must be subset of the
+            # representative publication set — no second independent list.
+            if isinstance(path, str) and path.startswith("/library/") and path.count("/") == 2:
+                fail(
+                    errors,
+                    path in pub_paths,
+                    f"browser publication {path!r} not in manifest.publications",
+                )
+
     if errors:
         print("Semantic manifest check failed:", file=sys.stderr)
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
 
+    browser_n = len(browser_pages)
     print(
         f"OK: semantic manifest — {len(publications)} publication(s), "
-        f"{len(manifest.get('negative_discoverability') or [])} negative discoverability case(s); "
-        f"feed + schema fixtures aligned"
+        f"{len(manifest.get('negative_discoverability') or [])} negative discoverability case(s)"
+        + (f", {browser_n} browser page(s)" if browser_n else "")
+        + "; feed + schema fixtures aligned"
     )
     return 0
 

@@ -107,6 +107,15 @@ main() {
   export HUGO_BUILD_COMMIT="$(git rev-parse HEAD)"
   ensure_submodules
 
+  # BUILD CONTEXT for preview evidence (T31 Phase B / T1): site SHA + theme SHA.
+  # Workers Builds logs should carry both so a commit preview can be tied to the
+  # exact theme gitlink, not only the site commit.
+  THEME_SHA="missing"
+  if git -C themes/declassified rev-parse HEAD >/dev/null 2>&1; then
+    THEME_SHA="$(git -C themes/declassified rev-parse HEAD)"
+  fi
+  echo "BUILD CONTEXT: site=${HUGO_BUILD_COMMIT} theme=${THEME_SHA}"
+
   echo "Installing Hugo ${HUGO_VERSION} (extended)..."
   curl -sfL --output-dir "${build_temp_dir}" -O \
     "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
@@ -136,7 +145,11 @@ main() {
   python3 scripts/fetch-dev-activity.py || true
 
   echo "Building the project (environment: preview)..."
-  hugo build --gc --minify --cleanDestinationDir --panicOnWarning --environment preview
+  # HUGO_DESTINATION lets release-local write outside a live `hugo server`
+  # destination (server rewrites ./public with localhost baseURLs).
+  DESTINATION="${HUGO_DESTINATION:-public}"
+  hugo build --gc --minify --cleanDestinationDir --panicOnWarning --environment preview \
+    --destination "${DESTINATION}"
 
   # Opt-in measurement scaffolding. `wrangler deploy` runs this script
   # itself and rebuilds public/ from scratch, so anything generated beforehand

@@ -21,3 +21,10 @@ tmp/
 
 # Python
 __pycache__/
+
+# Node / Playwright (local browser suite — T31; not used in Workers Builds)
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

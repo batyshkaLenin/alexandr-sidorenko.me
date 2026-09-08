@@ -9,8 +9,24 @@ Build the site, then run the offline semantic suite:
 `validate.sh` prints `[PASS]` / `[FAIL]` per group (manifest, url, feeds, schema,
 uid, 404, rel-me, webmention, headers) and exits non-zero on any failure. It
 does **not** run `check-http-matrix` (runtime), `check-content-parity`
-(migration carve-out), or browser/a11y checks (T31). Config/content schema
-already run inside `build.sh`.
+(migration carve-out), artifact budgets, browser, or Lighthouse (T31).
+Config/content schema already run inside `build.sh`.
+
+### Local release (T31)
+
+Full local release path after a clean build destination (defaults to
+`tmp/release-public` so a live `hugo server` cannot poison `./public` with
+localhost baseURLs):
+
+```sh
+./scripts/release-local.sh
+# or skip the slow steps:
+RUN_LIGHTHOUSE=0 ./scripts/release-local.sh
+RUN_BROWSER=0 RUN_LIGHTHOUSE=0 ./scripts/release-local.sh
+```
+
+Order: build → `validate.sh` → `check-budgets.py` → Chromium suite → Lighthouse.
+Browser tooling and Lighthouse stay **out** of Workers Builds / the PR gate.
 
 Individual checkers (same contracts, without the orchestrator):
 
@@ -29,12 +45,21 @@ python3 scripts/check-url-contract.py
 python3 scripts/check-schema-contract.py
 python3 scripts/check-webmention-contract.py
 python3 scripts/check-headers-contract.py
+python3 scripts/check-budgets.py
+./scripts/check-browser.sh
 ```
 
 Controlled failures for the T30 suite (mutates a temp copy of `public/` only):
 
 ```sh
 ./scripts/prove-semantic-controlled-failures.sh
+```
+
+Budget / axe controlled failures:
+
+```sh
+python3 scripts/check-budgets.py --self-test
+# axe: tests/fixtures/browser-violations/missing-alt.html (asserted red in suite)
 ```
 
 ## Config and content schema (T29)
@@ -180,12 +205,32 @@ python3 scripts/check-http-matrix.py --base-url https://<preview-host>
 ## Lighthouse
 
 `scripts/run-lighthouse.py` is separate: it needs the network and Chrome, and
-takes minutes. Run it deliberately against a deployed origin:
+takes minutes. Run it deliberately against a built tree (prefer
+`./scripts/release-local.sh`, which serves `--public-dir` rather than
+`hugo server`):
 
 ```sh
-python3 scripts/run-lighthouse.py
+python3 scripts/run-lighthouse.py --public-dir public --runs 3
 python3 scripts/run-lighthouse.py --fonts blocked
 python3 scripts/run-lighthouse.py --base-url https://alexandr-sidorenko.me --indexable
 ```
 
-Reports land in `tmp/lighthouse/<UTC timestamp>/`.
+Pass/fail is the S15 metric set (LCP / TBT / CLS). The composite performance
+score is printed as a diagnostic only. Reports land in
+`tmp/lighthouse/<UTC timestamp>/`.
+
+## Browser suite (T31)
+
+Pinned Playwright Chromium (`package.json` + lockfile). Specs under
+`tests/browser/` cover JS-off, keyboard/focus, enhancement widgets, and runtime
+axe. Home runs on desktop + mobile; track/article fixtures stay
+desktop-representative. Does not replace `check-a11y-contract.py`.
+
+```sh
+./scripts/check-browser.sh
+```
+
+## Artifact budgets (T31)
+
+`scripts/check-budgets.py` holds filesystem ceilings from S15/T69 (CSS/JS/image
+totals and per-HTML-page size). Not part of `validate.sh`.
