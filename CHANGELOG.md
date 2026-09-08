@@ -18,7 +18,9 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 - Workers Builds / PR gate entry is now `scripts/ci.sh` (`build.sh` then
   `validate.sh`), wired from `wrangler.jsonc` with `preview_urls` enabled and
-  Wrangler pinned in `package.json` for Git integration.
+  Wrangler pinned in `package.json` for Git integration. Hugo is pinned as
+  `hugo` in `.tool-versions` so the Builds asdf installer accepts the file;
+  `build.sh` still downloads that version's extended binary.
 
 ### Added
 

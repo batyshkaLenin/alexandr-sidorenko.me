@@ -4,8 +4,8 @@ set -euo pipefail
 # Single source of truth for the Hugo pin: .tool-versions. Workers Builds may
 # cache package managers, but it must not be able to substitute a different
 # Hugo — this script always installs the extended binary named here.
-# Tool name is `hugo-extended` (mise/aqua) or historically `hugo`; the version
-# token is what matters for the download URL.
+# Tool name is `hugo` (Workers Builds / asdf) or `hugo-extended` (mise/aqua);
+# the version token is what matters for the download URL.
 HUGO_VERSION="$(awk '/^(hugo-extended|hugo)[[:space:]]/ { print $2; exit }' .tool-versions)"
 if [[ -z "${HUGO_VERSION}" ]]; then
   echo "ERROR: .tool-versions does not pin a hugo / hugo-extended version." >&2
