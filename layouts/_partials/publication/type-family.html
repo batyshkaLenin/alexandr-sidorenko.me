@@ -1,8 +1,4 @@
-{{- /*
-The colour family of a material type (§17.3): knowledge, literary or audio.
-Returns "" for a material without a type, so a caller can skip the class
-rather than emit an empty one.
-*/ -}}
+{{- /* Type colour family from data/creative_types.yaml, or "". */ -}}
 {{- with . -}}
   {{- with index hugo.Data.creative_types . -}}
     {{- .family -}}

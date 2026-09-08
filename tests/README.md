@@ -1,7 +1,6 @@
-# Content parity checks
+# Contract checks
 
-Build the site and verify the six migrated publication bodies and their semantic
-line breaks:
+Build the site, then run the checkers against `public/`:
 
 ```sh
 hugo build --gc --minify --panicOnWarning --environment preview
@@ -16,182 +15,127 @@ python3 scripts/check-webmention-contract.py
 python3 scripts/check-headers-contract.py
 ```
 
-The checker normalizes front matter, HTML provenance comments, Markdown hard-break
-syntax, whitespace, and the intentional absolute-to-root-relative asset URL change.
-It then compares each current body with its committed SHA-256 snapshot. If the
-read-only `tmp/old_project` checkout is present, it also performs a live normalized
-old/current body comparison.
+Each script prints what it verified and exits non-zero on the first failure.
+They need a built `public/` directory; none of them needs the network unless
+noted below.
 
-The rendered snapshot counts `<br>` boundaries independently in page HTML, RSS,
-and JSON Feed. Since T92 removed content warnings, every publication carries the
-same count in all three: nothing is held back from a feed any more. The snapshot
-covers poem, poetry collection, lyrics, prose link list, bibliography, and
-ordinary prose soft-wrap fixtures. Global Goldmark `hardWraps` must remain disabled.
+## Content parity
 
-Reviewed intentional differences:
+`check-content-parity.py` compares each migrated publication body with its
+committed SHA-256 snapshot (front matter, hard-break
+syntax, whitespace, and absolute→root-relative asset URLs normalized away).
+If `tmp/old_project` is present, it also compares the normalized old and
+current bodies live.
 
-- `creativity/23`: the old same-origin absolute image URL is root-relative now.
-- `creativity/skver`: the source-only provenance comment is excluded from the body
-  comparison; it records that the legacy English source remains read-only and its
-  former URL is neither published nor redirected.
-- `creativity/skver` and `creativity/humility-and-open-mindedness`: their bodies
-  are no longer the old site's bodies. S17 redacted the carrier of a legal risk
-  out of each — the instrument of use in one, the combination of conditions in
-  the other — and the redaction is what the reader now sees, as U+2588 blocks.
-  Both carry `redacted_from_legacy` in the fixture with the reason and the
-  ledger id, which waives the live old/current comparison for them and nothing
-  else: the committed body snapshot still pins each body, so an unintended edit
-  still fails the check. What was removed is recorded in the private vault
-  (`.ai/redactions/originals.md`) and never in this repository; the decisions
-  themselves are in `data/redactions.yaml`.
+It counts `<br>` boundaries independently in page HTML, RSS, and JSON Feed —
+those three views of one publication must agree. Global Goldmark `hardWraps`
+must stay disabled.
 
-The feed contract check parses RSS and JSON Feed, verifies that every body
-reaches both feeds and the page, compares each card summary against the
-publication's own description, rejects root-relative embedded URLs, and checks
-audio MIME and byte length against the referenced static file.
+Intentional differences from the legacy site are listed in the fixture, not
+here. A body marked `redacted_from_legacy` skips the live old/current
+comparison; the committed snapshot still pins what readers see.
+`data/redactions.yaml` is the public ledger of those decisions.
 
-The UID contract check (see ADR `redesign-stable-uid-contract`) verifies every
-publication's front-matter `uid` is unique and correctly formatted, and that
-HTML `u-uid`, RSS `<guid isPermaLink="false">`, JSON Feed `id`, and JSON-LD
-`@id` all agree with it — independently of `canonical`/`u-url`/`.Permalink`,
-which stay tied to the current location URL instead. Since T56 both use the
-no-trailing-slash form, their current values match byte for byte; the uid is
-still authored front matter that survives a move, not a derived value.
+## Feeds
 
-The URL contract check (T56, ADR `redesign-canonical-url-policy`) collects
-every internal address the build emits — HTML `href`/`src`, URL-bearing
-`<meta>`, `canonical`, `og:url`, MF2 `u-url`, `sitemap.xml`, RSS, JSON Feed,
-JSON-LD, and `site.webmanifest` — and fails on any trailing slash outside the
-root. It then requires all representations of one page (`canonical`, `og:url`,
-`u-url`, sitemap `<loc>`, RSS `<link>`, JSON Feed `url`, JSON-LD
-`url`/`mainEntityOfPage`) to be the same byte string. Templates get that form
-from the `canonical-url.html` partial; the theme's own menu, taxonomy and term
-templates are overridden in `layouts/` for the same reason, since the policy
-belongs to this site, not to the theme. Verified by reverting a template to
-bare `.Permalink`/`$item.URL`: the check fails and names the file and place.
+`check-feed-contract.py` parses RSS and JSON Feed: every body reaches both
+feeds and the page, each card summary matches the publication description,
+embedded URLs are absolute, and audio MIME/byte length match the static file.
 
-The 404 contract check (T39) verifies `public/404.html` is Russian-titled
-(not Hugo's built-in English default), carries `robots: noindex`, and has
-no canonical link, Open Graph/Twitter tags, or JSON-LD — a not-found
-response must not claim publication identity for a URL that doesn't exist.
-It doesn't check the HTTP status itself; that's a property of the static
-host (Cloudflare Workers Static Assets `not_found_handling: "404-page"`,
-verified manually with `wrangler dev` — an unmapped path returns a real
-404, not 200).
+## Stable identity
 
-The schema.org contract check (T46) covers what a green validator does not:
-that each page carries *exactly* the nodes it should. `schema-contract.json`
-states them page by page — the expected block types in order, the section/tag
-list property and its member URLs, the breadcrumb trail, and the properties
-that must be present — so a publication quietly losing its `BlogPosting`, or a
-page growing a node nobody asked for, fails the check. The embedded list is
-also compared with the visible one: same links, same order.
+`check-uid-contract.py` checks that every publication `uid` is unique and
+well-formed, and that HTML `u-uid`, RSS `<guid isPermaLink="false">`, JSON
+Feed `id`, and JSON-LD `@id` all agree with it. Location URLs
+(`canonical` / `u-url` / `.Permalink`) stay separate — they follow the page
+address, not the durable id.
 
-Validity itself is checked against a committed copy of the schema.org
-vocabulary (`schema-org-vocabulary.json`, refreshed by
-`scripts/fetch-schema-vocabulary.py`, which is the only part that needs
-network access): every type and property must exist, every property must be
-allowed on the type it sits on, and every value must match the property's
-range, with site URLs additionally required in the canonical no-trailing-slash
-form. Verified by breaking each rule in turn — a dropped `headline`, an
-invented property name, `blogPost` on a `CollectionPage`, a list sorted the
-other way, a missing `BreadcrumbList`, an undescribed page, a trailing slash —
-each one fails and names the page and place.
+## Canonical URLs
 
-The rel=me contract check (T40) parses `data/links.yaml` for the full
-approved URL set and asserts it appears as `rel=me` — a head-only `<link>`
-or a visible `<a>`, never both for the same URL — on every representative
-page (home, section, detail), with no missing entries and no unapproved
-extras beyond the home page's own documented self rel=me.
+`check-url-contract.py` collects every internal address the build emits
+(HTML `href`/`src`, URL-bearing `<meta>`, `canonical`, `og:url`, MF2
+`u-url`, sitemap, RSS, JSON Feed, JSON-LD, `site.webmanifest`) and fails on
+any trailing slash outside the root. All representations of one page must be
+the same byte string. Templates get that form from
+`layouts/_partials/canonical-url.html`.
 
-The webmention contract check (T8, ADR
-`redesign-webmention-moderation-contract`) reads `data/webmentions.json` — the
-snapshot that is the only thing readers see — and asserts both halves of the
-contract. Stored entries may carry exactly the eight contract fields and
-nothing else: no avatar, no e-mail, no foreign markup in the author name or the
-text, a canonical no-trailing-slash target, absolute source URLs. Rendering is
-compared with the snapshot in both directions: every approved mention appears
-on its own page, no page grows a webmention section without one, and no image
-is rendered inside a section. Verified by breaking each rule in turn — a
-`<script>` in the text, an added `author_photo`, a target pointing at an
-unpublished page — each fails and names the entry.
+## 404 page
 
-Two scripts feed it, and neither runs during a build:
+`check-404-contract.py` verifies `public/404.html` is Russian-titled, carries
+`robots: noindex`, and has no canonical, Open Graph/Twitter, or JSON-LD —
+a not-found page must not claim publication identity. HTTP status itself is
+a host property (`not_found_handling: "404-page"` on Workers Static Assets).
+
+## schema.org
+
+`check-schema-contract.py` asserts each page carries exactly the nodes listed
+in `tests/fixtures/schema-contract.json` (types, list members, breadcrumbs,
+required properties), and that the embedded list matches the visible one.
+Validity is checked against the committed schema.org vocabulary
+(`tests/fixtures/schema-org-vocabulary.json`); refresh with
+`scripts/fetch-schema-vocabulary.py` (network).
+
+## rel=me
+
+`check-rel-me-contract.py` reads the approved URL set from `data/links.yaml`
+and asserts each appears as `rel=me` — a head `<link>` or a visible `<a>`,
+never both for the same URL — on representative pages, with no extras beyond
+the home page's own self link.
+
+## Webmentions
+
+`check-webmention-contract.py` reads `data/webmentions.json` (what readers
+see) and checks stored fields and rendering: no avatar, no e-mail, no foreign
+markup, canonical targets, absolute sources; every approved mention appears
+on its page and nowhere else invents a section.
+
+Fetch and moderation are manual, not part of the build:
 
 ```sh
-python3 scripts/fetch-webmentions.py     # webmention.io → tmp/webmentions-inbox.json
+python3 scripts/fetch-webmentions.py     # → tmp/webmentions-inbox.json
 python3 scripts/moderate-webmentions.py --approve wm-123
 python3 scripts/moderate-webmentions.py --remove wm-123
 python3 scripts/moderate-webmentions.py --deny-domain spam.example
-python3 scripts/send-webmentions.py --dry-run   # outbound, after a deploy
+python3 scripts/send-webmentions.py --dry-run
 ```
 
-`fetch` needs the network and the built `sitemap.xml` for its target list, and
-no credentials: it queries the public per-target JF2 endpoint. Everything it
-brings back lands in the gitignored inbox, so an unreviewed stranger's text is
-never committed. `send` reads the built site, skips `rel=nofollow` links (which
-is what keeps mention sources out of outbound notifications) and journals
-delivered pairs in `data/webmentions-sent.json` so reruns are cheap.
+`fetch` needs the network and built `sitemap.xml`; no credentials. Unreviewed
+entries stay in the gitignored inbox. `send` journals delivered pairs in
+`data/webmentions-sent.json`.
 
-The headers contract check (T72, ADR `redesign-headers-and-cache-contract`)
-reads `_headers` out of the build and compares every rule with the decision:
-the five security headers on `/*` byte for byte, the `Cache-Control` of each
-class, and the rule that `immutable` may appear only on content-addressed URLs.
-It also checks coverage in both directions — every built file falls into a
-class, and no rule sets `Cache-Control` on HTML, which must keep the platform
-default. Two structural traps are checked explicitly, because Cloudflare merges
-matching rules and joins repeated header names with a comma: `Cache-Control` on
-`/*` fails, and so does an HSTS header, which the ADR defers until after
-cutover.
+## Headers and cache
 
-With `--base-url` it additionally asks a running origin for one representative
-of each class and compares what is actually served:
+`check-headers-contract.py` reads `_headers` from the build and compares
+security headers, `Cache-Control` classes, and coverage (every built file
+falls into a class; HTML keeps the platform default; `immutable` only on
+content-addressed URLs). HSTS is not expected yet.
+
+With `--base-url` it also probes a running origin:
 
 ```sh
 npx wrangler dev --port 8791
 python3 scripts/check-headers-contract.py --base-url http://127.0.0.1:8791
 ```
 
-Verified by breaking each rule in turn — a changed `max-age`, `Cache-Control`
-added to `/*`, `immutable` given to the fonts, a deleted feed rule, HSTS added
-early — each fails and names the rule.
+## HTTP matrix
 
-The HTTP matrix check (T4) is different from the rest: it probes a *running*
-origin, because the URL form a host serves, the redirect it issues and the media
-types it attaches exist only there. The build directory can say what Hugo
-generated — that is `check-url-contract.py` — but not what Cloudflare answers.
+`check-http-matrix.py` probes a *running* origin — URL form, redirects, media
+types, and real 404s exist only there. Without `--base-url` it skips and
+exits 0 so the review gate can still invoke it.
 
 ```sh
 python3 scripts/check-http-matrix.py --base-url https://<preview-host>
 ```
 
-It asserts that the no-trailing-slash form answers `200`, that the slash form
-makes exactly one *permanent* redirect to it without a chain, that the address a
-page declares as its own `canonical` answers `200` rather than a redirect, that
-feeds, sitemap, robots, the manifest, `sw.js` and audio carry their expected
-media types, and that absent and legacy URLs (`/ru/...`, `/en`, `.amp`) return a
-real `404`. Every request carries a cache-buster: Cloudflare caches redirects,
-and a stale `307` made the first run of this look like the setting had not
-applied at all.
-
-Run without `--base-url` it prints a skip and exits `0`, so the review gate can
-run it alongside the build-directory checks.
-
 ## Lighthouse
 
-`scripts/run-lighthouse.py` is not part of the list above: it needs the
-network and a Chrome binary, and takes minutes. Run it deliberately, against
-a deployed origin:
+`scripts/run-lighthouse.py` is separate: it needs the network and Chrome, and
+takes minutes. Run it deliberately against a deployed origin:
 
 ```sh
-python3 scripts/run-lighthouse.py                      # preview, 5 pages × 2 form factors
-python3 scripts/run-lighthouse.py --fonts blocked      # with the font CDN blackholed
+python3 scripts/run-lighthouse.py
+python3 scripts/run-lighthouse.py --fonts blocked
 python3 scripts/run-lighthouse.py --base-url https://alexandr-sidorenko.me --indexable
 ```
 
-Reports land in `tmp/lighthouse/<UTC timestamp>/`, and the script prints a
-table plus every budget violation. It also fails when the run itself was
-collected wrong — snapshot mode, a mobile form factor without screen
-emulation, or a browser profile that let extensions in — because each of
-those silently invalidated the 8 August 2026 baseline. Findings and the
-reference numbers: `.ai/research/lighthouse-preview-baseline.md`.
+Reports land in `tmp/lighthouse/<UTC timestamp>/`.

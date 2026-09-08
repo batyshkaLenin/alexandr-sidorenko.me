@@ -1,15 +1,6 @@
 {{- /*
-Article Reader (§21). A magazine-ish text: an optional lead, the body, and a
-table of contents that sits to the right on a wide screen and folds into
-<details> on a narrow one (§21.2).
-
-The TOC is a contextual utility, not a persistent left sidebar — §47.5 rejected
-that outright: the document must begin naturally, not look nested inside a file
-manager.
-
-A short article has no TOC at all. "Short" is decided by the material itself:
-fewer than three headings means the reader can see the whole shape already, and
-a list of two links is furniture, not help.
+Article: optional lead, body, TOC (column on wide, <details> on narrow).
+TOC only when there are three or more headings.
 */ -}}
 {{ define "main" }}
 {{- $headings := len (findRE `<h[23]` .Content) -}}
@@ -22,12 +13,7 @@ a list of two links is furniture, not help.
     {{ partial "publication/audio-block.html" . }}
   </div>
   {{ if $toc }}
-  {{- /* Two shapes of the same list, because a disclosure cannot be forced
-  open by CSS: a wide screen has a column for the contents and shows them
-  outright, a narrow one folds them away so the article starts at the top
-  (§21.2). Only one is ever rendered — the other is display:none, which also
-  removes it from the accessibility tree, so a screen reader still meets a
-  single table of contents. */ -}}
+  {{- /* Two TOC shapes; CSS shows one. display:none removes the other from a11y. */ -}}
   <nav class="dc-toc dc-toc--column" aria-label="Содержание">
     <p class="dc-toc__title">toc/</p>
     {{ .TableOfContents }}

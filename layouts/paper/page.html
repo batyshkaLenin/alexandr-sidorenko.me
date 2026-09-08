@@ -1,15 +1,5 @@
 {{- /*
-Paper Reader (§22). Academic content looks academic: a title block, an abstract
-set apart, keywords, numbered sections, the body at a narrower measure, and the
-references at the end.
-
-§22.1 is a prohibition worth repeating: no `$ render equation.tex` around a
-formula, no terminal chrome anywhere in the work. The shell stays outside the
-publication.
-
-`abstract` and `keywords` are optional front matter. A paper that keeps its
-abstract inside the body — as the existing one does — simply renders without
-this block; the renderer never invents structure the material does not have.
+Paper: title, optional abstract/keywords, body. No shell chrome inside the work.
 */ -}}
 {{ define "main" }}
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-paper">

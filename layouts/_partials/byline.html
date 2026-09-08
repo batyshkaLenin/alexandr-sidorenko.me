@@ -3,13 +3,9 @@
   {{ $key := . }}
   {{ with index hugo.Data.authors $key }}
   {{ $author := . }}
-  {{/* An author without an address of its own stays a plain p-name: a u-url
-       pointing at the site root would tell a microformats parser that this is
-       where the author lives (T13). */}}
+  {{/* No url → plain p-name (do not point u-url at the site root). */}}
   <p class="byline p-author h-card">
-    {{/* A 32px caption icon used to be served as the full 1280x848 original —
-         116 KB for 1024 visible pixels (T66). Fixed box, so the ladder is just
-         1x and 2x and `sizes` is a constant. */}}
+    {{/* Avatar: fixed 32px box → 32/64 ladder, sizes=32px. */}}
     {{ with $author.avatar }}{{ partial "responsive-image.html" (dict
          "resource" (partial "image-resource.html" (dict "path" . "context" "data/authors.yaml"))
          "alt" ""

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build three copies of one real page that differ only in how fonts arrive (T69).
+"""Build three copies of one real page that differ only in how fonts arrive.
 
 The local measurement rig serves HTTP/1.1, and that quietly rigged the font
 comparison: Google's files sit on a second origin and therefore get their own
@@ -13,7 +13,7 @@ deployed to the preview and measured there:
 
     /perf/google.html    the current arrangement, fonts from fonts.googleapis.com
     /perf/selfhost.html  the same faces served from this origin
-    /perf/nofonts.html   no web fonts at all, the ADR's degradation path
+    /perf/nofonts.html   no web fonts at all (degradation path)
 
 Everything else is byte-identical: same body, same images, same stylesheets, one
 real publication page copied three times. `selfhost.html` carries the @font-face
@@ -104,7 +104,7 @@ def main() -> int:
     # google: exactly what the site ships today.
     (out / "google.html").write_text(html, encoding="utf-8")
 
-    # nofonts: the ADR's degradation path, no web fonts requested at all.
+    # nofonts: degradation path, no web fonts requested at all.
     stripped = GOOGLE_CSS.sub("", PRECONNECTS.sub("", html))
     (out / "nofonts.html").write_text(stripped, encoding="utf-8")
 

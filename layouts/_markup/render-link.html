@@ -1,22 +1,7 @@
 {{/*
-Site override of the theme's link hook. It keeps the theme's rule — a link
-leaving this host gets target="_blank" rel="noopener" so a new tab cannot reach
-back through window.opener — and adds one thing the theme cannot know about:
-where this site's photographs actually live.
-
-Several publications link a photograph rather than embedding it ("в батиной
-странной шапке"). Those addresses used to resolve because the file sat in
-`static/` and was published verbatim. Since T66 the pipeline publishes resized
-derivatives and never the source, so a bare `/assets/…/x.jpg` href would now
-be a 404 — the one place where moving images out of `static/` really does break
-an address rather than merely rename it.
-
-The link is pointed at the widest derivative the body ladder already builds, so
-following it costs no additional file for an image the page also shows. A
-link-only photograph gets that one derivative built for it.
-
-Audio is untouched: `.mp3` keeps its verbatim `static/` address, which the feed
-enclosure contract depends on.
+Link hook: external → target=_blank rel=noopener.
+/assets/… images resolve to the widest pipeline derivative (sources are not published).
+Audio paths stay verbatim under static/.
 */}}
 {{ $dest := .Destination }}
 {{ $destHost := (urls.Parse $dest).Host }}
@@ -27,9 +12,7 @@ enclosure contract depends on.
   {{ $width := cond (lt $resource.Width 1140) $resource.Width 1140 }}
   {{ $dest = ($resource.Process (printf "resize %dx webp" $width)).RelPermalink }}
 {{ end }}
-{{- /* No stray newlines around the anchor: a line break here renders as a
-space, and the punctuation that follows a link ends up detached from it —
-"…шапке ." instead of "…шапке." (found in T124). */ -}}
+{{- /* No whitespace around the anchor — avoids "word ." after links. */ -}}
 {{- if $external -}}
 <a href="{{ $dest | safeURL }}" target="_blank" rel="noopener"{{ with .Title }} title="{{ . }}"{{ end }}>{{ .Text | safeHTML }}</a>
 {{- else -}}

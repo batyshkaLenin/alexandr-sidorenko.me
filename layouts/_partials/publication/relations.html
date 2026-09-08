@@ -1,24 +1,6 @@
 {{- /*
-`relations/` — a material's own declared connections, both ways (T143).
-
-§6.6 defers the graph itself but keeps `Related`, `References`, `Part of` as
-its no-JS replacement, and §37.4 draws the line this partial exists to keep:
-what a material links to and what links back to it are relations
-(data/relation_types.yaml, T109); what a stranger's site said about it is a
-response (publication/webmentions.html, T141). The two never share a heading,
-a group label or a class here.
-
-Outgoing relations come straight from front matter. Backlinks — other
-materials in the library whose own `relations` name this one by `id` — are
-found by scanning the library at build time (§45.1), never in the browser.
-Both directions resolve a target by Material ID (ADR
-redesign-material-identity-and-routing), so a `slug` rename cannot break a
-relation the way a path-based link would.
-
-Grouped by relation type for a "understand at a glance" reading, and drawn
-only when there is something to show: a material with no outgoing relations
-and no backlinks renders nothing, same as publication/webmentions.html with
-nothing approved.
+`relations/` — outgoing front matter + build-time backlinks by material id.
+Separate from webmentions. Types from data/relation_types.yaml. Omit if empty.
 */ -}}
 {{- $page := . -}}
 {{- $ownID := $page.Params.id -}}

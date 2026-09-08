@@ -2,12 +2,11 @@ baseURL = 'https://alexandr-sidorenko.me/'
 locale = 'ru-RU'
 # Hugo's i18n bundle selection (theme UI strings) follows this key, not
 # `locale` — without it the theme's Russian i18n/ru.yaml is never picked and
-# English theme strings leak through despite the site being Russian-only
-# (audit finding A16, confirmed while wiring the theme in T26).
+# English theme strings leak through despite the site being Russian-only.
 defaultContentLanguage = 'ru'
 title = 'Александр Сидоренко'
-# Literal range, never a computed year (audit-only A05): a static page must not
-# claim a year the build happened to run in.
+# Literal range, never a computed year: a static page must not claim a year
+# the build happened to run in.
 copyright = '© 2020–2026 · Александр Сидоренко'
 enableGitInfo = true
 enableEmoji = false
@@ -21,10 +20,9 @@ theme = 'declassified'
   # stringifies them to the path, which would turn the repo into `/`.
   github_repo = 'batyshkaLenin/alexandr-sidorenko.me'
 
-# Home and Library are the whole of the navigation (content-model ADR).
-# Names are lowercase English because the menu is shell, not document: the
-# design system splits the two layers deliberately (§2.3, §18.5). Titles of
-# the pages themselves stay Russian.
+# Home and Library are the whole of the navigation.
+# Names are lowercase English because the menu is shell, not document.
+# Titles of the pages themselves stay Russian.
 [[menus.main]]
   name = 'home'
   pageRef = '/'
@@ -38,8 +36,8 @@ theme = 'declassified'
 [taxonomies]
   tag = 'tags'
 
-# Topics is a secondary, cross-cutting view inside the Library, same as Types
-# (§38): its address should read that way too, not sit at the top level.
+# Topics is a secondary, cross-cutting view inside the Library, same as Types:
+# its address should read that way too, not sit at the top level.
 [permalinks.taxonomy]
   tags = '/library/topics/'
 [permalinks.term]
@@ -48,8 +46,7 @@ theme = 'declassified'
 # Explicit front-matter lastmod wins; git commit date is only a fallback
 # when a page has none. Without this, enableGitInfo makes Hugo prefer
 # :git over front matter, silently overriding real lastmod values with
-# commit dates — the exact "sitemap lastmod tied to build" bug the
-# migration is meant to fix (01-current-site-audit.md §7).
+# commit dates.
 [frontmatter]
   lastmod = ['lastmod', ':git', ':default']
 
@@ -59,7 +56,7 @@ theme = 'declassified'
   page = ['html']
   taxonomy = ['html']
   # A topic is a real address someone can follow, so it carries feeds like any
-  # other list of materials (§38, T142). Types get theirs per page, declared in
+  # other list of materials. Types get theirs per page, declared in
   # content/types/*.md, because they are pages rather than a taxonomy.
   term = ['html', 'rss', 'jsonfeed']
 
@@ -83,7 +80,7 @@ theme = 'declassified'
   isPlainText = true
   rel = 'alternate'
 
-# /llms.txt (T67). Markdown body served as text/plain, which is what the
+# /llms.txt. Markdown body served as text/plain, which is what the
 # convention asks for and what a reader gets when they open it in a browser.
 # Home only: the file is one map of the whole site, not a per-section feed.
 [outputFormats.llms]
@@ -91,8 +88,8 @@ theme = 'declassified'
   baseName = 'llms'
   isPlainText = true
 
-# /search-index.json (T134): what the theme's search palette searches. Home
-# only — one index for the whole site, built with it (§45.1) rather than
+# /search-index.json: what the theme's search palette searches. Home
+# only — one index for the whole site, built with it rather than
 # assembled in the browser.
 [outputFormats.searchindex]
   mediaType = 'application/json'
@@ -100,7 +97,7 @@ theme = 'declassified'
   isPlainText = true
   notAlternative = true
 
-# /_redirects (T144): the identity resolver plus the canonical-slash rule.
+# /_redirects: the identity resolver plus the canonical-slash rule.
 # Generated rather than kept in static/, because one rule per material has to
 # follow the materials.
 [outputFormats.redirects]
@@ -112,12 +109,12 @@ theme = 'declassified'
 [minify]
   disableXML = true
 
-# Every published photograph is a resized derivative, never the source file
-# (T66). Lanczos is the sharpest of Hugo's resample filters and the extra build
+# Every published photograph is a resized derivative, never the source file.
+# Lanczos is the sharpest of Hugo's resample filters and the extra build
 # time is irrelevant for nine images.
 #
-# `exif.disableLatLong` is belt-and-braces: T73 already stripped the camera
-# metadata from the sources, and Hugo's derivatives carry none of it anyway,
+# `exif.disableLatLong` is belt-and-braces: camera metadata is already stripped
+# from the sources, and Hugo's derivatives carry none of it anyway,
 # but nothing here should be able to read a coordinate back out of a source
 # that some future commit adds without running the stripper.
 [imaging]
@@ -139,22 +136,21 @@ theme = 'declassified'
 
 # An image alone on its line is a figure, and a <figure> inside a <p> is markup
 # no parser accepts: the browser closes the paragraph early and leaves an empty
-# one behind. Off, the hook receives .IsBlock = true and owns the block itself
-# (T129).
+# one behind. Off, the hook receives .IsBlock = true and owns the block itself.
 [markup.goldmark.parser]
   wrapStandAloneImageWithinParagraph = false
 
 # Chroma emits classes instead of inline style attributes. The default
 # (noClasses = true) would put a style="" on every token and force
-# 'unsafe-inline' into style-src — a wider CSP hole than the fonts
-# (ADR redesign-external-resources-contract, п.3). Colors live in site.css.
+# 'unsafe-inline' into style-src — a wider CSP hole than the fonts.
+# Colors live in site.css.
 [markup.highlight]
   noClasses = false
   lineNumbersInTable = false
 
-# Math is rendered at build time (§29.2, §44.7): goldmark hands the delimited
+# Math is rendered at build time: goldmark hands the delimited
 # source through untouched, and `layouts/_markup/render-passthrough.html` turns
-# it into MathML. No client-side renderer is involved (T60).
+# it into MathML. No client-side renderer is involved.
 [markup.goldmark.extensions.passthrough]
   enable = true
   [markup.goldmark.extensions.passthrough.delimiters]

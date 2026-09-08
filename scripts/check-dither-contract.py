@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify that the dithered derivatives match their sources (T129, §30).
+"""Verify that the dithered derivatives match their sources.
 
     python3 scripts/check-dither-contract.py [--public-dir public]
 

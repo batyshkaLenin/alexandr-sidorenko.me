@@ -1,32 +1,7 @@
 {{- /*
-`responses/` — what came back to this publication, and how to answer it (§37).
-
-A Webmention is a transport, not a comment section (§37.1): a reply, a mention
-and a like are three different things and are shown as three, never as one list
-called «Комментарии». Replies carry text and get entries; mentions say that
-someone linked here; likes, reposts and bookmarks are names, and past a handful
-they collapse into a count so that social noise cannot outweigh the publication
-(§37.3).
-
-The source of truth is data/webmentions.json, written only by
-scripts/moderate-webmentions.py: what sits in that file is exactly what a reader
-sees, and removing a mention means taking it out and rebuilding. No avatars —
-the contract stores neither the image nor a link to it, and hotlinking a
-stranger's photo would put back the third-party origin the fonts decision
-removed (ADR redesign-webmention-moderation-contract).
-
-There is no comment form, because there is nothing behind one (§37.5). What is
-offered instead is honest: answer on your own site and send a Webmention, and
-take the permalink. The address is written out as a link, so it works without
-JavaScript; <dc-copy> adds a copy button when it can.
-
-§37.5 also suggests an e-mail address as a third action. There is none here:
-the owner decided on 17 August 2026 not to publish one, and an action nobody
-can perform is exactly what that section warns against.
-
-The block itself is always here — the invitation is useful on a publication
-nobody has answered yet — but nothing empty is drawn: with no approved mentions
-there are no lists, no headings and no counts.
+`responses/` from data/webmentions.json (moderated offline). Replies / mentions /
+reactions shown separately; many reactions collapse to a count. No avatars.
+Invite to reply via Webmention + permalink; no comment form.
 */ -}}
 {{- $permalink := partial "canonical-url.html" .Permalink -}}
 {{- $mentions := where (default (slice) hugo.Data.webmentions.mentions) "target" $permalink -}}
@@ -63,9 +38,7 @@ there are no lists, no headings and no counts.
         {{- end }}
       </p>
       {{- with .content_text }}
-      {{- /* The excerpt is short on purpose (§37.6): a response is quoted to be
-      recognised, not reprinted here in full. The stored text carries no markup —
-      the importer strips it — so truncation cannot break a tag. */ -}}
+      {{- /* Short plain-text excerpt; importer strips markup. */ -}}
       <p class="dc-responses__text p-content">{{ . | truncate 280 "…" }}</p>
       {{- end }}
     </li>
@@ -94,8 +67,7 @@ there are no lists, no headings and no counts.
   {{- with $reactions }}
   <h3 class="dc-responses__group">{{ i18n "responsesGroupReactions" }}</h3>
   {{- if gt (len .) $reactionNames }}
-  {{- /* A crowd is a number: the names would fill the page and say less than
-  the count does (§37.3). */ -}}
+  {{- /* Many reactions: show the count, not every name. */ -}}
   <p class="dc-responses__reactions" data-response="reactions">{{ i18n "responsesReactions" (len .) }}</p>
   {{- else }}
   <p class="dc-responses__reactions" data-response="reactions">

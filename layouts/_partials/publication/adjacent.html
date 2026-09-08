@@ -1,11 +1,6 @@
 {{- /*
-Moves between neighbours inside one section (T55). Neighbours come from the
-section's own list order (.Pages.ByDate.Reverse, the same collection
-section.html renders) rather than .PrevInSection/.NextInSection: those follow
-Hugo's default page order, which puts two entries sharing a date in a
-different sequence than the visible list, and "следующая" would then lead
-somewhere the reader did not expect. A missing side renders nothing at all —
-a dead or empty control is worse than no control.
+Prev/next from .Pages.ByDate.Reverse (same order as the section list).
+Omit a side when missing — do not use .PrevInSection/.NextInSection.
 */ -}}
 {{- $current := . -}}
 {{- with .Parent -}}

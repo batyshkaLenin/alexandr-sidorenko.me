@@ -129,33 +129,6 @@
       }
     ]
   },
-  "/assets/library/humility-and-open-mindedness/man-with-gun.jpg": {
-    "source": "135132dcf01e9568",
-    "family": "amber",
-    "kind": "photo",
-    "variants": [
-      {
-        "width": 400,
-        "height": 300,
-        "path": "assets/library/humility-and-open-mindedness/man-with-gun.dither-400.135132dcf01e9568.png"
-      },
-      {
-        "width": 600,
-        "height": 450,
-        "path": "assets/library/humility-and-open-mindedness/man-with-gun.dither-600.135132dcf01e9568.png"
-      },
-      {
-        "width": 800,
-        "height": 600,
-        "path": "assets/library/humility-and-open-mindedness/man-with-gun.dither-800.135132dcf01e9568.png"
-      },
-      {
-        "width": 1200,
-        "height": 900,
-        "path": "assets/library/humility-and-open-mindedness/man-with-gun.dither-1200.135132dcf01e9568.png"
-      }
-    ]
-  },
   "/assets/library/philosophy-of-freedom/lenin.jpg": {
     "source": "9de212c3dd70f771",
     "family": "sky",
@@ -238,24 +211,24 @@
     ]
   },
   "/avatar.jpg": {
-    "source": "0d11c07de6221a0a",
+    "source": "0553ca95b7561c82",
     "family": "amber",
     "kind": "photo",
     "variants": [
       {
         "width": 320,
         "height": 320,
-        "path": "avatar.dither-320.0d11c07de6221a0a.png"
+        "path": "avatar.dither-320.0553ca95b7561c82.png"
       },
       {
         "width": 640,
         "height": 640,
-        "path": "avatar.dither-640.0d11c07de6221a0a.png"
+        "path": "avatar.dither-640.0553ca95b7561c82.png"
       },
       {
         "width": 848,
         "height": 848,
-        "path": "avatar.dither-848.0d11c07de6221a0a.png"
+        "path": "avatar.dither-848.0553ca95b7561c82.png"
       }
     ]
   }

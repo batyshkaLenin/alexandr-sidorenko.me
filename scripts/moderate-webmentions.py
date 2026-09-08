@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""Approve, remove or block incoming Webmentions (T8).
+"""Approve, remove or block incoming Webmentions.
 
 Approving moves an entry from the gitignored inbox into
 `data/webmentions.json`, the snapshot Hugo reads: what is in that file is
 exactly what the site publishes, so a removal request is served by taking the
 entry back out and rebuilding. Nothing here needs the network.
-
-See ADR `redesign-webmention-moderation-contract`.
 """
 
 from __future__ import annotations

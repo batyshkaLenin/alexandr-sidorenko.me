@@ -1,22 +1,13 @@
 {{- /*
-A figure that needs more than Markdown can say (§27.1): a credit for the
-photograph, or an address the credit points at. Everything else is the same
-block `![alt](src "caption")` produces — same ladder, same dithering, same link
-to the original — because both go through `publication/figure.html`.
+Figure shortcode with optional credit — same pipeline as Markdown images.
 
-Parameters, named:
-  src        — site-absolute address of the image;
-  alt        — alternative text; empty for a decorative image (§44.5);
-  caption    — optional caption;
-  source     — optional credit;
-  source_url — optional address for the credit.
+Parameters: src, alt, caption?, source?, source_url?
 */ -}}
 {{- $src := .Get "src" -}}
 {{- if not $src -}}
   {{- errorf "%s: figure shortcode needs a src" .Page.File.Path -}}
 {{- end -}}
-{{- /* Inside a gallery the picture gets a column, not the whole measure, so it
-       asks the browser for a file that size (§27.2). */ -}}
+{{- /* Gallery children request a column-sized image. */ -}}
 {{- $inGallery := and .Parent (eq .Parent.Name "gallery") -}}
 {{- partial "publication/figure.html" (dict
       "page" .Page

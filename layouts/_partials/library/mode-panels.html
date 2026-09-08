@@ -1,12 +1,7 @@
 {{- /*
-The two modes of All (§6.3, §9.3): the same materials as a list and as an index
-table. Both ship in the markup and the inactive one is `hidden`, so a page
-without JavaScript shows exactly one of them and <dc-modes> can swap them in
-place with the address following along (T136).
+All modes: list + table panels (inactive is hidden). <dc-modes> swaps in place.
 
-Call with a dict:
-  materials — the pages to show
-  mode      — which one this address is: "list" or "table"
+Call: materials, mode ("list" | "table")
 */ -}}
 {{- $materials := .materials -}}
 {{- $mode := .mode -}}
@@ -27,9 +22,7 @@ Call with a dict:
     </ul>
   </div>
 
-  {{- /* Index mode (§9.3): TITLE first, then TYPE, DATE, SIZE. The date may
-  sort the list without leading it — hierarchy is not obliged to repeat the
-  sorting criterion. */ -}}
+  {{- /* Table: TITLE, TYPE, DATE, SIZE. */ -}}
   <div data-mode-panel="table"{{ if ne $mode "table" }} hidden{{ end }}>
     <div class="dc-table-scroll">
       <table class="dc-table">

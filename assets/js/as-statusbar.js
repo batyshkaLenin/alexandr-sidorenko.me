@@ -1,30 +1,12 @@
-/*
-<as-statusbar> — the mode line at the bottom of the shell (§13).
-
-Site-owned: the theme's components announce themselves with bubbling events and
-know nothing about this bar, and the bar is this site's composition. Hence
-`as-`, not `dc-`.
-
-Two jobs.
-
-1. Keyboard hints. §13.4 draws the line: what is true without JavaScript is
-   printed by the template, and what exists only with it — the shortcut list —
-   is added here and disappears with it. Only the keys that actually work on
-   this page are listed, so the bar advertises what the page has rather than
-   what the design system can do: the hints are assembled from the components
-   the page actually printed.
-
-2. The mode. While the palette is open the mode reads SEARCH, with the keys the
-   palette itself offers; closing restores what the page shipped with. When a
-   view switches in place (`dc-modes:change`), the mode the page "shipped with"
-   changes too — otherwise the bar would keep announcing the view the reader
-   just left.
-
-On a page whose template printed no bar — Home, where nothing static is worth a
-row — the bar is created here, because with a keyboard attached `NORMAL` plus
-its hints is no longer decoration. It is fixed to the bottom and the page
-reserves its height at the end of the document, so nothing above it moves.
-*/
+/**
+ * <as-statusbar> — bottom mode line: mode label and keyboard hints.
+ *
+ * Attrs: modes (JSON mode→label), mode-default, mode-search, keys-list,
+ * keys-search, keys-prompt, keys-image, keys-help, keys-palette.
+ * Events: dc-command-palette:open|close, dc-modes:change.
+ * Hints only list components present on the page. Creates the bar when
+ * the template omitted it and mode-default is set.
+ */
 "use strict";
 
 class AsStatusbar extends HTMLElement {
@@ -67,9 +49,6 @@ class AsStatusbar extends HTMLElement {
     if (this.mode.textContent !== this.getAttribute("mode-search")) this.mode.textContent = name;
   }
 
-  /* Only for a page the template left without a bar: `mode-default` is the
-     word for "nothing particular is happening", which is exactly the state
-     that says nothing at all until a keyboard is present. */
   create() {
     const mode = this.getAttribute("mode-default");
     if (!mode) return null;
@@ -84,7 +63,6 @@ class AsStatusbar extends HTMLElement {
     return bar;
   }
 
-  /* What the page can actually do, asked of the page rather than assumed. */
   hints() {
     const parts = [
       document.querySelector("dc-listnav") && this.getAttribute("keys-list"),

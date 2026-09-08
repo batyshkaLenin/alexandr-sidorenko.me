@@ -1,17 +1,11 @@
-{{- /*
-Site override of the theme's header partial: identical markup, but menu hrefs
-go through canonical-url.html so the site emits a single URL form (T56).
-The no-trailing-slash policy is this site's ADR, not a theme concern.
-*/ -}}
+{{- /* Header: menu hrefs via canonical-url.html (no trailing slash). */ -}}
 <header class="dc-header">
   <div class="dc-topbar">
     {{ partial "declassified/hooks/header-extra.html" . }}
   </div>
   {{ with .Site.Menus.main }}
   {{ partial "declassified/component.html" "dc-keynav" }}
-  {{- /* Esc leads to the parent section; the address goes through
-  canonical-url.html like every other link on this site, so the shortcut lands
-  on the single URL form the no-trailing-slash ADR allows (T56). */ -}}
+  {{- /* Esc → parent; URL via canonical-url.html. */ -}}
   <dc-keynav{{ with $.Parent }} parent-url="{{ partial "canonical-url.html" .RelPermalink }}"{{ end }}>
   <nav class="dc-nav" aria-label="{{ $.Site.Title }}">
     <ul class="dc-nav__list">
@@ -25,9 +19,7 @@ The no-trailing-slash policy is this site's ADR, not a theme concern.
       </li>
       {{ end }}
     </ul>
-    {{- /* Hidden until <dc-keynav> attaches the key handler: the hint must not
-    promise behaviour that never arrives (T54). It sits inside the nav row, so
-    revealing it does not change the row's height. */ -}}
+    {{- /* Key hint stays hidden until <dc-keynav> attaches; same row height. */ -}}
     <p class="dc-nav__hint" data-keynav-hint hidden>{{ i18n "navKeysHint" }}</p>
   </nav>
   </dc-keynav>

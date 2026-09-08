@@ -40,7 +40,6 @@
         "urls": [
           "https://alexandr-sidorenko.me/library/regular-visitor",
           "https://alexandr-sidorenko.me/library/23",
-          "https://alexandr-sidorenko.me/library/humility-and-open-mindedness",
           "https://alexandr-sidorenko.me/library/skver",
           "https://alexandr-sidorenko.me/library/bluredu-new-teachers",
           "https://alexandr-sidorenko.me/library/philosophy-of-freedom"
@@ -238,47 +237,6 @@
         [
           "23",
           "https://alexandr-sidorenko.me/library/23"
-        ]
-      ],
-      "author": {
-        "@id": "https://alexandr-sidorenko.me/#batyshkaLenin",
-        "@type": "Person",
-        "name": "Александр Сидоренко",
-        "url": "https://alexandr-sidorenko.me/"
-      }
-    },
-    {
-      "html": "library/humility-and-open-mindedness/index.html",
-      "blocks": [
-        "CreativeWork",
-        "BreadcrumbList"
-      ],
-      "name": "Смирение и непредвзятость",
-      "url": "https://alexandr-sidorenko.me/library/humility-and-open-mindedness",
-      "id": "https://alexandr-sidorenko.me/id/01a00aea-44dc-74e0-8834-895ef7a6c708",
-      "required_properties": [
-        "@id",
-        "@type",
-        "author",
-        "datePublished",
-        "description",
-        "headline",
-        "mainEntityOfPage",
-        "name",
-        "url"
-      ],
-      "breadcrumb": [
-        [
-          "Александр Сидоренко",
-          "https://alexandr-sidorenko.me/"
-        ],
-        [
-          "Библиотека",
-          "https://alexandr-sidorenko.me/library"
-        ],
-        [
-          "Смирение и непредвзятость",
-          "https://alexandr-sidorenko.me/library/humility-and-open-mindedness"
         ]
       ],
       "author": {
@@ -603,40 +561,6 @@
         [
           "Стихи",
           "https://alexandr-sidorenko.me/library/types/poem"
-        ]
-      ]
-    },
-    {
-      "html": "library/types/poetry-collection/index.html",
-      "blocks": [
-        "CollectionPage",
-        "BreadcrumbList"
-      ],
-      "name": "Подборки стихов",
-      "url": "https://alexandr-sidorenko.me/library/types/poetry-collection",
-      "required_properties": [
-        "description",
-        "name",
-        "url",
-        "hasPart"
-      ],
-      "list": {
-        "property": "hasPart",
-        "item_type": [
-          "CreativeWork"
-        ],
-        "urls": [
-          "https://alexandr-sidorenko.me/library/humility-and-open-mindedness"
-        ]
-      },
-      "breadcrumb": [
-        [
-          "Александр Сидоренко",
-          "https://alexandr-sidorenko.me/"
-        ],
-        [
-          "Подборки стихов",
-          "https://alexandr-sidorenko.me/library/types/poetry-collection"
         ]
       ]
     },

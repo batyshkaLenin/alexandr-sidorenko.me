@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Verify the built Home activity pane and site-provenance contract (T138, T149, T147).
+"""Verify the built Home activity pane and site-provenance fields.
 
 The pane is three modules in a fixed order: what was listened to, what was
-coded, what was deployed. Each disappears with its data (§16.2), so the check
+coded, what was deployed. Each disappears with its data, so the check
 takes the expected set as an argument rather than assuming all three.
 
 The `dev` module has one rule of its own worth asserting: XP is never printed.
 The page shows weekly hours and seven bars, and the numbers behind the bars stay
-in the importer (ADR redesign-activity-dev-module).
+in the importer.
 
-T147 ownership on Home: neofetch carries `uptime` and `source` (repo URL, never
+On Home: neofetch carries `uptime` and `source` (repo URL, never
 a commit hash); activity/site carries a linked `revision` and build metadata,
 never the repo string as a field; Recent shows primary RSS; `# since:` and
 `main@` stay off the page.

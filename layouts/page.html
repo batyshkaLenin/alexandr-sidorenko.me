@@ -1,17 +1,6 @@
 {{- /*
-The publication foundation (§5). Every renderer family inherits this frame and
-changes only what it must; this file is also the fallback for a material whose
-type has no renderer of its own yet — a new type renders as readable text
-instead of failing the build.
-
-Hugo picks the renderer by the material's `type`: a file at
-layouts/<type>/page.html applies to exactly that type and nothing else, so the
-selection needs no branching here and never looks at the source path (T106
-confirmed this by experiment). Renderer names stay internal — nothing on the
-page says "Article Reader" (§5.2).
-
-The pane title is the material's file, because the command and the way back
-already live in the Application Bar (§12, §14.2).
+Publication fallback frame. Typed layouts live at layouts/<type>/page.html.
+Pane label is the material's filename.
 */ -}}
 {{ define "main" }}
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry">

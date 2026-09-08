@@ -1,8 +1,4 @@
-{{- /*
-Returns a BreadcrumbList for any page below the home page: the trail comes from
-.Ancestors, so it follows the real content tree instead of a hand-written path.
-Every "item" is an absolute URL in the site's canonical form (T56).
-*/ -}}
+{{- /* BreadcrumbList from .Ancestors; URLs via canonical-url.html. */ -}}
 {{- /* A Library view lives at /library/<view> but its source sits in a folder
 that is never rendered: that folder is not a step of the trail, and the library
 itself is. Ancestors without an address are dropped for the same reason — a

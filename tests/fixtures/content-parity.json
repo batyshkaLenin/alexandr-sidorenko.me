@@ -2,15 +2,10 @@
   "schema": "content-parity/v1",
   "fixture_classes": [
     "poem",
-    "poetry",
     "lyrics",
     "prose-link-list",
     "bibliography",
     "prose-soft-wrap"
-  ],
-  "required_skver_provenance": [
-    "URL больше не публикуется и не перенаправляется",
-    "tmp/old_project/_content/creativity/en/skver.md"
   ],
   "publications": [
     {
@@ -24,19 +19,6 @@
       "source_hard_breaks": 53,
       "html_breaks": 53,
       "feed_breaks": 53
-    },
-    {
-      "id": "library/humility-and-open-mindedness",
-      "fixture_class": "poetry",
-      "legacy_source": "tmp/old_project/_content/creativity/ru/humility-and-open-mindedness.md",
-      "current_source": "content/library/humility-and-open-mindedness.md",
-      "html": "library/humility-and-open-mindedness/index.html",
-      "url_path": "/library/humility-and-open-mindedness",
-      "normalized_sha256": "8bccebe2cd26ff78e39acfc529c1903c6a826fb0c2ea04b5204d0f6be9869c67",
-      "source_hard_breaks": 58,
-      "html_breaks": 58,
-      "feed_breaks": 58,
-      "redacted_from_legacy": "S17: вымарка humility-01 (П2) убрала из тела сочетание условий; тело намеренно не совпадает со старым сайтом."
     },
     {
       "id": "library/regular-visitor",
@@ -85,7 +67,7 @@
       "source_hard_breaks": 0,
       "html_breaks": 0,
       "feed_breaks": 0,
-      "redacted_from_legacy": "S17: вымарка skver-01 по поводу П1 убрала из тела инструмент употребления; тело намеренно не совпадает со старым сайтом."
+      "redacted_from_legacy": "тело намеренно не совпадает со старым сайтом: вымарка убрала из текста инструмент употребления"
     }
   ]
 }

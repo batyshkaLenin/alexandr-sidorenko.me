@@ -1,11 +1,6 @@
 {{- /*
-A Library view (§6.2). Recent lives on /library itself; All and Types are their
-own addresses, because a view a visitor can link to is worth an address — and
-because switching them without JavaScript means following a link.
-
-The view chooses the density: All is for scanning (dense), Types groups the
-same rows under headings. Neither invents its own row markup — both call
-MaterialRow.
+Library view page. Recent is /library; other views have their own URLs.
+Density/grouping varies; rows come from MaterialRow.
 */ -}}
 {{ define "main" }}
 {{ $materials := where site.RegularPages "Section" "library" }}
@@ -19,9 +14,7 @@ MaterialRow.
       {{ partial "declassified/component.html" "dc-listnav" }}
       <dc-listnav>
       {{ if eq .Params.view "music" }}
-        {{- /* Music Library (§26.1, direction C): a local library, not a
-        release page — a list with the current state, and no buttons for
-        services this material does not have. */ -}}
+        {{- /* Music: local track list only. */ -}}
         {{ $tracks := where $materials "Params.type" "track" }}
         <ul class="dc-material-list dc-music-list h-feed">
           {{ range $tracks.ByDate.Reverse }}
@@ -31,10 +24,7 @@ MaterialRow.
           {{ end }}
         </ul>
       {{ else if eq .Params.view "timeline" }}
-        {{- /* Timeline T2 (§10): the year is a large grouping label, the date
-        lives on the left rail and is not repeated in the row's metadata, and
-        the title stays the most prominent text. Every type flows together —
-        this is the human-facing counterpart of the full feed (§6.5). */ -}}
+        {{- /* Timeline: year groups, date on the rail, title first. */ -}}
         {{ range $materials.GroupByDate "2006" }}
         <section class="dc-timeline">
           <h2 class="dc-timeline__year">{{ .Key }}</h2>
@@ -66,8 +56,7 @@ MaterialRow.
         {{ range $materials.GroupByParam "type" }}
         {{ $type := .Key }}
         {{ $group := .Pages }}
-        {{- /* Each group is a link to that type's own address, which is also
-        where its feeds live (T142). */ -}}
+        {{- /* Group heading links to that type's page (and its feeds). */ -}}
         <h2 class="dc-library__group">
           <a href="{{ partial "canonical-url.html" (printf "/library/types/%s" $type | relLangURL) }}">
             {{ partial "library/type-badge.html" (dict "page" (index $group 0) "plural" true) }}
@@ -81,9 +70,7 @@ MaterialRow.
         </ul>
         {{ end }}
       {{ else }}
-        {{- /* list ↔ table is a mode of All, not a section of its own (§6.3):
-        both panels ship here and <dc-modes> swaps them, while the two
-        addresses stay real for a reader without JavaScript. */ -}}
+        {{- /* All: list/table modes both in markup; <dc-modes> swaps them. */ -}}
         {{ partial "library/mode-panels.html" (dict "materials" $materials "mode" "list") }}
       {{ end }}
       </dc-listnav>

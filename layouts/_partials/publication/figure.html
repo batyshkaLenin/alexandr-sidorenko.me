@@ -1,24 +1,9 @@
 {{- /*
-One figure, whichever way a publication asks for it (§27.1): the image, its
-caption, its source, and the link to the full-colour original. The Markdown
-hook (`layouts/_markup/render-image.html`) and the `figure` shortcode both come
-here, so a picture written as `![…](…)` and one that needs a credit line are
-the same block with the same rules.
-
-Nothing is drawn over the image — §27.1 is explicit about that, and it is why
-the caption line lives under it even when there is no caption: the link to the
-original has to have a predictable place.
+Figure shared by Markdown images and the figure shortcode.
 
 Call with a dict:
-  page      — the page the image belongs to
-  src       — site-absolute address, or an external URL
-  alt       — alternative text (empty for a decorative image, §44.5)
-  caption   — optional caption
-  source    — optional credit ("Фото: …", a publication, an archive)
-  sourceURL — optional address the credit points at
-  ordinal   — position of the image in the body; 0 is the one that can be LCP
-  sizes     — optional `sizes` override, for an image that does not get the
-              full measure (a gallery column)
+  page, src, alt, caption?, source?, sourceURL?, ordinal?, sizes?
+  ordinal 0 = possible LCP (eager); empty alt = decorative
 */ -}}
 {{- $page := .page -}}
 {{- $src := .src -}}
@@ -30,13 +15,8 @@ Call with a dict:
 {{- $context := $page.File.Path -}}
 {{- $external := or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "//") -}}
 {{- /*
-The first body image is the one that can be the LCP element on a wide screen,
-and lazy loading hides it from the preload scanner until layout is done (T64).
-Every later image keeps deferring — they are below the fold by construction.
-
-Rendered content is cached and reused for .Summary in lists, so the attribute
-cannot depend on which page is being written out — that would make the same
-image eager or lazy depending on build order.
+First body image (ordinal 0) is eager for LCP; later ones lazy.
+Attribute must not depend on the rendering page — content is cached.
 */ -}}
 {{- $loading := cond (eq $ordinal 0) `fetchpriority="high"` `loading="lazy"` | safeHTMLAttr -}}
 {{- /*
@@ -68,16 +48,8 @@ The ladder is the common recommendation for a 700-800px article column —
   {{- end -}}
   {{- $resource := partial "image-resource.html" (dict "path" $src "context" $context) -}}
   {{- /*
-  `image_style` (§30.4) is declared once per material and governs its images:
-
-    auto     — dither photographs, leave graphics as they are (§30.3)
-    dither   — dither everything, including what looks like a diagram
-    original — publish the photographs themselves
-
-  `auto` needs no hand-labelling: scripts/dither-images.py measures how flat
-  each image's colour field is and records `photo` or `graphic` in
-  data/dither.json. An image the measurement gets wrong is what the other two
-  values are for.
+  Params.image_style: auto | dither | original
+  auto uses photo/graphic from data/dither.json (scripts/dither-images.py).
   */ -}}
   {{- $style := default "auto" $page.Params.image_style -}}
   {{- if not (in (slice "auto" "dither" "original") $style) -}}
@@ -112,9 +84,7 @@ The ladder is the common recommendation for a 700-800px article column —
 {{- /* A figcaption is needed whenever anything belongs under the image: a
        caption, a credit, or the link a dithered image owes its original. */ -}}
 {{- $hasLine := or $caption $source $dithered -}}
-{{- /* A dithered figure becomes a toggle: the link to the original stays a
-link (§30.5), and with JavaScript it swaps the image in place instead of
-leaving the page (T136). */ -}}
+{{- /* Dithered: keep original link; JS may swap in place. */ -}}
 {{- if $dithered }}{{ partial "declassified/component.html" "dc-image-toggle" }}{{ end }}
 {{ if $dithered }}<dc-image-toggle data-label-processed="{{ i18n "imageProcessed" }}">{{ end }}
 <figure class="dc-figure{{ if $dithered }} dc-figure--dithered{{ end }}"{{ if $dithered }} data-dither="{{ (index hugo.Data.dither $src).family }}"{{ end }}>

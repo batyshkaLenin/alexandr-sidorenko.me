@@ -18,8 +18,8 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 - Hugo-based site (Russian only, canonical URLs without a `/ru` prefix, no
   required JavaScript), replacing the removed Next.js codebase.
-- All six original publications: two posts and four creativity works, the
-  latter with audio players where applicable. Authored line breaks are
+- Migrated publications from the previous site (posts and creativity works),
+  the latter with audio players where applicable. Authored line breaks are
   preserved in page HTML and in feeds alike, and a body image declares its real
   dimensions so the text below it does not jump while it loads — one pointing
   at a file that isn't there fails the build instead of shipping without them.
@@ -248,6 +248,12 @@ is folded into the entry describing the finished behaviour rather than listed as
 - Capability markers on a library row follow a fixed order — audio, then
   code, math, image, gallery, video — instead of the alphabet of their
   keys, so mathematics sits with code rather than after a photograph.
+- Home portrait replaced; dither derivatives regenerated under the ordinary
+  adaptive hue ladder. Theme gitlink advanced to the Declassified packaging
+  cleanup (English exampleSite, optional-JS positioning, dated theme
+  changelog).
+- Site sources, scripts and `tests/README.md` no longer cite task IDs, ADR
+  filenames or design-system paragraph numbers in comments and docs.
 
 ### Removed
 
@@ -267,3 +273,6 @@ is folded into the entry describing the finished behaviour rather than listed as
   format it cannot parse rather than skipping it quietly.
 - Legacy Next.js site source (components, pages, styles, build tooling and
   config) ahead of the Hugo rewrite.
+- The publication `humility-and-open-mindedness` and its attached images.
+- HTML migration provenance comments from publication markdown; the content
+  parity check no longer requires them.

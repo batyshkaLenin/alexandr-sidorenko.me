@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify that stated durations belong to the recordings on disk (T131, §27.4).
+"""Verify that stated durations belong to the recordings on disk.
 
     python3 scripts/check-audio-contract.py [--public-dir public]
 

@@ -12,14 +12,6 @@ cover_alt: "Тот самый сквер"
 draft: false
 ---
 
-<!--
-На старом сайте существовал английский перевод (DeepL) этого текста
-по адресу /en/creativity/skver. По ADR redesign-no-backward-compat этот
-URL больше не публикуется и не перенаправляется. Исходный перевод сохранён
-только как read-only provenance в
-tmp/old_project/_content/creativity/en/skver.md.
--->
-
 ![Тот самый сквер](/assets/library/skver/skver.jpg)
 
 После школы нужно было где-то засесть и обстоятельно покурить.

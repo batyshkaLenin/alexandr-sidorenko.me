@@ -1,10 +1,6 @@
 {{- /*
-An art-directed poem (§24.4): image and text share a row on a wide screen and
-become one flow on a phone. Chosen per material with `layout: art-poem`, and
-paired with `art: <name>` for its stylesheet.
-
-Everything system-owned stays: the shell, the pane, identity, the title block,
-the tail. Art direction decides composition, not the contract.
+Art-directed poem: `layout: art-poem` + `art: <name>` stylesheet.
+Shell/identity/title/tail stay; art owns composition.
 */ -}}
 {{ define "main" }}
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-poem dc-art--{{ .Params.art }}">

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify document-level rel=me discovery (see audit R9 / T40).
+"""Verify document-level rel=me discovery.
 
 The approved identity set in data/links.yaml must appear as rel=me exactly
 once each (as a head-only <link> or a visible <a>, never both for the same
@@ -66,7 +66,7 @@ def check_page(errors: list[str], approved: set[str], public_dir: Path, path: st
 
 
 def check_same_as(errors: list[str], approved: set[str], public_dir: Path) -> None:
-    """The home Person node claims the same identity set as rel=me (T13).
+    """The home Person node claims the same identity set as rel=me.
 
     rel=me and schema.org sameAs are read by different consumers — IndieAuth
     against the first, search engines against the second — so an identity added

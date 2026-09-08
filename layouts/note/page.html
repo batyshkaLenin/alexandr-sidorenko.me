@@ -1,11 +1,4 @@
-{{- /*
-Note Reader (§20). The smallest text renderer there is: a heading, one line of
-metadata, the text. Nothing else — no contents, no hero image, no player.
-
-A note is short by nature, so the things that help a long article (a table of
-contents, a lead) only get in its way here. What it does share with every
-other family is the frame: title block, body, tail (§5.3).
-*/ -}}
+{{- /* Note: title block, body, tail — no TOC/lead. */ -}}
 {{ define "main" }}
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry">
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}

@@ -7,7 +7,7 @@ the review gate. Run it deliberately.
 
 Three things it fixes compared with clicking "Analyze" in DevTools, each of
 which silently invalidated the 8 August 2026 baseline (see
-`.ai/research/lighthouse-preview-baseline.md`):
+the preview baseline notes):
 
 - mode is always `navigation` — `snapshot` collects no load metrics at all and
   reports a meaningless `performance: 0`;
@@ -87,7 +87,7 @@ class CanonicalHandler(SimpleHTTPRequestHandler):
     """Static files served the way this site's URLs are actually shaped.
 
     Hugo writes `<route>/index.html`, and the canonical address of that route
-    carries no trailing slash (ADR redesign-canonical-url-policy, enforced by
+    carries no trailing slash (enforced by
     `check-url-contract.py`). `SimpleHTTPRequestHandler` does the opposite: it
     answers a directory request without a slash with a 301 *to* the slash form,
     and there is no setting that turns it off. Measuring through that redirect
@@ -541,7 +541,7 @@ def main() -> int:
         choices=("allowed", "blocked", "both"),
         default="allowed",
         help="`blocked` blackholes fonts.googleapis.com and fonts.gstatic.com, "
-        "the degradation ADR redesign-external-resources-contract requires to be measured",
+        "the font/CSS degradation path required to be measured",
     )
     parser.add_argument(
         "--out-dir",

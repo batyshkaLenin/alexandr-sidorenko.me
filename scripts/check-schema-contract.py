@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the schema.org contract of the built site (T46).
+"""Verify schema.org structured data on the built site.
 
 Three things have to hold at once, and a green validator only covers the first:
 
@@ -95,7 +95,7 @@ class Vocabulary:
 
 def canonical(url: str) -> bool:
     """The site publishes one URL form: absolute, no trailing slash except the
-    root (ADR redesign-canonical-url-policy, T56)."""
+    root (canonical URLs carry no trailing slash)."""
     if not url.startswith(f"{ORIGIN}/"):
         return False
     path = urlsplit(url).path
@@ -245,7 +245,7 @@ def check_page(vocab: Vocabulary, public: Path, page: dict) -> list[str]:
         spec = page["list"]
         items = main.get(spec["property"]) or []
         # A list may hold more than one node type: the library is not a section
-        # and does not decide what kind of material it holds (T106).
+        # and does not decide what kind of material it holds.
         expected_item_types = spec["item_type"]
         if isinstance(expected_item_types, str):
             expected_item_types = [expected_item_types]
@@ -295,7 +295,7 @@ def main() -> int:
     described = {page["html"] for page in contract["pages"]}
     described |= set(contract["pages_without_structured_data"])
     # `perf/` holds copies of one page that differ only in how fonts arrive
-    # (scripts/make-perf-pages.py, T69). They are measurement scaffolding, not
+    # (scripts/make-perf-pages.py). They are measurement scaffolding, not
     # pages of the site: each carries `noindex` and no canonical, and none is
     # linked from anywhere. Describing them in the fixture would state that the
     # site has three more publications than it does.

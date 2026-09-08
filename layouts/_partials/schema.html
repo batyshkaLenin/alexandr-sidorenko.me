@@ -1,17 +1,6 @@
 {{- /*
-JSON-LD for every indexable page kind: the home page, the two sections, the tag
-list and each tag, and the publications. Everything below the home page also
-gets a BreadcrumbList; the home page doesn't, since a trail of one entry
-pointing at itself says nothing. Emitted as separate <script> blocks rather
-than one @graph so each type stays independently readable.
-
-Publication fields come from schema/publication.html — the same node the lists
-embed, so a list and a publication page can't disagree. The 404 kind is
-excluded here as well as in head-extra.html: it has no content identity (T39).
-
-No SiteNavigationElement, which the old site put on its menu (T46): the menu is
-already a semantic <nav> with aria-current, and search engines stopped using
-that vocabulary for navigation long ago.
+JSON-LD per indexable page. Publications via schema/publication.html.
+Breadcrumbs below home. 404 omitted.
 */ -}}
 {{ if .IsHome }}
 {{ $owner := partial "authors/owner.html" . }}
@@ -23,9 +12,7 @@ that vocabulary for navigation long ago.
 }}
 <script type="application/ld+json">{{ $json | jsonify (dict "indent" "  ") | safeJS }}</script>
 {{ else if or (in (slice "section" "taxonomy" "term") .Kind) .Params.material_type }}
-{{/* Same selection and order as the HTML list in section/taxonomy/term.html —
-     and, since T142, in library-type.html: a type page is a collection of
-     materials exactly like a topic, and says so with the same vocabulary. */}}
+{{/* Same page selection/order as the matching HTML list templates. */}}
 {{ $parts := slice }}
 {{ if eq .Kind "taxonomy" }}
 {{ range .Pages }}
@@ -40,8 +27,7 @@ that vocabulary for navigation long ago.
 {{ $parts = $parts | append (partial "schema/publication.html" .) }}
 {{ end }}
 {{ end }}
-{{/* The library holds every kind of material, so it is a CollectionPage; the
-     Blog node disappeared with the posts section (T106). */}}
+{{/* Library (and similar) collections are CollectionPage, not Blog. */}}
 {{ $isBlog := false }}
 {{ $json := dict
   "@context" "https://schema.org"

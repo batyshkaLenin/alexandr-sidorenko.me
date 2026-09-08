@@ -5,8 +5,8 @@
 # visibility decides where the link appears, not whether it counts.
 #
 # The flag used to be called `footer`, from a footer that no longer shows any
-# of these (T40); it named a place instead of a purpose and controlled nothing
-# after that (T116).
+# of these; it named a place instead of a purpose and controlled nothing
+# after that.
 
 - label: "GitHub"
   url: "https://github.com/batyshkaLenin"

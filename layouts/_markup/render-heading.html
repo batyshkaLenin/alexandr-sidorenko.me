@@ -1,10 +1,4 @@
-{{- /*
-Heading anchors (T50). The mockup revealed them on hover only; that leaves
-them unreachable by keyboard and unnamed for a screen reader, so the link is
-always in the tab order and carries a real accessible name. Sighted users get
-the hover reveal on top of that, and :focus-visible brings it back.
-h1 keeps no anchor: the page has exactly one, and it is the page itself.
-*/ -}}
+{{- /* Heading anchors (h2+): always focusable with accessible name. */ -}}
 <h{{ .Level }} id="{{ .Anchor }}">
   {{- .Text -}}
   {{- if gt .Level 1 }}

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify body, embedded URL, audio and author contracts in generated feeds.
 
-The author part is deliberately cross-surface (T13): one publication is named
+The author part is deliberately cross-surface: one publication is named
 by its byline h-card, by the hidden p-author of its section card, by RSS
 dc:creator and by the JSON Feed author object, and all four are built from
 data/authors.yaml. Checking them against one fixture value is what stops the
@@ -116,7 +116,7 @@ def feed_entries(path: Path) -> dict[str, str]:
 
 def check_derived_feeds(errors: list[str], public_dir: Path, site_wide: dict[str, dict[str, object]]) -> int:
     """A topic's or a type's feed is a subset of the whole, with the same
-    identity for the same material (§38, T142): a narrower feed must never
+    identity for the same material: a narrower feed must never
     invent an item or give it a different id."""
     checked = 0
     for feed in derived_feeds(public_dir):
@@ -285,7 +285,7 @@ def main() -> int:
                 f"{item_id}: {content_name} has relative URLs {relative}",
             )
             # A substring, so an image expectation is pinned to the address up
-            # to Hugo's content hash rather than to the whole filename (T66).
+            # to Hugo's content hash rather than to the whole filename.
             # Re-encoding an image changes that hash by design; it must not
             # change which image the feed points at, and that is what is worth
             # failing on.

@@ -52,7 +52,7 @@ ensure_submodules() {
     if ! git submodule update --init --recursive -- "${path}"; then
       echo "ERROR: failed to initialize submodule '${path}' at ${recorded}." >&2
       echo "       Check network access to its remote and that this commit is actually pushed there." >&2
-      echo "       (--remote / branch-floating updates are intentionally not used — see T27.)" >&2
+      echo "       (--remote / branch-floating updates are intentionally not used.)" >&2
       exit 1
     fi
 
@@ -88,10 +88,9 @@ main() {
   echo "Hugo: $(hugo version)"
 
   # This pipeline currently deploys the *.workers.dev preview subdomain,
-  # not the production custom domain (see .ai/adr/redesign-hosting-cloudflare.md) —
-  # keep it out of search indexes until Фаза 7 cutover switches this to
-  # an explicit production build.
-  # Last scrobbled track (T96). Opt-in: without the key nothing runs and the
+  # not the production custom domain — keep it out of search indexes until
+  # cutover switches this to an explicit production build.
+  # Last scrobbled track. Opt-in: without the key nothing runs and the
   # committed snapshot is used as it is, so a fork or a local build needs no
   # credentials. The script never fails the build either — Last.fm being down
   # leaves the previous snapshot in place, exactly like the Webmention import.
@@ -100,7 +99,7 @@ main() {
     python3 scripts/fetch-lastfm.py
   fi
 
-  # The dev module's snapshot (T149): weekly hours need WAKATIME_API_KEY, the
+  # The dev module's snapshot: weekly hours need WAKATIME_API_KEY, the
   # shape of the week is public. Runs regardless — the script keeps whatever it
   # cannot refresh and never fails the build, like the Last.fm import above.
   echo "Refreshing the dev activity snapshot..."
@@ -109,7 +108,7 @@ main() {
   echo "Building the project (environment: preview)..."
   hugo build --gc --minify --cleanDestinationDir --environment preview
 
-  # Opt-in measurement scaffolding (T69). `wrangler deploy` runs this script
+  # Opt-in measurement scaffolding. `wrangler deploy` runs this script
   # itself and rebuilds public/ from scratch, so anything generated beforehand
   # is thrown away — which is why this hook exists here rather than as a step
   # someone remembers to run first.

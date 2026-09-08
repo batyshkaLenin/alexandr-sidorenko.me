@@ -1,15 +1,6 @@
 {{- /*
-Track Detail (§26.2, direction A). Lyrics-first and calm: the title, the year,
-the player, then the words. Chords and notation appear only when the material
-has them — most tracks do not, and empty headings for absent material are the
-thing §26 warns about.
-
-There is no cover slot. §26.2 is explicit: a track without an image must not
-look like a page whose cover failed to load, so the layout simply has no place
-where one would be missing.
-
-File metadata sits at the end, quietly: it is true and occasionally useful, but
-it is not what a reader came for.
+Track: title, year, player, lyrics. Optional chords/notation only when present.
+No cover slot; file meta at the end.
 */ -}}
 {{ define "main" }}
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-track">
@@ -39,10 +30,7 @@ it is not what a reader came for.
     {{- $file := os.Stat (printf "static%s" .src) -}}
     {{- /* The extension, not the MIME subtype: a reader knows what MP3 is,
     "MPEG" only looks like a mistake. */ -}}
-    {{- /* The player shows no duration of its own until it has loaded the
-    file, and it never loads one unasked (`preload="none"`), so the length is
-    stated here in text — §26.2 has it on the transport, §44.6 has it before
-    anyone presses play. */ -}}
+    {{- /* Duration in text — player uses preload=none until asked. */ -}}
     {{- $meta := index hugo.Data.audio .src -}}
     <span class="dc-track__file">{{ upper (strings.TrimPrefix "." (path.Ext .src)) }} · {{ $meta.duration }} · {{ lang.FormatNumber 1 (div (float $file.Size) 1048576) }} МБ</span>
     {{ end }}

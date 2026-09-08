@@ -1,10 +1,4 @@
-{{- /*
-One topic (§38, T153): the same Library frame as Types' own page — sidebar,
-count, feed links, MaterialRow — because a topic is a filtered view of the
-Library, not a page of its own kind. `showType` stays on (material-row.html):
-one topic can hold several material types, unlike a Types page which by
-construction cannot.
-*/ -}}
+{{- /* One topic: Library frame; showType stays on (mixed types). */ -}}
 {{ define "main" }}
 <div class="dc-library">
   {{ partial "library/views-nav.html" . }}

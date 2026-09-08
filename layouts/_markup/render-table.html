@@ -1,19 +1,6 @@
 {{- /*
-A table inside a publication (§27.5): part of the typographic document, not the
-Library's data primitive. It stays quiet — no zebra, no sortable headers — and
-it never widens the page: on a narrow screen it scrolls inside its own
-container.
-
-Two things the default output gets wrong here. Goldmark writes the column
-alignment as `style="text-align: …"`, and `style-src 'self'` drops every inline
-style on the floor (ADR redesign-headers-and-cache-contract), so the alignment
-an author declared in Markdown silently did nothing; it is a class now. And a
-header cell without `scope` leaves a screen reader to guess which column it
-names (§44.8).
-
-The scroll container is focusable and named, so a reader who cannot drag it can
-still reach it with the keyboard and hear what it is — a scrollable region that
-takes no focus is unreachable without a pointer.
+Prose table: scroll container on narrow screens. Alignment via class (CSP
+blocks inline style). Header cells get scope. Region is focusable for keyboard.
 */ -}}
 {{- $align := dict "left" " dc-prose-table__cell--left" "center" " dc-prose-table__cell--center" "right" " dc-prose-table__cell--right" -}}
 <div class="dc-prose-table" role="region" tabindex="0" aria-label="{{ i18n "tableRegion" }}">

@@ -1,28 +1,6 @@
-/* Site-specific overrides, loaded after the theme's assets/css/declassified.css
-   (see head-extra hook) so these rules win by normal cascade order. */
+/* Site overrides (after theme CSS via head-extra). */
 
-/* Web fonts, served from this origin (T93). The families come from Google
-   Fonts and are SIL OFL 1.1 — the licence of each sits next to the files in
-   static/fonts/.
-
-   These rules live here, inside a stylesheet the page already loads, rather
-   than in a file of their own. That is the whole point: a `<link>` to
-   fonts.googleapis.com cost 437 ms of first paint, not because 1320 bytes are
-   slow but because the *.woff2 addresses are declared inside it — the browser
-   could not start a single font until that request came back from a second
-   origin. Declared here, they are discoverable in the request that was already
-   in flight. A separate local stylesheet would rebuild the same two-hop chain
-   (measured in .ai/research/s15-ab-measurement.md).
-
-   `unicode-range` is Google's own, minus the Greek subsets this site has no
-   use for: a browser fetches only the subsets the page's characters need, so
-   the 292 KB on disk is never what anyone downloads. `font-display: swap`
-   keeps text visible from the first frame (ADR redesign-external-resources-
-   contract, п.5 as revised on 15 August 2026).
-
-   Files are Fira Code v27 and PT Serif v19 as Google served them to a mobile
-   client on 15 August 2026. Updating a family means fetching its files again —
-   nothing here refreshes itself, which is the price paid for the 437 ms. */
+/* Self-hosted fonts: declared here so woff2 URLs resolve in the same request as this sheet. unicode-range drops unused Greek; font-display:swap. */
 
 @font-face {
   font-family: 'Fira Code';
@@ -204,18 +182,8 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Typography (T49). The theme ships no font file and must stay usable without
-   external network, so the families are site-owned: it declares --dc-font as a
-   stack, this overrides it. Both stacks keep a full system tail — when the CDN
-   is unreachable the page falls straight through to it (ADR
-   redesign-external-resources-contract, п.5). */
-/* Metric-matched fallbacks (T62): with display=swap the page is first set in a
-   system font, and if its advances differ the swap re-wraps every line and
-   moves the content below. Each size-adjust below scales one specific local
-   font to the web font's advance, measured over the site's own prose — do not
-   change a value without re-measuring, a wrong one makes the swap worse.
-   Every fallback needs its own family name: several @font-face rules sharing
-   one name override each other instead of falling through. */
+/* Typography: site font stacks; system fallback when webfonts fail. */
+/* Metric-matched fallbacks for display:swap — size-adjust values are measured; each fallback needs its own family name. */
 @font-face {
   font-family: "Fira Code Fallback M";
   src: local("Menlo"), local("DejaVu Sans Mono");
@@ -228,8 +196,7 @@
   size-adjust: 109.1%;
 }
 
-/* Times New Roman, Liberation Serif, Tinos and Nimbus Roman are metric-
-   compatible with each other, so one adjusted family covers all four. */
+/* One adjusted family covers metric-compatible Times/Liberation/Tinos/Nimbus. */
 @font-face {
   font-family: "PT Serif Fallback T";
   src: local("Times New Roman"), local("Liberation Serif"), local("Tinos"),
@@ -244,24 +211,15 @@
 }
 
 :root {
-  /* Liberation Mono needs no adjusting — it already matches Fira Code — but it
-     has to come before ui-monospace, which resolves to a narrower font. */
+  /* Liberation Mono before ui-monospace (narrower). */
   --dc-font: "Fira Code", "Liberation Mono", "Fira Code Fallback M",
     "Fira Code Fallback C", ui-monospace, "SFMono-Regular", Menlo, Consolas,
     monospace;
-  /* Georgia stays unadjusted before them: measured 99.99% of PT Serif. */
+  /* Georgia ≈ PT Serif metrics; leave unadjusted. */
   --dc-font-prose: "PT Serif", Georgia, "PT Serif Fallback T",
     "PT Serif Fallback N", "Times New Roman", serif;
 
-  /*
-   * Site-level colour tokens (T111). The theme owns the base palette and the
-   * type and redaction families; these are the values only this site uses.
-   *
-   * The syntax hues follow §28.3: every class the section names is told apart
-   * by hue, and none of them borrows the two colours the shell already spends
-   * — system green and link pink. Measured on --dc-bg, the lowest of them is
-   * the comment at 5.0:1, so the set carries AA at code size.
-   */
+  /* Site colour tokens (syntax hues; not shell green/link pink). */
   --syntax-comment: #6a8578;
   --syntax-string: #6fc8a5;
   --syntax-keyword: #d98fa6;
@@ -271,10 +229,7 @@
   --syntax-punctuation: #8fa89a;
   --syntax-property: #d7e6dc;
 
-  /* Diff carries neither of those colours either (§28.4), so the two states
-     are told apart by the +/- the source already has, by a rule in the gutter
-     and by backgrounds that stay distinct once the hue is gone: the inserted
-     line is about three times as light as the deleted one. */
+  /* Diff: +/- plus gutter rule; insert bg ~3× lighter than delete. */
   --syntax-deleted-bg: #0f1412;
   --syntax-deleted-rule: #40514a;
   --syntax-inserted-bg: #1c2622;
@@ -283,8 +238,7 @@
   --portrait-frame: #2a1420;
 }
 
-/* Serif is for reading a publication, not for the TUI chrome: only the body of
-   a detail page changes family. Measure and rhythm stay as they were. */
+/* Serif only on publication body, not TUI chrome. */
 .dc-panel--detail .dc-prose {
   font-family: var(--dc-font-prose);
 }
@@ -296,9 +250,7 @@
   color: var(--dc-accent);
 }
 
-/* A publication lowers the shell's voice (§19): the command stays, the
-   guest@host prefix goes, and the colour drops to muted so the page's own
-   title is the loudest thing on screen. */
+/* Publication: mute shell prompt; drop guest@host. */
 .dc-identity--quiet {
   font-weight: 400;
   color: var(--dc-muted);
@@ -317,10 +269,7 @@
   color: var(--dc-muted);
 }
 
-/* A phone gets no `guest@host ~/library $` — it does not fit at 390px and the
-   design system says not to try (§12). Hiding only the middle of the prompt
-   would leave "guestlibrary", so the whole line goes; what remains is the way
-   back and the material's own title, which the page already shows. */
+/* Phone: hide full guest@host prompt line. */
 @media (max-width: 640px) {
   .dc-identity {
     display: none;
@@ -336,9 +285,7 @@
   color: var(--dc-accent);
 }
 
-/* Open, the prompt line becomes a row so the field can take everything left
-   of the tools: the theme's component asks for the width, this composition is
-   what grants it. */
+/* Open prompt: flex row so the field fills remaining width. */
 dc-prompt[open] .dc-identity {
   display: flex;
   align-items: baseline;
@@ -350,20 +297,17 @@ dc-prompt[open] .dc-identity__sep {
   white-space: pre;
 }
 
-/* The drawn `_` says the line is typeable. Hide it only while the prompt is
-   open: that is when the real caret exists, and both at once was the reason
-   the mark was removed (T158). Closed-but-ready still shows it. */
+/* Hide drawn `_` while prompt is open (real caret). */
 dc-prompt[open] .dc-identity__cursor {
   display: none;
 }
 
-/* Moves between neighbours (T55). Sizes and colours reuse the panel's existing
-   .dc-back / .dc-panel__more scale instead of introducing another one. */
+/* Adjacent prev/next navigation. */
 .dc-adjacent {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  /* Sits outside the panel, so it has to line up with it on its own. */
+  /* Aligns with panel; sits outside it. */
   max-width: var(--dc-detail-width);
   margin: 24px auto 0;
   padding: 0 26px;
@@ -378,7 +322,7 @@ dc-prompt[open] .dc-identity__cursor {
   font-size: var(--dc-fs-ui);
 }
 
-/* Keeps the pair at opposite edges even when one side is missing. */
+/* Opposite edges when one side is missing. */
 .dc-adjacent__link--next {
   margin-left: auto;
   text-align: right;
@@ -389,23 +333,14 @@ dc-prompt[open] .dc-identity__cursor {
   font-size: var(--dc-fs-meta);
 }
 
-/* The pair stays on one line at every width. The 240px basis is what broke it
-   on phones: two of them cannot share a 390px row, so they wrapped and the
-   right-aligned "next" ended up under the left-aligned "prev" with a hole
-   between them. Here each link takes the width it needs, and a long
-   neighbour title is cut with an ellipsis rather than pushing its partner
-   onto the next line. */
+/* One line at all widths; ellipsis instead of wrap. */
 @media (max-width: 860px) {
   .dc-adjacent {
     gap: 12px;
   }
 
   .dc-adjacent__link {
-    /* min-width:0 is what lets a flex item shrink below its content — without
-       it the title refuses to truncate and the row wraps anyway. The half-width
-       cap is what makes truncation happen *before* the wrap: two titles of
-       86px and 195px overflowed a 292px row by a single pixel and jumped to
-       separate lines, which is the whole defect this fixes. */
+    /* min-width:0 + half-width cap so titles truncate before wrap. */
     flex: 0 1 auto;
     min-width: 0;
     max-width: calc(50% - 6px);
@@ -424,9 +359,7 @@ dc-prompt[open] .dc-identity__cursor {
   }
 }
 
-/* `responses/` (§37, T141). Lines up with the panel the same way .dc-adjacent
-   does and stays quieter than the publication itself: these are other people's
-   words about the text, not part of it. */
+/* responses/ */
 .dc-responses {
   max-width: var(--dc-detail-width);
   margin: 24px auto 0;
@@ -441,8 +374,7 @@ dc-prompt[open] .dc-identity__cursor {
   font-size: var(--dc-fs-meta);
 }
 
-/* The groups are labels, not headlines: three of them on a page must not
-   compete with the publication's own headings. */
+/* Group labels, not headlines. */
 .dc-responses__group {
   margin: 16px 0 6px;
   color: var(--dc-faint);
@@ -484,8 +416,7 @@ dc-prompt[open] .dc-identity__cursor {
   margin: 0;
 }
 
-/* The invitation sits apart from what came back: it is addressed to the reader,
-   not a response from one. */
+/* Invitation, apart from responses. */
 .dc-responses__reply {
   margin-top: 20px;
   padding-top: 12px;
@@ -506,15 +437,13 @@ dc-prompt[open] .dc-identity__cursor {
   align-items: baseline;
 }
 
-/* The permalink is meant to be taken, so it is written out in full and allowed
-   to wrap rather than being cut with an ellipsis. */
+/* Permalink: full URL, may wrap. */
 .dc-responses__permalink {
   color: var(--dc-muted);
   overflow-wrap: anywhere;
 }
 
-/* `relations/` (§6.6, T143). Sits between the work and its responses: what the
-   material itself points at, and what points back — the no-JS graph. */
+/* relations/ */
 .dc-relations {
   max-width: var(--dc-detail-width);
   margin: 24px auto 0;
@@ -546,8 +475,7 @@ dc-prompt[open] .dc-identity__cursor {
   margin-top: 6px;
 }
 
-/* An external target reads as leaving the site, without a forced new tab —
-   consistent with every other outbound link in a material's own body. */
+/* External relation target. */
 .dc-relations__item--external a::after {
   content: " ↗";
 }
@@ -580,22 +508,16 @@ dc-copy[copied] .dc-copy__button {
   border-color: var(--dc-primary);
 }
 
-/* The keyboard hint (T54) and the clock (T62, T82) are styled by the theme:
-   both belong to its <dc-keynav> and <dc-clock>, and a component's styles ship
-   with the component. */
+/* Key hint and clock: theme component styles. */
 
-/* The bar's right-hand tools: search trigger and clock, kept together so the
-   prompt on the left and the tools on the right are the topbar's two ends. */
+/* Topbar tools: search + clock. */
 .dc-topbar__tools {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-/* Home page: three rows mirror the accepted Sidorenko TUI mockup layout
-   (240px filetree / 1fr about / 300px portrait, then posts+links, then
-   creativity+status). Collapses to one column at the theme's existing
-   860px dashboard breakpoint so it stacks the same way section pages do. */
+/* Home: mockup three-column grid; stacks at 860px. */
 .dc-home-row {
   display: grid;
   gap: 16px;
@@ -606,13 +528,7 @@ dc-copy[copied] .dc-copy__button {
   margin-bottom: 0;
 }
 
-/*
- * Home Workspace (§15). One workstation surface in three arrangements, not one
- * layout that shrinks: on a wide screen navigation, identity and preview share
- * a row; on a tablet the panes regroup — identity keeps the width, preview and
- * activity pair up below it; on a phone everything becomes a single column in
- * the order a person reads it.
- */
+/* Home workspace */
 .dc-home-row--identity {
   grid-template-columns: 240px 1fr 300px;
 }
@@ -621,18 +537,10 @@ dc-copy[copied] .dc-copy__button {
   grid-template-columns: 1fr;
 }
 
-/*
- * Desktop workstation (T148). The about pane is as tall as the biography, and
- * stacking recent and activity under it overflowed 1280×800 by hundreds of
- * pixels. They move into the slack of the side columns instead — `ls` then
- * `tail` on the left, preview then ambient activity on the right — so the
- * surface is one screen without overflow: hidden. Below 1100px the rows
- * become rows again and scrolling is the tablet/phone behaviour.
- */
+/* Desktop: side columns absorb recent + activity (no overflow on 1280×800). */
 @media (min-width: 1101px) {
   .dc-main:has(.dc-home) {
-    /* The status bar already owns the bottom inset; a second 40px here was
-       the last bit of scroll on a surface that otherwise fitted. */
+    /* No extra bottom inset; status bar already reserves it. */
     padding-top: 16px;
     padding-bottom: 8px;
   }
@@ -655,10 +563,7 @@ dc-copy[copied] .dc-copy__button {
     grid-row: 1;
   }
 
-  /* About spans both rows so its height does not push `tail` and activity
-     below the status bar. Row two then sizes to the side columns' slack:
-     recent under the tree, activity under the preview — not a second band
-     under the whole identity row. */
+  /* About spans both rows; row two fills side-column slack. */
   .dc-home-row--identity > .h-card {
     grid-column: 2;
     grid-row: 1 / span 2;
@@ -680,8 +585,7 @@ dc-copy[copied] .dc-copy__button {
     margin-bottom: 0;
   }
 
-  /* Dense rows in this strip keep one line so three tails fit next to
-     activity; wrapping here was what overflowed 1280×800. */
+  /* Dense one-line rows so three tails fit beside activity. */
   .dc-home .dc-home-row--recent .dc-panel__body {
     padding-block: 2px 4px;
   }
@@ -714,8 +618,7 @@ dc-copy[copied] .dc-copy__button {
     white-space: nowrap;
   }
 
-  /* Three modules side by side need ~220px each; in the 300px column they
-     stack. A name and a value per module, dates already live in the tooltip. */
+  /* Activity modules stack in the 300px column. */
   .dc-home .as-activity__body {
     grid-template-columns: 1fr;
     gap: 6px;
@@ -753,8 +656,7 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-/* Short desktops (1280×800 and similar): the same grid, a little tighter
-   above the status bar so row two does not sit under it. */
+/* Short desktops: tighter grid above status bar. */
 @media (min-width: 1101px) and (max-height: 820px) {
   .dc-main:has(.dc-home) {
     padding-top: 12px;
@@ -774,10 +676,7 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-/* Tablet: the three-column identity row cannot hold three columns, so the
-   preview moves under the pair — but a portrait spanning the full width would
-   turn a utility pane into the loudest thing on the page (§15.2). It keeps a
-   landscape crop and a modest height instead. */
+/* Tablet: preview under identity; landscape crop, modest height. */
 @media (max-width: 1100px) {
   .dc-home-row--identity {
     grid-template-columns: 200px 1fr;
@@ -794,15 +693,9 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-/*
- * Phone: a linear document stack. The portrait is not allowed to own the first
- * screen (§15.4) — it moves below the recent materials and keeps a landscape
- * crop, so what a visitor sees first is who this is and what is here.
- */
+/* Phone: linear stack; portrait below recent materials. */
 @media (max-width: 640px) {
-  /* The rows dissolve so the panes become one column and can be ordered by
-     what a visitor needs first: who this is, then what is here, and only then
-     the picture and the ambient context. */
+  /* Single column order: identity → materials → picture → activity. */
   .dc-home {
     display: flex;
     flex-direction: column;
@@ -937,8 +830,7 @@ dc-copy[copied] .dc-copy__button {
   font-size: var(--dc-fs-meta);
 }
 
-/* The mockup separates the two comments by a wide gap rather than
-   punctuation; a span keeps that out of the text content. */
+/* Wide gap between comments via span, not punctuation. */
 .dc-hero-meta__gap {
   display: inline-block;
   width: 1.5em;
@@ -1004,9 +896,7 @@ dc-copy[copied] .dc-copy__button {
   text-decoration: underline;
 }
 
-/* Activity (§16): one utility pane, divided by whitespace and quiet rules
-   rather than a dashboard of cards. Unknown/stale data stays muted; it never
-   becomes an alert state. */
+/* Activity pane */
 .as-activity {
   display: block;
   margin-bottom: 16px;
@@ -1059,9 +949,7 @@ dc-copy[copied] .dc-copy__button {
   color: var(--dc-faint);
 }
 
-/* Every line of the pane is a link, and underlining all of them turned the
-   panel into a wall of pink. At rest a line wears the colour of its own role
-   and looks like text; under the pointer or the keyboard it shows what it is. */
+/* Links: no rest underline; show on hover/focus. */
 .as-activity__value a,
 .as-activity__meta a {
   color: inherit;
@@ -1077,16 +965,13 @@ dc-copy[copied] .dc-copy__button {
   border-bottom-color: currentColor;
 }
 
-/* The bars are a picture, not a phrase: they take the accent on hover but no
-   underline creeping beneath them. */
+/* Bar graph: accent on hover, no underline. */
 .as-activity__spark a:hover,
 .as-activity__spark a:focus-visible {
   border-bottom-color: transparent;
 }
 
-/* The graph is drawn with type, so it needs a size of its own: at the meta
-   size the bars are a smudge. It takes the lead step of the scale (§18.3) and
-   a tight line, so a taller row does not push the module around. */
+/* Bar size above meta text size. */
 .as-activity__spark {
   margin-top: 6px;
   font-size: var(--dc-fs-lead);
@@ -1094,10 +979,7 @@ dc-copy[copied] .dc-copy__button {
   letter-spacing: 0.12em;
 }
 
-/* Fira Code draws █ and ▄ one pixel below the baseline the other blocks sit
-   on, so the tallest bar looked like it had slipped off the row. Clipping the
-   run to its own box puts every bar back on one floor; measured with
-   measureText, the difference is descent 7 against 6 at 21px. */
+/* Clip bar glyphs: Fira Code █/▄ sit 1px low. */
 .as-activity__spark [data-dev-bars] {
   display: inline-block;
   height: 1em;
@@ -1123,17 +1005,13 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-/* Full list pages (.dc-panel--doc, from the theme) show a bordered type
-   tag; the compact home dashboard mini-lists keep the plain uppercase
-   label below. */
+/* Home mini-lists: plain type label (not bordered tag). */
 .dc-panel--doc .dc-list__type {
   border: 1px solid var(--dc-border);
   padding: 0 5px;
 }
 
-/* Heading anchors (T50). Hidden visually until hover or keyboard focus, but
-   always present in the tab order and always named — a hover-only control is
-   no control at all for a keyboard or a screen reader. */
+/* Heading anchors: visible on hover/focus; always in tab order. */
 .dc-heading-anchor {
   margin-left: 0.4em;
   color: var(--dc-faint);
@@ -1158,10 +1036,7 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-/* Code (§28). A fence with no attributes is the simple snippet below; one that
-   names a file or carries a caption is the rich block further down. Both are
-   highlighted by Chroma on the build with classes, never inline styles (T50).
-   The two forms share the token colours and nothing else. */
+/* Code: simple fence vs rich block; shared token colours. */
 .dc-prose .highlight {
   background: var(--dc-bg);
   border: 1px solid var(--dc-border);
@@ -1256,9 +1131,7 @@ dc-copy[copied] .dc-copy__button {
   color: var(--syntax-property);
 }
 
-/* Diff (§28.4). The inline span covers the text; `:has()` carries the same
-   state across the rest of the line where the browser supports it, and where
-   it does not the line is still marked — by its own +/- and by the span. */
+/* Diff: span + :has() line state; +/- still marks without :has. */
 .dc-prose .chroma .gd {
   background: var(--syntax-deleted-bg);
   box-shadow: -0.6em 0 0 0 var(--syntax-deleted-bg);
@@ -1287,15 +1160,13 @@ dc-copy[copied] .dc-copy__button {
   border-inline-start-color: var(--syntax-inserted-rule);
 }
 
-/* Hunk header: neither state, and not code either. */
+/* Hunk header */
 .dc-prose .chroma .gu,
 .dc-prose .chroma .gh {
   color: var(--syntax-comment);
 }
 
-/* A rich code block (§28.2) states the file it came from, numbers its lines
-   and signs itself with the language. The frame belongs to the figure, so the
-   highlight inside it drops the border and padding of the simple form. */
+/* Rich code block: file, lines, language; figure owns the frame. */
 .dc-prose .dc-code {
   margin: 1.6em 0;
   border: 1px solid var(--dc-border);
@@ -1316,8 +1187,7 @@ dc-copy[copied] .dc-copy__button {
   border-bottom: 1px solid var(--dc-border);
 }
 
-/* The copy button is an enhancement the theme adds later (S23); the row is
-   laid out for it, and without JavaScript nothing sits in the empty half. */
+/* Copy-button slot; empty without JS. */
 .dc-code__meta {
   display: flex;
   flex-wrap: wrap;
@@ -1336,9 +1206,7 @@ dc-copy[copied] .dc-copy__button {
   overflow: visible;
 }
 
-/* Fixed layout keeps the numbers in their own column: the code cell takes the
-   rest and scrolls inside itself, so a long line moves under the numbers
-   instead of dragging them off the screen. */
+/* Fixed layout: numbers column; code scrolls under it. */
 .dc-code .lntable {
   width: 100%;
   table-layout: fixed;
@@ -1376,10 +1244,7 @@ dc-copy[copied] .dc-copy__button {
 }
 
 @media print {
-  /* Paper is white and prints no backgrounds, so the screen's token colours
-     would arrive as pale ink on white. Code prints black, and the diff keeps
-     the two signals that never depended on colour: its own +/- and the rule
-     in the margin. */
+  /* Print: black code; diff keeps +/- and gutter rule. */
   .dc-prose .dc-code,
   .dc-prose .highlight,
   .dc-prose .dc-code__file,
@@ -1390,15 +1255,12 @@ dc-copy[copied] .dc-copy__button {
     color: #000;
   }
 
-  /* The attribute selector is only here to outweigh the token rules above. */
+  /* Attribute selector outweighs token rules. */
   .dc-prose .chroma span[class] {
     color: #000;
   }
 
-  /* Paper has no scrollbar to offer, so a long line wraps instead of being
-     cut off at the edge of a container nobody can move. Wrapping is why the
-     numbers go: they are a separate column, and one wrapped line would push
-     every number below it against the wrong line of code. */
+  /* Print: wrap long lines; drop number column (wrap desyncs). */
   .dc-prose .highlight,
   .dc-code .lntable td:last-child pre {
     overflow: visible;
@@ -1441,11 +1303,7 @@ dc-copy[copied] .dc-copy__button {
   font-size: var(--dc-fs-meta);
 }
 
-/* The author reading is a block inside a publication, not the publication
-   (§27.4): it says what it is and how long it runs, and then gets out of the
-   way. Two things keep it quieter than the Track Player — a muted label
-   instead of the system green, and a control that stops well short of the
-   text column instead of spanning it. */
+/* Inline author audio: muted label, short of full column. */
 .dc-audio--reading {
   gap: 4px;
   margin: 1.6em 0;
@@ -1464,28 +1322,25 @@ dc-copy[copied] .dc-copy__button {
   font-variant-numeric: tabular-nums;
 }
 
-/* Width only: the height of a native control is the browser's business, and
-   pinning it clips the buttons in engines whose transport is taller. */
+/* Width only — do not pin native control height. */
 .dc-audio--reading audio {
   width: 100%;
   max-width: 320px;
 }
 
-/* On the Track Detail the recording is the material, so it keeps the width of
-   the column and the label the Application Bar already carries. */
+/* Track Detail: player full column width. */
 .dc-audio--track .dc-audio__label {
   color: var(--dc-primary);
 }
 
-/* Paper keeps the address instead of a dead control (research B8). */
+/* Print: show address instead of dead control. */
 .dc-audio__print {
   display: none;
   font-size: var(--dc-fs-meta);
 }
 
 @media print {
-  /* A player is interface too — on paper the fallback line below already names
-     the recording, its length and its address. */
+  /* Print: hide player UI; fallback line names the file. */
   .dc-audio audio,
   .dc-audio__label,
   .dc-section-feeds {
@@ -1497,9 +1352,7 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-/* Video (§27.3). The poster carries the dither and the playback does not, so
-   the element only has to stay inside the column and keep the box the poster's
-   own width and height already reserved for it. */
+/* Video: stay in column; poster reserves box. */
 .dc-video {
   display: block;
   width: 100%;
@@ -1515,8 +1368,7 @@ dc-copy[copied] .dc-copy__button {
 }
 
 @media print {
-  /* A <video> prints as an empty box, so paper gets the poster and the
-     address instead of a frame nobody can play. */
+  /* Print: poster + address instead of empty video box. */
   .dc-video {
     display: none;
   }
@@ -1552,8 +1404,7 @@ dc-copy[copied] .dc-copy__button {
   padding-top: 14px;
 }
 
-/* Section heading and its feed badges sit on one line, wrapping instead of
-   overflowing on narrow viewports. */
+/* Section heading + feed badges on one wrapping line. */
 .dc-section-head {
   display: flex;
   flex-wrap: wrap;
@@ -1575,9 +1426,7 @@ dc-copy[copied] .dc-copy__button {
   margin: 0;
 }
 
-/* The count-plus-feeds line on a type or topic page (library-type.html,
-   term.html): same badge gap as .dc-section-feeds, so the two feed links
-   don't touch just because this line also carries the material count. */
+/* Type/topic count+feeds: same badge gap as .dc-section-feeds. */
 .dc-section-meta {
   display: flex;
   flex-wrap: wrap;
@@ -1623,8 +1472,7 @@ dc-copy[copied] .dc-copy__button {
   text-transform: uppercase;
 }
 
-/* The colour is a second signal; the label itself already says the type
-   (§17.4), so nothing is lost in print, in grayscale or to a screen reader. */
+/* Type colour is secondary; label is primary. */
 .dc-type--knowledge {
   color: var(--dc-type-knowledge);
 }
@@ -1644,22 +1492,9 @@ dc-copy[copied] .dc-copy__button {
   margin-bottom: 4px;
 }
 
-/*
- * Redaction (§27.6). A quiet, ordered, dither-like surface — not a character,
- * not a bar of ink, and never the original text hidden by CSS: the fragment is
- * absent from the document entirely, and what stands in its place is drawn.
- *
- * The texture is a pixel-anchored grid (--dc-redaction-grid): tying it to `em`
- * makes it shimmer at small sizes. Colour comes from the redaction family
- * (§17.5), which sits above the background and below muted text — a redaction
- * is part of the text, not an alarm.
- *
- * No states: this element is not interactive, so there is no hover, no focus
- * styling, no pointer cursor and no reveal of any kind.
- */
+/* Redaction: drawn surface; pixel grid; non-interactive. */
 .dc-redaction {
-  /* The wrapper is inline so the run sits in the flow of the sentence and can
-     break between its segments like any other run of text. */
+  /* Inline so segments can wrap mid-run. */
   display: inline;
 }
 
@@ -1670,14 +1505,10 @@ dc-copy[copied] .dc-copy__button {
   min-width: var(--dc-redaction-min-width);
   border-radius: var(--dc-redaction-radius);
   vertical-align: baseline;
-  /* Sits on the baseline without moving it: the surface is shorter than the
-     line box, so line-height is untouched (§27.6). */
+  /* Shorter than line box so line-height stays put. */
   margin-bottom: -0.06em;
   background-color: var(--dc-redaction-surface);
-  /* Vertical, not diagonal: a run is cut into segments so it can wrap, and a
-     45° pattern restarts its phase in every segment, drawing a visible seam at
-     each join. A vertical repeat with a pixel step keeps the texture
-     continuous across them. */
+  /* Vertical stripe pattern so wrapped segments join without seams. */
   background-image:
     repeating-linear-gradient(
       90deg,
@@ -1688,15 +1519,12 @@ dc-copy[copied] .dc-copy__button {
     );
 }
 
-/* A line redaction stands alone in the verse: it keeps the approximate length
-   of the line it replaced and is never stretched to the full measure (§24.7). */
+/* Line redaction: approximate length, not full measure. */
 .dc-redaction--line .dc-redaction__surface {
   height: 0.8em;
 }
 
-/* A block keeps the shape of what it replaced: the number of lines and their
-   relative lengths, not one monolithic rectangle (§27.6). Percentages, so a
-   narrow screen scales it instead of overflowing. */
+/* Block redaction: preserve line count/lengths via %. */
 .dc-redaction--block {
   display: block;
   margin: 0.4em 0;
@@ -1708,11 +1536,7 @@ dc-copy[copied] .dc-copy__button {
   margin-bottom: 0.35em;
 }
 
-/*
- * Print: the redaction must survive, and it must be obvious in grayscale —
- * but a page of solid black is neither necessary nor kind to a printer, so the
- * texture flattens to a light fill with a rule around it (§27.6 print).
- */
+/* Print: light fill + rule (not solid black). */
 @media print {
   .dc-redaction__surface,
   .dc-redaction__line {
@@ -1722,10 +1546,7 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-/*
- * Forced colors: the texture is decoration and may go, the covered area may
- * not. A system-coloured fill keeps the fact of the removal visible.
- */
+/* Forced colors: system fill keeps covered area visible. */
 @media (forced-colors: active) {
   .dc-redaction__surface,
   .dc-redaction__line {
@@ -1735,20 +1556,9 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-/*
- * Figures and dithered images (§30). The image is a block in the prose column,
- * and the caption line under it carries both the caption and the link to the
- * full-colour original — the same line whether or not there is a caption, so
- * the link always sits in one predictable place.
- *
- * Nothing here changes the box the image occupies: width and height come from
- * the markup and `height: auto` from the theme, which is what keeps the
- * dithered version from shifting anything as it loads (§45.3).
- */
+/* Figures: caption + colour-original link on one line; box from markup. */
 .dc-figure {
-  /* Shrink to the image rather than to the column: a caption line stretched to
-     the full measure under a narrower image reads as belonging to the page,
-     not to the picture. */
+  /* fit-content: caption tracks image width, not column. */
   width: fit-content;
   max-width: 100%;
   margin: 1.6em 0;
@@ -1765,15 +1575,12 @@ dc-copy[copied] .dc-copy__button {
   color: var(--dc-muted);
 }
 
-/* `sizes` already gives the browser the layout width, so the image needs no
-   width of its own — only to stop being an inline box with a text baseline
-   under it. */
+/* sizes sets width; display:block drops text baseline gap. */
 .dc-image--dithered {
   display: block;
 }
 
-/* The credit belongs to the picture, not to the sentence around it, so it sits
-   on the caption line and stays quieter than the caption itself (§27.1). */
+/* Credit quieter than caption. */
 .dc-figure__source {
   color: var(--dc-faint);
 }
@@ -1782,10 +1589,7 @@ dc-copy[copied] .dc-copy__button {
   color: inherit;
 }
 
-/* A gallery is a sequence of figures, not a grid of cards (§27.2): the columns
-   only exist while there is room for them, and `auto-fit` with a floor of
-   220px lands on three across the prose column, two on a tablet and one on a
-   phone — without a media query claiming to know the picture's shape. */
+/* Gallery: auto-fit columns, min 220px. */
 .dc-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1793,66 +1597,45 @@ dc-copy[copied] .dc-copy__button {
   margin: 1.6em 0;
 }
 
-/* Inside the sequence a figure fills its column: `width: fit-content` is for a
-   picture standing alone in the text. */
+/* Gallery figure fills its column. */
 .dc-gallery .dc-figure {
   width: 100%;
   margin: 0;
 }
 
-/*
- * Math (§29). Formulas are MathML, produced on the build (T60), so the browser
- * lays them out itself and nothing here waits for a script. The stack names the
- * math fonts a system is likely to have and then falls through to the body
- * serif: MathML keeps its structure either way, only the glyphs change.
- */
+/* MathML: system math fonts, then body serif. */
 .dc-prose math {
   font-family: "Latin Modern Math", "STIX Two Math", "XITS Math", "Cambria Math",
     "DejaVu Math TeX Gyre", var(--dc-font-prose);
   font-size: 1.05em;
 }
 
-/*
- * A display formula gets its own line and its own scrollbar: §29.1 asks for a
- * wide formula to overflow inside its container rather than shrink to an
- * unreadable size. The padding is what keeps a descender or an integral sign
- * from touching the scroll edge.
- */
+/* Display math: overflow scroll; padding for descenders. */
 .dc-math {
   overflow-x: auto;
-  /* A grid or flex child refuses to shrink below its content without this. */
+  /* min-width:0 so flex/grid child can shrink. */
   min-width: 0;
   margin: 1.6em 0;
   padding-block: 0.2em;
   text-align: center;
 }
 
-/* An inline formula sits in a line of prose and must not stretch it. */
+/* Inline math: do not stretch the line. */
 .dc-prose :not(.dc-math) > .katex math {
   font-size: 1.02em;
 }
 
 @media print {
-  /* Paper cannot scroll, so a wide formula is allowed to break out of its box
-     rather than be cut off at the edge of one. */
+  /* Print: allow wide formula to overflow rather than clip. */
   .dc-math {
     overflow: visible;
   }
 }
 
-/*
- * A table inside a publication (§27.5). The Library's own table is a data
- * primitive with monospace metadata and sortable headers — `.dc-table`, far
- * below; this one is a paragraph that happens to have columns: the body type,
- * quiet rules, no zebra and nothing to click.
- *
- * The scroll lives in the container, so a table wider than the phone moves
- * inside its box instead of dragging the page sideways.
- */
+/* Publication table: body type, quiet rules; scroll in container. */
 .dc-prose-table {
   overflow-x: auto;
-  /* A grid or flex child refuses to shrink below its content without this, and
-     one wide table then pushes the whole panel sideways. */
+  /* min-width:0 so wide table does not push the panel. */
   min-width: 0;
   margin: 1.6em 0;
 }
@@ -1895,8 +1678,7 @@ dc-copy[copied] .dc-copy__button {
 }
 
 @media print {
-  /* Paper cannot scroll a box, so the table stops being one: it prints whole,
-     at whatever width the page gives it. */
+  /* Print: table at full page width, no scroll box. */
   .dc-prose-table {
     overflow: visible;
   }
@@ -1914,11 +1696,7 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-/*
- * Footnotes. Goldmark already writes the semantics — `doc-endnotes`,
- * `doc-noteref`, `doc-backlink` — so what is left is to make both ends visible
- * and to say where the reader landed after following one.
- */
+/* Footnotes */
 .dc-prose .footnotes {
   margin-top: 2.4em;
   font-size: 0.85em;
@@ -1935,8 +1713,7 @@ dc-copy[copied] .dc-copy__button {
   margin-bottom: 0.6em;
 }
 
-/* The mark in the text and the way back are both links, and both are small:
-   they get the link colour rather than a hover-only hint. */
+/* Note ref and backlink use link colour. */
 .dc-prose .footnote-ref,
 .dc-prose .footnote-backref {
   color: var(--dc-accent);
@@ -1950,8 +1727,7 @@ dc-copy[copied] .dc-copy__button {
   text-decoration: underline;
 }
 
-/* Following a footnote moves the page, and nothing else says which line was
-   the target — the marker does. */
+/* :target highlights the landed footnote. */
 .dc-prose .footnotes li:target,
 .dc-prose sup:target {
   outline: 1px solid var(--dc-border);
@@ -1959,8 +1735,7 @@ dc-copy[copied] .dc-copy__button {
   background: var(--dc-panel-bg);
 }
 
-/* The link is the only interactive part of a figure, so it reads as a command
-   rather than as a caption that happens to be blue. */
+/* Figure link reads as command, not caption. */
 .dc-figure__original {
   flex: none;
   margin-inline-start: auto;
@@ -1974,8 +1749,7 @@ dc-copy[copied] .dc-copy__button {
   border-bottom-color: currentColor;
 }
 
-/* In the identity panel the link is the caption line of a figure that has no
-   caption: same type, same colour, same right edge. */
+/* Identity portrait link: caption-line styling. */
 .dc-portrait-original {
   margin: 0;
   font-size: var(--dc-fs-meta);
@@ -1983,25 +1757,15 @@ dc-copy[copied] .dc-copy__button {
 }
 
 @media print {
-  /* On paper the link goes nowhere, and the URL after it would be a line of
-     noise under every photograph. */
+  /* Print: hide photo links (no useful URL). */
   .dc-figure__original,
   .dc-portrait-original {
     display: none;
   }
 }
 
-/*
- * Status Bar (§13.1). Pinned to the bottom edge, not scrolling with the
- * document — and paid for in layout, not stolen from it: the body reserves the
- * bar's height so the last line of a publication is never hidden underneath.
- *
- * The bar exists only where a static state is worth showing (see the partial);
- * on a phone it is not rendered at all (§13.3), so the reserved space is
- * released with it.
- */
-/* A wrapper that creates no box: <as-statusbar> only swaps the mode text, and
-   the bar keeps behaving exactly as it did before it was wrapped. */
+/* Status bar: fixed bottom; height reserved in layout. */
+/* <as-statusbar> is display:contents. */
 as-statusbar {
   display: contents;
 }
@@ -2022,9 +1786,7 @@ as-statusbar {
   color: var(--dc-muted);
 }
 
-/* The shortcut hints sit at the far end of the bar and only ever arrive with
-   JavaScript (§13.4): the template prints an empty span, <as-statusbar> fills
-   it with the keys that actually work on this page. */
+/* Shortcut hints filled by JS. */
 .dc-statusbar__keys {
   margin-left: auto;
   color: var(--dc-faint);
@@ -2062,9 +1824,7 @@ body:has(.dc-statusbar) {
   }
 }
 
-/* Identity links in the about pane: a quiet row, not a badge wall. They are
-   part of the note about who this is, so they read at metadata size and stay
-   below the prose (§15.1). */
+/* Identity links: quiet row under about prose. */
 .dc-region-label {
   margin: 14px 0 0;
   color: var(--dc-primary);
@@ -2081,12 +1841,7 @@ body:has(.dc-statusbar) {
   font-size: var(--dc-fs-meta);
 }
 
-/*
- * The portrait is a utility pane, and a utility pane must not outshout the
- * page (§15.2). At full width a square crop would do exactly that, so the
- * narrower the screen, the wider the crop — and on a phone the portrait sits
- * below the recent materials rather than owning the first screen (§15.4).
- */
+/* Portrait: landscape crop; utility, not hero. */
 @media (max-width: 1100px) {
   .dc-portrait {
     aspect-ratio: 21 / 9;
@@ -2101,18 +1856,8 @@ body:has(.dc-statusbar) {
   }
 }
 
-/*
- * Library layout L4 → L5 → phone (§8). One arrangement of the same parts: on a
- * wide screen the view list is a narrow rail beside the content, on a tablet it
- * becomes a row of tabs above it, on a phone the same row wraps and the list
- * stacks. The rail is deliberately light — §8.1 says it must never carry more
- * visual weight than the content it filters.
- */
-/* A library view that overflows and one that does not must not move the
-   pane: classic scrollbars steal ~15px of the viewport, which Recent has
-   and Topics does not. Reserve the gutter only while the library is on
-   screen — publication pages keep their own measure. Overlay scrollbars
-   ignore this. */
+/* Library layout: rail → content → phone stack. */
+/* Stable pane width: scrollbar-gutter / overlay scrollbars. */
 html:has(.dc-library) {
   scrollbar-gutter: stable;
 }
@@ -2124,28 +1869,20 @@ html:has(.dc-library) {
   align-items: start;
 }
 
-/* Grid children refuse to shrink below their content unless told to, and the
-   pane's own max-width (820px) is wider than the column it sits in — so it
-   grew to fit the table instead of letting the table's scroll box do its job,
-   and the whole page scrolled sideways. Both halves are needed: min-width to
-   allow shrinking, max-width to keep the pane inside its column. */
+/* min-width:0 + max-width so pane fits its column. */
 .dc-library > *,
 .dc-library .dc-panel__body {
   min-width: 0;
 }
 
 .dc-library > .dc-panel {
-  /* Auto side margins on .dc-panel--doc (theme) make a grid item shrink to
-     its content, so a short topics list was a 155px pane next to a 1122px
-     Recent. Cancel them here: the column is the measure, not the copy. */
+  /* Cancel theme auto margins on .dc-panel--doc in this grid. */
   width: 100%;
   max-width: 100%;
   margin-inline: 0;
 }
 
-/* The floating command sits in a notch of the border. Once the pane is as
-   wide as the column it always has room on a desktop; on a phone a long
-   `--type` / `--topic` line must still stay one row inside the frame. */
+/* Floating command notch; type/topic line stays one row. */
 .dc-library > .dc-panel > .dc-panel__label {
   max-width: calc(100% - 36px);
   overflow: hidden;
@@ -2175,7 +1912,7 @@ html:has(.dc-library) {
   gap: 6px;
 }
 
-/* Types and Topics are secondary (§6.2): same list, quieter. */
+/* Types and Topics: quieter secondary lists. */
 .dc-library__views-list--secondary {
   color: var(--dc-faint);
   border-top: 1px solid var(--dc-border);
@@ -2216,8 +1953,7 @@ html:has(.dc-library) {
   font-size: var(--dc-fs-meta);
 }
 
-/* The group heading links to the type's own page (T142); it is a link on a
-   coloured badge, not prose, so it does not need underlining to read as one. */
+/* Group heading badge: no underline. */
 .dc-library__group a {
   text-decoration: none;
 }
@@ -2228,16 +1964,13 @@ html:has(.dc-library) {
 }
 
 @media (max-width: 1100px) {
-  /* minmax(0, 1fr), not 1fr: a plain 1fr refuses to shrink below its content,
-     and one wide table then pushes the whole page sideways. */
+  /* minmax(0,1fr) so content can shrink. */
   .dc-library {
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
   }
 
-  /* T161: one horizontal sibling row with an explicit scroll, not wrap.
-     The scrollbar stays visible — hiding it would make overflow look like
-     clipped content. A late fade leaves a sliver of the next item. */
+  /* Horizontal sibling row with visible scroll; late fade. */
   .dc-library__views {
     display: flex;
     flex-wrap: nowrap;
@@ -2263,11 +1996,7 @@ html:has(.dc-library) {
   }
 }
 
-/*
- * MaterialRow (§9). The title is the row: it is the largest text and the only
- * link, and everything else sits under it in metadata size. Density changes
- * what is shown, not the hierarchy — a dense row simply drops the excerpt.
- */
+/* MaterialRow: title is the link; meta below. */
 .dc-material-list {
   margin: 0;
   padding: 0;
@@ -2311,11 +2040,7 @@ html:has(.dc-library) {
   color: var(--dc-faint);
 }
 
-/* Dense is one line — TITLE → TYPE → DATE, markers tertiary — not the rich
-   title-then-meta stack: a container that already filtered or grouped the
-   list needs a row to scan, not a card per item. Markup is title, markers,
-   type, date; flex order restores TITLE → TYPE → DATE → markers on a
-   wide screen (T171 / T161). */
+/* Dense: one line TITLE → TYPE → DATE. */
 .dc-material--dense .dc-material__row {
   display: flex;
   flex-wrap: wrap;
@@ -2371,12 +2096,7 @@ html:has(.dc-library) {
   line-height: var(--dc-lh-ui);
 }
 
-/*
- * A phone gets real tap targets: §44.3 asks for about 44×44 CSS px, and a
- * 25px-tall link in a list of six is a miss waiting to happen. The title link
- * becomes a block so its whole line is tappable, with padding making up the
- * height difference.
- */
+/* Phone: ~44px tap targets on list rows. */
 @media (max-width: 640px) {
   .dc-material {
     padding: 8px 0;
@@ -2388,9 +2108,7 @@ html:has(.dc-library) {
     min-height: 44px;
   }
 
-  /* T161 phone: TITLE(+markers) then TYPE · DATE. Primary is inline so
-     markers follow the last line of the title instead of becoming a
-     third row under a block heading. */
+  /* Phone dense: TITLE(+markers), then TYPE · DATE. */
   .dc-material--dense {
     min-height: 44px;
   }
@@ -2443,12 +2161,7 @@ html:has(.dc-library) {
   }
 }
 
-/*
- * Timeline T2 (§10). The date sits on a left rail with the event dot; the row
- * repeats neither the date nor the year, because the rail and the heading
- * already carry them. The title is the loudest text, the type is a fast
- * secondary signal, the size is third.
- */
+/* Timeline: date rail + event dot. */
 .dc-timeline {
   margin: 0 0 26px;
 }
@@ -2514,14 +2227,10 @@ html:has(.dc-library) {
   color: var(--dc-faint);
 }
 
-/*
- * Index mode (§9.3). Column order is TITLE | TYPE | DATE | SIZE — the date may
- * sort the list without leading it. The table scrolls inside its own box, so a
- * narrow screen never scrolls the page sideways.
- */
+/* Index mode: TITLE | TYPE | DATE | SIZE. */
 .dc-table-scroll {
   overflow-x: auto;
-  /* The box may be narrower than its table: that is the point of the box. */
+  /* Box may be narrower than its table. */
   min-width: 0;
 }
 
@@ -2550,9 +2259,7 @@ html:has(.dc-library) {
   font-size: var(--dc-fs-ui);
 }
 
-/* A date broken across two lines stops being a date, and a type label that
-   wraps stops reading as one token. The title is the only cell allowed to
-   wrap — it is the one that carries variable length. */
+/* nowrap date/type; title may wrap. */
 .dc-table td:not(:first-child) {
   white-space: nowrap;
 }
@@ -2581,10 +2288,7 @@ html:has(.dc-library) {
   text-decoration: none;
 }
 
-/* A phone is not offered the table as a way of looking at the library (§13.3,
-   §36): the columns only fit sideways there, and a switch that leads to a
-   sideways scroll is not a mode, it is a trap. /library/table still opens for
-   anyone who asks for it by address. */
+/* Phone: hide index table view. */
 @media (max-width: 640px) {
   .dc-mode-switch {
     display: none;
@@ -2609,8 +2313,7 @@ html:has(.dc-library) {
   }
 }
 
-/* The publication's metadata line is one line: the date there is inline, not
-   the block-level one a list row uses. */
+/* Publication meta date: inline, not list-row block. */
 .dc-publication__meta {
   display: flex;
   flex-wrap: wrap;
@@ -2627,12 +2330,7 @@ html:has(.dc-library) {
   font-size: var(--dc-fs-meta);
 }
 
-/*
- * Article Reader (§21). On a wide screen the contents sit in a right-hand
- * column beside the body — a contextual utility, never a persistent left
- * sidebar (§21.2, §47.5). The document starts where it would have started
- * without it: the head and the body keep their own column.
- */
+/* Article reader: TOC beside body on wide screens. */
 .dc-article--with-toc {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 200px;
@@ -2674,8 +2372,7 @@ html:has(.dc-library) {
   color: var(--dc-faint);
 }
 
-/* One of the two shapes is always hidden — and hidden means gone from the
-   accessibility tree too, so the page has exactly one table of contents. */
+/* Only one TOC in the a11y tree (one shape hidden). */
 .dc-toc--folded {
   display: none;
 }
@@ -2719,8 +2416,7 @@ html:has(.dc-library) {
   color: var(--dc-text);
 }
 
-/* Narrow: the contents fold above the text and start closed — a reader who
-   opened an article wants the article, and the list is one tap away (§21.2). */
+/* Narrow: TOC above text, starts closed. */
 @media (max-width: 900px) {
   .dc-article--with-toc {
     display: block;
@@ -2736,15 +2432,7 @@ html:has(.dc-library) {
   }
 }
 
-/*
- * Paper Reader (§22). The stricter presentation inside the text family:
- * numbered sections, an abstract that reads as a summary rather than as the
- * opening paragraph, and a measure a little narrower than an article's,
- * because footnote-dense prose is read more slowly.
- *
- * Nothing here is terminal-flavoured: §22.1 forbids wrapping academic content
- * in fake commands, and that includes decorative prompts around headings.
- */
+/* Paper reader */
 .dc-paper__abstract {
   margin: 18px 0 0;
   padding: 12px 16px;
@@ -2773,8 +2461,7 @@ html:has(.dc-library) {
   color: var(--dc-faint);
 }
 
-/* Sections number themselves: the author writes headings, the renderer counts
-   them (§22). A paper without headings simply has nothing to number. */
+/* Auto-numbered sections from headings. */
 .dc-paper__body {
   counter-reset: dc-paper-section;
 }
@@ -2788,12 +2475,7 @@ html:has(.dc-library) {
   color: var(--dc-faint);
 }
 
-/*
- * Fiction Reader (§23). A slightly narrower measure than an article — §18.3
- * asks for ~55–65ch, because prose is read line by line rather than scanned —
- * and metadata that waits until the end instead of standing between the title
- * and the first sentence.
- */
+/* Fiction reader: narrower measure. */
 .dc-fiction__body {
   max-width: 58ch;
 }
@@ -2806,11 +2488,7 @@ html:has(.dc-library) {
   color: var(--dc-faint);
 }
 
-/*
- * Poetry Reader (§24). The line is the unit: it never justifies, never hyphenates
- * and never gets rewrapped for tidiness — a wrapped line is the author's line
- * continued, so it is indented rather than started afresh.
- */
+/* Poetry reader: line is the unit; no justify/hyphenate. */
 .dc-poem__head {
   text-align: center;
 }
@@ -2826,16 +2504,9 @@ html:has(.dc-library) {
   margin: 0 0 1.6em;
 }
 
-/*
- * No hanging indent for wrapped lines: it can only be applied to the first
- * line of a paragraph, and a poem is one paragraph of <br>-separated lines —
- * so it indented the poem's opening line and left every wrap looking exactly
- * like a new line of verse. Telling the two apart needs per-line markup, which
- * is a change to how poems are authored, not a stylesheet decision.
- */
+/* No hanging indent on wrapped verse lines. */
 
-/* Short poem: more air per line, the whole thing sits as one composition
-   (§24.5). Long poem: tighter lines, the stanza carries the rhythm. */
+/* Short poem: more leading; long: tighter. */
 .dc-poem--short .dc-poem__body {
   line-height: 2.1;
 }
@@ -2857,12 +2528,7 @@ html:has(.dc-library) {
   text-align: center;
 }
 
-/*
- * Poetry Collection (§25). Works are separated by air, not by rules: a large
- * gap and a quiet title are enough to say "this is a different poem". The
- * separator glyph of the design system (· · ·) is decorative and hidden from
- * assistive technology — the heading already announces the work.
- */
+/* Poetry collection: works separated by gap, not rules. */
 .dc-collection__body {
   line-height: 1.9;
 }
@@ -2908,17 +2574,12 @@ html:has(.dc-library) {
   color: var(--dc-muted);
 }
 
-/*
- * Track Detail (§26.2). Lyrics-first: the head is quiet, the player sits under
- * the year, and the words are the page. There is no cover slot at all — a
- * track without an image must not look like one whose image failed (§26.2).
- */
+/* Track detail: lyrics-first; player under year. */
 .dc-track__head {
   text-align: center;
 }
 
-/* The player block is a column (label above the control), so centring it means
-   centring its items across that column, not along it. */
+/* Player column: center items cross-axis. */
 .dc-track__head .dc-audio {
   align-items: center;
 }

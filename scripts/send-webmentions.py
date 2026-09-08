@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Send outgoing Webmentions for links this site publishes (T8).
+"""Send outgoing Webmentions for links this site publishes.
 
 Runs after a successful deploy, never as part of it: notifying other sites is
 not a condition of publishing, and a receiver that is down must not be able to
@@ -10,8 +10,7 @@ links, discovers each target's endpoint and posts source/target pairs.
 already delivered is skipped. It lives in `data/` because that is the one
 committed place for the site's own data; Hugo reads it and no template uses it.
 
-See ADR `redesign-webmention-moderation-contract` and the target architecture
-§9 (outbound send after deploy).
+Outbound send after deploy.
 """
 
 from __future__ import annotations

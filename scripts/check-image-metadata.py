@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify that published images carry no metadata about their author (T73).
+"""Verify that published images carry no metadata about their author.
 
 The policy — which segments go and which stay, and why — lives in
 `scripts/image_metadata.py` next to the stripper that enforces it, so the rule

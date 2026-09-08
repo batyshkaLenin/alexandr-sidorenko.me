@@ -1,32 +1,13 @@
 {{- /*
-Status Bar (§13): the mode of the current application and the state that is
-true about it right now.
-
-§13.4 is the rule that decides whether it exists at all:
-
-    a useful static state remains  → the bar is drawn
-    only a decorative mode name    → there is no bar
-
-So Home has none. `NORMAL` on its own says nothing without the keyboard hints
-that arrive with JavaScript (T135), and a row of viewport height is too much to
-spend on a word. Library and a publication do have something true to say
-without a single line of script: how many materials are listed, what kind of
-material this is.
-
-What is deliberately absent: read progress, media progress, `UTF-8`, `markdown`,
-`LF`. The first two exist only with JavaScript; the rest is IDE cosplay (§13.2).
-
-On a phone the bar is not rendered at all — vertical space matters more, and
-shortcuts have no keyboard to come from (§13.3).
+Status bar: mode + static state when useful (counts, type). Hidden on phone.
+Home has no static bar; <as-statusbar> may still add JS-only hints.
 */ -}}
 {{- $prefix := "" -}}
 {{- $mode := "" -}}
 {{- $state := "" -}}
 {{- if eq .Kind "page" -}}
   {{- if eq .Section "library" -}}
-    {{- /* The reader is shell, not document (§13.2, §2.3): the state names the
-    type in the same machine spelling the menu already uses (`ARTICLE`, not
-    "Статья") — `upper` of the front-matter key, no separate vocabulary entry. */ -}}
+    {{- /* State is upper(front-matter type), e.g. ARTICLE — not the Russian label. */ -}}
     {{- $mode = cond (eq .Params.type "track") "PLAY" "READ" -}}
     {{- $state = upper .Params.type -}}
   {{- else if .Params.material_type -}}
@@ -36,9 +17,7 @@ shortcuts have no keyboard to come from (§13.3).
     {{- $mode = upper $mt -}}
     {{- $state = printf "%d %s" (len $materials) (i18n "materialsCount" (len $materials)) -}}
   {{- else if .Params.view -}}
-    {{- /* A Library view counts what it actually lists, not the library as a
-    whole (§13.4) — Music was reporting the total material count instead of
-    its own track count. */ -}}
+    {{- /* Count what this view lists (Music = tracks only). */ -}}
     {{- $view := .Params.view -}}
     {{- $materials := where site.RegularPages "Section" "library" -}}
     {{- if eq $view "music" -}}
@@ -61,11 +40,7 @@ shortcuts have no keyboard to come from (§13.3).
   {{- $mode = "TOPICS" -}}
   {{- $state = printf "%d %s" (len .Pages) (i18n "topicsCount" (len .Pages)) -}}
 {{- end -}}
-{{- /* <as-statusbar> adds what only exists with JavaScript (T135): the keyboard
-hints, and SEARCH while the palette is open. It is printed even where the
-template has no static bar — on Home `NORMAL` says nothing on its own, but
-`NORMAL` plus working shortcuts does, so there the element builds the bar
-itself and `mode-default` is the word it uses. */ -}}
+{{- /* <as-statusbar>: JS keyboard hints; on Home it builds the bar itself. */ -}}
 {{- $modeNames := "" -}}
 {{- if and (eq .Kind "page") (in (slice "all" "table") (default "" .Params.view)) -}}
   {{- $modeNames = dict "list" "ALL" "table" "TABLE" | jsonify -}}

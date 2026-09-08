@@ -1,4 +1,4 @@
-# Site-owned overrides and additions to the theme's i18n bundle (T53).
+# Site-owned overrides and additions to the theme's i18n bundle.
 # notFoundTitle stays a plain human sentence because it is also the <title>
 # of the 404 response; the terminal line from the mockup lives in its own key.
 notFoundTitle:

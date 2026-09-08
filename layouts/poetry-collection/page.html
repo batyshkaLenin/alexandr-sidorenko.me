@@ -1,16 +1,6 @@
 {{- /*
-Poetry Collection Reader (§25). A collection is a node of its own, and each poem
-inside it stays visually autonomous: a large gap between works, an anchor per
-work, and a list of them at the start when the collection is long.
-
-Boundaries come from the material: an `h2` starts a new poem. A collection
-written as one continuous text — as the existing one is — renders as one, with
-the rhythm of a long poem. The renderer does not guess where a work ends.
-
-§25.1: a redaction inside a line stays part of the line. It gets no heading, no
-counter and no frame at the level of the collection — the hierarchy is
-collection → poem → stanza → line → redaction, and nothing about a redaction
-climbs it.
+Poetry collection: h2 starts a work; long collections get a works list.
+Redactions stay inline — no collection-level frame for them.
 */ -}}
 {{ define "main" }}
 {{- $works := len (findRE `<h2` .Content) -}}

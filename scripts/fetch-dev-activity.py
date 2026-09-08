@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Fetch the `dev` module's snapshot: weekly hours and the shape of the week (T149).
+"""Fetch the `dev` module's snapshot: weekly hours and the shape of the week.
 
 Runs during the build (and by hand), never in a visitor's browser. Two sources,
-two very different roles (ADR redesign-activity-dev-module):
+two very different roles:
 
 - WakaTime, with an API key, answers "how long did I code this week". Its public
   API cannot: it publishes yearly totals only, and its responses carry no CORS

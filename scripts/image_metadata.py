@@ -5,7 +5,7 @@ What the site publishes about a photograph is the photograph. A camera writes
 much more than that: `mattew-with-yamaha-46yo.jpg` arrived carrying `OPPO A54`,
 `MediaTek Camera Application` and `2021:11:20 16:44:59` — the device its author
 owned and the minute they pressed the button — in 41KB that rode along with
-every request for a 2.9MB file (T73).
+every request for a 2.9MB file.
 
 So the policy is by segment, not by tag: a JPEG keeps only what a decoder needs
 to render it correctly, and a PNG keeps only what describes its pixels.
@@ -31,7 +31,7 @@ holds.
 WebP — kept: VP8/VP8L/ALPH/ANIM/ANMF (the pixels) and ICCP (colour), matching
 the JPEG and PNG rules above.
 
-The site publishes WebP because responsive derivatives are encoded to it (T66).
+The site publishes WebP because responsive derivatives are encoded to it.
 Hugo's encoder does not copy source metadata into a derivative, so in practice
 these chunks are absent — but the check exists to verify that rather than to
 assume it, and a source WebP added later goes through the same policy.

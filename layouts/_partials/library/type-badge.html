@@ -1,9 +1,6 @@
 {{- /*
-The type badge: colour by family (§17.3), label text from the machine
-vocabulary (data/creative_types.yaml). One place, so MaterialRow's two
-densities and the Types group heading never drift apart on how a type reads.
-Input: dict "page" <the material> ["plural" true] — plural asks for the
-group-heading wording ("Статьи"), not the singular per-material one.
+Type badge: family colour + label from data/creative_types.yaml.
+Input: dict "page" … ["plural" true] for group headings.
 */ -}}
 {{- $page := .page -}}
 {{- $plural := .plural -}}

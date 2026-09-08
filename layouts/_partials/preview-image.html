@@ -1,22 +1,8 @@
 {{- /*
-The absolute URL of the image a link preview, an h-card or JSON-LD should point
-at (T66).
+Single JPEG preview URL for OG/h-card/JSON-LD (≤1200px, quality 70).
+Not a <picture> ladder — crawlers fetch one URL.
 
-This is deliberately one plain JPEG rather than a <picture> ladder: the readers
-here are Telegram, Mastodon, Slack and search crawlers, which fetch a single
-URL and have no negotiation to offer. 1200px is the width every one of them
-documents, and it is what makes the difference between a preview and a 2.9 MB
-phone original — `mattew-with-yamaha-46yo.jpg` is 4160px wide and is never
-rendered on the page at all, it exists only to be this preview.
-
-Narrower sources are left at their own width; nothing is upscaled.
-
-Quality 70 rather than the site's 82: these seven files are the single heaviest
-group in the build and no reader ever downloads one while browsing. A preview
-card renders at a few hundred pixels inside a chat client, so the difference is
-invisible where it is shown and worth roughly a third of their bytes.
-
-Call with a dict: {{ partial "preview-image.html" (dict "path" "/avatar.jpg" "context" .) }}
+Call: {{ partial "preview-image.html" (dict "path" "/avatar.jpg" "context" .) }}
 */ -}}
 {{- $resource := partial "image-resource.html" . -}}
 {{- $width := cond (lt $resource.Width 1200) $resource.Width 1200 -}}

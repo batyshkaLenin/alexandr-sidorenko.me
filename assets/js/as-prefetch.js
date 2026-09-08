@@ -1,15 +1,10 @@
-/*
-<as-prefetch> — hover/focus prefetch for internal links (§45.2, §30.5).
-
-Wraps the page body and listens for pointerenter/focusin on internal <a> tags.
-On the first qualifying event for a given href, injects a <link rel="prefetch">
-into <head>. The prefetch fires once per URL per page load — repeating a hover
-does not repeat the request.
-
-Respects the visitor's data budget: does nothing when `navigator.connection
-.saveData` is true or when the `prefers-reduced-data` media query matches.
-Without JavaScript the element is inert markup and the page works unchanged.
-*/
+/**
+ * <as-prefetch> — prefetch internal links on hover/focus.
+ *
+ * Listens for pointerenter/focusin on internal <a> tags and injects
+ * <link rel="prefetch"> once per URL. Skips when saveData or
+ * prefers-reduced-data is on. No-op without JS.
+ */
 "use strict";
 
 class AsPrefetch extends HTMLElement {
@@ -44,7 +39,7 @@ class AsPrefetch extends HTMLElement {
       link.rel = "prefetch";
       link.href = href;
       document.head.appendChild(link);
-    } catch { /* malformed URL — skip */ }
+    } catch { /* skip */ }
   }
 }
 

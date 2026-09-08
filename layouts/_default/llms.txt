@@ -1,9 +1,6 @@
 {{- /*
-/llms.txt — one Markdown map of the site (llmstxt.org: H1, blockquote, sections
-of links). MACHINE-LLMS: structure and entry points, not an inventory of
-publications (T174). Bodies stay in HTML, RSS and JSON Feed.
-
-Addresses go through canonical-url.html like every other representation.
+/llms.txt — site map for LLMs (structure and entry points, not full bodies).
+Addresses go through canonical-url.html.
 */ -}}
 {{- $origin := strings.TrimSuffix "/" site.BaseURL -}}
 {{- /* GetPage wants the content path. Views live under content/views with

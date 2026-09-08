@@ -1,32 +1,10 @@
 {{- /*
-/search-index.json (T134) — everything the palette can find, built with the
-site (§45.1).
-
-The index is data for the theme's <dc-command-palette>, which knows nothing
-about this site: the shape is the theme's public API, the labels and what gets
-listed are ours. Every address goes through canonical-url.html like every other
-representation, so this file cannot become the one place that publishes a
-trailing slash.
-
-Bodies come from `.Plain`, which is the rendered page without its tags — so a
-redacted fragment is absent here exactly as it is absent from the page, the
-feeds and /llms.txt: the shortcode never puts the original text in the DOM, and
-what remains is the accessible replacement ("[вымарано]"). The one thing that
-must never happen to this file is becoming the place where a redaction leaks,
-and `scripts/check-search-index.py` asserts it.
-
-`path` is the address in the shape the top bar prints (`~/library/skver`), so
-searching for a path finds what a visitor has seen on screen.
-
-`kind` is the machine-readable half of `type`: the label is Russian and belongs
-to readers, while `audio`/`text`/`view`/`section`/`topic` is what a component
-can act on — the prompt's `play` offers audio and its `read` offers text
-without either side learning the other's vocabulary.
+/search-index.json for <dc-command-palette>. Canonical URLs; bodies via .Plain
+(redactions stay absent). `path` matches the top-bar shape; `kind` is machine-facing.
 */ -}}
 {{- $entries := slice -}}
 
-{{- /* Materials: the whole body is searchable, not just the summary — §32 asks
-for content, and with six materials the file stays small. */ -}}
+{{- /* Materials: full body text, not only summary. */ -}}
 {{- range (where site.RegularPages "Section" "library").ByDate.Reverse -}}
   {{- $entries = $entries | append (dict
     "title" .Title
@@ -55,8 +33,7 @@ for content, and with six materials the file stays small. */ -}}
   ) -}}
 {{- end -}}
 
-{{- /* Topics is a taxonomy, not a view page, but the prompt and the palette
-treat `/library/topics` like the other ways to browse (T157). */ -}}
+{{- /* Topics index is browseable like the other library views. */ -}}
 {{- with site.GetPage "/tags" -}}
   {{- $entries = $entries | append (dict
     "title" .Title
@@ -70,8 +47,7 @@ treat `/library/topics` like the other ways to browse (T157). */ -}}
   ) -}}
 {{- end -}}
 
-{{- /* A material type is an address like any other, and a reader who types
-«стих» is looking for one (T142). */ -}}
+{{- /* Type pages are searchable addresses. */ -}}
 {{- range where site.RegularPages "Params.material_type" "!=" nil -}}
   {{- $entries = $entries | append (dict
     "title" .Title

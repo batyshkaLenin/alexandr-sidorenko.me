@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static accessibility contract for the built pages (T135).
+"""Static accessibility checks for the built pages.
 
 Not a replacement for using the site with a keyboard and a screen reader — it
 checks the properties that are true of the markup itself, and that a template

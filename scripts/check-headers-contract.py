@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Verify the published `_headers` against the header contract (T72).
+"""Verify the published `_headers` against expected Cache-Control classes.
 
-The contract is ADR `redesign-headers-and-cache-contract`; the expected values
-below are that decision written out, so a drift in either direction fails here
-instead of silently shipping.
+The expected Cache-Control / Content-Type values below are written out so a
+drift in either direction fails here instead of silently shipping.
 
 Two modes. By default it reads `_headers` out of the build directory and checks
 the rules themselves plus their coverage of the files actually produced. With
@@ -61,7 +60,7 @@ EXPECTED_CACHE = {
     "/site.webmanifest": DAY,
     "/feed.xml": HOUR,
     "/feed.json": HOUR,
-    # Every topic and type publishes its own pair (T142); the rules are per
+    # Every topic and type publishes its own pair; the rules are per
     # format, not per feed, so the file does not grow with the library.
     "/*/feed.xml": HOUR,
     "/*/feed.json": HOUR,
@@ -74,7 +73,7 @@ EXPECTED_CACHE = {
 
 # Feeds also carry a media type: the platform derives Content-Type from the file
 # extension and lands on the generic application/xml and application/json, so the
-# specific feed types are stated in _headers (T4).
+# specific feed types are stated in _headers.
 EXPECTED_CONTENT_TYPE = {
     "/feed.xml": "application/rss+xml; charset=utf-8",
     "/feed.json": "application/feed+json; charset=utf-8",
@@ -89,7 +88,7 @@ HTML_EXPECTED = REVALIDATE
 
 # A URL may only claim immutable when its name carries a content hash.
 # A dithered derivative carries the digest of its source in the file name, so
-# the address changes with the photograph behind it (T129).
+# the address changes with the photograph behind it.
 CONTENT_ADDRESSED = (
     "/css/*",
     "/js/*",
@@ -154,9 +153,9 @@ def check_rules(errors: list[str], rules: dict[str, dict[str, str]], order: list
         if actual is None:
             errors.append(f"/*: missing {name}")
         elif actual != value:
-            errors.append(f"/*: {name} differs from the ADR\n    expected: {value}\n    actual:   {actual}")
+            errors.append(f"/*: {name} differs from expected\n    expected: {value}\n    actual:   {actual}")
     if "Strict-Transport-Security" in catch_all:
-        errors.append("HSTS is present, but the ADR defers it until after cutover")
+        errors.append("HSTS is present, but it is deferred until after cutover")
 
     for pattern, expected in EXPECTED_CACHE.items():
         headers = rules.get(pattern)
@@ -165,7 +164,7 @@ def check_rules(errors: list[str], rules: dict[str, dict[str, str]], order: list
             continue
         actual = headers.get("Cache-Control")
         if actual != expected:
-            errors.append(f"{pattern}: Cache-Control is {actual!r}, ADR says {expected!r}")
+            errors.append(f"{pattern}: Cache-Control is {actual!r}, expected {expected!r}")
 
     for pattern, headers in rules.items():
         if "immutable" in headers.get("Cache-Control", "") and pattern not in CONTENT_ADDRESSED:
@@ -174,7 +173,7 @@ def check_rules(errors: list[str], rules: dict[str, dict[str, str]], order: list
     for path, expected in EXPECTED_CONTENT_TYPE.items():
         actual = rules.get(path, {}).get("Content-Type")
         if actual != expected:
-            errors.append(f"{path}: Content-Type is {actual!r}, ADR says {expected!r}")
+            errors.append(f"{path}: Content-Type is {actual!r}, expected {expected!r}")
 
 
 def check_coverage(errors: list[str], rules: dict[str, dict[str, str]], public_dir: Path) -> None:
@@ -229,11 +228,11 @@ def check_live(errors: list[str], base_url: str, public_dir: Path) -> None:
             continue
         actual = headers.get("cache-control")
         if actual != expected:
-            errors.append(f"{url}: served Cache-Control {actual!r}, ADR says {expected!r}")
+            errors.append(f"{url}: served Cache-Control {actual!r}, expected {expected!r}")
         for name, value in SECURITY.items():
             served = headers.get(name.lower())
             if served != value:
-                errors.append(f"{url}: served {name} {served!r} differs from the ADR")
+                errors.append(f"{url}: served {name} {served!r} differs from expected")
 
 
 def main() -> int:
@@ -266,7 +265,7 @@ def main() -> int:
         return 1
 
     scope = f", verified against {args.base_url}" if args.base_url else ""
-    print(f"OK: {len(order)} rules within the {RULE_LIMIT} limit, values match the ADR{scope}")
+    print(f"OK: {len(order)} rules within the {RULE_LIMIT} limit, values match expected{scope}")
     return 0
 
 

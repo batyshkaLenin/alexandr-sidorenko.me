@@ -1,15 +1,5 @@
 {{- /*
-An image written in Markdown is a figure (§27.1): `![alt](/assets/… "caption")`.
-Everything else it needs — the responsive ladder, dithering, the link to the
-original — belongs to `publication/figure.html`, which the `figure` shortcode
-shares, so the two ways of putting a picture in a publication cannot drift
-apart. A credit line has no place in Markdown's syntax; that is what the
-shortcode is for.
-
-Body images are addressed as `/assets/…` in Markdown and resolved to pipeline
-resources under `assets/` — the address does not change, the bytes behind it
-do. An image pointing at a missing file fails the build there rather than
-shipping an <img> without dimensions.
+Markdown image → publication/figure.html (same as the figure shortcode).
 */ -}}
 {{- partial "publication/figure.html" (dict
       "page" .Page

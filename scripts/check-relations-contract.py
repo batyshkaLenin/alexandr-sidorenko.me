@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Verify the relations model of library materials (T109).
+"""Verify the relations model of library materials.
 
-Relations are optional and incomplete by design — the content-model ADR says so
+Relations are optional and incomplete by design — the content model says so
 outright. What is not optional is that a declared relation means something: an
 unknown key, a link to a material that does not exist, or an internal relation
 pointing at a URL are all mistakes that would otherwise sit in front matter
@@ -10,7 +10,7 @@ looking correct.
     scripts/check-relations-contract.py [--public-dir public]
 
 The built site is not read today: relations live in front matter and nothing
-renders them yet (T143 does). The argument is accepted so the checker fits the
+renders them yet. The argument is accepted so the checker fits the
 review gate's contract, which hands every check the directory it just built.
 """
 

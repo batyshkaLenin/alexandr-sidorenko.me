@@ -1,10 +1,6 @@
 {{- /*
-The list of Library views (§8.1). Narrow on a wide screen, tabs on a tablet, a
-plain row on a phone — one list, three arrangements, no duplicate markup.
-
-§8.1 asks that it never weigh more than the content: it is a sidebar of links,
-not a panel with a surface of its own. Types and Topics are secondary and sit
-apart from the two primary views (§6.2).
+Library views nav: one list, CSS rearranges for width.
+Types and Topics sit in the secondary list.
 */ -}}
 {{- $isTopic := in (slice "term" "taxonomy") .Kind -}}
 {{- $isType := ne (default "" .Params.material_type) "" -}}

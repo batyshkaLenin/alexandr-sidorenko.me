@@ -1,12 +1,9 @@
-# Header contract for Workers Static Assets (T72).
-# Values come from .ai/adr/redesign-headers-and-cache-contract.md — this file
-# implements that decision and does not make its own.
-#
+# Cache-Control and security headers for Workers Static Assets.
 # Cloudflare applies *every* matching rule and joins repeated header names with
 # a comma, so Cache-Control is never set on /* — a page would end up with two
 # joined policies. HTML therefore keeps the platform default
-# (public, max-age=0, must-revalidate), which is exactly what the contract asks
-# for, and only the classes that need something else are listed below.
+# (public, max-age=0, must-revalidate), and only the classes that need something
+# else are listed below.
 #
 # immutable appears only on content-addressed URLs, where changing the bytes
 # changes the URL. Fonts and audio live at stable addresses, so they get a week
@@ -14,8 +11,7 @@
 
 # connect-src carries one external host: the activity pane's dev module refreshes
 # the shape of the week from the public Code::Stats endpoint when JavaScript is
-# available (ADR redesign-activity-dev-module). Nothing else on the page fetches
-# anything from anywhere.
+# available. Nothing else on the page fetches anything from anywhere.
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self' https://codestats.net; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
   Referrer-Policy: strict-origin-when-cross-origin
@@ -34,7 +30,7 @@
   Cache-Control: public, max-age=31536000, immutable
 
 # The dithered portrait carries the digest of the photograph it came from, so
-# replacing the photograph replaces the address (T129).
+# replacing the photograph replaces the address.
 /avatar.dither-*
   Cache-Control: public, max-age=31536000, immutable
 
@@ -73,10 +69,10 @@
 # Content-Type is set here because the platform derives it from the file
 # extension and lands on application/xml and application/json — the generic
 # types, not the feed ones Hugo declares. A feed reader is entitled to the
-# specific type (T4). Setting the header replaces the platform's value; no
+# specific type. Setting the header replaces the platform's value; no
 # removal line is needed, and repeated names are only joined between separate
 # matching rules.
-# Two rules per format instead of one per feed: since T142 every topic and every
+# Two rules per format instead of one per feed: every topic and every
 # material type publishes its own pair, and naming them one by one would grow
 # the file with the library and eventually meet the 100-rule limit.
 /feed.xml
@@ -106,11 +102,11 @@
 
 # The search index lives at a stable address and follows the materials, so it
 # revalidates on the same hour as the feeds rather than claiming immutability
-# it cannot have (T134).
+# it cannot have.
 /search-index.json
   Cache-Control: public, max-age=3600
 
 # The cleanup worker unregisters stale service workers, so a visitor must not
-# be stuck with a cached copy of it (T38, T59).
+# be stuck with a cached copy of it.
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate

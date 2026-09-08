@@ -1,17 +1,6 @@
 {{- /*
-Both forms of code in a publication (§28.1, §28.2) are described here, so a
-fence decides which one it is by what it declares:
-
-  ```ts                      simple snippet — the code and nothing else
-  ```ts {file="src/user.ts"} rich block — file name, line numbers, language
-
-`caption` alone is enough to make a block rich too; a block that names itself
-in prose deserves the same frame as one that names a file.
-
-Highlighting stays server-side with Chroma classes (T50): the hook passes the
-author's own options through and only adds the numbering the rich form owes.
-Numbers go in a table so the column stays put while a long line scrolls under
-it — the scroll lives on the code cell, see `.dc-code__body` in site.css.
+Code fence: plain, or rich with file=/caption= (line numbers + chrome).
+Server-side Chroma; numbers in a table so the gutter stays put while code scrolls.
 */ -}}
 {{- $file := .Attributes.file -}}
 {{- $caption := .Attributes.caption -}}

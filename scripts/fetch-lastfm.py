@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch the last scrobbled track into the site's data snapshot (T96).
+"""Fetch the last scrobbled track into the site's data snapshot.
 
 Runs during the build (and by hand), never in a visitor's browser: the API key
 comes from the environment and stays on the machine that builds. What ends up in
@@ -8,7 +8,7 @@ link and *when the track was played* — plus the moment this ran.
 
 Time of play, not time of fetch: the owner's scrobbles arrive in batches when a
 phone syncs by hand, so "playing now" cannot be told truthfully from this data
-and is never claimed (ADR redesign-lastfm-last-played).
+and is never claimed.
 
 Last.fm being unreachable is not a build failure. The previous snapshot stays as
 it is and the build carries on with it — the same contract the Webmention import

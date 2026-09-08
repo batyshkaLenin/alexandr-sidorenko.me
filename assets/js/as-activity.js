@@ -1,11 +1,10 @@
-/*
-<as-activity> — progressive freshness annotation for the static activity pane.
-
-The HTML is the complete class-B baseline. This element makes one claim only:
-after seven days the build is an old snapshot. It neither fetches data nor
-turns the pane into live telemetry; without JavaScript the explicit build time
-still tells the whole truth.
-*/
+/**
+ * <as-activity> — mark the activity pane stale after seven days.
+ *
+ * Reads data-built-at; if older than 7 days, sets data-stale and prepends
+ * "снимок · " to [data-activity-freshness]. No network; works without JS
+ * via the build timestamp already in the HTML.
+ */
 "use strict";
 
 class AsActivity extends HTMLElement {

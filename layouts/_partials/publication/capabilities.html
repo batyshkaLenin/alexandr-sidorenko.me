@@ -1,21 +1,7 @@
 {{- /*
-What a material contains, computed at build time (ADR
-redesign-content-model-identity-relations-capabilities, §4.3 of the design
-system). Capabilities are derived, never authored: the front matter says what
-a material *is* (`type`), the body says what it *has*.
-
-A capability never stands in for identity — a poem with the author reading it
-is still a POEM with `audio`.
-
-Returns the computed set in display order (PRIM-CAPABILITY-MARKER), not
-lexicographically. Call it through partialCached, keyed by the page, so
-one material is inspected once per build:
+Capabilities derived from the body (not authored). Call via partialCached:
 
     {{ partialCached "publication/capabilities.html" . .RelPermalink }}
-
-Only capabilities with a carrier in the current site are computed. `gallery`,
-`video`, `notation`, `bibliography` and `download` join when the blocks that
-produce them exist (S22), rather than being guessed from prose.
 */ -}}
 {{- $content := .Content -}}
 {{- $capabilities := slice -}}
@@ -36,8 +22,7 @@ produce them exist (S22), rather than being guessed from prose.
   {{- $capabilities = $capabilities | append "audio" -}}
 {{- end -}}
 
-{{- /* video: the block of §27.3, which is the only thing that puts a <video>
-     on a page — external embeds are impossible under the resources ADR. */ -}}
+{{- /* video: only the video shortcode emits <video> here. */ -}}
 {{- if strings.Contains $content "<video" -}}
   {{- $capabilities = $capabilities | append "video" -}}
 {{- end -}}
@@ -48,8 +33,7 @@ produce them exist (S22), rather than being guessed from prose.
   {{- $capabilities = $capabilities | append "code" -}}
 {{- end -}}
 
-{{- /* math: MathML rendered at build time (T60). No client-side renderer is
-     allowed, so its absence here is the honest answer today. */ -}}
+{{- /* math: build-time MathML only. */ -}}
 {{- if strings.Contains $content "<math" -}}
   {{- $capabilities = $capabilities | append "math" -}}
 {{- end -}}
@@ -59,11 +43,7 @@ produce them exist (S22), rather than being guessed from prose.
   {{- $capabilities = $capabilities | append "footnotes" -}}
 {{- end -}}
 
-{{- /* Visible markers follow the design-system order, not the alphabet:
-     audio → code → math → image → gallery → video (T173). `text` and
-     `footnotes` stay in the set but have no glyph, so they trail. Anything
-     newly computed and not yet named here still ships, after the known
-     names, instead of vanishing. */ -}}
+{{- /* Marker display order; text/footnotes stay in the set but have no glyph. */ -}}
 {{- $display := slice "audio" "code" "math" "image" "gallery" "video" -}}
 {{- $silent := slice "text" "footnotes" -}}
 {{- $ordered := slice -}}

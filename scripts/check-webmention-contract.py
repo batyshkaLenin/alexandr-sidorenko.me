@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Verify the published Webmention snapshot and its rendering (T8, T141).
+"""Verify the published Webmention snapshot and its rendering.
 
 The snapshot in `data/webmentions.json` is the only thing that reaches readers,
-so this checks both halves of the contract (ADR
-`redesign-webmention-moderation-contract`): the stored fields carry no foreign
+so this checks both halves: the stored fields carry no foreign
 HTML, no avatar and no contact data, and every stored mention actually appears
 on its own page.
 
-Since T141 the `responses/` block is printed on every publication, because the
+The `responses/` block is printed on every publication, because the
 invitation to answer is useful before anyone has. What must not appear on a page
 without approved mentions is a *response* — an entry, a count, a heading — and
 that is what the emptiness check looks for now, rather than the block itself.
@@ -137,7 +136,7 @@ def check_rendering(errors: list[str], public_dir: Path, mentions: list[dict]) -
         collapsed = "reactions" in parser.responses
         for entry in entries:
             # Likes, reposts and bookmarks may collapse into a count once there
-            # are enough of them (§37.3), and then their sources are
+            # are enough of them, and then their sources are
             # deliberately not printed. Replies and mentions always are: they
             # carry someone's words, and a count would hide them.
             if entry["type"] in {"like", "repost", "bookmark"} and collapsed:

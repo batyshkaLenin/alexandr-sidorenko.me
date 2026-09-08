@@ -1,8 +1,4 @@
-{{- /*
-What follows the body of any material: the updated note, its topics, responses
-and the moves to neighbours. Renderers differ in how they show the work, not in
-what surrounds it — so this stays in one place (§5.3).
-*/ -}}
+{{- /* Shared post-body: updated note + topics. */ -}}
 {{ partial "publication/updated.html" . }}
 {{ with .Params.tags }}
 <ul class="tags">

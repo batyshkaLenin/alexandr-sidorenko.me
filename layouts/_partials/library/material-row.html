@@ -3,37 +3,12 @@ MaterialRow — one material in a list.
 
     {{ partial "library/material-row.html" (dict "page" $page "density" "rich") }}
 
-    rich   title first (§9): the name is what a person scans for, so nothing
-           sits ahead of it. Type · date sit under it, an excerpt below that.
-           Home recent, Library Recent.
-    dense  one line, TITLE → TYPE → DATE, markers tertiary. On a phone the
-           same markup becomes two zones — TITLE(+markers), then TYPE · DATE
-           — because title and markers share an inline wrapper, not because
-           a second template exists (T161).
+    rich   title first, then type · date, optional excerpt
+    dense  one line TITLE → TYPE → DATE (phone: title+markers / type · date)
 
-`showType` (default true) drops the per-row type badge when the list's own
-container already said it once — a Types group heading, a type's own page —
-so a filtered list does not repeat what it is already filtered by. Topics
-stays true: one topic spans several types, so the badge is the only place
-that says which.
-
-`level` is the heading level of the row's title, default 2: a list under the
-page's own h1 starts at h2, and only a list that sits under a group heading
-(Types) passes 3. Guessing one level for every context skips a level somewhere,
-and a skipped level is a page a screen-reader user navigates by headings and
-falls through.
-
-One primitive, two densities, not two templates: the difference is what is
-shown and its order, not how it is built.
-
-Capability markers come from the computed set (T108) and their glyphs from the
-symbol vocabulary (data/glyphs.yaml). No more than three appear — §18.5 asks for
-two or three, and only those useful to notice in advance. Each marker keeps a
-text name for the screen reader, because a sign is never the only carrier.
-
-Lives with the site rather than the theme for one reason: it reads the site's
-own content model (type families, capabilities). Moving it into the theme is a
-mechanical change once the theme owns that vocabulary too.
+`showType` false when the container already names the type.
+`level` heading level for the title (default 2; Types groups pass 3).
+Markers from capabilities + data/glyphs.yaml (max three).
 */ -}}
 {{- $page := .page -}}
 {{- $density := default "rich" .density -}}

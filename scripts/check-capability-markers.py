@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify visible capability markers follow PRIM-CAPABILITY-MARKER order (T173).
+"""Verify visible capability markers follow the fixed order (audio, math, code, …).
 
 The computed set may include `text` and `footnotes`, which have no glyph and
 must not appear. What does appear — at most three markers — is a subsequence

@@ -1,16 +1,8 @@
 {{- /*
-Site override of the theme's generic section.html: preserves the h-feed/
-h-entry MF2 output contract (T30/T36) and swaps the theme's plain .Summary
-for the publication/summary.txt partial, which the generic theme fallback
-can't know to use.
+Section override: h-feed/h-entry MF2; summaries via publication/summary.txt.
 */ -}}
 {{ define "main" }}
-{{- /*
-Library, Recent view (§6.2, §9.1). The rich list: title first, then type, date
-and markers, then an excerpt where it helps. The other views live at their own
-addresses and share the same MaterialRow — the density changes, the hierarchy
-does not.
-*/ -}}
+{{- /* Library Recent: rich MaterialRow list. */ -}}
 <div class="dc-library">
   {{ partial "library/views-nav.html" . }}
   <section class="dc-panel dc-panel--primary dc-panel--doc">

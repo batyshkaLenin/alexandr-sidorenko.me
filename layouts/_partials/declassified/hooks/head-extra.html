@@ -1,30 +1,8 @@
 {{- /*
-Site override of the theme's empty head-extra hook. Theme head.html already
-emits charset/viewport/<title>/its own CSS link/theme-color — this only adds
-site-owned output contract: description, canonical, feed discovery,
-favicons/manifest, Open Graph/Twitter, webmention, JSON-LD (schema.html),
-and the site's own stylesheet loaded after the theme's so its --dc-*
-overrides win by cascade order (documented in the theme README). No blocking
-script runs here: the one that used to mark the document as scripted existed
-only for the content-warning blur, which T92 removed.
-
-The 404 kind is not a real, indexable resource (T39): it gets noindex
-instead of a canonical (there is no canonical URL for a page that doesn't
-exist) and skips the whole content-identity block — Open Graph/Twitter
-card, webmention, and JSON-LD (schema.html only emits for IsHome/Kind
-"page" anyway, but this keeps the intent explicit here too). A real page
-can still ask for `robots: noindex` while keeping its canonical — the
-table view does (T172): bookmarkable, not a search result.
+Site head-extra: description, canonical, feeds, icons, OG/Twitter, webmention,
+JSON-LD, site.css after theme CSS. 404 gets noindex and skips identity tags.
 */ -}}
-{{- /*
-No font markup here any more (T93). Fira Code and PT Serif used to arrive as a
-stylesheet from fonts.googleapis.com preceded by two preconnects — the one
-external resource class the ADR allowed. Since 15 August 2026 they are served
-from this origin and declared in `assets/css/site.css`, so nothing needs to be
-announced in the head: the rules ride in a stylesheet the page already fetches.
-That removed the site's last third-party origin along with 437 ms of first
-paint (.ai/research/s15-ab-measurement.md).
-*/ -}}
+{{- /* Fonts ship from this origin via site.css — no third-party font links. */ -}}
 {{ $isNotFound := eq .Kind "404" }}
 {{ $title := cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title) }}
 {{ $description := cond (ne .Description "") .Description .Site.Params.description }}
@@ -58,10 +36,7 @@ paint (.ai/research/s15-ab-measurement.md).
 {{ with (resources.Get "css/site.css") | minify | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
-{{- /* A material may bring its own stylesheet (§5.1, §24.6): `art: <name>` in
-front matter loads assets/css/art/<name>.css, and only on that page. Loading it
-everywhere would put one poem's art direction into the site's budget for every
-reader (§45.2); a missing file is a build error, not a silent skip. */ -}}
+{{- /* Optional per-page art stylesheet: assets/css/art/<name>.css */ -}}
 {{ with .Params.art }}
 {{ $art := resources.Get (printf "css/art/%s.css" .) }}
 {{ if not $art }}{{ errorf "%s: art stylesheet css/art/%s.css does not exist" $.File.Path . }}{{ end }}
@@ -69,10 +44,7 @@ reader (§45.2); a missing file is a build error, not a silent skip. */ -}}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
 {{ end }}
-{{- /* Every page that has feeds announces them, and only the page's own: home,
-the library, a topic and a type each publish a different set of materials
-(§38, T142). The condition is the presence of the output, not a list of page
-kinds — adding a feed somewhere must not require editing this line. */ -}}
+{{- /* Announce this page's own feed outputs when present. */ -}}
 {{ with .OutputFormats.Get "rss" }}<link rel="alternate" type="{{ .MediaType }}" href="{{ .Permalink }}" title="RSS">{{ end }}
 {{ with .OutputFormats.Get "jsonfeed" }}<link rel="alternate" type="{{ .MediaType }}" href="{{ .Permalink }}" title="JSON Feed">{{ end }}
 
@@ -106,15 +78,11 @@ kinds — adding a feed somewhere must not require editing this line. */ -}}
 
 <link rel="webmention" href="https://webmention.io/alexandr-sidorenko.me/webmention">
 
-{{/* Sign-in by domain name, delegated to IndieAuth (T47). The other endpoints
-     the old site announced are not back: see the Task for which and why. */}}
+{{/* IndieAuth endpoints. */}}
 <link rel="authorization_endpoint" href="https://indieauth.com/auth">
 <link rel="token_endpoint" href="https://tokens.indieauth.com/token">
 
-{{/* The approved identity set (T40). A link the page already shows as a
-visible <a rel="me"> is not repeated here: rel=me discovery counts the union,
-and IndieWeb prefers the visible one. Home shows the `visible` subset (T116),
-so only there does this list get shorter. */}}
+{{/* rel=me links; skip ones already visible on Home. */}}
 {{ $home := .IsHome }}
 {{ range hugo.Data.links }}
 {{ if not (and $home .visible) }}<link rel="me" href="{{ .url }}">{{ end }}
@@ -129,8 +97,7 @@ from this page. Hover/focus prefetch for everything else is handled by
   {{- $prefetch = $prefetch | append (partial "canonical-url.html" ("/library" | relLangURL)) -}}
 {{- else if and (eq .Kind "page") (eq .Section "library") -}}
   {{- $prefetch = $prefetch | append (partial "canonical-url.html" ("/library" | relLangURL)) -}}
-  {{- /* Prev/next neighbours — the reader who finishes a publication is likely
-  to follow one of them (T55). */ -}}
+  {{- /* Prefetch prev/next neighbours on publications. */ -}}
   {{- with .Parent -}}
     {{- $pages := .Pages.ByDate.Reverse -}}
     {{- $idx := -1 -}}

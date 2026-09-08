@@ -1,39 +1,21 @@
-{{- /*
-Site-owned home composition (ownership matrix: theme provides the
-.dc-panel/.dc-list primitives and generic home.html fallback; exact panel
-set/order/personal data is site's job, not theme config — see
-.ai/projects/redesign/07-declassified-theme-reassessment). Overrides the
-theme's generic home.html entirely. Three rows mirror the accepted
-Sidorenko TUI mockup composition (.ai/projects/redesign/09-sidorenko-tui-
-design-contract): identity (filesystem/about/portrait), recent materials,
-last played track — all real site data, no invented dynamic state. The
-composition itself is replaced by the Home Workspace of the new design
-system (T116); this is the migrated shape, not the target one.
-*/ -}}
+{{- /* Site home: overrides theme home.html. Identity, recent, activity. */ -}}
 {{ define "main" }}
 {{- partial "publication/identity-invariants.html" . -}}
 {{ $projectRepo := printf "https://github.com/%s" .Site.Params.github_repo }}
 {{ if not .Site.Params.github_repo }}
-  {{ errorf "hugo.toml: params.github_repo must be the project repository (owner/name) (T147)" }}
+  {{ errorf "hugo.toml: params.github_repo must be the project repository (owner/name)" }}
 {{ end }}
 <h1 class="dc-visually-hidden">{{ .Site.Title }}</h1>
 
-{{- /* One walk for the whole workspace rather than one per panel: the arrows
-follow the page in reading order, which is what a reader expects of a screen
-made of lists (T135). */ -}}
+{{- /* One listnav for the whole workspace so arrows follow reading order. */ -}}
 {{ partial "declassified/component.html" "dc-listnav" }}
 <dc-listnav>
-{{- /* One workstation on a wide screen (T148): about spans the two grid
-      rows so its height is not a floor under the side columns. Recent
-      sits under the tree, activity under the preview. Below 1100px the
-      rows reassert themselves and the page may scroll. */ -}}
+{{- /* Wide: about spans both grid rows; below 1100px rows stack and scroll. */ -}}
 <div class="dc-home">
 
 <div class="dc-home-row dc-home-row--identity">
 
-  {{/* Tree entries are data, not markup, so the panel label can count them:
-       add an entry and the number follows. links.md/colophon.md join once
-       T43/T11 make those addresses exist — the tree never links nowhere. */}}
+  {{/* Tree entries are data so the panel label can count them. */}}
   {{ $tree := slice
     (dict "icon" "&gt;" "label" "about.md" "current" true)
     (dict "icon" "📁" "label" "library/" "url" ("/library" | relLangURL))
@@ -51,12 +33,10 @@ made of lists (T135). */ -}}
       <dl class="dc-neofetch">
         <div><dt>OS</dt><dd>human</dd></div>
         <div><dt>HOST</dt><dd>{{ strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) }}</dd></div>
-        {{/* Roles only: prefixing the author's name made the line read as
-             "role = Александр Сидоренко" (research B3). */}}
+        {{/* Roles only — do not prefix with the author's name. */}}
         {{ with .Params.roles }}<div><dt>ROLE</dt><dd>{{ . }}</dd></div>{{ end }}
         {{ with .Params.status }}<div><dt>STATUS</dt><dd>{{ . }}</dd></div>{{ end }}
-        {{/* Age of the site, not a copyright and not a process clock (T147).
-             The launch year stays in front matter; only ~N years is drawn. */}}
+        {{/* Site age from Params.since; only ~N years is drawn. */}}
         {{ with .Params.since }}
         {{ $sinceYear := int . }}
         {{ if or (lt $sinceYear 1990) (gt $sinceYear now.Year) }}
@@ -71,7 +51,7 @@ made of lists (T135). */ -}}
           </dd>
         </div>
         {{ else }}
-          {{ errorf "home: Params.since is required to compute neofetch uptime (T147)" }}
+          {{ errorf "home: Params.since is required to compute neofetch uptime" }}
         {{ end }}
         <div>
           <dt>source</dt>
@@ -85,13 +65,10 @@ made of lists (T135). */ -}}
   <section class="dc-panel dc-panel--primary h-card">
     {{ partial "declassified/panel-label.html" "about.md" }}
     <div class="dc-panel__body dc-prose">
-      {{/* Two visual lines, one name: the parts stay separate elements so
-           uppercase is CSS-only and a microformats parser still reads
-           "Александр Сидоренко" in its authored case. */}}
+      {{/* Name parts are separate so uppercase stays CSS-only for MF2. */}}
       <h2 class="dc-hero-name p-name">{{ range $i, $part := split $owner.name " " }}{{ if $i }} {{ end }}<span class="dc-hero-name__part">{{ $part }}</span>{{ end }}</h2>
       <a class="u-url" rel="me" href="{{ absURL $owner.url }}">{{ absURL $owner.url }}</a>
-      {{/* The portrait below sits in its own panel, outside this h-card root,
-           so a parser would never read it as the card's photo (T13). */}}
+      {{/* Portrait is outside this h-card; u-photo is a hidden data value. */}}
       <data class="u-photo" value="{{ partial "preview-image.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}" hidden></data>
       {{ with .Params.roles }}<p class="dc-roles">{{ . }}</p>{{ end }}
       <div class="p-note">
@@ -100,11 +77,7 @@ made of lists (T135). */ -}}
       {{ with .Params.location }}
       <p class="dc-hero-meta"># location: {{ . }}</p>
       {{ end }}
-      {{/* Identity links a reader can actually follow. Until now all twelve
-           approved profiles existed only as <link rel="me"> in <head>: correct
-           for a parser, invisible to a person (T116, replacing the cancelled
-           T43). Those marked `visible` carry rel=me here instead of in the
-           head, so discovery counts them exactly once. */}}
+      {{/* Visible identity links with rel=me (not repeated in head). */}}
       {{ with where hugo.Data.links "visible" true }}
       <p class="dc-region-label">socials/</p>
       <ul class="dc-identity-links">
@@ -121,15 +94,8 @@ made of lists (T135). */ -}}
     <div class="dc-panel__body dc-portrait-body">
       {{/* The alternative text describes the photograph, not just who is in
            it; it comes from the same data/authors.yaml entry the head uses. */}}
-      {{/* The panel is the 300px column of .dc-home-row--identity; below the
-           860px breakpoint it is the viewport minus 68px of fixed padding,
-           measured at 344 CSS px inside a 412 px viewport (T66). */}}
-      {{/* The portrait is dithered like any other photograph (§30.3), and by
-           the same pipeline rather than by a CSS filter: `.dc-duotone` came
-           from the sidorenko-tui mockup and made the treatment a decoration
-           applied on top of the image, which §30 exists to replace. The
-           derivatives are cropped square at build time, as the previous
-           `square` variants were, so the frame crops nothing twice. */}}
+      {{/* sizes: 300px column; below 860px calc(100vw - 68px). */}}
+      {{/* Portrait uses the dither pipeline; derivatives are square-cropped. */}}
       {{ $portrait := index hugo.Data.dither $owner.avatar }}
       {{ if not $portrait }}
         {{ errorf "portrait %q has no dithered derivative — run scripts/dither-images.py" $owner.avatar }}
@@ -143,8 +109,7 @@ made of lists (T135). */ -}}
            "class" "dc-portrait"
            "attrs" (safeHTMLAttr `loading="lazy"`)) }}
       {{ with .Params.portrait_quote }}<p class="dc-portrait-quote">{{ . | safeHTML }}</p>{{ end }}
-      {{/* Same rule as in the prose column: a dithered image always has its
-           original one plain link away (§30.5). */}}
+      {{/* Dithered image always links to the original. */}}
       {{ $source := partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}
       <p class="dc-portrait-original">
         <a class="dc-figure__original" data-image-original href="{{ ($source.Process "fill 848x848").RelPermalink }}">{{ i18n "imageOriginal" }}</a>
@@ -173,7 +138,7 @@ made of lists (T135). */ -}}
         {{ with .OutputFormats.Get "rss" }}
         <a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">rss</a>
         {{ else }}
-        {{ errorf "home: RSS output is required on Recent (T147)" }}
+        {{ errorf "home: RSS output is required on Recent" }}
         {{ end }}
         <a class="dc-panel__more" href="{{ "/library" | relLangURL }}">Библиотека →</a>
       </p>
@@ -182,24 +147,17 @@ made of lists (T135). */ -}}
 
 </div>
 
-{{- /* One site-owned utility pane (§16), not a row of dashboard cards. The
-modules are ordinary static markup first; <as-activity> only annotates an old
-build as a snapshot when JavaScript is available. */ -}}
+{{- /* Activity pane: static markup first; <as-activity> annotates age with JS. */ -}}
 {{ partial "declassified/component.html" "as-activity" }}
 {{ with (default dict hugo.Data.dev).levels }}{{ partial "declassified/component.html" "as-dev" }}{{ end }}
 {{ $builtAt := now.UTC }}
-{{- /* GitInfo is page-scoped and Home may point at content/_index.md's last
-commit rather than the revision being built. The build wrapper exports the
-site revision explicitly; local bare `hugo` remains useful with the page hash
-as a clearly build-time fallback. Full hash for the commit URL, short for
-the label (T147). */ -}}
+{{- /* Prefer HUGO_BUILD_COMMIT; GitInfo on Home may be content/_index.md. */ -}}
 {{ $buildCommit := strings.TrimSpace (default "" (os.Getenv "HUGO_BUILD_COMMIT")) }}
 {{ if not $buildCommit }}{{ with .GitInfo }}{{ $buildCommit = .Hash }}{{ end }}{{ end }}
 <as-activity class="dc-panel dc-panel--utility as-activity" data-built-at="{{ $builtAt.Format "2006-01-02T15:04:05Z07:00" }}">
   {{ partial "declassified/panel-label.html" "activity/" }}
   <div class="dc-panel__body as-activity__body">
-    {{- /* Last scrobbled track, never "now playing" (T96). An absent snapshot
-    removes the whole module; there is no empty frame in its place (§16.2). */ -}}
+    {{- /* Last scrobbled track; missing snapshot removes the module. */ -}}
     {{- with (index (default dict hugo.Data.lastfm) "track") }}
     <section class="as-activity__module" data-activity-module="music" aria-labelledby="activity-music">
       <h2 class="as-activity__name" id="activity-music">music</h2>
@@ -215,10 +173,7 @@ the label (T147). */ -}}
     </section>
     {{- end }}
 
-    {{- /* dev: weekly hours from the WakaTime snapshot and the shape of the week
-    from Code::Stats. XP is never printed as a number — the bars say how the days
-    compare, nothing more (ADR redesign-activity-dev-module). Missing snapshot
-    removes the module entirely (§16.2). */ -}}
+    {{- /* Dev: weekly hours + day bars; missing snapshot removes the module. */ -}}
     {{- with (default dict hugo.Data.dev) }}
     {{- $bars := slice "▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" }}
     <section class="as-activity__module" data-activity-module="dev" aria-labelledby="activity-dev">

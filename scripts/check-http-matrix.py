@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Verify the HTTP contract of a deployed origin (T4).
+"""Verify the HTTP contract of a deployed origin.
 
 Everything here is a property of the running host, not of the build: the URL
 form the platform serves, the redirect it issues for the other form, the media
 types it puts on feeds and assets, and what a missing page returns. The build
 directory can only say what Hugo generated — `check-url-contract.py` does that.
 
-Canonical URLs carry no trailing slash (ADR redesign-canonical-url-policy), and
+Canonical URLs carry no trailing slash, and
 Workers Static Assets is told so with `html_handling: drop-trailing-slash`.
 
 Usage:
@@ -46,17 +46,25 @@ MEDIA_TYPES = {
 }
 
 # Material Identity URIs resolve with 303 to the material's current address
-# (ADR redesign-material-identity-serialization-and-resolver). The pairs are
+# Material identity redirects. The pairs are
 # read from the generated _redirects, so this checks what the site actually
 # ships rather than a second hand-kept list.
 IDENTITY_RULE = re.compile(r"^(/id/[0-9a-f-]{36})\s+(\S+)\s+303$")
 # An identity that no material carries must not resolve anywhere.
 UNKNOWN_IDENTITY = "/id/00000000-0000-7000-8000-000000000000"
 
-# Nothing here may resurrect: the site ships no legacy redirects (ADR
-# redesign-no-backward-compat).
-MUST_BE_404 = ["/nonexistent-page", "/ru/library/philosophy-of-freedom", "/en", "/library/philosophy-of-freedom.amp", "/posts/philosophy-of-freedom", "/creativity/skver"]
-
+# Nothing here may resurrect: the site ships no legacy redirects.
+MUST_BE_404 = [
+    "/nonexistent-page",
+    "/ru/library/philosophy-of-freedom",
+    "/en",
+    "/library/philosophy-of-freedom.amp",
+    "/posts/philosophy-of-freedom",
+    "/creativity/skver",
+    "/library/humility-and-open-mindedness",
+    "/library/types/poetry-collection",
+    "/id/01a00aea-44dc-74e0-8834-895ef7a6c708",
+]
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, *args, **kwargs):

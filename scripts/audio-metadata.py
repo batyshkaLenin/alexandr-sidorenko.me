@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Record how long every attached recording runs (T131, §27.4).
+"""Record how long every attached recording runs.
 
     python3 scripts/audio-metadata.py [--check]
 
-A player states its duration in text, before anyone presses play — §27.4 asks
+A player states its duration in text, before anyone presses play — the site asks
 for `▶ Author reading · 01:42`, not a symbol and a surprise. Hugo cannot read
 an audio file's header, so the duration is measured here and committed to
 `data/audio.json`, the same trade `scripts/dither-images.py` makes: the build

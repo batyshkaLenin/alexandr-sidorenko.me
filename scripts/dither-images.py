@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build the dithered derivatives of every published image (T129, §30).
+"""Build the dithered derivatives of every published image.
 
     scripts/dither-images.py
 
-The pipeline is the one the design system describes:
+The pipeline:
 
     source image
         ↓ dominant, meaningful hue
@@ -24,7 +24,7 @@ That is also why the derivatives are palette PNG and never go through Hugo's
 WebP conversion — lossy compression of a dither pattern is the same mistake in
 another form.
 
-Every image is classified as a photograph or a graphic (§30.3): screenshots,
+Every image is classified as a photograph or a graphic: screenshots,
 diagrams, charts and QR codes live on flat colour fields, which is measurable
 rather than a matter of taste. `image_style: auto` dithers photographs and
 leaves graphics alone; the classification is recorded in the manifest so a
@@ -141,7 +141,7 @@ def pick_family(sample: list[tuple[int, int, int]]) -> str:
 
 
 def classify(sample: list[tuple[int, int, int]]) -> str:
-    """photo or graphic (§30.3), by how flat the image's colour field is.
+    """photo or graphic, by how flat the image's colour field is.
 
     A screenshot, a diagram, a chart or a QR code is built from a handful of
     exact colours covering large areas. A photograph is a cloud of near-unique
@@ -253,7 +253,7 @@ def build(source: Path, widths: list[int], crop_square: bool) -> dict:
 
 
 def main() -> int:
-    argparse.ArgumentParser(description="Dither published images (§30).").parse_args()
+    argparse.ArgumentParser(description="Dither published images.").parse_args()
 
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8")) if MANIFEST.exists() else {}
     updated: dict[str, dict] = {}

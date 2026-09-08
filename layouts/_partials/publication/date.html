@@ -1,18 +1,5 @@
 {{- /*
-One date, in the form its context asks for (§18.4). Call with a dict:
-
-    {{ partial "publication/date.html" (dict "date" .Date "form" "long") }}
-
-    long   15 августа 2026   inside a publication, where the date reads as text
-    short  15 авг            timeline rows and phone lines, year in the group
-    iso    2026-08-15        dense views: index, table, machine-like lists
-    year   2026              when the year is the only precision there is
-
-`ДД.ММ.ГГГГ` has no form here on purpose: it looks local but sorts wrong and
-reads as the American order to half the world (§18.4).
-
-The machine value always ships in `datetime`, whatever the visible text — so
-one form can change without touching what a parser sees.
+Date forms: long | short | iso | year. Always set datetime on <time>.
 */ -}}
 {{- $date := .date -}}
 {{- $form := default "long" .form -}}

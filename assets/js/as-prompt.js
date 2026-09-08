@@ -1,16 +1,10 @@
-/*
-<as-prompt> — the command line in the top bar, kept true when a mode changes
-without a page load.
-
-Site-owned: the prompt is this site's own way of saying where the reader is
-(§11.3), and the theme's <dc-modes> knows nothing about it. It announces a
-change with a bubbling `dc-modes:change`, and this element answers by printing
-the command that belongs to the new mode.
-
-Markup contract: wraps the command inside `[data-prompt-command]` and carries
-`modes`, a JSON object of mode name → command. A mode that is not in the map
-leaves the prompt alone.
-*/
+/**
+ * <as-prompt> — sync the top-bar command when modes change in place.
+ *
+ * Listens for bubbling `dc-modes:change`. Attribute `modes` is JSON
+ * { modeName → command }. Updates [data-prompt-command]; unknown modes
+ * leave the prompt alone.
+ */
 "use strict";
 
 class AsPrompt extends HTMLElement {

@@ -1,12 +1,5 @@
 {{- /*
-A gallery is an editorial sequence, not a product grid (§27.2): two or three
-columns where there is room, one on a phone, and every picture keeps its own
-alternative text and its own caption — which is why it is built out of `figure`
-shortcodes rather than a list of addresses.
-
-The figures inside know they are in a gallery — the shortcode reads it off
-`.Parent` — and ask the browser for a column-sized file instead of one sized
-for the whole measure.
+Gallery of figure shortcodes. Children detect .Parent and size for a column.
 */ -}}
 <div class="dc-gallery">
   {{- .Inner -}}

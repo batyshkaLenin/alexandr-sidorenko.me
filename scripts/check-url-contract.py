@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Verify the single canonical URL form (see ADR redesign-canonical-url-policy).
+"""Verify the single canonical URL form (no trailing slash).
 
 Every internal address the site emits — HTML links, canonical/og:url, MF2
 u-url, sitemap, RSS, JSON Feed, JSON-LD, web app manifest — must use one and
 the same form: no trailing slash, except the site root. A second form is a
-real defect once Cloudflare answers `drop-trailing-slash` (T4): the page would
+real defect once Cloudflare answers `drop-trailing-slash`: the page would
 declare a canonical URL that itself redirects.
 
 Works offline over the built `public/` directory; no network access.
@@ -23,7 +23,7 @@ from urllib.parse import quote, urlsplit
 
 SITE_ORIGIN = "https://alexandr-sidorenko.me"
 PUBLICATION_SECTIONS = ("library",)
-# Surfaces whose matrix 9.1 L flag is yes (T174). Table, type/topic pages and
+# Surfaces listed in llms.txt. Table, type/topic pages and
 # publications are addressable HTML and must not appear here.
 LLMS_ENTRY_POINTS = (
     f"{SITE_ORIGIN}/",
@@ -93,7 +93,7 @@ class UrlHtmlParser(HTMLParser):
         self.robots: str | None = None
         self.og_url: str | None = None
         self.u_url: str | None = None
-        # Identity marker: only a publication carries one (T117).
+        # Identity marker: only a publication carries one.
         self.u_uid: str | None = None
         self.json_ld: list[dict] = []
         self._in_json_ld = False
@@ -241,7 +241,7 @@ def main() -> int:
                 check(errors, not has_trailing_slash(url), f"{name}: JSON-LD {location} {url!r} has a trailing slash")
 
     # /llms.txt is Markdown, so its addresses live in link syntax rather than in
-    # markup a parser would find above (T67, T174). Without this the map would
+    # markup a parser would find above. Without this the map would
     # be the one representation free to publish a trailing slash.
     llms_path = public_dir / "llms.txt"
     llms_urls: set[str] = set()
@@ -317,7 +317,7 @@ def main() -> int:
         name = html_path.relative_to(public_dir)
         expected = page_url(public_dir, html_path)
         if parsed.canonical is None:
-            # 404 has no canonical by contract (T39); check-404-contract.py owns that.
+            # 404 has no canonical; check-404-contract.py owns that.
             continue
 
         check(errors, parsed.canonical == expected, f"{name}: canonical {parsed.canonical!r} != {expected!r}")
@@ -328,7 +328,7 @@ def main() -> int:
                     check(errors, block[field] == expected, f"{name}: JSON-LD {field} {block[field]!r} != {expected!r}")
         noindex = parsed.robots is not None and "noindex" in parsed.robots.lower()
         if noindex:
-            # Bookmarkable noindex pages keep a canonical (T172 table) but
+            # Bookmarkable noindex pages keep a canonical but
             # must not appear in the sitemap of indexable resources.
             check(
                 errors,
@@ -340,7 +340,7 @@ def main() -> int:
 
         section = name.parts[0] if len(name.parts) > 1 else ""
         # Identity, not location, says what a publication is: /library/all and
-        # /library/types are views of the library and carry no u-uid (T117).
+        # /library/types are views of the library and carry no u-uid.
         is_publication = (
             section in PUBLICATION_SECTIONS
             and len(name.parts) == 3
@@ -350,7 +350,7 @@ def main() -> int:
             check(errors, parsed.u_url == expected, f"{name}: u-url {parsed.u_url!r} != {expected!r}")
             check(errors, expected in all_rss_links, f"{name}: {expected!r} missing from RSS <link>")
             check(errors, expected in all_json_feed_urls, f"{name}: {expected!r} missing from JSON Feed url")
-            # MACHINE-LLMS is a map of entry points, not an inventory (T174).
+            # MACHINE-LLMS is a map of entry points, not an inventory.
             if llms_path.exists():
                 check(
                     errors,

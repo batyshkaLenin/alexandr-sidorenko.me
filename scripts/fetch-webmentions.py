@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch incoming Webmentions from webmention.io into the local inbox (T8).
+"""Fetch incoming Webmentions from webmention.io into the local inbox.
 
 Reads the public JF2 API once per published target URL, normalizes what comes
 back to the small field set the site publishes, drops anything already approved
@@ -9,7 +9,7 @@ repository.
 
 Nothing here touches `data/webmentions.json`: approving is a separate,
 offline step (`moderate-webmentions.py`), and the build never runs either
-script. See ADR `redesign-webmention-moderation-contract`.
+script.
 
 The domain-wide endpoint would need an API token; per-target queries are public,
 so this script needs no credentials at all.

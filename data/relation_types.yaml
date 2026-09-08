@@ -1,4 +1,4 @@
-# Relations a material may declare (content-model ADR §3, design system §4.2).
+# Relations a material may declare.
 #
 # Shape in front matter — a flat list, one entry per relation:
 #
@@ -14,10 +14,10 @@
 # below says which of the two an entry may carry.
 #
 # Relations are optional by construction. Nothing has to be complete, and a
-# graph is not built retroactively — the design system defers the graph itself
-# and keeps `Related` / `References` / `Part of` as its no-JS equivalent (§6.6).
+# graph is not built retroactively — Related / References / Part of stay as
+# the no-JS equivalent of a full graph.
 #
-# `topic` from the ADR is deliberately absent: topics are the secondary
+# `topic` is deliberately absent: topics are the secondary
 # taxonomy and live in `tags`, so a second spelling of the same thing would
 # only be a place for the two to disagree.
 

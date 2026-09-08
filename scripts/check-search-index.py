@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the built search index against what the site publishes (T134).
+"""Verify the built search index against what the site publishes.
 
 The palette can only find what the index carries, and the index is the one
 representation assembled from rendered bodies. Two things therefore have to

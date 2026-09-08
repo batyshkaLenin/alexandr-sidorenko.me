@@ -1,5 +1,5 @@
 # Timeline and phone rows: the year lives in the group heading, so the row
-# carries day and month only (§18.4).
+# carries day and month only.
 "1": "янв"
 "2": "фев"
 "3": "мар"

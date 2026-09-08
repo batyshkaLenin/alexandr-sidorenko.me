@@ -1,15 +1,6 @@
 {{- /*
-Poetry Reader (§24). "The application for a poem is often at its best through
-the near-total absence of an application": air, serif, the author's own line
-and stanza breaks, and almost no metadata beside the text.
-
-Audio, when the poem has a reading, sits in the title block (§24.2) — the page
-is still the poem, not a player page. Everything technical (dates, type, topics)
-waits below the work.
-
-Rhythm follows length (§24.5): a short poem gets more air per line and a
-composition centred in the column; a long one tightens the line and leans on
-the gap between stanzas. One renderer, two rhythms — not two templates.
+Poem: minimal chrome; reading audio in the title block; meta below the work.
+Short vs long rhythm via CSS classes from line count.
 */ -}}
 {{ define "main" }}
 {{- $lines := add 1 (len (findRE `<br` .Content)) -}}

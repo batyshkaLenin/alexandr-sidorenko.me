@@ -1,21 +1,8 @@
 {{- /*
-Resolve a site-absolute image address to its pipeline resource (T66).
+Resolve a site-absolute image path to its assets/ pipeline resource.
+Missing file → build error. Audio stays under static/ (not here).
 
-Photographs live under `assets/`, mirroring the address they are published at:
-`assets/assets/posts/…` answers `/assets/posts/…` and `assets/avatar.jpg`
-answers `/avatar.jpg`. Keeping the on-disk path equal to the URL path is what
-lets an untouched resource publish at exactly the address content and front
-matter already reference — the `/assets/…` contract survives the move out of
-`static/` unchanged.
-
-Audio is deliberately not here: `static/assets/…/*.mp3` is copied verbatim,
-because the feed contract reads its byte size straight off the source file.
-
-A missing file is a build error, not a fallback: an <img> shipped without
-dimensions, or an og:image pointing at nothing, is exactly what this Task is
-meant to make impossible.
-
-Call with a dict: {{ partial "image-resource.html" (dict "path" "/avatar.jpg" "context" .) }}
+Call: {{ partial "image-resource.html" (dict "path" "/avatar.jpg" "context" .) }}
 */ -}}
 {{- $path := .path -}}
 {{- $context := .context -}}

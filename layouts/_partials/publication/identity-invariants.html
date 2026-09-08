@@ -1,17 +1,6 @@
 {{- /*
-Two fatal build invariants over every material (T107, ADR
-redesign-material-identity-and-routing §8):
-
-    duplicate id   → build fail
-    duplicate slug → build fail
-
-They protect different things — `id` protects identity, `slug` protects the
-route — so neither substitutes for the other, and neither degrades to a
-warning. Missing or malformed values fail here too: `hugo new` writes a file
-whatever the archetype says (see T105), so the placeholders it leaves behind
-must not survive a build.
-
-Called once from the home template, which every build renders.
+Build fails on duplicate/missing/malformed material id or slug.
+Called once from the home template.
 */ -}}
 {{- $uuid := `^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$` -}}
 {{- $ids := dict -}}

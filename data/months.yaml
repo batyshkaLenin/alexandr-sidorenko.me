@@ -1,6 +1,6 @@
 # Genitive month names: the long date form reads "15 августа 2026", not
-# "15 август 2026". Hugo's :date_long adds a trailing "г." the design system
-# does not use (§18.4), so the form is assembled here instead.
+# "15 август 2026". Hugo's :date_long adds a trailing "г." that this site
+# does not use, so the form is assembled here instead.
 "1": "января"
 "2": "февраля"
 "3": "марта"

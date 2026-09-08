@@ -1,24 +1,6 @@
 {{- /*
-The <img> for a dithered image, and nothing around it (T129, §30).
-
-The derivatives come from `scripts/dither-images.py` and are recorded in
-`data/dither.json`: one dithered PNG per rung of the ladder the layout that
-asks for the image publishes it at. They are published as they are — no resize,
-no WebP. A dither pattern is made of single pixels, so resampling or lossy
-compression destroys exactly the thing that was built.
-
-That is also why each rung is dithered from the source separately rather than
-scaled from another rung: the browser picks a rung close to what it needs, and
-whatever residual scaling remains stays gentle. `image-rendering` is left alone
-deliberately — `pixelated` sharpens an upscale but tears a downscale, and these
-images downscale far more often than they upscale.
-
-Call with a dict:
-  entry — the manifest entry for the image
-  alt   — alternative text
-  sizes — the `sizes` attribute
-  class — optional class for the <img>
-  attrs — optional pre-escaped attributes (loading, fetchpriority, …)
+<img> for a dithered derivative from data/dither.json (scripts/dither-images.py).
+No resize/WebP — dither is single-pixel. Each ladder rung is dithered from source.
 */ -}}
 {{- $entry := .entry -}}
 {{- $srcset := slice -}}

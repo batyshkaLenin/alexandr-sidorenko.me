@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Remove author metadata from the site's own image sources (T73).
+"""Remove author metadata from the site's own image sources.
 
 Rewrites files in place, copying every compressed byte unchanged — no decode,
 no re-encode — so the visible pixels are bit-identical afterwards and only the
@@ -37,8 +37,8 @@ def main() -> int:
     args = parser.parse_args()
 
     root = args.root.resolve()
-    # Photographs moved to assets/ so the resource pipeline can resize them
-    # (T66); static/ still holds the icons and the audio. Both are sources,
+    # Photographs moved to assets/ so the resource pipeline can resize them;
+    # static/ still holds the icons and the audio. Both are sources,
     # so both are swept.
     targets = args.paths or [root / "assets", root / "static"]
 

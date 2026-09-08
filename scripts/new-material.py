@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Create a library material with its Material ID already filled in (T105).
+"""Create a library material with its Material ID already filled in.
 
     scripts/new-material.py some-slug --type article --title "Название"
 
 The ID is a UUIDv7 and it is the one field an author must never invent: it is
-immutable, globally unique and permanent (ADR
-redesign-material-identity-serialization-and-resolver). Hugo has no template
+immutable, globally unique and permanent. Hugo has no template
 function that can produce one, so the value is generated here and handed to
 `hugo new` through the environment.
 
@@ -14,8 +13,8 @@ Hugo's security policy only exposes environment variables matching `^HUGO_` to
 
 `hugo new` cannot be made to refuse: an archetype that calls errorf still writes
 the file and still exits 0. So the archetype writes visibly invalid placeholders
-instead, this script verifies what landed on disk, and the build invariant
-(T107) is what finally makes a material without a valid id impossible to ship.
+instead, this script verifies what landed on disk, and the build check
+is what finally makes a material without a valid id impossible to ship.
 """
 
 from __future__ import annotations
@@ -35,7 +34,7 @@ LIBRARY_DIR = REPO_ROOT / "content" / "library"
 
 SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
-# Starting vocabulary from the content-model ADR, stored kebab-case. `album`
+# Starting vocabulary of material types, stored kebab-case. `album`
 # is deliberately absent: it is a future type with no material behind it.
 TYPES = (
     "note",
@@ -74,7 +73,7 @@ def uuid7() -> str:
 def existing_ids() -> set[str]:
     """Every id already written in content/, so a fresh one cannot collide.
 
-    Uniqueness itself is a build invariant (T107); this is only a cheap guard
+    Uniqueness itself is a build invariant; this is only a cheap guard
     against reusing a value that is already spoken for.
     """
     found = set()

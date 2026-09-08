@@ -1,35 +1,11 @@
 {{- /*
-A redaction (§27.6). The removed fragment is not in the page, the feeds or
-/llms.txt — and not in the publication source either, only in Git history.
+Redaction shortcode. Original text is not in the page/feeds — only in Git history.
 
-Parameters, named, and deliberately excluding the original:
-  id       — key of the entry in data/redactions.yaml;
-  len      — how many characters were removed; the width comes from it;
-  rule     — the ground, from .agents/skills/redaction/references/rules.md;
-  geometry — inline (default) | line | block;
-  lines    — for geometry=block: relative line lengths, e.g. "0.9,0.7,0.85";
-  mode     — preserve (default) | normalized.
+Parameters (no original text):
+  id, len, rule, geometry (inline|line|block), lines?, mode (preserve|normalized)
 
-The surface is drawn by CSS, never by characters: §47.24 rejects the U+2588
-implementation outright. What ships is an empty visual element plus an
-accessible replacement, so the fragment is absent from the DOM, the clipboard,
-the accessibility tree and any search index.
-
-The replacement is real text rather than an aria-label, and that matters beyond
-screen readers: a feed reader applies no stylesheet, so the visually hidden
-words are what it shows. With a label the sentence would simply close over the
-gap, and the fact of the redaction would vanish from RSS, JSON Feed and
-/llms.txt.
-
-Width follows the fragment (`preserve`), because a redaction replaces the
-typographic space of what was removed, not just the count of characters. The
-run is cut into segments with break opportunities between them: a redaction is
-allowed to wrap like the text around it — a run that can only sit unbroken
-pushes itself onto the next line and leaves a hole behind. Punctuation that
-follows stays attached, because the last segment carries no break after it.
-
-`normalized` gives up the width in exchange for hiding the fragment's length:
-three fixed sizes, same surface, same semantics.
+CSS draws the surface; accessible replacement text ships for feeds/a11y.
+preserve ≈ fragment width; normalized = fixed sizes that hide length.
 */ -}}
 {{- $id := .Get "id" -}}
 {{- $rule := .Get "rule" -}}

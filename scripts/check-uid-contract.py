@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the material identity contract (ADR
-redesign-material-identity-serialization-and-resolver).
+"""Verify material identity URIs in the built site.
 
 Location URL (.Permalink/canonical/u-url) and Material Identity URI (front
 matter `id` -> https://alexandr-sidorenko.me/id/<uuid>, serialized into
@@ -8,8 +7,8 @@ u-uid/RSS guid/JSON Feed id/JSON-LD @id) are separate sources: every material
 needs a unique id, and every identity output must carry the same URI byte for
 byte, independent of the current permalink.
 
-T106 moved this off the old `uid` field and the two-section layout. The build
-invariants that make a duplicate or malformed id fatal are T107's job; this
+Identity lives in the `id` field (not the old `uid`) under the single library
+layout. Duplicate or malformed ids fail the build elsewhere; this
 script checks what the built site says.
 """
 
@@ -29,7 +28,7 @@ UID_PATTERN = re.compile(
     r"[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
 )
 # Retired identities are not part of the site yet: nothing has ever been
-# withdrawn. The ADR still asks that a retired id can never be handed out
+# withdrawn. A retired id must never be handed out
 # again, so the set is read here and the intersection checked below; a missing
 # file means an empty set, not an error.
 TOMBSTONE_FILE = Path("data") / "tombstones.yaml"

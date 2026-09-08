@@ -1,4 +1,4 @@
-# The closed set of signs the interface uses (§18.5). One sign, one meaning,
+# The closed set of signs the interface uses. One sign, one meaning,
 # site-wide — the vocabulary exists so the TUI language does not sprawl.
 #
 # Three rules hold for every entry:
@@ -8,7 +8,7 @@
 #   3. ASCII is preferred where Unicode may not render (`>`, `<>`, `$`).
 #
 # `text` is what a reader gets instead of the sign when the sign cannot speak
-# for itself. Capability markers are rendered by the library row (T117); their
+# for itself. Capability markers are rendered by the library row; their
 # text form doubles as the filter name (`has:audio`).
 
 navigation:
@@ -47,7 +47,7 @@ structure:
     text: "поиск"
 
 capabilities:
-  # Keyed by the capability itself (T108 computes those names), so a row can go
+  # Keyed by the capability itself, so a row can go
   # from "this material has audio" to its marker without a second lookup table.
   audio:
     glyph: "♪"

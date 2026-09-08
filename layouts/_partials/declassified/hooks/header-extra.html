@@ -1,30 +1,13 @@
 {{- /*
-Application Bar (§12): the context line of the current page.
-
-The session belongs to the visitor, not to the owner — §11.1 is explicit that
-`owner@…` is the wrong default, and §11.2 that `whoami` must answer with the
-current user rather than with Alexandr's biography. So the prompt says `guest`
-and the command says what the page is: the small vocabulary of §11.3 —
-`home`, `library` with its `--` flags, `read`, `play` — and nothing invented
-beyond it.
-
-A reader lowers the shell's voice (§12, §19): no `guest@host` prefix, just the
-command and a way back. On a phone the full prompt does not fit and is not
-attempted; the bar becomes «← library» plus the material's own title.
-
-<dc-clock> is empty markup only: the theme's component fills it with the
-*visitor's own* local clock. No JS means no clock text at all, not a stale
-placeholder — and its reserved height keeps the bar from growing when it
-arrives (T62).
+Application bar: guest prompt + page command (`home`, `library --…`, `read`/`play`).
+On publications: quiet command + back link. <dc-clock> fills only with JS.
 */ -}}
 {{- $host := strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) -}}
 {{- $isPublication := and (eq .Kind "page") (eq .Section "library") -}}
 {{- $isTypePage := ne (default "" .Params.material_type) "" -}}
 {{- $isTopicIndex := eq .Kind "taxonomy" -}}
 {{- $isTopicPage := eq .Kind "term" -}}
-{{- /* A Library view lives at /library/<view> even though its source sits
-under content/views/; the prompt follows `Params.view`, not Hugo's section
-name. Topics are still the `tags` taxonomy (T153) — never print `~/tags`. */ -}}
+{{- /* Library views: prompt follows Params.view; topics stay the tags taxonomy. */ -}}
 {{- $isLibraryView := ne (default "" .Params.view) "" -}}
 {{- $path := "~" -}}
 {{- $command := "" -}}
@@ -42,25 +25,17 @@ name. Topics are still the `tags` taxonomy (T153) — never print `~/tags`. */ -
 {{- else if $isLibraryView -}}
   {{- $command = printf "library --%s" .Params.view -}}
 {{- else if eq .Section "library" -}}
-  {{- /* The path stays `~`, because `library` is the command that opens the
-  library — printing `~/library $ library --recent` would say the same
-  destination twice. This is §11.3's own example, with the Recent flag the
-  other views already print. */ -}}
+  {{- /* Path stays `~` — `library` is the command, not a path segment. */ -}}
   {{- $command = "library --recent" -}}
 {{- else -}}
   {{- $path = printf "~/%s" .Section -}}
 {{- end -}}
-{{- /* On a Library view the command follows the mode, which can change without
-a page load (T136); <as-prompt> keeps the line true. */ -}}
+{{- /* <as-prompt> updates the command when All/table mode swaps without reload. */ -}}
 {{- $modePrompts := "" -}}
 {{- if and $isLibraryView (in (slice "all" "table") .Params.view) -}}
   {{- $modePrompts = dict "list" "library --all" "table" "library --table" | jsonify -}}
 {{- end }}
-{{- /* With JavaScript the line accepts the small vocabulary of §11.3 and goes
-where it says; without it the same line is what it always was — a statement of
-where the reader is. The vocabulary is ours: the component knows how to
-complete and dispatch, not what `play` means here. `find` and `help` ask the
-palette and the sheet by name rather than reaching into them. */ -}}
+{{- /* Prompt vocabulary is site-owned; component only completes and dispatches. */ -}}
 {{- $urlLibrary := partial "canonical-url.html" ("/library" | relLangURL) -}}
 {{- $urlAll := partial "canonical-url.html" ("/library/all" | relLangURL) -}}
 {{- $urlTable := partial "canonical-url.html" ("/library/table" | relLangURL) -}}
@@ -111,11 +86,7 @@ palette and the sheet by name rather than reaching into them. */ -}}
 <p class="dc-identity__back"><a href="{{ partial "canonical-url.html" .RelPermalink }}"><span aria-hidden="true">← </span>library</a></p>
 {{- end }}
 {{- end }}
-{{- /* Search lives in the bar, not in the menu: it is not a section of the site
-(content-model ADR, п.5). The element is empty markup — with no JavaScript
-neither the trigger nor the palette is drawn at all (§32.1), and the way to
-anything remains the Library. Its copy is passed in, because the component is
-the theme's and knows no Russian. */ -}}
+{{- /* Palette markup is empty without JS; copy is passed in (theme is language-agnostic). */ -}}
 <span class="dc-topbar__tools">
 {{ partial "declassified/component.html" "dc-command-palette" -}}
 <dc-command-palette
@@ -125,9 +96,7 @@ the theme's and knows no Russian. */ -}}
   data-loading="{{ i18n "searchLoading" }}"
   data-empty="{{ i18n "searchEmpty" }}"
   data-error="{{ i18n "searchError" }}"></dc-command-palette>
-{{- /* The clickable equivalent §33 asks for: a shortcut nobody can discover is
-a shortcut only its author has. Which keys are listed depends on what the page
-prints — a page without a navigable list does not promise ↑↓. */ -}}
+{{- /* Help sheet: only list shortcuts for elements present on the page. */ -}}
 {{- /* The digits the nav actually draws, not a guessed range: <dc-keynav>
 handles 1–3, and the menu decides how many of them exist. */ -}}
 {{- $digits := slice -}}

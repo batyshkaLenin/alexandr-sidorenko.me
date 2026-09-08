@@ -1,11 +1,4 @@
-{{- /*
-One material type as its own address (§38, T142): everything of that kind, in
-one list, with its own RSS and JSON Feed.
-
-The page exists because a feed needs an address, and an address a reader can
-link to is worth a page. It reuses the Library's own row primitive rather than
-inventing markup: this is the library filtered, not a new kind of screen.
-*/ -}}
+{{- /* One material type: list + feeds, same MaterialRow as Library. */ -}}
 {{ define "main" }}
 {{ $materials := where (where site.RegularPages "Section" "library") "Params.type" .Params.material_type }}
 <div class="dc-library">

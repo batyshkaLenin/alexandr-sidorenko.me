@@ -1,27 +1,6 @@
 {{- /*
-Video as a content primitive (§27.3), not an application: a poster, the native
-controls and a caption. Custom transport is an enhancement and belongs to S23;
-external embeds are impossible here anyway, because the external-resources ADR
-lets no third-party script onto a page.
-
-The poster is dithered and the playback is not — that is the whole of §27.3's
-rule about where the treatment applies. The poster therefore goes through the
-same manifest as every other photograph (`data/dither.json`, T129); a `<video>`
-takes a single poster address, so it gets one rung of the ladder rather than a
-srcset.
-
-Nothing preloads and nothing autoplays (§44.6): the file is fetched when the
-reader asks for it, and until then the poster is the only weight on the page.
-
-Parameters, named:
-  src      — site-absolute address of the video under `assets/`;
-  poster   — site-absolute address of the poster image;
-  caption  — the caption under the figure; also the accessible name;
-  captions — optional WebVTT track for the spoken content.
-
-Video lives under `assets/`, like images and unlike audio: it is a block inside
-a publication rather than a feed enclosure, so nothing needs its byte size off
-the source file, and a draft's video never reaches a production build.
+Video shortcode: poster (may dither), native controls, caption. No preload/autoplay.
+Files under assets/. Parameters: src, poster, caption, captions?
 */ -}}
 {{- $src := .Get "src" -}}
 {{- $poster := .Get "poster" -}}
@@ -31,7 +10,7 @@ the source file, and a draft's video never reaches a production build.
   {{- errorf "%s: video shortcode needs a src" .Page.File.Path -}}
 {{- end -}}
 {{- if not $poster -}}
-  {{- errorf "%s: video %q needs a poster — §27.3 has no posterless video" .Page.File.Path $src -}}
+  {{- errorf "%s: video %q needs a poster" .Page.File.Path $src -}}
 {{- end -}}
 {{- if not $caption -}}
   {{- errorf "%s: video %q needs a caption, which is also its accessible name" .Page.File.Path $src -}}

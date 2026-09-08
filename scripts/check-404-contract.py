@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the 404 page's metadata contract (see audit R8 / T39).
+"""Verify the 404 page's metadata: noindex, no canonical.
 
 A not-found response is not a real, indexable resource: it must be
 Russian-titled, carry robots noindex, and skip the canonical/Open Graph/
