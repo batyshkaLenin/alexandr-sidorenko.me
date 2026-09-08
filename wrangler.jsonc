@@ -10,20 +10,6 @@
   },
   // Commit/version preview URLs for Workers Builds evidence on PRs.
   "preview_urls": true,
-  // Workers Logs in the repo so dashboard-only settings cannot drift on deploy.
-  "observability": {
-    "logs": {
-      "enabled": true,
-      "head_sampling_rate": 1,
-      "invocation_logs": true,
-      "persist": true
-    },
-    "traces": {
-      "enabled": false,
-      "head_sampling_rate": 1,
-      "persist": true
-    }
-  },
   "assets": {
     "directory": "./public",
     "not_found_handling": "404-page",
