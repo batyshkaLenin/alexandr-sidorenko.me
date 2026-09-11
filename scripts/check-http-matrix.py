@@ -61,6 +61,8 @@ MUST_BE_404 = [
     "/library/philosophy-of-freedom.amp",
     "/posts/philosophy-of-freedom",
     "/creativity/skver",
+    "/tags",
+    "/tags/example-topic",
     "/library/humility-and-open-mindedness",
     "/library/types/poetry-collection",
     "/id/01a00aea-44dc-74e0-8834-895ef7a6c708",
