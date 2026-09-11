@@ -6,7 +6,6 @@ tmp/
 
 # AI
 .ai/
-.claude
 .codex
 .codebase-memory
 .playwright-mcp/
