@@ -1,0 +1,18 @@
+{
+  "name": "alexandr-sidorenko.me",
+  "user": "ubuntu",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "serve-public",
+      "command": "python3 scripts/serve-public.py --host 127.0.0.1 --port 4173 --public-dir public",
+      "description": "Serves the built ./public tree with the site's canonical (no-trailing-slash) URL shape at http://127.0.0.1:4173 — the same server the Playwright suite uses. Rebuild with ./scripts/ci.sh (or hugo build ... --destination public), never `hugo server`, which rewrites ./public with localhost baseURLs."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 4173
+    }
+  ]
+}
