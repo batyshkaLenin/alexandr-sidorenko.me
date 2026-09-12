@@ -200,7 +200,9 @@ the home page's own self link.
 
 `check-webmention-contract.py` reads snapshot contract v2 from
 `data/webmentions.json` and checks stored fields, material ownership, selector
-shape and rendering. `check-webmention-resolver.py` pins registry collisions,
+shape and rendering. Quote targets must render their stored text and capture
+date; a reattached quote must use a Text Fragment link, while a stale or
+ambiguous snapshot must expose no deep link. `check-webmention-resolver.py` pins registry collisions,
 domain pagination, Text Fragment ambiguity and quote capture against a fixed
 material version. Matching approximates the Text Fragments primary-level
 comparison (case and combining diacritics do not distinguish a match), while
@@ -224,6 +226,13 @@ environment. It reads the domain-wide API with pagination, then resolves base
 URLs through the material registry; the token is never used by Hugo or the
 deploy build. Unreviewed and unresolved entries stay in the gitignored inbox.
 `send` journals delivered pairs in `data/webmentions-sent.json`.
+
+The browser enhancement fixture also checks search navigation: a body-only
+match gets a Text Fragment, a title match keeps its canonical URL, contextual
+duplicates can be distinguished, and indistinguishable duplicates fall back to
+the canonical page. `check-search-index.py` rejects fragments stored in the
+index and verifies that its body text is exactly the normalized stream used by
+the Webmention selector resolver, including poetry line breaks.
 
 ## Headers and cache
 

@@ -47,6 +47,7 @@ Invite to reply via Webmention + permalink; no comment form.
       {{- /* Short plain-text excerpt; importer strips markup. */ -}}
       <p class="dc-responses__text p-content">{{ . | truncate 280 "…" }}</p>
       {{- end }}
+      {{ partial "publication/response-target.html" (dict "page" $ "response" .) }}
     </li>
     {{- end }}
   </ul>
@@ -65,6 +66,7 @@ Invite to reply via Webmention + permalink; no comment form.
         {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long" "class" "dc-responses__date dt-published") }}
         {{- end }}
       </p>
+      {{ partial "publication/response-target.html" (dict "page" $ "response" .) }}
     </li>
     {{- end }}
   </ul>

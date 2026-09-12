@@ -1,0 +1,2 @@
+{{- /* Encode one Text Fragment term, including grammar-significant hyphens. */ -}}
+{{- return (. | urlquery | replaceRE `\+` "%20" | replaceRE `-` "%2D") -}}

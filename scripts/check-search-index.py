@@ -13,6 +13,8 @@ hold, and neither is visible by looking at a page:
    bodies are collected could reintroduce it wholesale. The check reads
    `data/redactions.yaml` and asserts the index carries the accessible
    replacement and nothing that looks like an un-redacted body.
+3. Selector parity. Search and Webmention reattachment must see the same
+   normalized text stream, including authored poetry line breaks.
 
 The size budget is the third thing: the index is fetched by a visitor who
 searches, and it grows with the corpus. The ceiling is per material, so a
@@ -23,10 +25,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
+import urllib.parse
 from html.parser import HTMLParser
 from pathlib import Path
+
+from webmention_targets import RegistryError, build_registry, material_text
 
 INDEX = "search-index.json"
 
@@ -77,7 +81,9 @@ def published_materials(public: Path) -> dict[str, PageFacts]:
     return materials
 
 
-def check_entries(errors: list[str], entries: list[dict], public: Path) -> None:
+def check_entries(
+    errors: list[str], entries: list[dict], public: Path, root: Path
+) -> None:
     seen = {}
     for entry in entries:
         for field in REQUIRED_FIELDS:
@@ -86,6 +92,11 @@ def check_entries(errors: list[str], entries: list[dict], public: Path) -> None:
         url = entry.get("url", "")
         if not url.startswith("/"):
             errors.append(f"{url!r}: address is not root-relative")
+        parsed = urllib.parse.urlsplit(url)
+        if parsed.query or parsed.fragment:
+            errors.append(
+                f"{url!r}: index URLs stay canonical; navigation hints are built at selection time"
+            )
         if url != "/" and url.endswith("/"):
             errors.append(f"{url!r}: trailing slash, the canonical form has none")
         if entry.get("kind") not in KINDS:
@@ -103,8 +114,26 @@ def check_entries(errors: list[str], entries: list[dict], public: Path) -> None:
         elif not seen[url]["text"]:
             errors.append(f"{url}: indexed with an empty body — searching its text finds nothing")
 
-    return None
-
+    try:
+        registry = build_registry(root)
+    except RegistryError as error:
+        errors.append(f"material registry is invalid: {error}")
+        return
+    for material in registry.by_id.values():
+        url = urllib.parse.urlsplit(material.canonical).path
+        entry = seen.get(url)
+        if entry is None:
+            continue
+        try:
+            current = material_text(public, material)
+        except (FileNotFoundError, ValueError) as error:
+            errors.append(str(error))
+            continue
+        if entry.get("text") != current:
+            errors.append(
+                f"{url}: indexed body differs from the normalized text used "
+                "for Webmention selectors"
+            )
 
 def check_redactions(errors: list[str], entries: list[dict], public: Path, root: Path) -> None:
     """A redacted material must arrive here already redacted."""
@@ -168,7 +197,7 @@ def main() -> int:
         return 1
 
     errors: list[str] = []
-    check_entries(errors, entries, public)
+    check_entries(errors, entries, public, root)
     check_redactions(errors, entries, public, root)
     check_size(errors, raw, entries)
 

@@ -54,6 +54,10 @@ class SectionParser(HTMLParser):
         self.images: list[str] = []
         self.sections = 0
         self.responses: list[str] = []
+        self.targets: list[dict[str, str]] = []
+        self._target: dict[str, str] | None = None
+        self._quote_parts: list[str] = []
+        self._in_quote = False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
@@ -68,14 +72,72 @@ class SectionParser(HTMLParser):
             return
         if tag == "section":
             self.depth += 1
-        if tag == "a" and attributes.get("href"):
+        if tag == "figure" and "dc-responses__target" in classes:
+            self._target = {
+                "reattached": attributes.get("data-reattached") or "",
+                "href": "",
+                "datetime": "",
+                "text": "",
+            }
+            self._quote_parts = []
+        if self._target is not None:
+            if tag == "blockquote" and "dc-responses__quote" in classes:
+                self._in_quote = True
+            elif tag == "a" and "dc-responses__target-link" in classes:
+                self._target["href"] = attributes.get("href") or ""
+            elif tag == "time" and "dc-responses__target-date" in classes:
+                self._target["datetime"] = attributes.get("datetime") or ""
+        if tag == "a" and "dc-responses__source" in classes and attributes.get("href"):
             self.sources.append(attributes["href"])
         if tag in ("img", "picture", "source"):
             self.images.append(tag)
 
     def handle_endtag(self, tag: str) -> None:
+        if tag == "blockquote" and self._target is not None:
+            self._in_quote = False
+        if tag == "figure" and self._target is not None:
+            self._target["text"] = "".join(self._quote_parts).strip()
+            self.targets.append(self._target)
+            self._target = None
+            self._quote_parts = []
         if tag == "section" and self.depth:
             self.depth -= 1
+
+    def handle_data(self, data: str) -> None:
+        if self._target is not None and self._in_quote:
+            self._quote_parts.append(data)
+
+
+def self_test_section_parser() -> None:
+    parser = SectionParser()
+    parser.feed(
+        '<section class="dc-responses">'
+        '<li data-response="reply"><a class="dc-responses__source" href="https://source.example/">source</a>'
+        '<figure class="dc-responses__target" data-response-target="quote" data-reattached="true">'
+        '<blockquote class="dc-responses__quote"><p>stored quote</p></blockquote>'
+        '<figcaption><time class="dc-responses__target-date" datetime="2026-09-12T12:00:00Z">date</time>'
+        '<a class="dc-responses__target-link" href="https://example.test/page#:~:text=stored">current</a>'
+        "</figcaption></figure></li>"
+        '<li data-response="reply"><figure class="dc-responses__target" data-reattached="false">'
+        '<blockquote class="dc-responses__quote"><p>old quote</p></blockquote>'
+        '<time class="dc-responses__target-date" datetime="2026-09-11T12:00:00Z">date</time>'
+        "</figure></li></section>"
+    )
+    assert parser.sources == ["https://source.example/"]
+    assert parser.targets == [
+        {
+            "reattached": "true",
+            "href": "https://example.test/page#:~:text=stored",
+            "datetime": "2026-09-12T12:00:00Z",
+            "text": "stored quote",
+        },
+        {
+            "reattached": "false",
+            "href": "",
+            "datetime": "2026-09-11T12:00:00Z",
+            "text": "old quote",
+        },
+    ]
 
 
 def check(errors: list[str], condition: bool, message: str) -> None:
@@ -350,6 +412,44 @@ def check_rendering(
                 f"{material.canonical}: approved mention {entry['id']} is not rendered",
             )
 
+        expected_targets = [
+            entry["targetSnapshot"]
+            for entry in entries
+            if entry["type"] in {"reply", "mention"}
+            and isinstance(entry.get("targetSnapshot"), dict)
+        ]
+        check(
+            errors,
+            Counter(target["text"] for target in parser.targets)
+            == Counter(target["text"] for target in expected_targets),
+            f"{material.canonical}: rendered target quotes differ from the snapshot",
+        )
+        check(
+            errors,
+            Counter(target["datetime"] for target in parser.targets)
+            == Counter(target["capturedAt"] for target in expected_targets),
+            f"{material.canonical}: rendered target dates differ from the snapshot",
+        )
+        for target in parser.targets:
+            state = target["reattached"]
+            check(
+                errors,
+                state in {"true", "false"},
+                f"{material.canonical}: quote has invalid reattach state {state!r}",
+            )
+            if state == "true":
+                check(
+                    errors,
+                    target["href"].startswith(material.canonical + "#:~:text="),
+                    f"{material.canonical}: reattached quote has no Text Fragment link",
+                )
+            else:
+                check(
+                    errors,
+                    not target["href"],
+                    f"{material.canonical}: unresolved quote exposes a false deep link",
+                )
+
     for page in public_dir.rglob("index.html"):
         if page.resolve() in approved_pages:
             continue
@@ -362,6 +462,7 @@ def check_rendering(
 
 
 def main() -> int:
+    self_test_section_parser()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--root", type=Path, default=Path(__file__).resolve().parents[1]

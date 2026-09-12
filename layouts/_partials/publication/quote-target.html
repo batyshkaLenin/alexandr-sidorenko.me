@@ -1,0 +1,40 @@
+{{- /*
+Reattach a stored quote to the current normalized body without treating its
+old position as proof. A unique exact match needs no context; duplicate exact
+text needs the complete stored prefix/suffix to identify one occurrence.
+*/ -}}
+{{- $page := .page -}}
+{{- $selector := .selector -}}
+{{- $result := "" -}}
+{{- $current := cond (eq $selector.type "quote") (partial "search/plain.html" $page) "" -}}
+{{- $exact := default "" $selector.exact -}}
+{{- $currentFolded := lower $current -}}
+{{- $exactFolded := lower $exact -}}
+{{- $exactCount := cond (and $currentFolded $exactFolded) (strings.Count $exactFolded $currentFolded) 0 -}}
+{{- $prefix := default "" $selector.prefix -}}
+{{- $suffix := default "" $selector.suffix -}}
+{{- $useContext := false -}}
+{{- if gt $exactCount 1 -}}
+  {{- $context := printf "%s%s%s" $prefix $exact $suffix -}}
+  {{- if and (or $prefix $suffix) (eq (strings.Count (lower $context) $currentFolded) 1) -}}
+    {{- $useContext = true -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if or (eq $exactCount 1) $useContext -}}
+  {{- $exactTerm := partial "text-fragment/encode.html" $exact -}}
+  {{- $directive := $exactTerm -}}
+  {{- if $useContext -}}
+    {{- $prefixTerm := partial "text-fragment/encode.html" $prefix -}}
+    {{- $suffixTerm := partial "text-fragment/encode.html" $suffix -}}
+    {{- if and $prefix $suffix -}}
+      {{- $directive = printf "%s-,%s,-%s" $prefixTerm $exactTerm $suffixTerm -}}
+    {{- else if $prefix -}}
+      {{- $directive = printf "%s-,%s" $prefixTerm $exactTerm -}}
+    {{- else -}}
+      {{- $directive = printf "%s,-%s" $exactTerm $suffixTerm -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $result = printf "%s#:~:text=%s" (partial "canonical-url.html" $page.Permalink) $directive -}}
+{{- end -}}
+{{- return $result -}}

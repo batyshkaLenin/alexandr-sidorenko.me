@@ -150,7 +150,10 @@ is folded into the entry describing the finished behaviour rather than listed as
   historical URLs converge on the same publication. A response aimed at a text
   fragment records the uniquely resolved quote and the material snapshot seen
   during moderation; a missing or ambiguous fragment stays a document-level
-  response instead of claiming the wrong passage.
+  response instead of claiming the wrong passage. The stored quote and capture
+  date are shown with the response; when the same passage is still uniquely
+  identifiable, an ordinary link lets the browser highlight it in the current
+  text, while stale or ambiguous quotes remain readable without a false link.
 - A publication can show its own connections: what it is part of, what it
   cites, what it relates to — and, underneath, which other materials on this
   site point back at it. Both directions are ordinary links, grouped by the
@@ -187,7 +190,10 @@ is folded into the entry describing the finished behaviour rather than listed as
   to where it was. With JavaScript off there is no button, no field and no
   broken promise — the library, its views and the topic pages remain the way to
   everything, as they were. A redacted fragment is as absent from the search
-  index as it is from the page.
+  index as it is from the page. A result found specifically in a material's body
+  now opens the matching passage through an ephemeral Text Fragment when the
+  match is unique or its context disambiguates it; titles, paths and uncertain
+  body matches keep the canonical page address.
 - A clock in the top bar, reading as a machine timestamp: ISO 8601 with the
   visitor's own offset, counting the seconds it shows. It is absent below the
   top bar's breakpoint, where it would cost a whole row on a phone before any

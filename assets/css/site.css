@@ -412,6 +412,40 @@ dc-prompt[open] .dc-identity__cursor {
   color: var(--dc-text);
 }
 
+/* Stored target quote: an archival margin note, not another response card. */
+.dc-responses__target {
+  margin: 8px 0 0;
+  padding: 8px 0 0 14px;
+  border-inline-start: 1px solid var(--dc-border);
+}
+
+.dc-responses__quote {
+  margin: 0;
+  color: var(--dc-text);
+  font-family: var(--dc-font-prose);
+  font-size: 15px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.dc-responses__quote p {
+  margin: 0;
+}
+
+.dc-responses__target-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  margin-top: 5px;
+  color: var(--dc-faint);
+  font-size: var(--dc-fs-meta);
+}
+
+.dc-responses__target-link:focus-visible {
+  outline: 2px solid var(--dc-primary);
+  outline-offset: 3px;
+}
+
 .dc-responses__reactions {
   margin: 0;
 }

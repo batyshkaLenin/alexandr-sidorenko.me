@@ -88,6 +88,8 @@ On publications: quiet command + back link. <dc-clock> fills only with JS.
 {{- end }}
 {{- /* Palette markup is empty without JS; copy is passed in (theme is language-agnostic). */ -}}
 <span class="dc-topbar__tools">
+{{ partial "declassified/component.html" "as-search-target" -}}
+<as-search-target hidden></as-search-target>
 {{ partial "declassified/component.html" "dc-command-palette" -}}
 <dc-command-palette
   src="/search-index.json"

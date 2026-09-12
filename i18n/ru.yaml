@@ -171,6 +171,10 @@ responsesGroupReactions:
   other: "отметки"
 responsesAnonymous:
   other: "Аноним"
+responsesQuoteCaptured:
+  other: "цитата из публикации · зафиксирована"
+responsesQuoteCurrent:
+  other: "к месту в текущем тексте"
 responsesInvite:
   other: "Ответьте у себя и пришлите Webmention на этот адрес — он же постоянная ссылка на публикацию."
 responsesWhat:

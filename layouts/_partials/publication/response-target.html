@@ -1,0 +1,21 @@
+{{- $page := .page -}}
+{{- $response := .response -}}
+{{- with $response.targetSnapshot -}}
+  {{- $targetURL := partial "publication/quote-target.html" (dict
+    "page" $page
+    "selector" $response.target.selector
+  ) -}}
+  <figure class="dc-responses__target" data-response-target="quote" data-reattached="{{ if $targetURL }}true{{ else }}false{{ end }}">
+    <blockquote class="dc-responses__quote">
+      <p>{{ .text }}</p>
+    </blockquote>
+    <figcaption class="dc-responses__target-meta">
+      <span>{{ i18n "responsesQuoteCaptured" }}</span>
+      {{ partial "publication/date.html" (dict "date" (.capturedAt | time.AsTime) "form" "long" "class" "dc-responses__target-date") }}
+      {{- with $targetURL }}
+      <span aria-hidden="true">·</span>
+      <a class="dc-responses__target-link" href="{{ . }}">{{ i18n "responsesQuoteCurrent" }}</a>
+      {{- end }}
+    </figcaption>
+  </figure>
+{{- end -}}
