@@ -35,7 +35,11 @@ HTML_ROUTES = [
     "/library/philosophy-of-freedom",
     "/library/skver",
     "/library/topics",
+    "/offline",
 ]
+
+# Addressable HTML that deliberately carries no canonical publication identity.
+SYSTEM_ROUTES = {"/offline"}
 
 # path -> expected media type prefix
 MEDIA_TYPES = {
@@ -167,6 +171,9 @@ def main() -> int:
         # What the page calls itself must be what the host serves.
         page = body(base + route)
         match = re.search(r"rel=[\"']?canonical[\"']?\s+href=[\"']?([^\"'> ]+)", page)
+        if route in SYSTEM_ROUTES:
+            check(errors, match is None, f"{route}: system document claims a canonical")
+            continue
         if match is None:
             errors.append(f"{route}: no canonical link found")
             continue

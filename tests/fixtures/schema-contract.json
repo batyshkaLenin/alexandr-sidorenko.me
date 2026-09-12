@@ -600,6 +600,7 @@
     }
   ],
   "pages_without_structured_data": [
-    "404.html"
+    "404.html",
+    "offline/index.html"
   ]
 }

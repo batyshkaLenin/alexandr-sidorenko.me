@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="{{ .Site.Language.Locale | default (.Site.Language.Lang | default "ru") }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="{{ .Description }}">
+  <link rel="pgpkey" href="/key.pub">
+  <title>{{ .Title }} — {{ .Site.Title }}</title>
+  <style>
+    :root{color-scheme:dark;--bg:#05080a;--panel:#0a0f0c;--border:#16231a;--primary:#39ff88;--accent:#ff2f6e;--accent-hover:#ff6f9e;--text:#c3d9c8}*{box-sizing:border-box}html{background:var(--bg);-webkit-text-size-adjust:100%}body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px 16px;background:var(--bg);color:var(--text);font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;font-size:14px;line-height:1.6}.dc-skip-link{position:absolute;left:-999px;top:0}.dc-skip-link:focus{left:16px;top:16px;padding:8px;background:var(--panel);color:var(--text);z-index:1}.offline{position:relative;width:min(100%,760px);padding:30px 26px 26px;border:1px solid var(--border);border-radius:2px;background:var(--panel)}.offline__status{position:absolute;top:-10px;left:18px;margin:0;padding:0 5px;background:var(--bg);color:var(--primary);font-size:12px}.offline h1{margin:0 0 20px;color:var(--primary);font-size:26px;line-height:1.15}.offline__body{max-width:64ch;font-size:17px;line-height:1.75}.offline a{display:inline-block;margin-top:10px;color:var(--accent);text-decoration:underline}.offline a:hover{color:var(--accent-hover)}.offline a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}@media(max-width:640px){.offline{padding:26px 20px 22px}.offline h1{font-size:24px}}
+  </style>
+</head>
+<body>
+  <a class="dc-skip-link" href="#main">К содержанию</a>
+  <main id="main" class="offline">
+    <p class="offline__status">$ network --status</p>
+    <h1>{{ .Title }}</h1>
+    <div class="offline__body">{{ .Content }}</div>
+    <a href="/"><span aria-hidden="true">← </span>На главную</a>
+  </main>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{{- /* Site-owned progressive enhancement: navigation-only Service Worker. */ -}}
+{{- with resources.Get "js/sw-register.js" -}}
+{{- with . | minify | fingerprint }}
+<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>
+{{- end -}}
+{{- else -}}
+{{- errorf "site enhance hook: assets/js/sw-register.js does not exist" -}}
+{{- end -}}

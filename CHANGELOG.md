@@ -109,8 +109,9 @@ is folded into the entry describing the finished behaviour rather than listed as
 - Sign-in by domain name is announced again (`authorization_endpoint`,
   `token_endpoint`), alongside a `rel=sitemap` link, `application-name` and
   `apple-mobile-web-app-title`.
-- A cleanup service worker (`/sw.js`) that unregisters the old Workbox
-  worker for returning visitors without touching Cache Storage.
+- A navigation-only service worker (`/sw.js`) that keeps recently visited
+  documents available offline and falls back to a self-contained `/offline`
+  page, while leaving every subresource — including audio — to the network.
 - Server-side syntax highlighting for code blocks (Hugo's own Chroma, no client
   JavaScript and no external script), colored so that every kind of token is
   told apart without turning the block into a rainbow, and without borrowing

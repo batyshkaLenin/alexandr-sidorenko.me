@@ -8,10 +8,12 @@ measure the same addresses Cloudflare will answer with `drop-trailing-slash`.
 from __future__ import annotations
 
 import os
+import socket
 import threading
 from contextlib import contextmanager
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -19,7 +21,45 @@ from urllib.parse import urlsplit
 class CanonicalHandler(SimpleHTTPRequestHandler):
     """Serve `route/index.html` at `/route` without redirecting to `/route/`."""
 
+    def __init__(
+        self,
+        *args,
+        sw_test_network_failures: bool = False,
+        **kwargs,
+    ) -> None:
+        self.sw_test_network_failures = sw_test_network_failures
+        super().__init__(*args, **kwargs)
+
     def send_head(self):
+        if self.sw_test_network_failures and (
+            requested_status := self.headers.get("X-SW-Test-Status")
+        ) in {"410", "503"}:
+            status = int(requested_status)
+            body = (
+                f'<!doctype html><html lang="en"><title>Test {status}</title>'
+                f"<h1>Test {status}</h1></html>"
+            ).encode()
+            self.send_response(status)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            return BytesIO(body)
+
+        if (
+            self.sw_test_network_failures
+            and self.headers.get("X-SW-Test-Network-Failure") == "1"
+        ):
+            # Playwright's browser suite needs a real Fetch rejection to verify
+            # Service Worker fallbacks. Closing only opted-in test requests
+            # keeps production artifacts and ordinary local serving untouched.
+            self.close_connection = True
+            try:
+                self.connection.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
+            self.connection.close()
+            return None
+
         path = urlsplit(self.path).path
         if path != "/" and path.endswith("/"):
             target = path.rstrip("/")

@@ -17,6 +17,11 @@ def main() -> int:
     parser.add_argument("--public-dir", type=Path, default=Path("public"))
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=4173)
+    parser.add_argument(
+        "--enable-sw-test-network-failures",
+        action="store_true",
+        help="close requests carrying the Service Worker browser-test header",
+    )
     args = parser.parse_args()
 
     root = args.public_dir.resolve()
@@ -24,7 +29,11 @@ def main() -> int:
         print(f"{root}: no index.html — run ./build.sh first", file=sys.stderr)
         return 1
 
-    handler = partial(CanonicalHandler, directory=str(root))
+    handler = partial(
+        CanonicalHandler,
+        directory=str(root),
+        sw_test_network_failures=args.enable_sw_test_network_failures,
+    )
     server = ThreadingHTTPServer((args.host, args.port), handler)
     print(f"serving {root} at http://{args.host}:{args.port}", flush=True)
     try:

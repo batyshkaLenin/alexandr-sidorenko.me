@@ -371,7 +371,8 @@ def main() -> int:
         name = html_path.relative_to(public_dir)
         expected = page_url(public_dir, html_path)
         if parsed.canonical is None:
-            # 404 has no canonical; check-404-contract.py owns that.
+            # System documents have no canonical. Their dedicated contract
+            # checks own noindex and discoverability.
             continue
 
         check(errors, parsed.canonical == expected, f"{name}: canonical {parsed.canonical!r} != {expected!r}")

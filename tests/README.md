@@ -79,6 +79,7 @@ python3 scripts/check-webmention-contract.py
 python3 scripts/check-pgp-key.py
 python3 scripts/check-security-txt.py
 python3 scripts/check-headers-contract.py
+python3 scripts/check-service-worker.py
 python3 scripts/check-budgets.py
 ./scripts/check-browser.sh
 ```

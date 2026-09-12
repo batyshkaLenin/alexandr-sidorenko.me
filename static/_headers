@@ -118,7 +118,7 @@
 /search-index.json
   Cache-Control: public, max-age=3600
 
-# The cleanup worker unregisters stale service workers, so a visitor must not
-# be stuck with a cached copy of it.
+# The navigation-only worker updates at the stable root URL, so the browser
+# must revalidate it on every update check.
 /sw.js
   Cache-Control: public, max-age=0, must-revalidate

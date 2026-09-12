@@ -19,7 +19,7 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: `python3 scripts/serve-public.py --host 127.0.0.1 --port 4173 --public-dir ${JSON.stringify(publicDir)}`,
+    command: `python3 scripts/serve-public.py --host 127.0.0.1 --port 4173 --enable-sw-test-network-failures --public-dir ${JSON.stringify(publicDir)}`,
     url: `${baseURL}/`,
     // Never reuse: a leftover server may still be serving ./public (or a
     // hugo-server rewrite) while PUBLIC_DIR points at tmp/release-public.
