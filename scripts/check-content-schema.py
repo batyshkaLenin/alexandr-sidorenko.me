@@ -40,6 +40,7 @@ ALLOWED_KEYS = frozenset(
         "cover_alt",
         "audio",
         "relations",
+        "historicalUrls",
         "draft",
         "slug",
     }
@@ -138,7 +139,7 @@ def parse_front_matter(path: Path) -> dict:
                     nested.append(nested_line)
                 if key == "audio":
                     block = parse_audio_block(path, nested)
-                elif key in {"tags", "authors", "relations"}:
+                elif key in {"tags", "authors", "relations", "historicalUrls"}:
                     block = parse_string_list(path, key, nested)
                 else:
                     block = "" if not nested else nested
@@ -265,6 +266,20 @@ def material_errors(
                 elif "/" not in str(entry["type"]):
                     errors.append(f"{rel}: audio[{index}].type {entry['type']!r} не MIME")
 
+    if "historicalUrls" in data:
+        historical = data["historicalUrls"]
+        if not isinstance(historical, list):
+            errors.append(f"{rel}: historicalUrls должен быть списком URL")
+        else:
+            for index, address in enumerate(historical):
+                if not re.match(
+                    r"^https://alexandr-sidorenko\.me/[^?#]+$", str(address)
+                ):
+                    errors.append(
+                        f"{rel}: historicalUrls[{index}] должен быть plain absolute URL "
+                        "на https://alexandr-sidorenko.me"
+                    )
+
     if "warning" in data or "content_warnings" in data:
         errors.append(
             f"{rel}: поле warning/content_warnings снято с модели — удалите его"
@@ -290,7 +305,7 @@ def self_test(root: Path) -> None:
     authors = author_keys(root / "data" / "authors.yaml")
     types = type_keys(root / "data" / "creative_types.yaml")
     real = collect_errors(root / "content" / "library", authors, types)
-    assert not real, f"self-test: рабочий контент красный:\n" + "\n".join(real)
+    assert not real, "self-test: рабочий контент красный:\n" + "\n".join(real)
 
     broken = '''---
 title: "Сломанный материал"
@@ -330,6 +345,8 @@ cover_alt: "alt"
 audio:
   - src: "assets/x.mp3"
     type: "mpeg"
+historicalUrls:
+  - https://foreign.example/old
 draft: false
 ---
 
@@ -344,6 +361,7 @@ draft: false
     assert "album" in joined, errors
     assert "UUIDv7" in joined or "uuid" in joined.lower(), errors
     assert "MIME" in joined or "site-absolute" in joined, errors
+    assert "historicalUrls" in joined, errors
     print("content-schema self-test: broken fixtures отклонены, рабочий контент зелёный")
 
 

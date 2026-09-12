@@ -1,16 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the published Webmention snapshot and its rendering.
-
-The snapshot in `data/webmentions.json` is the only thing that reaches readers,
-so this checks both halves: the stored fields carry no foreign
-HTML, no avatar and no contact data, and every stored mention actually appears
-on its own page.
-
-The `responses/` block is printed on every publication, because the
-invitation to answer is useful before anyone has. What must not appear on a page
-without approved mentions is a *response* — an entry, a count, a heading — and
-that is what the emptiness check looks for now, rather than the block itself.
-"""
+"""Verify Webmention snapshot v2, material ownership and rendered responses."""
 
 from __future__ import annotations
 
@@ -18,13 +7,25 @@ import argparse
 import json
 import re
 import sys
+import urllib.parse
+from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
+from typing import Any
 
-BASE_URL = "https://alexandr-sidorenko.me"
+from webmention_targets import (
+    AddressRegistry,
+    RegistryError,
+    build_registry,
+    material_page,
+    normalize_registry_key,
+    normalize_source,
+)
+
 REQUIRED_FIELDS = {
     "id",
     "type",
+    "targetReceived",
     "target",
     "source",
     "author_name",
@@ -32,14 +33,19 @@ REQUIRED_FIELDS = {
     "published",
     "content_text",
 }
+OPTIONAL_FIELDS = {"targetSnapshot"}
 ALLOWED_TYPES = {"reply", "like", "repost", "bookmark", "mention"}
 CONTENT_LIMIT = 640
 MARKUP = re.compile(r"<[a-zA-Z/!]")
 EMAIL = re.compile(r"[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}")
+CAPTURED_AT = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+MATERIAL_VERSION = re.compile(r"^sha256:[0-9a-f]{64}$")
+UPDATED = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+MISSING = object()
 
 
 class SectionParser(HTMLParser):
-    """Collects the responses block's hrefs, its entries and any image inside."""
+    """Collect the responses block's hrefs, entries and any image inside."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -77,122 +83,362 @@ def check(errors: list[str], condition: bool, message: str) -> None:
         errors.append(message)
 
 
-def check_entry(errors: list[str], entry: dict, index: int) -> None:
-    where = entry.get("id") or f"mentions[{index}]"
-    extra = set(entry) - REQUIRED_FIELDS
+def absolute_url(value: Any) -> bool:
+    if not isinstance(value, str):
+        return False
+    parsed = urllib.parse.urlsplit(value)
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+
+
+def check_selector(
+    errors: list[str],
+    where: str,
+    selector: Any,
+    snapshot: Any,
+) -> None:
+    if not isinstance(selector, dict):
+        errors.append(f"{where}: target.selector is not an object")
+        return
+    selector_type = selector.get("type")
+    if selector_type == "document":
+        check(
+            errors,
+            set(selector) == {"type"},
+            f"{where}: document selector has extra fields",
+        )
+        check(
+            errors,
+            snapshot is MISSING,
+            f"{where}: document selector must not have targetSnapshot",
+        )
+        return
+    if selector_type != "quote":
+        errors.append(f"{where}: unknown selector type {selector_type!r}")
+        return
+
+    expected = {"type", "exact", "prefix", "suffix", "position"}
+    check(errors, set(selector) == expected, f"{where}: invalid quote selector fields")
+    for field in ("exact", "prefix", "suffix"):
+        check(
+            errors,
+            isinstance(selector.get(field), str),
+            f"{where}: selector.{field} is not a string",
+        )
+    check(errors, bool(selector.get("exact")), f"{where}: selector.exact is empty")
+
+    position = selector.get("position")
+    if not isinstance(position, dict):
+        errors.append(f"{where}: selector.position is not an object")
+    else:
+        check(
+            errors,
+            set(position) == {"start", "end"},
+            f"{where}: invalid position fields",
+        )
+        start = position.get("start")
+        end = position.get("end")
+        check(
+            errors,
+            isinstance(start, int) and isinstance(end, int) and 0 <= start < end,
+            f"{where}: invalid text position {position!r}",
+        )
+        exact = selector.get("exact")
+        if isinstance(start, int) and isinstance(end, int) and isinstance(exact, str):
+            check(
+                errors,
+                end - start == len(exact),
+                f"{where}: text position length differs from selector.exact",
+            )
+
+    if not isinstance(snapshot, dict):
+        errors.append(f"{where}: quote selector has no targetSnapshot")
+        return
+    check(
+        errors,
+        set(snapshot) == {"text", "capturedAt", "materialVersion"},
+        f"{where}: invalid targetSnapshot fields",
+    )
+    check(
+        errors,
+        snapshot.get("text") == selector.get("exact"),
+        f"{where}: snapshot text differs from selector.exact",
+    )
+    check(
+        errors,
+        isinstance(snapshot.get("capturedAt"), str)
+        and bool(CAPTURED_AT.match(snapshot["capturedAt"])),
+        f"{where}: invalid targetSnapshot.capturedAt",
+    )
+    check(
+        errors,
+        isinstance(snapshot.get("materialVersion"), str)
+        and bool(MATERIAL_VERSION.match(snapshot["materialVersion"])),
+        f"{where}: invalid targetSnapshot.materialVersion",
+    )
+
+
+def check_entry(
+    errors: list[str],
+    entry: Any,
+    index: int,
+    registry: AddressRegistry,
+) -> None:
+    if not isinstance(entry, dict):
+        errors.append(f"mentions[{index}] is not an object")
+        return
+    identifier = entry.get("id")
+    where = (
+        identifier
+        if isinstance(identifier, str) and identifier
+        else f"mentions[{index}]"
+    )
+    extra = set(entry) - REQUIRED_FIELDS - OPTIONAL_FIELDS
     check(errors, not extra, f"{where}: fields outside the contract: {sorted(extra)}")
     missing = REQUIRED_FIELDS - set(entry)
     check(errors, not missing, f"{where}: missing field(s): {sorted(missing)}")
     if missing:
         return
 
-    check(errors, entry["type"] in ALLOWED_TYPES, f"{where}: unknown type {entry['type']!r}")
+    for field in (
+        "id",
+        "type",
+        "targetReceived",
+        "source",
+        "author_name",
+        "author_url",
+        "published",
+        "content_text",
+    ):
+        check(
+            errors, isinstance(entry[field], str), f"{where}: {field} is not a string"
+        )
     check(
         errors,
-        entry["target"].startswith(f"{BASE_URL}/") and not entry["target"].endswith("/"),
-        f"{where}: target is not a canonical site URL: {entry['target']!r}",
+        isinstance(entry["id"], str) and bool(entry["id"]),
+        f"{where}: id is empty",
     )
-    for field in ("source", "author_url"):
-        value = entry[field]
+    check(
+        errors,
+        isinstance(entry["type"], str) and entry["type"] in ALLOWED_TYPES,
+        f"{where}: unknown type {entry['type']!r}",
+    )
+    check(
+        errors,
+        absolute_url(entry["targetReceived"]),
+        f"{where}: targetReceived is not an absolute URL",
+    )
+    check(
+        errors, absolute_url(entry["source"]), f"{where}: source is not an absolute URL"
+    )
+    check(
+        errors,
+        entry["author_url"] == "" or absolute_url(entry["author_url"]),
+        f"{where}: author_url is not an absolute URL",
+    )
+
+    target = entry["target"]
+    if not isinstance(target, dict):
+        errors.append(f"{where}: target is not an object")
+    else:
         check(
             errors,
-            value == "" or value.startswith("http://") or value.startswith("https://"),
-            f"{where}: {field} is not an absolute URL: {value!r}",
+            set(target) == {"materialId", "selector"},
+            f"{where}: invalid target fields",
         )
+        material_id = target.get("materialId")
+        check(
+            errors,
+            isinstance(material_id, str) and bool(material_id),
+            f"{where}: target.materialId is not a non-empty string",
+        )
+        material = (
+            registry.by_id.get(material_id) if isinstance(material_id, str) else None
+        )
+        check(
+            errors, material is not None, f"{where}: unknown materialId {material_id!r}"
+        )
+        if material is not None and isinstance(entry["targetReceived"], str):
+            parsed = urllib.parse.urlsplit(entry["targetReceived"])
+            base = urllib.parse.urlunsplit(
+                (parsed.scheme, parsed.netloc, parsed.path, parsed.query, "")
+            )
+            try:
+                received_material = registry.by_url.get(normalize_registry_key(base))
+            except RegistryError:
+                received_material = None
+            check(
+                errors,
+                received_material is not None
+                and received_material.material_id == material.material_id,
+                f"{where}: targetReceived does not resolve to target.materialId",
+            )
+        check_selector(
+            errors,
+            where,
+            target.get("selector"),
+            entry.get("targetSnapshot", MISSING),
+        )
+
     for field in ("author_name", "content_text"):
-        check(errors, not MARKUP.search(entry[field]), f"{where}: {field} contains markup")
-    check(
-        errors,
-        len(entry["content_text"]) <= CONTENT_LIMIT + 1,
-        f"{where}: content_text longer than the {CONTENT_LIMIT}-character limit",
-    )
+        value = entry[field]
+        if isinstance(value, str):
+            check(errors, not MARKUP.search(value), f"{where}: {field} contains markup")
+    if isinstance(entry["content_text"], str):
+        check(
+            errors,
+            len(entry["content_text"]) <= CONTENT_LIMIT + 1,
+            f"{where}: content_text longer than the {CONTENT_LIMIT}-character limit",
+        )
     for field in ("author_name", "content_text", "author_url"):
-        check(errors, not EMAIL.search(entry[field]), f"{where}: {field} looks like it holds an e-mail")
+        value = entry[field]
+        if isinstance(value, str):
+            check(
+                errors,
+                not EMAIL.search(value),
+                f"{where}: {field} looks like it holds an e-mail",
+            )
 
 
-def page_for(public_dir: Path, target: str) -> Path:
-    return public_dir / target[len(BASE_URL) :].lstrip("/") / "index.html"
-
-
-def check_rendering(errors: list[str], public_dir: Path, mentions: list[dict]) -> None:
-    by_target: dict[str, list[dict]] = {}
+def check_rendering(
+    errors: list[str],
+    public_dir: Path,
+    mentions: list[dict[str, Any]],
+    registry: AddressRegistry,
+) -> None:
+    by_material: dict[str, list[dict[str, Any]]] = {}
     for entry in mentions:
-        by_target.setdefault(entry["target"], []).append(entry)
+        target = entry.get("target")
+        if isinstance(target, dict) and isinstance(target.get("materialId"), str):
+            by_material.setdefault(target["materialId"], []).append(entry)
 
-    for target, entries in by_target.items():
-        page = page_for(public_dir, target)
+    approved_pages: set[Path] = set()
+    for material_id, entries in by_material.items():
+        material = registry.by_id.get(material_id)
+        if material is None:
+            continue
+        page = material_page(public_dir, material)
+        approved_pages.add(page.resolve())
         if not page.exists():
-            errors.append(f"{target}: approved mention(s) point at a page that is not published")
+            errors.append(
+                f"{material.canonical}: approved mention(s) point at an unpublished page"
+            )
             continue
         parser = SectionParser()
-        parser.feed(page.read_text())
-        check(errors, parser.sections == 1, f"{target}: expected one responses block, found {parser.sections}")
-        check(errors, not parser.images, f"{target}: responses block renders an image — avatars are not published")
+        parser.feed(page.read_text(encoding="utf-8"))
+        check(
+            errors,
+            parser.sections == 1,
+            f"{material.canonical}: expected one responses block, found {parser.sections}",
+        )
+        check(
+            errors,
+            not parser.images,
+            f"{material.canonical}: responses block renders an image — avatars are not published",
+        )
         check(
             errors,
             len(parser.responses) > 0,
-            f"{target}: approved mentions exist, but the block shows no response entries",
+            f"{material.canonical}: approved mentions exist, but no response is rendered",
         )
         collapsed = "reactions" in parser.responses
         for entry in entries:
-            # Likes, reposts and bookmarks may collapse into a count once there
-            # are enough of them, and then their sources are
-            # deliberately not printed. Replies and mentions always are: they
-            # carry someone's words, and a count would hide them.
             if entry["type"] in {"like", "repost", "bookmark"} and collapsed:
                 continue
             check(
                 errors,
                 entry["source"] in parser.sources,
-                f"{target}: approved mention {entry['id']} is not rendered on the page",
+                f"{material.canonical}: approved mention {entry['id']} is not rendered",
             )
 
     for page in public_dir.rglob("index.html"):
-        relative = page.relative_to(public_dir).parent.as_posix()
-        target = BASE_URL if relative == "." else f"{BASE_URL}/{relative}"
-        if target in by_target:
+        if page.resolve() in approved_pages:
             continue
         parser = SectionParser()
-        parser.feed(page.read_text())
+        parser.feed(page.read_text(encoding="utf-8"))
         if parser.responses:
             errors.append(
-                f"{target}: shows {len(parser.responses)} response(s) without any approved mention"
+                f"{page}: shows {len(parser.responses)} response(s) without an approved mention"
             )
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--root", type=Path, default=Path(__file__).resolve().parents[1]
+    )
     parser.add_argument("--public-dir", type=Path, default=Path("public"))
     args = parser.parse_args()
 
     root = args.root.resolve()
-    public_dir = args.public_dir if args.public_dir.is_absolute() else root / args.public_dir
-
+    public_dir = (
+        args.public_dir if args.public_dir.is_absolute() else root / args.public_dir
+    )
     snapshot_path = root / "data" / "webmentions.json"
     errors: list[str] = []
     if not snapshot_path.exists():
         print(f"{snapshot_path}: missing snapshot", file=sys.stderr)
         return 1
+    try:
+        registry = build_registry(root)
+    except RegistryError as error:
+        print(f"webmention registry check failed: {error}", file=sys.stderr)
+        return 1
 
-    snapshot = json.loads(snapshot_path.read_text())
-    check(errors, snapshot.get("contract") == 1, "snapshot: unknown contract version")
+    try:
+        snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        print(f"{snapshot_path}: invalid JSON: {error}", file=sys.stderr)
+        return 1
+    if not isinstance(snapshot, dict):
+        print(f"{snapshot_path}: snapshot is not an object", file=sys.stderr)
+        return 1
+    check(
+        errors,
+        set(snapshot) == {"contract", "updated", "mentions"},
+        "snapshot: invalid top-level fields",
+    )
+    check(errors, snapshot.get("contract") == 2, "snapshot: unknown contract version")
+    check(
+        errors,
+        isinstance(snapshot.get("updated"), str)
+        and bool(UPDATED.match(snapshot["updated"])),
+        "snapshot: updated is not an ISO date",
+    )
     mentions = snapshot.get("mentions")
     check(errors, isinstance(mentions, list), "snapshot: mentions is not a list")
     if not isinstance(mentions, list):
         mentions = []
 
-    identifiers = [entry.get("id") for entry in mentions]
+    identifiers = [
+        entry.get("id")
+        for entry in mentions
+        if isinstance(entry, dict) and isinstance(entry.get("id"), str)
+    ]
+    duplicate_ids = sorted(
+        identifier for identifier, count in Counter(identifiers).items() if count > 1
+    )
     check(
         errors,
-        len(identifiers) == len(set(identifiers)),
-        f"snapshot: duplicate id(s): {[i for i in identifiers if identifiers.count(i) > 1]}",
+        not duplicate_ids,
+        f"snapshot: duplicate id(s): {duplicate_ids}",
     )
+    interactions: list[tuple[str, str]] = []
     for index, entry in enumerate(mentions):
-        check_entry(errors, entry, index)
+        check_entry(errors, entry, index, registry)
+        if isinstance(entry, dict):
+            target = entry.get("target")
+            source = entry.get("source")
+            material_id = target.get("materialId") if isinstance(target, dict) else None
+            if isinstance(material_id, str) and material_id and isinstance(source, str):
+                interactions.append((material_id, normalize_source(source)))
+    check(
+        errors,
+        len(interactions) == len(set(interactions)),
+        "snapshot: duplicate semantic interaction(s)",
+    )
 
     if not errors:
-        check_rendering(errors, public_dir, mentions)
+        check_rendering(errors, public_dir, mentions, registry)
 
     if errors:
         print("webmention contract check failed:", file=sys.stderr)
@@ -200,7 +446,10 @@ def main() -> int:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print(f"OK: {len(mentions)} approved mention(s), no foreign markup, no avatars, rendering matches the snapshot")
+    print(
+        f"OK: contract v2, {len(registry.by_id)} material(s), "
+        f"{len(mentions)} approved mention(s), rendering matches materialId ownership"
+    )
     return 0
 
 

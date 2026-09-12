@@ -4,7 +4,13 @@ reactions shown separately; many reactions collapse to a count. No avatars.
 Invite to reply via Webmention + permalink; no comment form.
 */ -}}
 {{- $permalink := partial "canonical-url.html" .Permalink -}}
-{{- $mentions := where (default (slice) hugo.Data.webmentions.mentions) "target" $permalink -}}
+{{- $materialID := .Params.id -}}
+{{- $mentions := slice -}}
+{{- range (default (slice) hugo.Data.webmentions.mentions) -}}
+  {{- if eq .target.materialId $materialID -}}
+    {{- $mentions = $mentions | append . -}}
+  {{- end -}}
+{{- end -}}
 {{- $replies := where $mentions "type" "eq" "reply" -}}
 {{- $links := where $mentions "type" "eq" "mention" -}}
 {{- $reactions := where $mentions "type" "in" (slice "like" "repost" "bookmark") -}}

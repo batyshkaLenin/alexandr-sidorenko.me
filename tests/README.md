@@ -76,6 +76,7 @@ python3 scripts/check-rel-me-contract.py
 python3 scripts/check-url-contract.py
 python3 scripts/check-schema-contract.py
 python3 scripts/check-webmention-contract.py
+python3 scripts/check-webmention-resolver.py
 python3 scripts/check-pgp-key.py
 python3 scripts/check-security-txt.py
 python3 scripts/check-headers-contract.py
@@ -197,24 +198,32 @@ the home page's own self link.
 
 ## Webmentions
 
-`check-webmention-contract.py` reads `data/webmentions.json` (what readers
-see) and checks stored fields and rendering: no avatar, no e-mail, no foreign
-markup, canonical targets, absolute sources; every approved mention appears
-on its page and nowhere else invents a section.
+`check-webmention-contract.py` reads snapshot contract v2 from
+`data/webmentions.json` and checks stored fields, material ownership, selector
+shape and rendering. `check-webmention-resolver.py` pins registry collisions,
+domain pagination, Text Fragment ambiguity and quote capture against a fixed
+material version. Matching approximates the Text Fragments primary-level
+comparison (case and combining diacritics do not distinguish a match), while
+publication remains conservative: only one resolved range becomes a quote
+selector. Multiple text directives in one URL are quarantined because one
+Webmention record has one stored target selector.
 
 Fetch and moderation are manual, not part of the build:
 
 ```sh
-python3 scripts/fetch-webmentions.py     # → tmp/webmentions-inbox.json
+WEBMENTION_IO_TOKEN=… python3 scripts/fetch-webmentions.py
+# → tmp/webmentions-inbox.json (mentions + unresolved)
 python3 scripts/moderate-webmentions.py --approve wm-123
 python3 scripts/moderate-webmentions.py --remove wm-123
 python3 scripts/moderate-webmentions.py --deny-domain spam.example
 python3 scripts/send-webmentions.py --dry-run
 ```
 
-`fetch` needs the network and built `sitemap.xml`; no credentials. Unreviewed
-entries stay in the gitignored inbox. `send` journals delivered pairs in
-`data/webmentions-sent.json`.
+`fetch` needs the network, a built site and `WEBMENTION_IO_TOKEN` in its offline
+environment. It reads the domain-wide API with pagination, then resolves base
+URLs through the material registry; the token is never used by Hugo or the
+deploy build. Unreviewed and unresolved entries stay in the gitignored inbox.
+`send` journals delivered pairs in `data/webmentions-sent.json`.
 
 ## Headers and cache
 

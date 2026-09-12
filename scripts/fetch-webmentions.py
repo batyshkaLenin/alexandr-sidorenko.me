@@ -1,38 +1,34 @@
 #!/usr/bin/env python3
-"""Fetch incoming Webmentions from webmention.io into the local inbox.
+"""Fetch domain-wide Webmentions into the local moderation inbox.
 
-Reads the public JF2 API once per published target URL, normalizes what comes
-back to the small field set the site publishes, drops anything already approved
-or denied, and writes the rest to `tmp/webmentions-inbox.json` — a gitignored
-staging file, so an unreviewed stranger's text never lands in a public
-repository.
-
-Nothing here touches `data/webmentions.json`: approving is a separate,
-offline step (`moderate-webmentions.py`), and the build never runs either
-script.
-
-The domain-wide endpoint would need an API token; per-target queries are public,
-so this script needs no credentials at all.
+The token is read only from ``WEBMENTION_IO_TOKEN``. The command is an offline
+owner tool: it never runs during Hugo build and never writes the published
+snapshot. Domain-wide discovery is what makes targets with fragments visible;
+the local address registry decides which of those URLs belong to materials.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 import urllib.error
 import urllib.parse
-import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
-from xml.etree import ElementTree
 
-API = "https://webmention.io/api/mentions.jf2"
-SITEMAP_NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-# webmention.io reports the kind of mention as the JF2 property that held the
-# target URL. Anything outside this map is an unadorned mention.
+from webmention_targets import (
+    BASE_URL,
+    RegistryError,
+    build_registry,
+    fetch_domain_mentions,
+    interaction_key,
+    resolve_target,
+)
+
 WM_PROPERTIES = {
     "in-reply-to": "reply",
     "like-of": "like",
@@ -41,16 +37,18 @@ WM_PROPERTIES = {
     "mention-of": "mention",
 }
 CONTENT_LIMIT = 640
-TIMEOUT = 30
+MUTABLE_FIELDS = (
+    "type",
+    "source",
+    "author_name",
+    "author_url",
+    "published",
+    "content_text",
+)
 
 
 class TagStripper(HTMLParser):
-    """Last-resort plain-text guard for a field that should already be plain.
-
-    Text inside script/style is dropped rather than kept: it is not prose, and
-    a stray `alert(1)` reading like a sentence in someone's reply is worse than
-    nothing, even though the value is escaped as text either way.
-    """
+    """Last-resort plain-text guard for fields that should already be plain."""
 
     SKIPPED = ("script", "style")
 
@@ -80,25 +78,23 @@ def plain_text(value: Any) -> str:
         return ""
     stripper = TagStripper()
     stripper.feed(value)
-    text = stripper.text()
-    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\s+", " ", stripper.text()).strip()
     if len(text) > CONTENT_LIMIT:
         text = text[:CONTENT_LIMIT].rstrip() + "…"
     return text
 
 
-def targets_from_sitemap(sitemap: Path) -> list[str]:
-    root = ElementTree.fromstring(sitemap.read_text())
-    return [node.text.strip() for node in root.findall(".//sm:loc", SITEMAP_NS) if node.text]
-
-
-def denied(entry: dict[str, str], denylist: dict[str, set[str]]) -> bool:
+def denied(entry: dict[str, Any], denylist: dict[str, set[str]]) -> bool:
     for field in ("source", "author_url"):
-        url = entry.get(field) or ""
+        url = str(entry.get(field) or "")
         host = urllib.parse.urlparse(url).hostname or ""
-        if host.lower().lstrip("www.") in denylist["domains"] or host.lower() in denylist["domains"]:
+        normalized = host.lower()
+        if (
+            normalized in denylist["domains"]
+            or normalized.removeprefix("www.") in denylist["domains"]
+        ):
             return True
-    return entry.get("author_url", "") in denylist["authors"]
+    return str(entry.get("author_url") or "").lower() in denylist["authors"]
 
 
 def load_denylist(root: Path) -> dict[str, set[str]]:
@@ -107,8 +103,8 @@ def load_denylist(root: Path) -> dict[str, set[str]]:
     authors: set[str] = set()
     if not path.exists():
         return {"domains": domains, "authors": authors}
-    bucket = None
-    for line in path.read_text().splitlines():
+    bucket: set[str] | None = None
+    for line in path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue
@@ -120,8 +116,8 @@ def load_denylist(root: Path) -> dict[str, set[str]]:
     return {"domains": domains, "authors": authors}
 
 
-def normalize(item: dict[str, Any]) -> dict[str, str] | None:
-    """Keep only the contract's fields; drop the rest, including author photo."""
+def normalize(item: dict[str, Any]) -> dict[str, Any] | None:
+    """Keep only reviewable fields and preserve the received target verbatim."""
     identifier = item.get("wm-id")
     target = item.get("wm-target")
     source = item.get("wm-source") or item.get("url")
@@ -130,105 +126,181 @@ def normalize(item: dict[str, Any]) -> dict[str, str] | None:
 
     author = item.get("author") or {}
     content = item.get("content") or {}
-    # `content.html` is deliberately ignored: the contract stores no foreign
-    # HTML at all, so there is nothing to sanitize later.
     text = plain_text(content.get("text") if isinstance(content, dict) else "")
-
     return {
         "id": f"wm-{identifier}",
         "type": WM_PROPERTIES.get(item.get("wm-property", ""), "mention"),
-        "target": str(target),
+        "targetReceived": str(target),
         "source": str(source),
-        "author_name": plain_text(author.get("name") if isinstance(author, dict) else ""),
+        "author_name": plain_text(
+            author.get("name") if isinstance(author, dict) else ""
+        ),
         "author_url": str(author.get("url") or "") if isinstance(author, dict) else "",
         "published": str(item.get("published") or item.get("wm-received") or ""),
         "content_text": text,
     }
 
 
-def fetch_target(target: str) -> list[dict[str, Any]]:
-    query = urllib.parse.urlencode({"target": target, "per-page": 100})
-    request = urllib.request.Request(
-        f"{API}?{query}", headers={"User-Agent": "alexandr-sidorenko.me webmention import"}
-    )
-    with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
-        payload = json.load(response)
-    children = payload.get("children")
-    return children if isinstance(children, list) else []
-
-
-def approved_ids(root: Path) -> set[str]:
+def load_published(root: Path) -> dict[tuple[str, str], dict[str, Any]]:
     path = root / "data" / "webmentions.json"
     if not path.exists():
-        return set()
-    snapshot = json.loads(path.read_text())
-    return {entry["id"] for entry in snapshot.get("mentions", []) if "id" in entry}
+        return {}
+    snapshot = json.loads(path.read_text(encoding="utf-8"))
+    if snapshot.get("contract") != 2:
+        return {}
+    return {
+        interaction_key(entry): entry
+        for entry in snapshot.get("mentions", [])
+        if isinstance(entry, dict) and isinstance(entry.get("target"), dict)
+    }
+
+
+def unchanged(entry: dict[str, Any], published: dict[str, Any]) -> bool:
+    return all(
+        entry.get(field, "") == published.get(field, "") for field in MUTABLE_FIELDS
+    )
+
+
+def prepare_inbox(
+    raw_mentions: list[dict[str, Any]],
+    registry: Any,
+    public_dir: Path,
+    denylist: dict[str, set[str]],
+    published: dict[tuple[str, str], dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, str]], list[str]]:
+    pending: dict[tuple[str, str], dict[str, Any]] = {}
+    unresolved: list[dict[str, str]] = []
+    diagnostics: list[str] = []
+
+    for item in raw_mentions:
+        entry = normalize(item)
+        if entry is None or denied(entry, denylist):
+            continue
+        resolution = resolve_target(entry["targetReceived"], registry, public_dir)
+        if resolution.status in {"foreign", "unsupported"}:
+            diagnostics.append(f"{entry['id']}: {resolution.diagnostic}")
+            continue
+        if resolution.status == "unresolved" or resolution.target is None:
+            unresolved.append(
+                {
+                    "id": entry["id"],
+                    "source": entry["source"],
+                    "targetReceived": entry["targetReceived"],
+                    "reason": resolution.diagnostic or "unresolved",
+                }
+            )
+            continue
+
+        entry["target"] = resolution.target
+        if resolution.target_snapshot:
+            entry["targetSnapshot"] = resolution.target_snapshot
+        if resolution.diagnostic:
+            entry["targetDiagnostic"] = resolution.diagnostic
+        key = interaction_key(entry)
+        previous = published.get(key)
+        if previous is not None and unchanged(entry, previous):
+            continue
+        current = pending.get(key)
+        if current is None or (entry["published"], entry["id"]) > (
+            current["published"],
+            current["id"],
+        ):
+            pending[key] = entry
+
+    ordered = sorted(
+        pending.values(), key=lambda entry: (entry["published"], entry["id"])
+    )
+    unresolved.sort(key=lambda entry: entry["id"])
+    return ordered, unresolved, diagnostics
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--sitemap",
-        type=Path,
-        default=Path("public/sitemap.xml"),
-        help="built sitemap the target list is read from",
+        "--root", type=Path, default=Path(__file__).resolve().parents[1]
+    )
+    parser.add_argument("--public-dir", type=Path, default=Path("public"))
+    parser.add_argument(
+        "--inbox", type=Path, default=Path("tmp/webmentions-inbox.json")
     )
     parser.add_argument(
-        "--inbox", type=Path, default=Path("tmp/webmentions-inbox.json"), help="gitignored staging file"
+        "--since", help="optional webmention.io creation timestamp cursor"
     )
     args = parser.parse_args()
 
     root = args.root.resolve()
-    sitemap = args.sitemap if args.sitemap.is_absolute() else root / args.sitemap
+    public_dir = (
+        args.public_dir if args.public_dir.is_absolute() else root / args.public_dir
+    )
     inbox_path = args.inbox if args.inbox.is_absolute() else root / args.inbox
+    token = os.environ.get("WEBMENTION_IO_TOKEN", "")
+    if not token:
+        print("WEBMENTION_IO_TOKEN is required for domain-wide fetch", file=sys.stderr)
+        return 2
+    if not public_dir.is_dir():
+        print(
+            f"{public_dir}: no built site — build it before resolving targets",
+            file=sys.stderr,
+        )
+        return 2
 
-    if not sitemap.exists():
-        print(f"{sitemap}: no sitemap — build the site first", file=sys.stderr)
+    try:
+        registry = build_registry(root)
+        raw_mentions = fetch_domain_mentions(
+            token,
+            urllib.parse.urlsplit(BASE_URL).hostname or "",
+            args.since,
+        )
+    except (
+        RegistryError,
+        urllib.error.URLError,
+        TimeoutError,
+        json.JSONDecodeError,
+        RuntimeError,
+    ) as error:
+        print(f"webmention fetch failed: {error}", file=sys.stderr)
         return 1
 
     denylist = load_denylist(root)
-    already = approved_ids(root)
-    pending: dict[str, dict[str, str]] = {}
-    failures: list[str] = []
-
-    for target in targets_from_sitemap(sitemap):
-        try:
-            children = fetch_target(target)
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
-            failures.append(f"{target}: {error}")
-            continue
-        for item in children:
-            entry = normalize(item)
-            if entry is None or entry["id"] in already or denied(entry, denylist):
-                continue
-            pending[entry["id"]] = entry
-
-    if failures:
-        print("webmention.io unreachable for some targets:", file=sys.stderr)
-        for failure in failures:
-            print(f"- {failure}", file=sys.stderr)
-        # The inbox is staging, not the published snapshot: a partial fetch is
-        # written anyway so the reachable half can still be reviewed, and the
-        # non-zero exit says the run was incomplete.
-
+    published = load_published(root)
+    ordered, unresolved, diagnostics = prepare_inbox(
+        raw_mentions,
+        registry,
+        public_dir,
+        denylist,
+        published,
+    )
     inbox_path.parent.mkdir(parents=True, exist_ok=True)
-    ordered = sorted(pending.values(), key=lambda entry: (entry["published"], entry["id"]))
-    inbox_path.write_text(json.dumps({"mentions": ordered}, ensure_ascii=False, indent=2) + "\n")
+    inbox_path.write_text(
+        json.dumps(
+            {"mentions": ordered, "unresolved": unresolved},
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    for diagnostic in diagnostics:
+        print(f"пропущено: {diagnostic}", file=sys.stderr)
+    for entry in unresolved:
+        print(f"на разбор: {entry['id']}: {entry['reason']}", file=sys.stderr)
 
     if not ordered:
         print("Ничего нового: одобрять нечего.")
     else:
-        print(f"Новых упоминаний: {len(ordered)} → {inbox_path}")
+        print(f"Новых или изменённых упоминаний: {len(ordered)} → {inbox_path}")
         for entry in ordered:
             author = entry["author_name"] or entry["author_url"] or "без имени"
             print(f"  {entry['id']}  {entry['type']:8}  {author}")
-            print(f"    {entry['source']} → {entry['target']}")
+            print(f"    {entry['source']} → {entry['targetReceived']}")
+            if entry.get("targetDiagnostic"):
+                print(f"    target: document ({entry['targetDiagnostic']})")
             if entry["content_text"]:
                 print(f"    {entry['content_text']}")
         print("\nОдобрить: scripts/moderate-webmentions.py --approve <id> [<id>...]")
 
-    return 1 if failures else 0
+    return 0
 
 
 if __name__ == "__main__":

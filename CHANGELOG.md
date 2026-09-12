@@ -145,7 +145,12 @@ is folded into the entry describing the finished behaviour rather than listed as
   Under it, instead of a comment box that would go nowhere: answer on your own
   site and send a Webmention, with the publication's permanent address written
   out, copyable in one click, and two links for anyone who has not met the
-  protocol before.
+  protocol before. Incoming responses attach to the material's identity rather
+  than to one spelling of its address, so canonical, permanent and recorded
+  historical URLs converge on the same publication. A response aimed at a text
+  fragment records the uniquely resolved quote and the material snapshot seen
+  during moderation; a missing or ambiguous fragment stays a document-level
+  response instead of claiming the wrong passage.
 - A publication can show its own connections: what it is part of, what it
   cites, what it relates to — and, underneath, which other materials on this
   site point back at it. Both directions are ordinary links, grouped by the
