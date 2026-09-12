@@ -24,6 +24,9 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 ### Added
 
+- A stable `/key.pub` endpoint with HTML discovery and an RFC 9116
+  `/.well-known/security.txt` that publishes the monitored security contact,
+  preferred languages, encryption key and a manually maintained expiry date.
 - Hugo-based site (Russian only, canonical URLs without a `/ru` prefix, no
   required JavaScript), replacing the removed Next.js codebase.
 - Migrated publications from the previous site (posts and creativity works),

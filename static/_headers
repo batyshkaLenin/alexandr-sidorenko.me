@@ -100,6 +100,18 @@
 /llms.txt
   Cache-Control: public, max-age=3600
 
+# The public OpenPGP key keeps a stable discovery URI. Revalidate quickly so a
+# planned rotation or compromise response does not leave clients on an old key.
+/key.pub
+  Cache-Control: public, max-age=3600
+  Content-Type: application/pgp-keys
+
+# RFC 9116 metadata expires and may change during incident response, so clients
+# revalidate it hourly. The explicit UTF-8 media type is part of the contract.
+/.well-known/security.txt
+  Cache-Control: public, max-age=3600
+  Content-Type: text/plain; charset=utf-8
+
 # The search index lives at a stable address and follows the materials, so it
 # revalidates on the same hour as the feeds rather than claiming immutability
 # it cannot have.

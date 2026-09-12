@@ -49,6 +49,8 @@ run_group "uid" python3 scripts/check-uid-contract.py --public-dir "${PUBLIC_DIR
 run_group "404" python3 scripts/check-404-contract.py --public-dir "${PUBLIC_DIR}"
 run_group "rel-me" python3 scripts/check-rel-me-contract.py --public-dir "${PUBLIC_DIR}"
 run_group "webmention" python3 scripts/check-webmention-contract.py --public-dir "${PUBLIC_DIR}"
+run_group "pgp-key" python3 scripts/check-pgp-key.py --public-dir "${PUBLIC_DIR}"
+run_group "security-txt" python3 scripts/check-security-txt.py --public-dir "${PUBLIC_DIR}"
 run_group "headers" python3 scripts/check-headers-contract.py --public-dir "${PUBLIC_DIR}"
 
 if (( failures > 0 )); then

@@ -29,7 +29,13 @@ UA = {"User-Agent": "alexandr-sidorenko.me http matrix check"}
 CANONICAL_HOST = "https://alexandr-sidorenko.me"
 
 # HTML routes: the no-slash form is canonical, the slash form redirects to it.
-HTML_ROUTES = ["/", "/library", "/library/philosophy-of-freedom", "/library/skver", "/library/topics"]
+HTML_ROUTES = [
+    "/",
+    "/library",
+    "/library/philosophy-of-freedom",
+    "/library/skver",
+    "/library/topics",
+]
 
 # path -> expected media type prefix
 MEDIA_TYPES = {
@@ -40,6 +46,8 @@ MEDIA_TYPES = {
     "/sitemap.xml": "application/xml",
     "/robots.txt": "text/plain",
     "/llms.txt": "text/plain",
+    "/key.pub": "application/pgp-keys",
+    "/.well-known/security.txt": "text/plain",
     "/sw.js": "text/javascript",
     "/site.webmanifest": "application/manifest+json",
     "/assets/library/regular-visitor/Постоянщик.mp3": "audio/mpeg",
@@ -68,6 +76,7 @@ MUST_BE_404 = [
     "/id/01a00aea-44dc-74e0-8834-895ef7a6c708",
 ]
 
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, *args, **kwargs):
         return None
@@ -80,7 +89,9 @@ def request(url: str) -> tuple[int, dict[str, str]]:
     quoted = urllib.parse.quote(url, safe=":/?#[]@!$&'()*+,;=%")
     opener = urllib.request.build_opener(NoRedirect)
     try:
-        with opener.open(urllib.request.Request(quoted, headers=UA, method="HEAD"), timeout=20) as response:
+        with opener.open(
+            urllib.request.Request(quoted, headers=UA, method="HEAD"), timeout=20
+        ) as response:
             return response.status, {k.lower(): v for k, v in response.headers.items()}
     except urllib.error.HTTPError as error:
         return error.code, {k.lower(): v for k, v in error.headers.items()}
@@ -88,7 +99,9 @@ def request(url: str) -> tuple[int, dict[str, str]]:
 
 def body(url: str) -> str:
     quoted = urllib.parse.quote(url, safe=":/?#[]@!$&'()*+,;=%")
-    with urllib.request.urlopen(urllib.request.Request(quoted, headers=UA), timeout=20) as response:
+    with urllib.request.urlopen(
+        urllib.request.Request(quoted, headers=UA), timeout=20
+    ) as response:
         return response.read().decode("utf-8", "replace")
 
 
@@ -131,7 +144,11 @@ def main() -> int:
         # Permanent, not temporary: `html_handling` alone answers 307, which
         # tells a client the old form may come back. `_redirects` states the
         # move is permanent, and losing that rule would silently downgrade it.
-        check(errors, status in (301, 308), f"{slashed}: expected a permanent redirect, got {status}")
+        check(
+            errors,
+            status in (301, 308),
+            f"{slashed}: expected a permanent redirect, got {status}",
+        )
         location = headers.get("location", "")
         target = urllib.parse.urlsplit(location).path or location
         check(
@@ -141,7 +158,11 @@ def main() -> int:
         )
         if location:
             hop_status, _ = request(urllib.parse.urljoin(base + slashed, location))
-            check(errors, hop_status == 200, f"{slashed}: redirect target answers {hop_status}, not 200 — a chain")
+            check(
+                errors,
+                hop_status == 200,
+                f"{slashed}: redirect target answers {hop_status}, not 200 — a chain",
+            )
 
         # What the page calls itself must be what the host serves.
         page = body(base + route)
@@ -150,16 +171,28 @@ def main() -> int:
             errors.append(f"{route}: no canonical link found")
             continue
         canonical = match.group(1)
-        check(errors, canonical.startswith(CANONICAL_HOST), f"{route}: canonical points elsewhere: {canonical}")
+        check(
+            errors,
+            canonical.startswith(CANONICAL_HOST),
+            f"{route}: canonical points elsewhere: {canonical}",
+        )
         canonical_path = canonical[len(CANONICAL_HOST) :] or "/"
         status, _ = request(base + canonical_path)
-        check(errors, status == 200, f"{route}: its own canonical {canonical_path} answers {status}, not 200")
+        check(
+            errors,
+            status == 200,
+            f"{route}: its own canonical {canonical_path} answers {status}, not 200",
+        )
 
     for path, expected in MEDIA_TYPES.items():
         status, headers = request(base + path)
         check(errors, status == 200, f"{path}: expected 200, got {status}")
         actual = headers.get("content-type", "")
-        check(errors, actual.startswith(expected), f"{path}: expected {expected}, got {actual!r}")
+        check(
+            errors,
+            actual.startswith(expected),
+            f"{path}: expected {expected}, got {actual!r}",
+        )
 
     identity_rules = []
     redirects = Path(args.public_dir or "public") / "_redirects"

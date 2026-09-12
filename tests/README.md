@@ -76,6 +76,8 @@ python3 scripts/check-rel-me-contract.py
 python3 scripts/check-url-contract.py
 python3 scripts/check-schema-contract.py
 python3 scripts/check-webmention-contract.py
+python3 scripts/check-pgp-key.py
+python3 scripts/check-security-txt.py
 python3 scripts/check-headers-contract.py
 python3 scripts/check-budgets.py
 ./scripts/check-browser.sh
@@ -215,6 +217,19 @@ entries stay in the gitignored inbox. `send` journals delivered pairs in
 
 ## Headers and cache
 
+`check-pgp-key.py` imports `key.pub` into an empty temporary `GNUPGHOME`,
+requires fingerprint `742587A7940BC99F2F5AC7CD0D7EC386CBEF33F6`, rejects
+revoked/expired keys, UID or encryption-subkey drift and secret-key packets,
+and checks that every built HTML head discovers the stable site-relative URI
+with `<link rel="pgpkey" href="/key.pub">`.
+
+`check-security-txt.py` requires the approved RFC 9116 fields and order,
+unsigned UTF-8 content, the production `Canonical` and `/key.pub` Encryption
+URI. It fails when `Expires` is expired or 30 days away, warns from 60 days,
+and never changes the manually reviewed date. Controlled fixtures cover an
+expired document and the 30/45-day boundaries. Runtime mode also rejects both
+direct and automatically followed redirects from the canonical path.
+
 `check-headers-contract.py` reads `_headers` from the build and compares
 security headers, `Cache-Control` classes, and coverage (every built file
 falls into a class; HTML keeps the platform default; `immutable` only on
@@ -225,6 +240,7 @@ With `--base-url` it also probes a running origin:
 ```sh
 npx wrangler dev --port 8791
 python3 scripts/check-headers-contract.py --base-url http://127.0.0.1:8791
+python3 scripts/check-security-txt.py --base-url http://127.0.0.1:8791
 ```
 
 ## HTTP matrix

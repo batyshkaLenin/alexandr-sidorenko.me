@@ -67,6 +67,8 @@ EXPECTED_CACHE = {
     "/sitemap.xml": HOUR,
     "/robots.txt": HOUR,
     "/llms.txt": HOUR,
+    "/key.pub": HOUR,
+    "/.well-known/security.txt": HOUR,
     "/search-index.json": HOUR,
     "/sw.js": REVALIDATE,
 }
@@ -79,6 +81,8 @@ EXPECTED_CONTENT_TYPE = {
     "/feed.json": "application/feed+json; charset=utf-8",
     "/*/feed.xml": "application/rss+xml; charset=utf-8",
     "/*/feed.json": "application/feed+json; charset=utf-8",
+    "/key.pub": "application/pgp-keys",
+    "/.well-known/security.txt": "text/plain; charset=utf-8",
 }
 
 # HTML deliberately has no rule: the platform default is already the contract's
@@ -121,7 +125,9 @@ def parse_headers_file(text: str) -> tuple[dict[str, dict[str, str]], list[str]]
 
 
 def pattern_to_regex(pattern: str) -> re.Pattern[str]:
-    return re.compile("^" + ".*".join(re.escape(part) for part in pattern.split("*")) + "$")
+    return re.compile(
+        "^" + ".*".join(re.escape(part) for part in pattern.split("*")) + "$"
+    )
 
 
 def matching_cache_rule(path: str, rules: dict[str, dict[str, str]]) -> str | None:
@@ -133,11 +139,15 @@ def matching_cache_rule(path: str, rules: dict[str, dict[str, str]]) -> str | No
     return None
 
 
-def check_rules(errors: list[str], rules: dict[str, dict[str, str]], order: list[str], text: str) -> None:
+def check_rules(
+    errors: list[str], rules: dict[str, dict[str, str]], order: list[str], text: str
+) -> None:
     if len(order) > RULE_LIMIT:
         errors.append(f"{len(order)} rules, platform limit is {RULE_LIMIT}")
     if len(order) != len(set(order)):
-        errors.append("the same path appears twice; matching rules are merged, not replaced")
+        errors.append(
+            "the same path appears twice; matching rules are merged, not replaced"
+        )
     for number, line in enumerate(text.splitlines(), start=1):
         if len(line) > LINE_LIMIT:
             errors.append(f"line {number} is longer than {LINE_LIMIT} characters")
@@ -147,13 +157,17 @@ def check_rules(errors: list[str], rules: dict[str, dict[str, str]], order: list
         errors.append("no /* rule: the security headers reach no response")
         return
     if "Cache-Control" in catch_all:
-        errors.append("/* sets Cache-Control: it would be comma-joined with every other rule")
+        errors.append(
+            "/* sets Cache-Control: it would be comma-joined with every other rule"
+        )
     for name, value in SECURITY.items():
         actual = catch_all.get(name)
         if actual is None:
             errors.append(f"/*: missing {name}")
         elif actual != value:
-            errors.append(f"/*: {name} differs from expected\n    expected: {value}\n    actual:   {actual}")
+            errors.append(
+                f"/*: {name} differs from expected\n    expected: {value}\n    actual:   {actual}"
+            )
     if "Strict-Transport-Security" in catch_all:
         errors.append("HSTS is present, but it is deferred until after cutover")
 
@@ -164,11 +178,18 @@ def check_rules(errors: list[str], rules: dict[str, dict[str, str]], order: list
             continue
         actual = headers.get("Cache-Control")
         if actual != expected:
-            errors.append(f"{pattern}: Cache-Control is {actual!r}, expected {expected!r}")
+            errors.append(
+                f"{pattern}: Cache-Control is {actual!r}, expected {expected!r}"
+            )
 
     for pattern, headers in rules.items():
-        if "immutable" in headers.get("Cache-Control", "") and pattern not in CONTENT_ADDRESSED:
-            errors.append(f"{pattern}: immutable on a URL that is not content-addressed")
+        if (
+            "immutable" in headers.get("Cache-Control", "")
+            and pattern not in CONTENT_ADDRESSED
+        ):
+            errors.append(
+                f"{pattern}: immutable on a URL that is not content-addressed"
+            )
 
     for path, expected in EXPECTED_CONTENT_TYPE.items():
         actual = rules.get(path, {}).get("Content-Type")
@@ -176,7 +197,9 @@ def check_rules(errors: list[str], rules: dict[str, dict[str, str]], order: list
             errors.append(f"{path}: Content-Type is {actual!r}, expected {expected!r}")
 
 
-def check_coverage(errors: list[str], rules: dict[str, dict[str, str]], public_dir: Path) -> None:
+def check_coverage(
+    errors: list[str], rules: dict[str, dict[str, str]], public_dir: Path
+) -> None:
     """Every built file should land in a class the contract knows about."""
     for path in sorted(public_dir.rglob("*")):
         # `_headers` and `_redirects` are consumed by the platform, not served:
@@ -186,7 +209,9 @@ def check_coverage(errors: list[str], rules: dict[str, dict[str, str]], public_d
         url = "/" + path.relative_to(public_dir).as_posix()
         if url.endswith(".html"):
             if matching_cache_rule(url, rules) is not None:
-                errors.append(f"{url}: HTML must keep the platform default, but a rule sets Cache-Control")
+                errors.append(
+                    f"{url}: HTML must keep the platform default, but a rule sets Cache-Control"
+                )
             continue
         if matching_cache_rule(url, rules) is None:
             errors.append(f"{url}: no Cache-Control rule covers this file")
@@ -228,26 +253,44 @@ def check_live(errors: list[str], base_url: str, public_dir: Path) -> None:
             continue
         actual = headers.get("cache-control")
         if actual != expected:
-            errors.append(f"{url}: served Cache-Control {actual!r}, expected {expected!r}")
+            errors.append(
+                f"{url}: served Cache-Control {actual!r}, expected {expected!r}"
+            )
         for name, value in SECURITY.items():
             served = headers.get(name.lower())
             if served != value:
                 errors.append(f"{url}: served {name} {served!r} differs from expected")
+        for pattern, content_type in EXPECTED_CONTENT_TYPE.items():
+            if pattern_to_regex(pattern).match(url):
+                served = headers.get("content-type")
+                if served != content_type:
+                    errors.append(
+                        f"{url}: served Content-Type {served!r}, expected {content_type!r}"
+                    )
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument(
+        "--root", type=Path, default=Path(__file__).resolve().parents[1]
+    )
     parser.add_argument("--public-dir", type=Path, default=Path("public"))
-    parser.add_argument("--base-url", help="also verify the headers a running origin actually serves")
+    parser.add_argument(
+        "--base-url", help="also verify the headers a running origin actually serves"
+    )
     args = parser.parse_args()
 
     root = args.root.resolve()
-    public_dir = args.public_dir if args.public_dir.is_absolute() else root / args.public_dir
+    public_dir = (
+        args.public_dir if args.public_dir.is_absolute() else root / args.public_dir
+    )
     headers_file = public_dir / "_headers"
 
     if not headers_file.exists():
-        print(f"{headers_file}: missing — the contract reaches no response", file=sys.stderr)
+        print(
+            f"{headers_file}: missing — the contract reaches no response",
+            file=sys.stderr,
+        )
         return 1
 
     text = headers_file.read_text()
@@ -265,7 +308,9 @@ def main() -> int:
         return 1
 
     scope = f", verified against {args.base_url}" if args.base_url else ""
-    print(f"OK: {len(order)} rules within the {RULE_LIMIT} limit, values match expected{scope}")
+    print(
+        f"OK: {len(order)} rules within the {RULE_LIMIT} limit, values match expected{scope}"
+    )
     return 0
 
 
