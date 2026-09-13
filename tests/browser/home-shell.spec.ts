@@ -5,7 +5,10 @@ const PHONES = [
   { width: 390, height: 844 },
 ] as const;
 
-const DESKTOPS = [
+const WIDES = [
+  { width: 768, height: 1024 },
+  { width: 820, height: 1180 },
+  { width: 912, height: 1368 },
   { width: 1024, height: 768 },
   { width: 1440, height: 900 },
 ] as const;
@@ -81,7 +84,7 @@ test.describe("home shell", () => {
       await page.goto("/");
       const labels = await visiblePanelLabels(page);
       expect(labels).toEqual(["avatar.jpg", "about.md", "library/", "activity/"]);
-      await expect(page.locator(".dc-filetree")).toBeHidden();
+      await expect(page.locator(".dc-home .dc-filetree")).toHaveCount(0);
       await expect(page.locator(".dc-neofetch")).toBeHidden();
       await expect(page.locator(".dc-identity")).toBeHidden();
       const selfUrl = page.locator(".h-card .u-url");
@@ -124,6 +127,8 @@ test.describe("home shell", () => {
       const before = await portraitMetrics();
       expect(before.naturalWidth).toBeGreaterThan(0);
       expect(Math.abs(before.boxRatio - before.naturalRatio)).toBeLessThan(0.03);
+      await expect(page.locator(".dc-portrait-quote")).toHaveCount(0);
+      await expect(page.locator(".dc-portrait-original")).toBeVisible();
 
       await page.locator("[data-image-original]").click();
       await expect(page.locator("dc-image-toggle")).toHaveAttribute("showing", "original");
@@ -160,9 +165,9 @@ test.describe("home shell", () => {
           activity: size(".as-activity__value"),
         };
       });
-      expect(type.name).toBe(type.note);
-      expect(type.library).toBeLessThanOrEqual(type.note);
-      expect(type.activity).toBeLessThanOrEqual(type.note);
+      expect(type.name).toBe(type.library);
+      expect(type.note).toBeGreaterThan(type.name);
+      expect(type.activity).toBeLessThanOrEqual(type.name);
       const labelColors = await page.evaluate(() => {
         const labels = Array.from(document.querySelectorAll(".dc-home .dc-panel"))
           .filter((el) => getComputedStyle(el).display !== "none")
@@ -201,34 +206,165 @@ test.describe("home shell", () => {
     await page.keyboard.press("Escape");
   });
 
-  for (const viewport of DESKTOPS) {
-    test(`desktop ${viewport.width}×${viewport.height} keeps workstation Home chrome`, async ({
+  async function homeGeometry(page: Page) {
+    return page.evaluate(() => {
+      const panel = (label) => {
+        const el = Array.from(document.querySelectorAll(".dc-home .dc-panel")).find(
+          (node) => node.querySelector(".dc-panel__label")?.textContent?.trim() === label,
+        );
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return { x: r.x, y: r.y, w: r.width, h: r.height };
+      };
+      const img = document.querySelector("img.dc-portrait");
+      const imgBox = img?.getBoundingClientRect();
+      const imgCs = img ? getComputedStyle(img) : null;
+      const orig = document.querySelector(".dc-portrait-original")?.getBoundingClientRect();
+      const cols = getComputedStyle(document.querySelector(".dc-home")!).gridTemplateColumns;
+      return {
+        cols: cols === "none" ? 0 : cols.split(" ").filter(Boolean).length,
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+        avatar: panel("avatar.jpg"),
+        about: panel("about.md"),
+        neofetch: panel("neofetch"),
+        library: panel("library/"),
+        activity: panel("activity/"),
+        portrait: imgBox && imgCs && img
+          ? {
+              w: imgBox.width,
+              h: imgBox.height,
+              fit: imgCs.objectFit,
+              naturalRatio: img.naturalWidth / img.naturalHeight,
+              boxRatio: imgBox.width / imgBox.height,
+              originalGap: orig ? orig.top - imgBox.bottom : null,
+            }
+          : null,
+      };
+    });
+  }
+
+  for (const viewport of WIDES) {
+    test(`wide ${viewport.width}×${viewport.height} uses the two-column Home`, async ({
       page,
     }, testInfo) => {
-      test.skip(testInfo.project.name === "chromium-mobile", "Desktop viewports run once.");
+      test.skip(testInfo.project.name === "chromium-mobile", "Explicit viewport matrix runs once.");
       await page.setViewportSize(viewport);
       await page.goto("/");
-      await expect(page.locator(".dc-filetree")).toBeVisible();
+      await expect.poll(async () =>
+        page.locator("img.dc-portrait").evaluate((img: HTMLImageElement) => img.naturalWidth),
+      ).toBeGreaterThan(0);
+      await expect(page.locator(".dc-home .dc-filetree")).toHaveCount(0);
       await expect(page.locator(".dc-neofetch")).toBeVisible();
       await expect(page.locator(".dc-identity")).toBeVisible();
       await expect(page.locator(".dc-palette__trigger")).toContainText("search");
       const labels = await visiblePanelLabels(page);
       expect(labels).toEqual(expect.arrayContaining([
-        "site/",
+        "neofetch",
         "about.md",
         "avatar.jpg",
         "library/",
         "activity/",
       ]));
-      const overflow = await page.evaluate(
-        () => document.documentElement.scrollWidth - window.innerWidth > 1,
-      );
-      expect(overflow).toBe(false);
+      expect(labels).not.toContain("site/");
+      const geo = await homeGeometry(page);
+      expect(geo.cols).toBe(2);
+      expect(geo.overflow).toBeLessThanOrEqual(1);
+      expect(geo.avatar).toBeTruthy();
+      expect(geo.about).toBeTruthy();
+      expect(geo.neofetch).toBeTruthy();
+      expect(geo.library).toBeTruthy();
+      expect(Math.abs(geo.avatar!.y - geo.about!.y)).toBeLessThan(8);
+      expect(geo.about!.x).toBeGreaterThan(geo.avatar!.x + geo.avatar!.w - 1);
+      expect(Math.abs(geo.neofetch!.y - geo.library!.y)).toBeLessThan(8);
+      expect(geo.library!.x).toBeGreaterThan(geo.neofetch!.x + geo.neofetch!.w - 1);
+      expect(geo.neofetch!.y).toBeGreaterThanOrEqual(geo.avatar!.y + geo.avatar!.h - 1);
+      const packed = await page.evaluate(() => {
+        const panel = (label) =>
+          Array.from(document.querySelectorAll(".dc-home .dc-panel")).find(
+            (node) => node.querySelector(".dc-panel__label")?.textContent?.trim() === label,
+          );
+        const inside = (child, parent) => {
+          if (!child || !parent) return false;
+          const c = child.getBoundingClientRect();
+          const p = parent.getBoundingClientRect();
+          return c.top >= p.top - 1 && c.bottom <= p.bottom + 1;
+        };
+        return {
+          moreInLibrary: inside(
+            document.querySelector(".dc-home-recent__more"),
+            panel("library/"),
+          ),
+          originalInAvatar: inside(
+            document.querySelector(".dc-portrait-original"),
+            panel("avatar.jpg"),
+          ),
+          socialsInAbout: inside(
+            document.querySelector(".dc-identity-links"),
+            panel("about.md"),
+          ),
+        };
+      });
+      expect(packed.moreInLibrary).toBe(true);
+      expect(packed.originalInAvatar).toBe(true);
+      expect(packed.socialsInAbout).toBe(true);
+      expect(geo.avatar!.w).toBeLessThanOrEqual(25 * 16 + 2);
+      expect(geo.portrait).toBeTruthy();
+      expect(geo.portrait!.w).toBeLessThanOrEqual(25 * 16);
+      expect(geo.portrait!.fit).toBe("contain");
+      expect(Math.abs(geo.portrait!.boxRatio - geo.portrait!.naturalRatio)).toBeLessThan(0.03);
+      expect(geo.portrait!.originalGap).not.toBeNull();
+      expect(geo.portrait!.originalGap!).toBeGreaterThanOrEqual(-1);
+      expect(geo.portrait!.originalGap!).toBeLessThan(16);
+      await expect(page.locator(".dc-portrait-quote")).toHaveCount(0);
+      await expect(page.locator(".dc-portrait-original")).toBeVisible();
+
+      if (viewport.width >= 1024) {
+        const activityAligned = await page.evaluate(() => {
+          const mods = Array.from(document.querySelectorAll(".as-activity__module"))
+            .map((el) => el.getBoundingClientRect());
+          if (mods.length < 2) return true;
+          return Math.abs(mods[0].y - mods[1].y) < 12;
+        });
+        expect(activityAligned).toBe(true);
+
+        const chrome = await page.evaluate(() => {
+          const look = (sel) => {
+            const el = document.querySelector(sel);
+            if (!el) return null;
+            const cs = getComputedStyle(el);
+            const label = el.querySelector(".dc-panel__label");
+            const labelCs = label ? getComputedStyle(label) : null;
+            return {
+              borderLeft: cs.borderLeftWidth,
+              borderTop: cs.borderTopWidth,
+              labelBottom: labelCs ? labelCs.borderBottomWidth : "0px",
+            };
+          };
+          return {
+            utility: look(".dc-home-row--identity > .dc-panel--utility"),
+            structural: look(".dc-home .dc-panel--structural"),
+            activity: look(".dc-home > .as-activity"),
+          };
+        });
+        expect(chrome.structural.borderLeft).toBe("0px");
+        expect(chrome.structural.borderTop).not.toBe("0px");
+        expect(chrome.structural.labelBottom).not.toBe("0px");
+        expect(chrome.utility.borderTop).not.toBe("0px");
+        expect(chrome.activity.borderTop).not.toBe("0px");
+        expect(chrome.utility.labelBottom).not.toBe("0px");
+      }
+
+      await page.locator("[data-image-original]").click();
+      await expect(page.locator("dc-image-toggle")).toHaveAttribute("showing", "original");
+      const after = await homeGeometry(page);
+      expect(Math.abs(after.portrait!.w - geo.portrait!.w)).toBeLessThan(1);
+      expect(Math.abs(after.portrait!.h - geo.portrait!.h)).toBeLessThan(1);
+
       const labelColors = await page.evaluate(() => {
-        const labels = Array.from(document.querySelectorAll(".dc-home .dc-panel"))
+        const colors = Array.from(document.querySelectorAll(".dc-home .dc-panel"))
           .filter((el) => getComputedStyle(el).display !== "none")
           .map((el) => getComputedStyle(el.querySelector(".dc-panel__label")!).color);
-        return [...new Set(labels)];
+        return [...new Set(colors)];
       });
       expect(labelColors).toHaveLength(1);
     });

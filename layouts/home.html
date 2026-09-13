@@ -10,7 +10,7 @@
 {{- /* One listnav for the whole workspace so arrows follow reading order. */ -}}
 {{ partial "declassified/component.html" "dc-listnav" }}
 <dc-listnav>
-{{- /* Wide: about spans both grid rows; below 1100px rows stack and scroll. */ -}}
+{{- /* Wide ≥641: 2-col (portrait|about, neofetch|library, activity). Phone: stack. */ -}}
 <div class="dc-home">
 
 <div class="dc-home-row dc-home-row--identity">
@@ -21,7 +21,7 @@
     <div class="dc-panel__body dc-portrait-body">
       {{/* The alternative text describes the photograph, not just who is in
            it; it comes from the same data/authors.yaml entry the head uses. */}}
-      {{/* sizes: 300px column; below 860px calc(100vw - 68px). */}}
+      {{/* sizes: phone full pane; tablet/desktop portrait column. */}}
       {{ $portrait := index hugo.Data.dither $owner.avatar }}
       {{ if not $portrait }}
         {{ errorf "portrait %q has no dithered derivative — run scripts/dither-images.py" $owner.avatar }}
@@ -31,11 +31,9 @@
       {{ partial "dithered-img.html" (dict
            "entry" $portrait
            "alt" $owner.avatar_alt
-           "sizes" "(max-width: 860px) calc(100vw - 68px), 300px"
+           "sizes" "(max-width: 640px) calc(100vw - 68px), 25rem"
            "class" "dc-portrait"
            "attrs" (safeHTMLAttr `loading="lazy"`)) }}
-      {{ with .Params.portrait_quote }}<p class="dc-portrait-quote">{{ . | safeHTML }}</p>{{ end }}
-      {{/* Dithered image always links to the original. */}}
       {{ $source := partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}
       <p class="dc-portrait-original">
         <a class="dc-figure__original" data-image-original href="{{ ($source.Process "fill 848x848").RelPermalink }}" lang="en">{{ i18n "imageOriginal" }}</a>
@@ -72,21 +70,10 @@
     </div>
   </section>
 
-  {{/* Tree entries are data so the panel label can count them. */}}
-  {{ $tree := slice
-    (dict "icon" "&gt;" "label" "about.md" "current" true)
-    (dict "icon" "📁" "label" "library/" "url" ("/library" | relLangURL))
-  }}
+  {{/* Provenance only: about.md and library/ already have panes and nav. */}}
   <section class="dc-panel dc-panel--structural">
-    {{ partial "declassified/panel-label.html" "site/" }}
+    {{ partial "declassified/panel-label.html" "neofetch" }}
     <div class="dc-panel__body">
-      <ul class="dc-filetree">
-        {{- range $tree }}
-        <li{{ if .current }} class="dc-filetree__current"{{ end }}>{{ if .url }}<a href="{{ .url }}">{{ .icon | safeHTML }} {{ .label }}</a>{{ else }}{{ .icon | safeHTML }} {{ .label }}{{ end }}</li>
-        {{- end }}
-      </ul>
-      <div class="dc-filetree__rule"></div>
-      <p class="dc-filetree__label">neofetch</p>
       <dl class="dc-neofetch">
         <div><dt>OS</dt><dd>human</dd></div>
         <div><dt>HOST</dt><dd>{{ strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) }}</dd></div>

@@ -556,7 +556,8 @@ dc-copy[copied] .dc-copy__button {
   gap: 12px;
 }
 
-/* Home: mockup three-column grid; stacks at 860px. */
+/* Home: two regimes. Wide ≥641 is a 2-col reflow; phone ≤640 is a stack.
+   Compact shell stays a separate phone contract. */
 .dc-home-row {
   display: grid;
   gap: 16px;
@@ -567,28 +568,24 @@ dc-copy[copied] .dc-copy__button {
   margin-bottom: 0;
 }
 
-/* Home workspace */
 .dc-home-row--identity {
-  grid-template-columns: 240px 1fr 300px;
+  grid-template-columns: minmax(20rem, 25rem) minmax(0, 1fr);
 }
 
 .dc-home-row--recent {
   grid-template-columns: 1fr;
 }
 
-/* Desktop: side columns absorb recent + activity (no overflow on 1280×800). */
-@media (min-width: 1101px) {
+@media (min-width: 641px) {
   .dc-main:has(.dc-home) {
-    /* No extra bottom inset; status bar already reserves it. */
     padding-top: 16px;
     padding-bottom: 8px;
   }
 
   .dc-home {
     display: grid;
-    grid-template-columns: 240px minmax(0, 1fr) 300px;
-    grid-template-rows: auto auto;
-    gap: 8px;
+    grid-template-columns: minmax(20rem, 25rem) minmax(0, 1fr);
+    gap: 16px;
     align-items: start;
   }
 
@@ -597,47 +594,74 @@ dc-copy[copied] .dc-copy__button {
     margin-bottom: 0;
   }
 
-  .dc-home-row--identity > .dc-panel--structural {
-    grid-column: 1;
-    grid-row: 1;
+  .dc-home-row > .dc-panel,
+  .dc-home > .as-activity {
+    margin-bottom: 0;
   }
 
-  /* About spans both rows; row two fills side-column slack. */
-  .dc-home-row--identity > .h-card {
-    grid-column: 2;
-    grid-row: 1 / span 2;
+  /* Each pane sizes to its own content. The grid only assigns columns/rows;
+     a neighbour's height must not stretch another pane. */
+  .dc-home .dc-panel,
+  .dc-home > .as-activity {
+    align-self: start;
+    width: 100%;
+  }
+
+  .dc-home dc-image-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+  }
+
+  .dc-home .dc-portrait {
+    width: 100%;
+    height: auto;
+    flex: 0 0 auto;
+    align-self: stretch;
+    object-position: top center;
+  }
+
+  .dc-home .dc-portrait-original {
+    flex: 0 0 auto;
+    margin-top: 0;
+  }
+
+  .dc-home .dc-home-recent__more {
+    flex: 0 0 auto;
+    margin-top: 8px;
   }
 
   .dc-home-row--identity > .dc-panel--utility {
-    grid-column: 3;
+    grid-column: 1;
     grid-row: 1;
   }
 
-  .dc-home-row--recent > .dc-panel {
+  .dc-home-row--identity > .h-card {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .dc-home-row--identity > .dc-panel--structural {
     grid-column: 1;
+    grid-row: 2;
+  }
+
+  .dc-home-row--recent > .dc-panel {
+    grid-column: 2;
     grid-row: 2;
   }
 
   .dc-home > .as-activity {
-    grid-column: 3;
-    grid-row: 2;
-    margin-bottom: 0;
+    grid-column: 1 / -1;
+    grid-row: 3;
   }
 
-  /* Dense one-line rows so three tails fit beside activity. */
   .dc-home .dc-home-row--recent .dc-panel__body {
-    padding-block: 2px 4px;
-  }
-
-  .dc-home .dc-material {
-    padding: 2px 0;
+    padding-block: 8px;
   }
 
   .dc-home .dc-panel__more {
-    margin-top: 2px;
-  }
-
-  .dc-home .dc-home-recent__more {
     margin-top: 2px;
   }
 
@@ -656,101 +680,21 @@ dc-copy[copied] .dc-copy__button {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
-  /* Activity modules stack in the 300px column. */
-  .dc-home .as-activity__body {
-    grid-template-columns: 1fr;
-    gap: 6px;
-    padding-block: 8px;
-  }
-
-  .dc-home .as-activity__module {
-    display: grid;
-    grid-template-columns: 3.6em minmax(0, 1fr);
-    column-gap: 8px;
-    align-items: baseline;
-    padding: 0;
-    border-left: 0;
-  }
-
-  .dc-home .as-activity__value {
-    grid-column: 2;
-    margin-top: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .dc-home .as-activity__meta:not(.as-activity__spark) {
-    display: none;
-  }
-
-  .dc-home .as-activity__name {
-    grid-column: 1;
-  }
-
-  .dc-home .as-activity__spark {
-    grid-column: 2;
-    margin-top: 2px;
-  }
 }
 
-/* Short desktops: tighter grid above status bar. */
-@media (min-width: 1101px) and (max-height: 820px) {
+/* Desktop: keep the two-column packing; do not inflate rows to fill 100dvh. */
+@media (min-width: 1024px) {
   .dc-main:has(.dc-home) {
     padding-top: 12px;
-    padding-bottom: 4px;
+    padding-bottom: 8px;
   }
 
   .dc-home {
-    gap: 4px;
-  }
-
-  .dc-home .dc-home-row--recent .dc-panel__body {
-    padding-block: 0 2px;
-  }
-
-  .dc-home .as-activity__body {
-    padding-block: 4px;
+    gap: 12px;
   }
 }
 
-/* Tablet: preview under identity; landscape crop, modest height. */
-@media (max-width: 1100px) {
-  .dc-home-row--identity {
-    grid-template-columns: 200px 1fr;
-  }
-
-  .dc-home-row--identity > .dc-panel--structural {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .dc-home-row--identity > .h-card {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .dc-home-row--identity > .dc-panel--utility {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-}
-
-@media (max-width: 860px) {
-  .dc-home-row--identity {
-    grid-template-columns: 1fr;
-  }
-
-  .dc-home-row--identity > .dc-panel--structural,
-  .dc-home-row--identity > .h-card,
-  .dc-home-row--identity > .dc-panel--utility {
-    grid-column: auto;
-    grid-row: auto;
-  }
-}
-
-/* Phone: linear stack; file tree and neofetch vanish. DOM order is
+/* Phone: linear stack; neofetch vanishes. DOM order is
    portrait → about → library → activity. */
 @media (max-width: 640px) {
   .dc-home {
@@ -807,7 +751,7 @@ dc-copy[copied] .dc-copy__button {
 }
 
 .dc-neofetch {
-  margin: 6px 0 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -844,18 +788,22 @@ dc-copy[copied] .dc-copy__button {
 .dc-hero-name {
   margin: 0 0 4px;
   color: var(--dc-primary);
-  font-size: inherit;
+  font-size: var(--dc-fs-ui-strong);
   font-weight: 700;
   line-height: var(--dc-lh-tight);
   text-transform: uppercase;
   white-space: nowrap;
 }
 
-/* Home widgets share the shell type: name is caps+bold, not a display size. */
-.dc-home,
-.dc-home .dc-prose {
+/* Home chrome stays shell type; about.md uses prose so it can fill its pane. */
+.dc-home {
   font-size: var(--dc-fs-ui-strong);
   line-height: var(--dc-lh-ui);
+}
+
+.dc-home .h-card > .dc-prose {
+  font-size: var(--dc-fs-prose);
+  line-height: var(--dc-lh-prose);
 }
 
 .dc-home .dc-prose {
@@ -878,13 +826,20 @@ dc-copy[copied] .dc-copy__button {
 .dc-home .as-activity__value,
 .dc-home .dc-material__title,
 .dc-home .dc-material--dense .dc-material__title {
-  font-size: inherit;
+  font-size: var(--dc-fs-ui-strong);
 }
 
 .dc-home .dc-panel__label,
 .dc-home .dc-panel--utility .dc-panel__label,
 .dc-home .dc-panel--structural .dc-panel__label {
   color: var(--dc-primary);
+}
+
+/* Home neofetch uses the same title bar as portrait/activity: top + bottom,
+   no structural rail. */
+.dc-home .dc-panel--structural {
+  border-inline-start: 0;
+  border-top: 1px solid var(--dc-border);
 }
 
 .dc-home-recent__more {
@@ -929,15 +884,6 @@ dc-copy[copied] .dc-copy__button {
   object-fit: contain;
   object-position: center;
   border: 1px solid var(--portrait-frame);
-}
-
-.dc-portrait-quote {
-  margin: 0;
-  color: var(--dc-muted);
-  font-size: var(--dc-fs-meta);
-  font-style: italic;
-  border-left: 2px solid var(--dc-accent);
-  padding-left: 8px;
 }
 
 .dc-creativity-grid {
@@ -1957,15 +1903,6 @@ body:has(.dc-statusbar) {
   padding: 0;
   list-style: none;
   font-size: var(--dc-fs-meta);
-}
-
-/* Tablet: landscape crop of the square portrait; phone keeps the full frame. */
-@media (max-width: 1100px) {
-  .dc-portrait {
-    aspect-ratio: 21 / 9;
-    object-fit: cover;
-    object-position: center 25%;
-  }
 }
 
 @media (max-width: 640px) {

@@ -232,17 +232,23 @@ is folded into the entry describing the finished behaviour rather than listed as
   `data/redactions.yaml` with its ground, its date and the edition of the
   rules it was made under.
 
-- Window labels speak one resource vocabulary: `site/`, `about.md`,
+- Window labels speak one resource vocabulary: `neofetch`, `about.md`,
   `library/`, `activity/`. The command line still names actions and views.
   They agree in meaning and are not copies of each other.
 
 - Home no longer pretends the missing footer is an open question. `neofetch`
-  shows how long the site has been up and links to the repository — on the
-  wide workstation. On a phone the first screen is the portrait, then
-  `about.md`, `library/` and `activity/`; the file tree, neofetch and the
+  shows how long the site has been up and links to the repository. Wide Home
+  is two columns: portrait beside `about.md`, neofetch beside `library/`,
+  `activity/` under both. The portrait keeps its full square frame in a
+  capped left column. The file tree `site/` is gone — `about.md` and
+  `library/` already have panes and `[1] home` / `[2] library`. On a
+  phone the first screen is the portrait, then
+  `about.md`, `library/` and `activity/`; neofetch and the
   visible self URL stay out of the way, while canonical, microformat and
-  JSON-LD identity are unchanged. Home widgets share the shell type: the
-  name is uppercase and bold, not a larger display size. The activity
+  JSON-LD identity are unchanged. Home chrome stays shell type: the
+  name is uppercase and bold, not a larger display size. `about.md` uses
+  the body size. Neighbouring Home panes size themselves; the grid only
+  places them. The activity
   `site` module links the deployed commit and still says when it was built;
   Recent carries the primary RSS; Library collections keep RSS and JSON
   Feed. Copyright stays machine-readable in the feeds and is not drawn on

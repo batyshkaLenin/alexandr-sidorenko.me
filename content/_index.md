@@ -5,7 +5,6 @@ roles: "developer · poet · hacker"
 status: "building & writing"
 location: "где-то в сети"
 since: "2020"
-portrait_quote: "Код — это структура.<br>Стихи — это свобода."
 ---
 
 "Это алхимия!" — говорю я, когда пишу код. Программист, усопший вождь, взломщик.
