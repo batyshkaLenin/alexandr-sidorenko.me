@@ -1,0 +1,68 @@
+{{- /*
+Synchronous translation of a quoted song (T194). Delimiter is exactly
+` // ` (spaces both sides), first occurrence only. Literal ` // ` inside a
+half is not escapable. Inner is raw (`{{< >}}`), not pre-rendered Markdown.
+
+Parameters (both required, BCP 47): source-lang, translation-lang.
+Blank line = stanza boundary. Inline Markdown in each half via RenderString.
+*/ -}}
+{{- $page := .Page -}}
+{{- $sourceLang := .Get "source-lang" -}}
+{{- $translationLang := .Get "translation-lang" -}}
+{{- $langTag := `^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$` -}}
+{{- if not $sourceLang -}}
+  {{- errorf "%s: parallel shortcode needs source-lang" $page.File.Path -}}
+{{- else if not (findRE $langTag $sourceLang) -}}
+  {{- errorf "%s: parallel source-lang %q is not a BCP 47 language tag" $page.File.Path $sourceLang -}}
+{{- end -}}
+{{- if not $translationLang -}}
+  {{- errorf "%s: parallel shortcode needs translation-lang" $page.File.Path -}}
+{{- else if not (findRE $langTag $translationLang) -}}
+  {{- errorf "%s: parallel translation-lang %q is not a BCP 47 language tag" $page.File.Path $translationLang -}}
+{{- end -}}
+{{- $inner := strings.TrimSpace .Inner -}}
+{{- $inner = strings.Replace $inner "\r\n" "\n" -1 -}}
+{{- if not $inner -}}
+  {{- errorf "%s: parallel shortcode is empty" $page.File.Path -}}
+{{- end -}}
+{{- $delim := " // " -}}
+{{- $inStanza := false -}}
+{{- $pairs := 0 -}}
+<blockquote class="as-parallel-text">
+{{- range split $inner "\n" -}}
+  {{- $line := strings.TrimSpace . -}}
+  {{- if eq $line "" -}}
+    {{- if $inStanza -}}
+</div>
+      {{- $inStanza = false -}}
+    {{- end -}}
+  {{- else -}}
+    {{- if not (strings.Contains $line $delim) -}}
+      {{- errorf "%s: parallel line %q has no delimiter %q" $page.File.Path $line $delim -}}
+    {{- end -}}
+    {{- $source := strings.TrimSpace (replaceRE `^(.*?) // (.*)$` `$1` $line) -}}
+    {{- $translation := strings.TrimSpace (replaceRE `^(.*?) // (.*)$` `$2` $line) -}}
+    {{- if not $source -}}
+      {{- errorf "%s: parallel line %q has an empty source" $page.File.Path $line -}}
+    {{- end -}}
+    {{- if not $translation -}}
+      {{- errorf "%s: parallel line %q has an empty translation" $page.File.Path $line -}}
+    {{- end -}}
+    {{- if not $inStanza -}}
+<div class="as-parallel-stanza">
+      {{- $inStanza = true -}}
+    {{- end -}}
+<div class="as-parallel-pair">
+<p class="as-parallel-source" lang="{{ $sourceLang }}">{{ $source | $page.RenderString }}</p>
+<p class="as-parallel-translation" lang="{{ $translationLang }}">{{ $translation | $page.RenderString }}</p>
+</div>
+    {{- $pairs = add $pairs 1 -}}
+  {{- end -}}
+{{- end -}}
+{{- if $inStanza -}}
+</div>
+{{- end -}}
+</blockquote>
+{{- if eq $pairs 0 -}}
+  {{- errorf "%s: parallel shortcode has no pairs" $page.File.Path -}}
+{{- end -}}

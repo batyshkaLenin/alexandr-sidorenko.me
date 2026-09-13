@@ -100,6 +100,13 @@ English text checks Latin glyphs, punctuation, kerning, ligatures, and combinati
 >
 > — Неизвестный специалист по CSS
 
+{{< parallel source-lang="pl" translation-lang="ru" >}}
+*Hej chłopcze* // **Эй, парень**
+Gdzie znalazłeś ten garnitur // Где ты нашёл этот костюм?
+
+Czym płacisz za narkotyki // Чем платишь за наркотики?
+{{< /parallel >}}
+
 ## Таблица
 
 | Компонент | Статус | Приоритет | Примечание |

@@ -54,6 +54,7 @@ run_group "pgp-key" python3 scripts/check-pgp-key.py --public-dir "${PUBLIC_DIR}
 run_group "security-txt" python3 scripts/check-security-txt.py --public-dir "${PUBLIC_DIR}"
 run_group "headers" python3 scripts/check-headers-contract.py --public-dir "${PUBLIC_DIR}"
 run_group "service-worker" python3 scripts/check-service-worker.py --public-dir "${PUBLIC_DIR}"
+run_group "parallel" python3 scripts/check-parallel-contract.py --public-dir "${PUBLIC_DIR}"
 
 if (( failures > 0 )); then
   echo "validate.sh: ${failures} group(s) failed" >&2

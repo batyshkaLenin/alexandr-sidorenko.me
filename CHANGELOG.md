@@ -59,6 +59,10 @@ is folded into the entry describing the finished behaviour rather than listed as
   heads, and a table too wide for a phone scrolls inside its own box, which
   the keyboard can reach and a screen reader announces, instead of dragging
   the page sideways.
+- A quoted song can carry a synchronous translation as two languages, not as
+  `//` on the page: the original sits directly above its translation, each
+  line marked with its own `lang`, the same order on a phone as on a wide
+  screen, and no JavaScript.
 - Mathematics. A publication can set formulas — inline between `\(` and `\)`,
   display between `$$` and `$$` — and they are rendered to MathML while the site
   is built: inline and display, numbered equations, matrices, multi-line

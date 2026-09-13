@@ -1769,6 +1769,48 @@ dc-copy[copied] .dc-copy__button {
   background: var(--dc-panel-bg);
 }
 
+/* Parallel source/translation: interlinear lyrics, not prose paragraphs.
+   Tight inside a stanza; only a blank line in the shortcode opens air. */
+.dc-prose .as-parallel-text {
+  margin-block: 1.2em;
+  margin-inline: 0;
+  padding: 0;
+  border: 0;
+  font-style: inherit;
+}
+
+.dc-prose .as-parallel-stanza {
+  margin-block: 0;
+}
+
+.dc-prose .as-parallel-stanza + .as-parallel-stanza {
+  margin-block-start: 1.25em;
+}
+
+.dc-prose .as-parallel-pair {
+  margin: 0;
+}
+
+.dc-prose .as-parallel-pair + .as-parallel-pair {
+  margin-block-start: 0.25em;
+}
+
+.dc-prose .as-parallel-text p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.dc-prose .as-parallel-source {
+  color: var(--dc-text);
+}
+
+.dc-prose .as-parallel-translation {
+  margin-block-start: 0;
+  padding-inline-start: 0.65em;
+  color: var(--dc-muted);
+  font-size: 0.92em;
+}
+
 /* Figure link reads as command, not caption. */
 .dc-figure__original {
   flex: none;
