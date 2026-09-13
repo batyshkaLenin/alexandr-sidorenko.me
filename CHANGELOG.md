@@ -251,7 +251,9 @@ is folded into the entry describing the finished behaviour rather than listed as
   a separate contract for phone portrait and short landscape; an iPad
   portrait keeps `search` / help. Neighbouring Home panes size themselves;
   the grid only places them. `about.md` keeps a reading measure on a very
-  wide pane. The visible self URL stays out of the way, while canonical,
+  wide pane. A narrow `library/` pane gives each title its own line, with
+  type and date underneath, instead of clipping the title under the
+  metadata. The visible self URL stays out of the way, while canonical,
   microformat and JSON-LD identity are unchanged. The activity
   `site` module links the deployed commit and still says when it was built;
   Recent carries the primary RSS; Library collections keep RSS and JSON

@@ -2,8 +2,20 @@ import { test, expect, type Page } from "@playwright/test";
 
 const PHONES = [
   { width: 320, height: 568 },
+  { width: 375, height: 667 },
   { width: 390, height: 844 },
   { width: 667, height: 375 },
+  { width: 844, height: 390 },
+] as const;
+
+const NARROW_LIBRARY_ROWS = [
+  { width: 375, height: 667 },
+  { width: 390, height: 844 },
+] as const;
+
+const WIDE_LIBRARY_ROWS = [
+  { width: 667, height: 375 },
+  { width: 844, height: 390 },
 ] as const;
 
 const TABLET_STACKS = [
@@ -59,6 +71,36 @@ async function visiblePanelLabels(page: Page) {
       })
       .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)
       .map((el) => el.querySelector(".dc-panel__label")?.textContent?.trim() || "");
+  });
+}
+
+function boxesOverlap(a: Box, b: Box) {
+  return !(a.right <= b.left + 0.5 || b.right <= a.left + 0.5
+    || a.bottom <= b.top + 0.5 || b.bottom <= a.top + 0.5);
+}
+
+async function homeLibraryRows(page: Page) {
+  return page.evaluate(() => {
+    const box = (el: Element | null): Box | null => {
+      if (!el) return null;
+      const rect = el.getBoundingClientRect();
+      return { top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left };
+    };
+    return Array.from(document.querySelectorAll(".dc-home .dc-material--dense"), (row) => {
+      const title = row.querySelector(".dc-material__title");
+      const type = row.querySelector(".dc-list__type");
+      const date = row.querySelector(".dc-material__date");
+      const titleCs = title ? getComputedStyle(title) : null;
+      return {
+        title: title?.textContent?.trim() || "",
+        titleBox: box(title),
+        typeBox: box(type),
+        dateBox: box(date),
+        titleOverflow: title ? title.scrollWidth - title.clientWidth > 1 : false,
+        titleEllipsis: titleCs?.textOverflow || "",
+        titleWrap: titleCs?.whiteSpace || "",
+      };
+    });
   });
 }
 
@@ -210,6 +252,49 @@ test.describe("home shell", () => {
     await page.keyboard.press("Escape");
   });
 
+  for (const viewport of NARROW_LIBRARY_ROWS) {
+    test(`phone ${viewport.width}×${viewport.height} stacks Home library titles above type and date`, async ({
+      page,
+    }, testInfo) => {
+      test.skip(testInfo.project.name === "chromium-mobile", "Explicit viewport matrix runs once.");
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      const rows = await homeLibraryRows(page);
+      expect(rows.length).toBeGreaterThan(0);
+      for (const row of rows) {
+        expect(row.title, "library row has a title").toBeTruthy();
+        expect(row.titleBox).toBeTruthy();
+        expect(row.typeBox).toBeTruthy();
+        expect(row.dateBox).toBeTruthy();
+        expect(boxesOverlap(row.titleBox!, row.typeBox!), row.title).toBe(false);
+        expect(boxesOverlap(row.titleBox!, row.dateBox!), row.title).toBe(false);
+        expect(row.typeBox!.top, row.title).toBeGreaterThanOrEqual(row.titleBox!.bottom - 1);
+        expect(row.dateBox!.top, row.title).toBeGreaterThanOrEqual(row.titleBox!.bottom - 1);
+        expect(row.titleWrap, row.title).not.toBe("nowrap");
+        expect(row.titleEllipsis, row.title).not.toBe("ellipsis");
+      }
+    });
+  }
+
+  for (const viewport of WIDE_LIBRARY_ROWS) {
+    test(`phone ${viewport.width}×${viewport.height} keeps Home library rows without overlap`, async ({
+      page,
+    }, testInfo) => {
+      test.skip(testInfo.project.name === "chromium-mobile", "Explicit viewport matrix runs once.");
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      const rows = await homeLibraryRows(page);
+      expect(rows.length).toBeGreaterThan(0);
+      for (const row of rows) {
+        expect(row.titleBox).toBeTruthy();
+        expect(row.typeBox).toBeTruthy();
+        expect(row.dateBox).toBeTruthy();
+        expect(boxesOverlap(row.titleBox!, row.typeBox!), row.title).toBe(false);
+        expect(boxesOverlap(row.titleBox!, row.dateBox!), row.title).toBe(false);
+      }
+    });
+  }
+
   async function homeGeometry(page: Page) {
     return page.evaluate(() => {
       const panel = (label) => {
@@ -307,6 +392,12 @@ test.describe("home shell", () => {
       expect(Math.abs(geo.neofetch!.y - geo.library!.y)).toBeLessThan(8);
       expect(geo.library!.x).toBeGreaterThan(geo.neofetch!.x + geo.neofetch!.w - 1);
       expect(geo.neofetch!.y).toBeGreaterThanOrEqual(geo.avatar!.y + geo.avatar!.h - 1);
+      const rows = await homeLibraryRows(page);
+      expect(rows.length).toBeGreaterThan(0);
+      for (const row of rows) {
+        expect(boxesOverlap(row.titleBox!, row.typeBox!), row.title).toBe(false);
+        expect(boxesOverlap(row.titleBox!, row.dateBox!), row.title).toBe(false);
+      }
       const packed = await page.evaluate(() => {
         const panel = (label) =>
           Array.from(document.querySelectorAll(".dc-home .dc-panel")).find(

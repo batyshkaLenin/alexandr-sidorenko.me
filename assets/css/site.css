@@ -612,16 +612,20 @@ dc-copy[copied] .dc-copy__button {
   margin-top: 8px;
 }
 
-.dc-home .dc-material--dense .dc-material__row {
-  flex-wrap: nowrap;
-}
+/* Home library rows stay a scan line only when the list itself is wide
+   enough. A narrow pane must not clip the title under TYPE/DATE. */
+@container material-list (width >= 30rem) {
+  .dc-home .dc-material--dense .dc-material__row {
+    flex-wrap: nowrap;
+  }
 
-.dc-home .dc-material--dense .dc-material__title {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  .dc-home .dc-material--dense .dc-material__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 /* ~56rem of Home (≈1024 viewport after chrome). Below that, about.md must
@@ -2123,6 +2127,10 @@ as-viewsnav {
   list-style: none;
 }
 
+.dc-material-list--dense {
+  container: material-list / inline-size;
+}
+
 .dc-material {
   padding: 12px 0;
   border-bottom: 1px solid var(--dc-border);
@@ -2227,8 +2235,11 @@ as-viewsnav {
     padding: 10px 0;
     min-height: 44px;
   }
+}
 
-  /* Phone dense: TITLE(+markers), then TYPE · DATE. */
+/* Narrow list pane: title on its own row, TYPE · DATE underneath.
+   Follows the list's inline size, not the page. */
+@container material-list (width < 30rem) {
   .dc-material--dense {
     min-height: 44px;
   }
@@ -2250,10 +2261,14 @@ as-viewsnav {
     order: 0;
   }
 
-  .dc-material--dense .dc-material__title {
+  .dc-material--dense .dc-material__title,
+  .dc-home .dc-material--dense .dc-material__title {
     display: inline;
     flex: none;
     min-width: 0;
+    overflow: visible;
+    text-overflow: unset;
+    white-space: normal;
   }
 
   .dc-material--dense .dc-material__title a {
