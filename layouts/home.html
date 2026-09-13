@@ -15,6 +15,63 @@
 
 <div class="dc-home-row dc-home-row--identity">
 
+  {{ $owner := partial "authors/owner.html" . }}
+  <section class="dc-panel dc-panel--utility">
+    {{ partial "declassified/panel-label.html" "avatar.jpg" }}
+    <div class="dc-panel__body dc-portrait-body">
+      {{/* The alternative text describes the photograph, not just who is in
+           it; it comes from the same data/authors.yaml entry the head uses. */}}
+      {{/* sizes: 300px column; below 860px calc(100vw - 68px). */}}
+      {{ $portrait := index hugo.Data.dither $owner.avatar }}
+      {{ if not $portrait }}
+        {{ errorf "portrait %q has no dithered derivative — run scripts/dither-images.py" $owner.avatar }}
+      {{ end }}
+      {{ partial "declassified/component.html" "dc-image-toggle" }}
+      <dc-image-toggle data-label-processed="{{ i18n "imageProcessed" }}">
+      {{ partial "dithered-img.html" (dict
+           "entry" $portrait
+           "alt" $owner.avatar_alt
+           "sizes" "(max-width: 860px) calc(100vw - 68px), 300px"
+           "class" "dc-portrait"
+           "attrs" (safeHTMLAttr `loading="lazy"`)) }}
+      {{ with .Params.portrait_quote }}<p class="dc-portrait-quote">{{ . | safeHTML }}</p>{{ end }}
+      {{/* Dithered image always links to the original. */}}
+      {{ $source := partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}
+      <p class="dc-portrait-original">
+        <a class="dc-figure__original" data-image-original href="{{ ($source.Process "fill 848x848").RelPermalink }}" lang="en">{{ i18n "imageOriginal" }}</a>
+      </p>
+      </dc-image-toggle>
+    </div>
+  </section>
+
+  <section class="dc-panel dc-panel--primary h-card">
+    {{ partial "declassified/panel-label.html" "about.md" }}
+    <div class="dc-panel__body dc-prose">
+      {{/* Name parts are separate so uppercase stays CSS-only for MF2. */}}
+      <h2 class="dc-hero-name p-name">{{ range $i, $part := split $owner.name " " }}{{ if $i }} {{ end }}<span class="dc-hero-name__part">{{ $part }}</span>{{ end }}</h2>
+      {{/* Visible self URL is gone; the h-card still exposes u-url/rel=me. */}}
+      <a class="u-url dc-visually-hidden" rel="me" href="{{ absURL $owner.url }}">{{ absURL $owner.url }}</a>
+      {{/* Portrait is outside this h-card; u-photo is a hidden data value. */}}
+      <data class="u-photo" value="{{ partial "preview-image.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}" hidden></data>
+      {{ with .Params.roles }}<p class="dc-roles">{{ . }}</p>{{ end }}
+      <div class="p-note">
+        {{ .Content }}
+      </div>
+      {{ with .Params.location }}
+      <p class="dc-hero-meta"># location: {{ . }}</p>
+      {{ end }}
+      {{/* Visible identity links with rel=me (not repeated in head). */}}
+      {{ with where hugo.Data.links "visible" true }}
+      <p class="dc-region-label">socials/</p>
+      <ul class="dc-identity-links">
+        {{ range . }}
+        <li><a rel="me" href="{{ .url }}">{{ .label }}</a></li>
+        {{ end }}
+      </ul>
+      {{ end }}
+    </div>
+  </section>
+
   {{/* Tree entries are data so the panel label can count them. */}}
   {{ $tree := slice
     (dict "icon" "&gt;" "label" "about.md" "current" true)
@@ -58,63 +115,6 @@
           <dd><a href="{{ $projectRepo }}" target="_blank" rel="noopener" aria-label="{{ i18n "neofetchSource" }}">github</a></dd>
         </div>
       </dl>
-    </div>
-  </section>
-
-  {{ $owner := partial "authors/owner.html" . }}
-  <section class="dc-panel dc-panel--primary h-card">
-    {{ partial "declassified/panel-label.html" "about.md" }}
-    <div class="dc-panel__body dc-prose">
-      {{/* Name parts are separate so uppercase stays CSS-only for MF2. */}}
-      <h2 class="dc-hero-name p-name">{{ range $i, $part := split $owner.name " " }}{{ if $i }} {{ end }}<span class="dc-hero-name__part">{{ $part }}</span>{{ end }}</h2>
-      <a class="u-url" rel="me" href="{{ absURL $owner.url }}">{{ absURL $owner.url }}</a>
-      {{/* Portrait is outside this h-card; u-photo is a hidden data value. */}}
-      <data class="u-photo" value="{{ partial "preview-image.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}" hidden></data>
-      {{ with .Params.roles }}<p class="dc-roles">{{ . }}</p>{{ end }}
-      <div class="p-note">
-        {{ .Content }}
-      </div>
-      {{ with .Params.location }}
-      <p class="dc-hero-meta"># location: {{ . }}</p>
-      {{ end }}
-      {{/* Visible identity links with rel=me (not repeated in head). */}}
-      {{ with where hugo.Data.links "visible" true }}
-      <p class="dc-region-label">socials/</p>
-      <ul class="dc-identity-links">
-        {{ range . }}
-        <li><a rel="me" href="{{ .url }}">{{ .label }}</a></li>
-        {{ end }}
-      </ul>
-      {{ end }}
-    </div>
-  </section>
-
-  <section class="dc-panel dc-panel--utility">
-    {{ partial "declassified/panel-label.html" "avatar.jpg" }}
-    <div class="dc-panel__body dc-portrait-body">
-      {{/* The alternative text describes the photograph, not just who is in
-           it; it comes from the same data/authors.yaml entry the head uses. */}}
-      {{/* sizes: 300px column; below 860px calc(100vw - 68px). */}}
-      {{/* Portrait uses the dither pipeline; derivatives are square-cropped. */}}
-      {{ $portrait := index hugo.Data.dither $owner.avatar }}
-      {{ if not $portrait }}
-        {{ errorf "portrait %q has no dithered derivative — run scripts/dither-images.py" $owner.avatar }}
-      {{ end }}
-      {{ partial "declassified/component.html" "dc-image-toggle" }}
-      <dc-image-toggle data-label-processed="{{ i18n "imageProcessed" }}">
-      {{ partial "dithered-img.html" (dict
-           "entry" $portrait
-           "alt" $owner.avatar_alt
-           "sizes" "(max-width: 860px) calc(100vw - 68px), 300px"
-           "class" "dc-portrait"
-           "attrs" (safeHTMLAttr `loading="lazy"`)) }}
-      {{ with .Params.portrait_quote }}<p class="dc-portrait-quote">{{ . | safeHTML }}</p>{{ end }}
-      {{/* Dithered image always links to the original. */}}
-      {{ $source := partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}
-      <p class="dc-portrait-original">
-        <a class="dc-figure__original" data-image-original href="{{ ($source.Process "fill 848x848").RelPermalink }}" lang="en">{{ i18n "imageOriginal" }}</a>
-      </p>
-      </dc-image-toggle>
     </div>
   </section>
 

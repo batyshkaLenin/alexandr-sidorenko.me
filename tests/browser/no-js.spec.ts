@@ -14,6 +14,8 @@ test.describe("no-js", () => {
     await page.goto("/");
     await expect(page.locator("a.dc-skip-link")).toBeVisible();
     await expect(page.locator("a[href='/library']").first()).toBeVisible();
+    await expect(page.locator("a[href='/']").first()).toBeVisible();
+    await expect(page.locator(".dc-palette__trigger")).toHaveCount(0);
     await expect(page.locator("dialog[open]")).toHaveCount(0);
     await page.locator("a[href='/library']").first().click();
     await expect(page).toHaveURL(/\/library$/);

@@ -193,8 +193,11 @@ is folded into the entry describing the finished behaviour rather than listed as
   that work on the page in front of you. Every one of them has something to
   click instead. The status bar names the mode and the keys — and prints
   neither without JavaScript, where none of them exist.
-- Search. A `/ search` button sits in the top bar and `/` opens the same
-  palette from the keyboard: it looks through titles, bodies, types, topics and
+- Search. On a wide screen a `/ search` button sits in the top bar; on a phone
+  a compact bordered `/` control shares one row with `[1] home` and
+  `[2] library`, named `Search the site` for assistive tech. `/` opens the
+  same palette from
+  the keyboard: it looks through titles, bodies, types, topics and
   addresses, and shows the line around the match with the searched words
   highlighted in it and in the title, so a hit inside a long text says why it
   is a hit. Arrows and Enter work, Esc closes it, and focus returns
@@ -234,11 +237,16 @@ is folded into the entry describing the finished behaviour rather than listed as
   They agree in meaning and are not copies of each other.
 
 - Home no longer pretends the missing footer is an open question. `neofetch`
-  shows how long the site has been up and links to the repository; the
-  activity `site` module links the deployed commit and still says when it was
-  built; Recent carries the primary RSS; Library collections keep RSS and JSON
-  Feed. Copyright stays machine-readable in the feeds and is not drawn on the
-  shell — a human colophon is later work.
+  shows how long the site has been up and links to the repository — on the
+  wide workstation. On a phone the first screen is the portrait, then
+  `about.md`, `library/` and `activity/`; the file tree, neofetch and the
+  visible self URL stay out of the way, while canonical, microformat and
+  JSON-LD identity are unchanged. Home widgets share the shell type: the
+  name is uppercase and bold, not a larger display size. The activity
+  `site` module links the deployed commit and still says when it was built;
+  Recent carries the primary RSS; Library collections keep RSS and JSON
+  Feed. Copyright stays machine-readable in the feeds and is not drawn on
+  the shell — a human colophon is later work.
 
 - Every internal address the site publishes — links, `canonical`, `og:url`,
   microformats `u-url`, sitemap, RSS, JSON Feed, and JSON-LD — now uses a

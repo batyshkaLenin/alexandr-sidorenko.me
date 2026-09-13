@@ -269,9 +269,14 @@
   color: var(--dc-muted);
 }
 
-/* Phone: hide full guest@host prompt line. */
+/* Phone: hide full guest@host prompt line, even if `:` opens the command. */
 @media (max-width: 640px) {
-  .dc-identity {
+  .dc-identity,
+  dc-prompt[open] .dc-identity {
+    display: none;
+  }
+
+  as-prompt {
     display: none;
   }
 }
@@ -716,8 +721,19 @@ dc-copy[copied] .dc-copy__button {
     grid-template-columns: 200px 1fr;
   }
 
-  .dc-home-row--identity > :last-child {
+  .dc-home-row--identity > .dc-panel--structural {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .dc-home-row--identity > .h-card {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .dc-home-row--identity > .dc-panel--utility {
     grid-column: 1 / -1;
+    grid-row: 2;
   }
 }
 
@@ -725,11 +741,18 @@ dc-copy[copied] .dc-copy__button {
   .dc-home-row--identity {
     grid-template-columns: 1fr;
   }
+
+  .dc-home-row--identity > .dc-panel--structural,
+  .dc-home-row--identity > .h-card,
+  .dc-home-row--identity > .dc-panel--utility {
+    grid-column: auto;
+    grid-row: auto;
+  }
 }
 
-/* Phone: linear stack; portrait below recent materials. */
+/* Phone: linear stack; file tree and neofetch vanish. DOM order is
+   portrait → about → library → activity. */
 @media (max-width: 640px) {
-  /* Single column order: identity → materials → picture → activity. */
   .dc-home {
     display: flex;
     flex-direction: column;
@@ -739,24 +762,8 @@ dc-copy[copied] .dc-copy__button {
     display: contents;
   }
 
-  .dc-home-row--identity > .dc-panel--structural {
-    order: 1;
-  }
-
-  .dc-home-row--identity > .h-card {
-    order: 2;
-  }
-
-  .dc-home-row--recent > .dc-panel {
-    order: 3;
-  }
-
-  .dc-home-row--identity > .dc-panel--utility {
-    order: 4;
-  }
-
-  .as-activity {
-    order: 5;
+  .dc-home .dc-panel--structural {
+    display: none;
   }
 
   .dc-home-row > .dc-panel {
@@ -837,13 +844,47 @@ dc-copy[copied] .dc-copy__button {
 .dc-hero-name {
   margin: 0 0 4px;
   color: var(--dc-primary);
-  font-size: var(--dc-fs-title-lg);
+  font-size: inherit;
+  font-weight: 700;
   line-height: var(--dc-lh-tight);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.dc-hero-name__part {
-  display: block;
+/* Home widgets share the shell type: name is caps+bold, not a display size. */
+.dc-home,
+.dc-home .dc-prose {
+  font-size: var(--dc-fs-ui-strong);
+  line-height: var(--dc-lh-ui);
+}
+
+.dc-home .dc-prose {
+  max-width: none;
+}
+
+.dc-home .p-note p {
+  margin: 0.55em 0;
+}
+
+.dc-home .p-note p:first-child {
+  margin-top: 0;
+}
+
+.dc-home .p-note p:last-child {
+  margin-bottom: 0;
+}
+
+.dc-home .dc-roles,
+.dc-home .as-activity__value,
+.dc-home .dc-material__title,
+.dc-home .dc-material--dense .dc-material__title {
+  font-size: inherit;
+}
+
+.dc-home .dc-panel__label,
+.dc-home .dc-panel--utility .dc-panel__label,
+.dc-home .dc-panel--structural .dc-panel__label {
+  color: var(--dc-primary);
 }
 
 .dc-home-recent__more {
@@ -885,7 +926,8 @@ dc-copy[copied] .dc-copy__button {
 .dc-portrait {
   width: 100%;
   aspect-ratio: 1 / 1;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   border: 1px solid var(--portrait-frame);
 }
 
@@ -1917,18 +1959,21 @@ body:has(.dc-statusbar) {
   font-size: var(--dc-fs-meta);
 }
 
-/* Portrait: landscape crop; utility, not hero. */
+/* Tablet: landscape crop of the square portrait; phone keeps the full frame. */
 @media (max-width: 1100px) {
   .dc-portrait {
     aspect-ratio: 21 / 9;
+    object-fit: cover;
     object-position: center 25%;
   }
 }
 
 @media (max-width: 640px) {
   .dc-portrait {
-    aspect-ratio: 16 / 9;
-    object-position: center 30%;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
   }
 }
 
