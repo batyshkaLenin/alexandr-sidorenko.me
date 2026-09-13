@@ -243,12 +243,16 @@ is folded into the entry describing the finished behaviour rather than listed as
   capped left column. The file tree `site/` is gone — `about.md` and
   `library/` already have panes and `[1] home` / `[2] library`. On a
   phone the first screen is the portrait, then
-  `about.md`, `library/` and `activity/`; neofetch and the
-  visible self URL stay out of the way, while canonical, microformat and
-  JSON-LD identity are unchanged. Home chrome stays shell type: the
-  name is uppercase and bold, not a larger display size. `about.md` uses
-  the body size. Neighbouring Home panes size themselves; the grid only
-  places them. The activity
+  `about.md`, `library/` and `activity/`; the same stack holds on a short
+  landscape phone and on a portrait tablet, because Home follows its own
+  inline width rather than a device class. Two columns begin around `56rem`
+  of that width: portrait beside `about.md`, neofetch beside `library/`,
+  `activity/` under both. Compact header chrome (`/` Search, no prompt) is
+  a separate contract for phone portrait and short landscape; an iPad
+  portrait keeps `search` / help. Neighbouring Home panes size themselves;
+  the grid only places them. `about.md` keeps a reading measure on a very
+  wide pane. The visible self URL stays out of the way, while canonical,
+  microformat and JSON-LD identity are unchanged. The activity
   `site` module links the deployed commit and still says when it was built;
   Recent carries the primary RSS; Library collections keep RSS and JSON
   Feed. Copyright stays machine-readable in the feeds and is not drawn on

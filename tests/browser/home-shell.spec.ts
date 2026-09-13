@@ -3,13 +3,17 @@ import { test, expect, type Page } from "@playwright/test";
 const PHONES = [
   { width: 320, height: 568 },
   { width: 390, height: 844 },
+  { width: 667, height: 375 },
+] as const;
+
+const TABLET_STACKS = [
+  { width: 768, height: 1024 },
+  { width: 820, height: 1180 },
 ] as const;
 
 const WIDES = [
-  { width: 768, height: 1024 },
-  { width: 820, height: 1180 },
-  { width: 912, height: 1368 },
   { width: 1024, height: 768 },
+  { width: 1180, height: 820 },
   { width: 1440, height: 900 },
 ] as const;
 
@@ -240,6 +244,31 @@ test.describe("home shell", () => {
             }
           : null,
       };
+    });
+  }
+
+  for (const viewport of TABLET_STACKS) {
+    test(`tablet ${viewport.width}×${viewport.height} stacks Home and keeps the full shell`, async ({
+      page,
+    }, testInfo) => {
+      test.skip(testInfo.project.name === "chromium-mobile", "Explicit viewport matrix runs once.");
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      await expect.poll(async () =>
+        page.locator("img.dc-portrait").evaluate((img: HTMLImageElement) => img.naturalWidth),
+      ).toBeGreaterThan(0);
+      await expect(page.locator(".dc-palette__trigger")).toContainText("search");
+      await expect(page.locator(".dc-identity")).toBeVisible();
+      await expect(page.locator(".dc-neofetch")).toBeHidden();
+      const labels = await visiblePanelLabels(page);
+      expect(labels).toEqual(["avatar.jpg", "about.md", "library/", "activity/"]);
+      const geo = await homeGeometry(page);
+      expect(geo.cols).toBe(0);
+      expect(geo.overflow).toBeLessThanOrEqual(1);
+      expect(geo.about).toBeTruthy();
+      expect(geo.about!.w).toBeGreaterThan(viewport.width * 0.7);
+      expect(geo.about!.y).toBeGreaterThan(geo.avatar!.y + geo.avatar!.h - 1);
+      await expect(page.locator(".dc-portrait-quote")).toHaveCount(0);
     });
   }
 

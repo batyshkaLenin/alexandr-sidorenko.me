@@ -270,7 +270,7 @@
 }
 
 /* Phone: hide full guest@host prompt line, even if `:` opens the command. */
-@media (max-width: 640px) {
+@media (max-width: 640px), (max-height: 30rem) and (orientation: landscape) {
   .dc-identity,
   dc-prompt[open] .dc-identity {
     display: none;
@@ -556,32 +556,77 @@ dc-copy[copied] .dc-copy__button {
   gap: 12px;
 }
 
-/* Home: two regimes. Wide ≥641 is a 2-col reflow; phone ≤640 is a stack.
-   Compact shell stays a separate phone contract. */
+/* Home layout follows the inline size of main, not a device class.
+   Compact shell is a separate contract (phone portrait + short landscape). */
+.dc-main:has(.dc-home) {
+  container: home / inline-size;
+}
+
+.dc-home {
+  display: flex;
+  flex-direction: column;
+}
+
 .dc-home-row {
-  display: grid;
-  gap: 16px;
+  display: contents;
+}
+
+.dc-home-row > .dc-panel,
+.dc-home > .as-activity {
   margin-bottom: 16px;
 }
 
-.dc-home-row:last-child {
+.dc-home > .as-activity:last-child,
+.dc-home-row:last-child > .dc-panel:last-child {
   margin-bottom: 0;
 }
 
-.dc-home-row--identity {
-  grid-template-columns: minmax(20rem, 25rem) minmax(0, 1fr);
+/* Stacked Home: neofetch stays out. DOM order is portrait → about → library
+   → activity. */
+.dc-home .dc-panel--structural {
+  display: none;
 }
 
-.dc-home-row--recent {
-  grid-template-columns: 1fr;
+.dc-home dc-image-toggle {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex: 0 0 auto;
 }
 
-@media (min-width: 641px) {
-  .dc-main:has(.dc-home) {
-    padding-top: 16px;
-    padding-bottom: 8px;
-  }
+.dc-home .dc-portrait {
+  width: 100%;
+  height: auto;
+  flex: 0 0 auto;
+  align-self: stretch;
+  object-position: top center;
+}
 
+.dc-home .dc-portrait-original {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+.dc-home .dc-home-recent__more {
+  flex: 0 0 auto;
+  margin-top: 8px;
+}
+
+.dc-home .dc-material--dense .dc-material__row {
+  flex-wrap: nowrap;
+}
+
+.dc-home .dc-material--dense .dc-material__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ~56rem of Home (≈1024 viewport after chrome). Below that, about.md must
+   not sit in a 15–20ch column beside the portrait. */
+@container home (min-width: 56rem) {
   .dc-home {
     display: grid;
     grid-template-columns: minmax(20rem, 25rem) minmax(0, 1fr);
@@ -589,47 +634,19 @@ dc-copy[copied] .dc-copy__button {
     align-items: start;
   }
 
-  .dc-home-row {
-    display: contents;
-    margin-bottom: 0;
-  }
-
   .dc-home-row > .dc-panel,
   .dc-home > .as-activity {
     margin-bottom: 0;
   }
 
-  /* Each pane sizes to its own content. The grid only assigns columns/rows;
-     a neighbour's height must not stretch another pane. */
   .dc-home .dc-panel,
   .dc-home > .as-activity {
     align-self: start;
     width: 100%;
   }
 
-  .dc-home dc-image-toggle {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    flex: 0 0 auto;
-  }
-
-  .dc-home .dc-portrait {
-    width: 100%;
-    height: auto;
-    flex: 0 0 auto;
-    align-self: stretch;
-    object-position: top center;
-  }
-
-  .dc-home .dc-portrait-original {
-    flex: 0 0 auto;
-    margin-top: 0;
-  }
-
-  .dc-home .dc-home-recent__more {
-    flex: 0 0 auto;
-    margin-top: 8px;
+  .dc-home .dc-panel--structural {
+    display: block;
   }
 
   .dc-home-row--identity > .dc-panel--utility {
@@ -668,50 +685,11 @@ dc-copy[copied] .dc-copy__button {
   .dc-home .dc-home-recent__more .dc-panel__more {
     margin-top: 0;
   }
-
-  .dc-home .dc-material--dense .dc-material__row {
-    flex-wrap: nowrap;
-  }
-
-  .dc-home .dc-material--dense .dc-material__title {
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 }
 
-/* Desktop: keep the two-column packing; do not inflate rows to fill 100dvh. */
-@media (min-width: 1024px) {
-  .dc-main:has(.dc-home) {
-    padding-top: 12px;
-    padding-bottom: 8px;
-  }
-
+@container home (min-width: 64rem) {
   .dc-home {
     gap: 12px;
-  }
-}
-
-/* Phone: linear stack; neofetch vanishes. DOM order is
-   portrait → about → library → activity. */
-@media (max-width: 640px) {
-  .dc-home {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .dc-home-row {
-    display: contents;
-  }
-
-  .dc-home .dc-panel--structural {
-    display: none;
-  }
-
-  .dc-home-row > .dc-panel {
-    margin-bottom: 16px;
   }
 }
 
@@ -808,6 +786,10 @@ dc-copy[copied] .dc-copy__button {
 
 .dc-home .dc-prose {
   max-width: none;
+}
+
+.dc-home .p-note {
+  max-width: 78ch;
 }
 
 .dc-home .p-note p {
@@ -1009,7 +991,7 @@ dc-copy[copied] .dc-copy__button {
   vertical-align: bottom;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 640px), (max-height: 30rem) and (orientation: landscape) {
   .as-activity__body {
     grid-template-columns: 1fr;
     gap: 14px;
@@ -1872,7 +1854,7 @@ body:has(.dc-statusbar) {
 }
 
 
-@media (max-width: 640px) {
+@media (max-width: 640px), (max-height: 30rem) and (orientation: landscape) {
   .dc-statusbar {
     display: none;
   }
