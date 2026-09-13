@@ -24,32 +24,33 @@ Density/grouping varies; rows come from MaterialRow.
           {{ end }}
         </ul>
       {{ else if eq .Params.view "timeline" }}
-        {{- /* Timeline: year groups, date on the rail, title first. */ -}}
-        {{ range $materials.GroupByDate "2006" }}
-        <section class="dc-timeline">
-          <h2 class="dc-timeline__year">{{ .Key }}</h2>
-          <ol class="dc-timeline__list h-feed">
-            {{ range .Pages.ByDate.Reverse }}
-            <li class="dc-timeline__item h-entry">
-              <span class="dc-timeline__rail">
+        {{- /* Timeline: one axis; year groups; date on the rail; title first. */ -}}
+        <div class="dc-timeline">
+          <span class="dc-timeline__axis" aria-hidden="true"></span>
+          {{ range $materials.GroupByDate "2006" }}
+          <section class="dc-timeline__group">
+            <h2 class="dc-timeline__year">{{ .Key }}</h2>
+            <ol class="dc-timeline__list h-feed">
+              {{ range .Pages.ByDate.Reverse }}
+              <li class="dc-timeline__item h-entry">
                 {{ partial "publication/date.html" (dict "date" .Date "form" "short" "class" "dc-timeline__date dt-published") }}
-                <span class="dc-timeline__dot" aria-hidden="true">●</span>
-              </span>
-              <span class="dc-timeline__body">
-                <span class="dc-timeline__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></span>
-                <span class="dc-timeline__meta">
-                  {{- with .Params.type -}}
-                  <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>
-                  {{- end -}}
-                  <span class="dc-material__sep" aria-hidden="true">·</span>
-                  <span class="dc-timeline__size">{{ partial "library/material-size.html" . }}</span>
+                <span class="dc-timeline__marker" aria-hidden="true"></span>
+                <span class="dc-timeline__body">
+                  <span class="dc-timeline__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></span>
+                  <span class="dc-timeline__meta">
+                    {{- with .Params.type -}}
+                    <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>
+                    {{- end -}}
+                    <span class="dc-material__sep" aria-hidden="true">·</span>
+                    <span class="dc-timeline__size">{{ partial "library/material-size.html" . }}</span>
+                  </span>
                 </span>
-              </span>
-            </li>
-            {{ end }}
-          </ol>
-        </section>
-        {{ end }}
+              </li>
+              {{ end }}
+            </ol>
+          </section>
+          {{ end }}
+        </div>
       {{ else if eq .Params.view "table" }}
         {{ partial "library/mode-panels.html" (dict "materials" $materials "mode" "table") }}
       {{ else if eq .Params.view "types" }}

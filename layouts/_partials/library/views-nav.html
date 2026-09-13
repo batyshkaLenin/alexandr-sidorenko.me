@@ -5,6 +5,8 @@ Types and Topics sit in the secondary list.
 {{- $isTopic := in (slice "term" "taxonomy") .Kind -}}
 {{- $isType := ne (default "" .Params.material_type) "" -}}
 {{- $current := cond (eq .Kind "section") "recent" (cond $isTopic "topics" (cond $isType "types" (default "" .Params.view))) -}}
+{{ partial "declassified/component.html" "as-viewsnav" }}
+<as-viewsnav>
 <nav class="dc-library__views" aria-label="Представления библиотеки" tabindex="0">
   <ul class="dc-library__views-list">
     <li{{ if eq $current "recent" }} class="dc-library__view--current"{{ end }}>
@@ -29,3 +31,4 @@ Types and Topics sit in the secondary list.
     </li>
   </ul>
 </nav>
+</as-viewsnav>

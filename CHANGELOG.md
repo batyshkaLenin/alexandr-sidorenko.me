@@ -275,7 +275,10 @@ is folded into the entry describing the finished behaviour rather than listed as
 - A dense library row — Music, a Types group, a type page, a topic page —
   reads title, then type, then date, then markers. On a phone that becomes
   two zones, title with markers then type and date, instead of tearing the
-  line. Library views on a narrow screen stay one row and scroll sideways.
+  line. Library views on a narrow screen stay one row and scroll sideways,
+  with an edge fade only while there is overflow to that side and the
+  current view kept in sight. The chronology view places each event on one
+  shared vertical axis on the phone as well as on the desktop.
   Feed links in a section heading no longer sit against each other.
 - `/library/table` is a bookmark, not a search result: it carries
   `noindex` and is omitted from the sitemap, while the `[table]` switch
