@@ -3,8 +3,8 @@ Prose table: scroll container on narrow screens. Alignment via class (CSP
 blocks inline style). Header cells get scope. Region is focusable for keyboard.
 */ -}}
 {{- $align := dict "left" " dc-prose-table__cell--left" "center" " dc-prose-table__cell--center" "right" " dc-prose-table__cell--right" -}}
-<div class="dc-prose-table" role="region" tabindex="0" aria-label="{{ i18n "tableRegion" }}">
-  <table>
+<div class="dc-prose-table" role="region" tabindex="0" lang="en" aria-label="{{ i18n "tableRegion" }}">
+  <table lang="{{ partial "doc-lang.html" .Page }}">
     {{- with .THead }}
     <thead>
       {{- range . }}

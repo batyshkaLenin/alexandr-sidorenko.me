@@ -1,5 +1,5 @@
 {{- /* Header: menu hrefs via canonical-url.html (no trailing slash). */ -}}
-<header class="dc-header">
+<header class="dc-header" lang="en">
   <div class="dc-topbar">
     {{ partial "declassified/hooks/header-extra.html" . }}
   </div>
@@ -7,7 +7,8 @@
   {{ partial "declassified/component.html" "dc-keynav" }}
   {{- /* Esc → parent; URL via canonical-url.html. */ -}}
   <dc-keynav{{ with $.Parent }} parent-url="{{ partial "canonical-url.html" .RelPermalink }}"{{ end }}>
-  <nav class="dc-nav" aria-label="{{ $.Site.Title }}">
+  <nav class="dc-nav" aria-labelledby="dc-nav-label">
+    <span id="dc-nav-label" class="dc-visually-hidden" lang="{{ partial "doc-lang.html" $ }}">{{ $.Site.Title }}</span>
     <ul class="dc-nav__list">
       {{ range $i, $item := . }}
       <li>

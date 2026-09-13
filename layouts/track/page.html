@@ -32,11 +32,11 @@ No cover slot; file meta at the end.
     "MPEG" only looks like a mistake. */ -}}
     {{- /* Duration in text — player uses preload=none until asked. */ -}}
     {{- $meta := index hugo.Data.audio .src -}}
-    <span class="dc-track__file">{{ upper (strings.TrimPrefix "." (path.Ext .src)) }} · {{ $meta.duration }} · {{ lang.FormatNumber 1 (div (float $file.Size) 1048576) }} МБ</span>
+    <span class="dc-track__file">{{ upper (strings.TrimPrefix "." (path.Ext .src)) }} · {{ $meta.duration }} · {{ lang.FormatNumber 1 (div (float $file.Size) 1048576) }} MB</span>
     {{ end }}
     <span class="dc-track__published">{{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}</span>
-    {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
-    {{ with .Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
+    {{ with .Params.type }} · <span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
+    {{ with .Params.created }} · <span lang="en">created</span> {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
   </footer>
   {{ partial "publication/tail.html" . }}
 </article>

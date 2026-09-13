@@ -12,8 +12,10 @@ Redactions stay inline — no collection-level frame for them.
   </div>
   {{ if ge $works 3 }}
   {{- /* Only a long collection gets a list: with two works it is furniture. */ -}}
-  <nav class="dc-collection__contents" aria-label="Произведения подборки">
+  <nav class="dc-collection__contents" lang="en" aria-label="Works in this collection">
+    <div lang="{{ partial "doc-lang.html" . }}">
     {{ .TableOfContents }}
+    </div>
   </nav>
   {{ end }}
   <div class="dc-prose e-content dc-poem__body dc-collection__body">
@@ -21,8 +23,8 @@ Redactions stay inline — no collection-level frame for them.
   </div>
   <footer class="dc-poem__colophon">
     {{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}
-    {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
-    {{ with .Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
+    {{ with .Params.type }} · <span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
+    {{ with .Params.created }} · <span lang="en">created</span> {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
   </footer>
   {{ partial "publication/tail.html" . }}
 </article>

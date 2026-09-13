@@ -6,7 +6,7 @@
     {{ partial "declassified/panel-label.html" "library/" }}
     <h1 class="dc-section-title">{{ .Title }}</h1>
     <p class="dc-section-meta">
-      {{ len .Pages }} {{ i18n "materialsCount" (len .Pages) }}
+      <span lang="en">{{ partial "en-count.html" (dict "n" (len .Pages) "one" "material" "many" "materials") }}</span>
       {{ partial "publication/feed-links.html" . }}
     </p>
     {{ with .Content }}<div class="dc-panel__body dc-prose">{{ . }}</div>{{ end }}
@@ -17,7 +17,7 @@
         {{ range .Pages.ByDate.Reverse }}
         {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
         {{ else }}
-        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+        <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
         {{ end }}
       </ul>
       </dc-listnav>

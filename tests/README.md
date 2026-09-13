@@ -140,9 +140,11 @@ comparison; the committed snapshot still pins what readers see.
 
 ## Feeds
 
-`check-feed-contract.py` parses RSS and JSON Feed: every body reaches both
-feeds and the page, each card summary matches the publication description,
-embedded URLs are absolute, and audio MIME/byte length match the static file.
+`check-feed-contract.py` parses RSS and JSON Feed: every **pinned** body in
+the fixture reaches both feeds and the page, each card summary matches the
+publication description, embedded URLs are absolute, and audio MIME/byte
+length match the static file. The fixture is a representative sample; the
+catalog may grow. RSS and JSON Feed must stay the same length as each other.
 
 ## Stable identity
 

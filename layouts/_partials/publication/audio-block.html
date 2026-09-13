@@ -13,7 +13,9 @@ Call: page, or dict page + form.
 {{- range $index, $entry := $page.Params.audio }}
 {{- $url := $entry.src | relURL }}
 {{- /* Label from entry or i18n; track form uses the page title / no extra label. */ -}}
-{{- $label := $entry.label | default (cond (eq $form "track") $page.Title (i18n "audioReading")) }}
+{{- $customLabel := $entry.label -}}
+{{- $label := $customLabel | default (cond (eq $form "track") $page.Title (i18n "audioReading")) }}
+{{- $labelEn := and (not $customLabel) (eq $form "reading") -}}
 {{- $meta := index hugo.Data.audio $entry.src }}
 {{- if not $meta }}
   {{- errorf "%s: audio %q has no entry in data/audio.json — run scripts/audio-metadata.py" $page.File.Path $entry.src }}
@@ -23,7 +25,7 @@ Call: page, or dict page + form.
   {{- if eq $form "reading" }}
   {{- /* The cue is decoration: the accessible name of the control is the label
        and the duration, without a triangle read out as a glyph. */ -}}
-  <span class="dc-audio__label" id="{{ $id }}"><span class="dc-audio__cue" aria-hidden="true">▶</span>{{ $label }} · <span class="dc-audio__duration">{{ $meta.duration }}</span></span>
+  <span class="dc-audio__label" id="{{ $id }}"{{ if $labelEn }} lang="en"{{ end }}><span class="dc-audio__cue" aria-hidden="true">▶</span>{{ $label }} · <span class="dc-audio__duration">{{ $meta.duration }}</span></span>
   {{- end }}
   <audio
     controls
@@ -33,6 +35,6 @@ Call: page, or dict page + form.
     <a href="{{ $url }}">{{ $url }}</a>
   </audio>
   {{- /* Paper keeps the address instead of a dead control (research B8). */}}
-  <span class="dc-audio__print">аудио: {{ $label }} · {{ $meta.duration }} — {{ $url }}</span>
+  <span class="dc-audio__print"><span lang="en">audio:</span> {{ if $labelEn }}<span lang="en">{{ $label }}</span>{{ else }}{{ $label }}{{ end }} · {{ $meta.duration }} — {{ $url }}</span>
 </p>
 {{- end }}

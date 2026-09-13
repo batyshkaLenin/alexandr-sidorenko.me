@@ -13,15 +13,21 @@ TOC only when there are three or more headings.
     {{ partial "publication/audio-block.html" . }}
   </div>
   {{ if $toc }}
-  {{- /* Two TOC shapes; CSS shows one. display:none removes the other from a11y. */ -}}
-  <nav class="dc-toc dc-toc--column" aria-label="Содержание">
+  {{- /* Two TOC shapes; CSS shows one. display:none removes the other from a11y.
+       lang="en" is the chrome (aria-label, toc/); headings stay the document language. */ -}}
+  {{- $docLang := partial "doc-lang.html" . -}}
+  <nav class="dc-toc dc-toc--column" lang="en" aria-label="Contents">
     <p class="dc-toc__title">toc/</p>
+    <div lang="{{ $docLang }}">
     {{ .TableOfContents }}
+    </div>
   </nav>
-  <nav class="dc-toc dc-toc--folded" aria-label="Содержание">
+  <nav class="dc-toc dc-toc--folded" lang="en" aria-label="Contents">
     <details class="dc-toc__details">
       <summary class="dc-toc__summary">toc/</summary>
+      <div lang="{{ $docLang }}">
       {{ .TableOfContents }}
+      </div>
     </details>
   </nav>
   {{ end }}

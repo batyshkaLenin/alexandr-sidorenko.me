@@ -1,9 +1,10 @@
 {{- /*
-Type badge: family colour + label from data/creative_types.yaml.
-Input: dict "page" … ["plural" true] for group headings.
+Type badge: family colour + machine type key (T169).
+Input: dict "page" … ["plural" true] is accepted and ignored — chrome has
+no Russian plural; type-page headings stay in content files.
 */ -}}
 {{- $page := .page -}}
 {{- $plural := .plural -}}
 {{- with $page.Params.type -}}
-<span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page "plural" $plural) }}</span>
+<span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page "plural" $plural) }}</span>
 {{- end -}}

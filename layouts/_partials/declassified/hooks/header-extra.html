@@ -91,7 +91,7 @@ On publications: quiet command + back link. <dc-clock> fills only with JS.
 {{ partial "declassified/component.html" "as-search-target" -}}
 <as-search-target hidden></as-search-target>
 {{ partial "declassified/component.html" "dc-command-palette" -}}
-<dc-command-palette
+<dc-command-palette lang="en"
   src="/search-index.json"
   data-label="{{ i18n "searchLabel" }}"
   data-hint="{{ i18n "searchHint" }}"
@@ -130,14 +130,14 @@ things the reader can type, and the sheet is where they are explained. */ -}}
 {{- $cli = $cli | append (slice "library --music" (i18n "commandLibraryMusic")) -}}
 {{- $cli = $cli | append (slice "library --types" (i18n "commandLibraryTypes")) -}}
 {{- $cli = $cli | append (slice "library --topics" (i18n "commandLibraryTopics")) -}}
-{{- $cli = $cli | append (slice "library --type <тип>" (i18n "commandLibraryType")) -}}
-{{- $cli = $cli | append (slice "library --topic <тема>" (i18n "commandLibraryTopic")) -}}
-{{- $cli = $cli | append (slice "read <материал>" (i18n "commandRead")) -}}
-{{- $cli = $cli | append (slice "play <запись>" (i18n "commandPlay")) -}}
-{{- $cli = $cli | append (slice "open <что угодно>" (i18n "commandOpen")) -}}
-{{- $cli = $cli | append (slice "find <запрос>" (i18n "commandFind")) -}}
+{{- $cli = $cli | append (slice "library --type <type>" (i18n "commandLibraryType")) -}}
+{{- $cli = $cli | append (slice "library --topic <topic>" (i18n "commandLibraryTopic")) -}}
+{{- $cli = $cli | append (slice "read <material>" (i18n "commandRead")) -}}
+{{- $cli = $cli | append (slice "play <recording>" (i18n "commandPlay")) -}}
+{{- $cli = $cli | append (slice "open <anything>" (i18n "commandOpen")) -}}
+{{- $cli = $cli | append (slice "find <query>" (i18n "commandFind")) -}}
 {{- $cli = $cli | append (slice "help" (i18n "commandHelp")) -}}
-<dc-help
+<dc-help lang="en"
   data-title="{{ i18n "helpTitle" }}"
   data-title-keys="{{ i18n "helpKeysTitle" }}"
   data-title-commands="{{ i18n "helpCommandsTitle" }}"

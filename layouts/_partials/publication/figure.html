@@ -93,7 +93,7 @@ The ladder is the common recommendation for a 700-800px article column —
   <figcaption>
     {{- with $caption }}<span class="dc-figure__caption">{{ . }}</span>{{ end -}}
     {{- with $source }}<span class="dc-figure__source">{{ with $sourceURL }}<a href="{{ . }}">{{ $source }}</a>{{ else }}{{ . }}{{ end }}</span>{{ end -}}
-    {{- if $dithered }}<a class="dc-figure__original" data-image-original href="{{ $original }}">{{ i18n "imageOriginal" }}</a>{{ end -}}
+    {{- if $dithered }}<a class="dc-figure__original" data-image-original href="{{ $original }}" lang="en">{{ i18n "imageOriginal" }}</a>{{ end -}}
   </figcaption>
   {{- end }}
 </figure>

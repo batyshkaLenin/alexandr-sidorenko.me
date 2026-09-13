@@ -2,6 +2,6 @@
 <h{{ .Level }} id="{{ .Anchor }}">
   {{- .Text -}}
   {{- if gt .Level 1 }}
-  <a class="dc-heading-anchor" href="#{{ .Anchor }}" aria-label="{{ i18n "headingAnchor" }}">#</a>
+  <a class="dc-heading-anchor" href="#{{ .Anchor }}" lang="en" aria-label="{{ i18n "headingAnchor" }}">#</a>
   {{- end -}}
 </h{{ .Level }}>

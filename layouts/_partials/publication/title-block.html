@@ -13,8 +13,8 @@ cover is OG/JSON-LD only — not a visible <img> here.
   <a class="u-url" href="{{ partial "canonical-url.html" $page.Permalink }}">
     {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-list__date dt-published") }}
   </a>
-  {{ with $page.Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>{{ end }}
-  {{ if $created }}{{ with $page.Params.created }} · создано {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}{{ end }}
+  {{ with $page.Params.type }} · <span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>{{ end }}
+  {{ if $created }}{{ with $page.Params.created }} · <span lang="en">created</span> {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}{{ end }}
 </p>
 {{ partial "byline.html" $page }}
 {{- else }}

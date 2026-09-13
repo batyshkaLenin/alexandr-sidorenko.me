@@ -6,13 +6,16 @@ Three things have to hold at once, and a green validator only covers the first:
 1. every JSON-LD node is valid against the schema.org vocabulary — the types
    and properties exist, each property is allowed on the type it sits on, and
    each value matches the property's range;
-2. every page carries exactly the nodes it is supposed to carry — the fixture
-   `tests/fixtures/schema-contract.json` states them page by page, so a
-   publication silently losing its BlogPosting, or a page growing a node
-   nobody asked for, fails here;
+2. every **pinned** page carries exactly the nodes it is supposed to carry —
+   the fixture `tests/fixtures/schema-contract.json` states them page by page,
+   so a publication silently losing its BlogPosting, or a page growing a node
+   nobody asked for, fails here. The fixture is a representative set: new
+   library publications, type pages, and topic pages may exist without being
+   listed. A listed page that disappears still fails.
 3. the machine-readable list agrees with the visible one: the publications
    embedded in a section/tag node are the same links, in the same order, that
-   the HTML list shows.
+   the HTML list shows. URLs named in the fixture must still appear in that
+   list; extra catalog entries are allowed.
 
 The vocabulary lives in `tests/fixtures/schema-org-vocabulary.json` (refresh it
 with scripts/fetch-schema-vocabulary.py), so this check needs no network.
@@ -34,6 +37,10 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parent.parent
 ORIGIN = "https://alexandr-sidorenko.me"
 JSON_LD_KEYS = {"@context", "@type", "@id"}
+# Views that live at /library/<name>/ — not publications. Type and topic
+# pages grow with the catalog and need not be listed in the representative
+# fixture; the views themselves stay pinned.
+LIBRARY_VIEWS = {"all", "table", "timeline", "music", "types", "topics"}
 DATE_TYPES = {"Date", "DateTime"}
 LITERAL_TYPES = {"Text", "URL", "Number", "Integer", "Float", "Boolean"} | DATE_TYPES
 ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$")
@@ -199,6 +206,26 @@ def breadcrumb_errors(where: str, node: dict, expected: list[list[str]]) -> list
     return errors
 
 
+def is_catalog_growth(rel: str) -> bool:
+    """Library publications, extra type pages, extra topic pages.
+
+    The schema fixture pins a representative set. New materials (and the
+    type/topic pages they create) must not fail the contract until they
+    are added to that set. Shell views and the rest of the site stay closed.
+    """
+    parts = Path(rel).parts
+    if len(parts) == 3 and parts[0] == "library" and parts[2] == "index.html":
+        return parts[1] not in LIBRARY_VIEWS
+    if (
+        len(parts) == 4
+        and parts[0] == "library"
+        and parts[1] in {"types", "topics"}
+        and parts[3] == "index.html"
+    ):
+        return True
+    return False
+
+
 def check_page(vocab: Vocabulary, public: Path, page: dict) -> list[str]:
     path = public / page["html"]
     if not path.exists():
@@ -249,15 +276,19 @@ def check_page(vocab: Vocabulary, public: Path, page: dict) -> list[str]:
         expected_item_types = spec["item_type"]
         if isinstance(expected_item_types, str):
             expected_item_types = [expected_item_types]
-        item_types = sorted({item.get("@type") for item in items})
-        if item_types != sorted(expected_item_types):
+        item_types = {item.get("@type") for item in items}
+        missing_types = sorted(set(expected_item_types) - item_types)
+        if missing_types:
             errors.append(
-                f"{page['html']}: элементы {spec['property']!r} имеют типы {item_types} "
-                f"вместо {sorted(expected_item_types)}"
+                f"{page['html']}: элементы {spec['property']!r} потеряли типы {missing_types} "
+                f"(есть {sorted(item_types)})"
             )
         urls = [item.get("url") for item in items]
-        if urls != spec["urls"]:
-            errors.append(f"{page['html']}: список {urls} не совпадает с ожидаемым {spec['urls']}")
+        missing_urls = [url for url in spec["urls"] if url not in urls]
+        if missing_urls:
+            errors.append(
+                f"{page['html']}: список потерял закреплённые URL {missing_urls}"
+            )
         visible = [f"{ORIGIN}{href}" for href in parser.list_links]
         if urls != visible:
             errors.append(
@@ -305,6 +336,8 @@ def main() -> int:
         if not str(path.relative_to(public)).startswith("perf/")
     }
     for missing in sorted(built - described):
+        if is_catalog_growth(missing):
+            continue
         errors.append(f"{missing}: страница собрана, но её нет в фикстуре")
     for extra in sorted(described - built):
         errors.append(f"{extra}: фикстура описывает страницу, которой нет в сборке")

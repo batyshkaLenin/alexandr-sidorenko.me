@@ -6,6 +6,10 @@ by its byline h-card, by the hidden p-author of its section card, by RSS
 dc:creator and by the JSON Feed author object, and all four are built from
 data/authors.yaml. Checking them against one fixture value is what stops the
 four from drifting apart again.
+
+The fixture is a representative sample, not an inventory of the catalog.
+Every pinned item must appear; RSS and JSON Feed must stay the same length
+as each other. Extra publications do not fail this check.
 """
 
 from __future__ import annotations
@@ -204,9 +208,15 @@ def main() -> int:
 
     derived = check_derived_feeds(errors, public_dir, rss)
 
-    check(errors, len(rss) == len(fixture["items"]), "RSS item count changed")
     check(
-        errors, len(json_feed) == len(fixture["items"]), "JSON Feed item count changed"
+        errors,
+        len(rss) == len(json_feed),
+        f"RSS ({len(rss)}) and JSON Feed ({len(json_feed)}) item counts differ",
+    )
+    check(
+        errors,
+        len(rss) >= len(fixture["items"]),
+        f"site-wide feed has {len(rss)} items, fixture pins {len(fixture['items'])}",
     )
 
     for item in fixture["items"]:
@@ -326,7 +336,8 @@ def main() -> int:
         return 1
 
     print(
-        f"OK: {len(fixture['items'])} feed items in the site-wide feed, "
+        f"OK: {len(fixture['items'])} pinned feed items "
+        f"({len(rss)} in the site-wide feed), "
         f"{derived} derived feed(s); body, URL, audio, XML and JSON contracts"
     )
     return 0

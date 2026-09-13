@@ -27,7 +27,7 @@ Section override: h-feed/h-entry MF2; summaries via publication/summary.txt.
         {{ range .Pages.ByDate.Reverse }}
         {{ partial "library/material-row.html" (dict "page" . "density" "rich") }}
         {{ else }}
-        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+        <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
         {{ end }}
       </ul>
       </dc-listnav>

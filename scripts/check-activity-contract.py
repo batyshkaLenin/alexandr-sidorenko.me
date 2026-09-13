@@ -174,8 +174,8 @@ def main() -> int:
         errors.append("copyright mark is drawn on Home")
 
     if "site" in expected_modules:
-        if "собрано" not in html:
-            errors.append("activity pane is missing 'собрано'")
+        if "built" not in html:
+            errors.append("activity pane is missing 'built'")
         if not facts.site_href or not COMMIT_HREF.match(facts.site_href):
             errors.append(f"site revision href is {facts.site_href!r}, expected a commit URL")
         if not SHORT_HASH.match(facts.site_text):

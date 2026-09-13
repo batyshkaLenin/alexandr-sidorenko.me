@@ -7,7 +7,8 @@ Home has no static bar; <as-statusbar> may still add JS-only hints.
 {{- $state := "" -}}
 {{- if eq .Kind "page" -}}
   {{- if eq .Section "library" -}}
-    {{- /* State is upper(front-matter type), e.g. ARTICLE — not the Russian label. */ -}}
+    {{- /* T169: chrome prints the machine type key (`upper .Params.type`),
+      not the Russian label. READ · FICTION, including POETRY-COLLECTION. */ -}}
     {{- $mode = cond (eq .Params.type "track") "PLAY" "READ" -}}
     {{- $state = upper .Params.type -}}
   {{- else if .Params.material_type -}}
@@ -15,7 +16,7 @@ Home has no static bar; <as-statusbar> may still add JS-only hints.
     {{- $materials := where (where site.RegularPages "Section" "library") "Params.type" $mt -}}
     {{- $prefix = "LIBRARY" -}}
     {{- $mode = upper $mt -}}
-    {{- $state = printf "%d %s" (len $materials) (i18n "materialsCount" (len $materials)) -}}
+    {{- $state = partial "en-count.html" (dict "n" (len $materials) "one" "material" "many" "materials") -}}
   {{- else if .Params.view -}}
     {{- /* Count what this view lists (Music = tracks only). */ -}}
     {{- $view := .Params.view -}}
@@ -25,20 +26,20 @@ Home has no static bar; <as-statusbar> may still add JS-only hints.
     {{- end -}}
     {{- $prefix = "LIBRARY" -}}
     {{- $mode = upper $view -}}
-    {{- $state = printf "%d %s" (len $materials) (i18n "materialsCount" (len $materials)) -}}
+    {{- $state = partial "en-count.html" (dict "n" (len $materials) "one" "material" "many" "materials") -}}
   {{- end -}}
 {{- else if and (eq .Kind "section") (eq .Section "library") -}}
   {{- $prefix = "LIBRARY" -}}
   {{- $mode = "RECENT" -}}
-  {{- $state = printf "%d %s" (len .Pages) (i18n "materialsCount" (len .Pages)) -}}
+  {{- $state = partial "en-count.html" (dict "n" (len .Pages) "one" "material" "many" "materials") -}}
 {{- else if eq .Kind "term" -}}
   {{- $prefix = "LIBRARY" -}}
   {{- $mode = "TOPIC" -}}
-  {{- $state = printf "%d %s" (len .Pages) (i18n "materialsCount" (len .Pages)) -}}
+  {{- $state = partial "en-count.html" (dict "n" (len .Pages) "one" "material" "many" "materials") -}}
 {{- else if eq .Kind "taxonomy" -}}
   {{- $prefix = "LIBRARY" -}}
   {{- $mode = "TOPICS" -}}
-  {{- $state = printf "%d %s" (len .Pages) (i18n "topicsCount" (len .Pages)) -}}
+  {{- $state = partial "en-count.html" (dict "n" (len .Pages) "one" "topic" "many" "topics") -}}
 {{- end -}}
 {{- /* <as-statusbar>: JS keyboard hints; on Home it builds the bar itself. */ -}}
 {{- $modeNames := "" -}}
@@ -46,7 +47,7 @@ Home has no static bar; <as-statusbar> may still add JS-only hints.
   {{- $modeNames = dict "list" "ALL" "table" "TABLE" | jsonify -}}
 {{- end -}}
 {{ partial "declassified/component.html" "as-statusbar" -}}
-<as-statusbar
+<as-statusbar lang="en"
   {{ with $modeNames }}modes="{{ . }}"{{ end }}
   {{ if not $mode }}mode-default="{{ i18n "normalMode" }}"{{ end }}
   mode-search="{{ i18n "searchMode" }}"

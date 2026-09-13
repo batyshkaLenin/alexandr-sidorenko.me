@@ -1,0 +1,19 @@
+<!doctype html>
+{{- /* Site-owned document shell: skip link is English chrome (T169), so it
+       carries lang="en" while <html> stays the document language. */ -}}
+<html lang="{{ .Site.Language.Locale | default (.Site.Language.Lang | default "en") }}">
+<head>
+  {{ partial "declassified/head.html" . }}
+</head>
+<body>
+  {{ partial "declassified/hooks/body-start.html" . }}
+  <a class="dc-skip-link" href="#main" lang="en">{{ i18n "skipToContent" }}</a>
+  {{ partial "declassified/header.html" . }}
+  <main id="main" class="dc-main">
+    {{ block "main" . }}{{ end }}
+  </main>
+  {{ partial "declassified/footer.html" . }}
+  {{ partial "declassified/components.html" . }}
+  {{ partial "declassified/hooks/enhance.html" . }}
+</body>
+</html>

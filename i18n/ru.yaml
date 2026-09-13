@@ -1,162 +1,154 @@
-# Site-owned overrides and additions to the theme's i18n bundle.
+# Site-owned i18n. The site language stays `ru` so dates and publication copy
+# remain Russian. Chrome — status bar, help, search, prompt, nav hints — is
+# English (T169, 2026-09-13): the app speaks English, the documents speak
+# Russian. English counts (material/topic/line/minute) live in
+# layouts/_partials/en-count.html — Hugo's ru plural slots would say
+# "21 material".
+#
 # notFoundTitle stays a plain human sentence because it is also the <title>
 # of the 404 response; the terminal line from the mockup lives in its own key.
 notFoundTitle:
-  other: "Страница не найдена"
+  other: "Page not found"
 notFoundCommand:
   other: "404: bash: cd: no such file or directory"
 notFoundPanelLabel:
   other: "$ cd ./unknown"
 notFoundHome:
-  other: "← вернуться на $ ~"
+  other: "← back to $ ~"
 notFoundSectionsLabel:
   other: "$ ls /"
+notFoundBody:
+  other: "This page doesn't exist. It may have been moved or removed."
+skipToContent:
+  other: "Skip to content"
+nothingHereYet:
+  other: "Nothing here yet."
 headingAnchor:
-  other: "Ссылка на этот раздел"
+  other: "Link to this section"
 navKeysHint:
-  other: "1/2 — переход · Esc — назад"
-materialsCount:
-  one: "материал"
-  few: "материала"
-  many: "материалов"
-  other: "материала"
-topicsCount:
-  one: "тема"
-  few: "темы"
-  many: "тем"
-  other: "темы"
-linesCount:
-  one: "строка"
-  few: "строки"
-  many: "строк"
-  other: "строки"
-minutesCount:
-  one: "минута"
-  few: "минуты"
-  many: "минут"
-  other: "минуты"
+  other: "1/2 — go · Esc — back"
 imageOriginal:
-  other: "оригинал →"
+  other: "original →"
 imageProcessed:
-  other: "← дизеринг"
+  other: "← dithering"
 audioReading:
-  other: "Авторское чтение"
+  other: "Author reading"
 videoCaptions:
-  other: "Субтитры"
+  other: "Captions"
 tableRegion:
-  other: "Таблица, прокручивается по горизонтали"
+  other: "Table, scrolls horizontally"
 searchKindView:
-  other: "Представление"
+  other: "View"
 searchKindSection:
-  other: "Раздел"
+  other: "Section"
 searchKindTopic:
-  other: "Тема"
+  other: "Topic"
 searchKindType:
-  other: "Тип"
+  other: "Type"
 searchHint:
-  other: "ищет по названиям, тексту, типам, темам и путям"
+  other: "searches titles, text, types, topics, and paths"
 searchLoading:
-  other: "индекс загружается…"
+  other: "loading index…"
 searchEmpty:
-  other: "ничего не найдено"
+  other: "nothing found"
 searchError:
-  other: "индекс недоступен — материалы остаются в библиотеке"
+  other: "index unavailable — materials stay in the library"
 searchMode:
   other: "SEARCH"
 searchKeys:
-  other: "↑↓ выбор · ↵ открыть · Esc закрыть"
+  other: "↑↓ choose · ↵ open · Esc close"
 normalMode:
   other: "NORMAL"
 listKeys:
-  other: "↑↓ / j k — по списку · ↵ открыть"
+  other: "↑↓ / j k — list · ↵ open"
 searchKey:
-  other: "/ поиск"
+  other: "/ search"
 helpKey:
-  other: "? справка"
+  other: "? help"
 helpTitle:
-  other: "Справка"
+  other: "Help"
 helpLabel:
   other: "? help"
 searchLabel:
-  other: "Поиск по сайту"
+  other: "Search the site"
 helpList:
-  other: "по списку"
+  other: "list"
 helpOpen:
-  other: "открыть выбранное"
+  other: "open selected"
 helpNav:
-  other: "разделы меню"
+  other: "menu sections"
 helpSearch:
-  other: "поиск"
+  other: "search"
 helpBack:
-  other: "назад в раздел"
+  other: "back"
 helpSelf:
-  other: "эта справка"
+  other: "this help"
 helpOriginal:
-  other: "показать оригинал"
+  other: "show original"
 imageKeys:
-  other: "o оригинал"
+  other: "o original"
 commandLabel:
-  other: "Командная строка"
+  other: "Command line"
 commandUnknown:
-  other: "%s: нет такой команды"
+  other: "%s: command not found"
 commandEmpty:
-  other: "ничего подходящего"
+  other: "nothing matches"
 commandHome:
-  other: "открыть главную"
+  other: "open home"
 commandLibrary:
-  other: "открыть библиотеку"
+  other: "open library"
 commandLibraryRecent:
-  other: "недавние"
+  other: "recent"
 commandLibraryAll:
-  other: "все материалы"
+  other: "all materials"
 commandLibraryTable:
-  other: "таблица"
+  other: "table"
 commandLibraryTimeline:
-  other: "лента"
+  other: "timeline"
 commandLibraryMusic:
-  other: "музыка"
+  other: "music"
 commandLibraryTypes:
-  other: "типы"
+  other: "types"
 commandLibraryType:
-  other: "материалы типа"
+  other: "materials of a type"
 commandLibraryTopics:
-  other: "темы"
+  other: "topics"
 commandLibraryTopic:
-  other: "материалы темы"
+  other: "materials of a topic"
 commandRead:
-  other: "открыть текст"
+  other: "open text"
 commandPlay:
-  other: "включить запись"
+  other: "play recording"
 commandOpen:
-  other: "открыть что угодно"
+  other: "open anything"
 commandFind:
-  other: "искать"
+  other: "search"
 commandHelp:
-  other: "показать клавиши"
+  other: "show keys"
 promptKeys:
-  other: ": команда"
+  other: ": command"
 helpPrompt:
-  other: "командная строка"
+  other: "command line"
 helpKeysTitle:
-  other: "клавиши"
+  other: "keys"
 helpCommandsTitle:
   other: "cli"
 helpRun:
-  other: "запустить"
+  other: "run"
 helpClose:
-  other: "закрыть"
+  other: "close"
 activityDevWeek:
-  other: "{{ .Hours }} ч {{ .Minutes }} мин за неделю"
+  other: "{{ .Hours }} h {{ .Minutes }} min this week"
 activityDevShape:
-  other: "Интенсивность последних семи дней"
+  other: "Intensity of the last seven days"
 activitySourceAt:
-  other: "Согласно данным {{ .Source }} от {{ .At }}"
+  other: "Per {{ .Source }} as of {{ .At }}"
 siteSince:
-  other: "сайт с {{ . }}"
+  other: "site since {{ . }}"
 neofetchSource:
-  other: "исходный код на GitHub"
+  other: "source code on GitHub"
 activityRevision:
-  other: "снимок {{ . }}"
+  other: "snapshot {{ . }}"
 relationsHeading:
   other: "Связи"
 relationsBacklinks:

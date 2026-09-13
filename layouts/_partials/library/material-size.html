@@ -6,9 +6,9 @@ Material size string: minutes, poem lines, or track duration when recorded.
 {{- if in (slice "poem" "poetry-collection") $type -}}
   {{- $lines := len (findRE `\n` (strings.TrimSpace (plainify $page.Content))) -}}
   {{- $lines = add $lines 1 -}}
-  {{- printf "%d %s" $lines (i18n "linesCount" $lines) -}}
+  <span lang="en">{{- partial "en-count.html" (dict "n" $lines "one" "line" "many" "lines") -}}</span>
 {{- else -}}
   {{- $minutes := $page.ReadingTime -}}
   {{- if lt $minutes 1 }}{{ $minutes = 1 }}{{ end -}}
-  {{- printf "%d %s" $minutes (i18n "minutesCount" $minutes) -}}
+  <span lang="en">{{- partial "en-count.html" (dict "n" $minutes "one" "minute" "many" "minutes") -}}</span>
 {{- end -}}

@@ -46,8 +46,8 @@ Server-side Chroma; numbers in a table so the gutter stays put while code scroll
   <div class="dc-code__file">{{ . }}</div>
   {{- end }}
   <div class="dc-code__body">{{ $code }}</div>
-  <div class="dc-code__meta">
-    <span>{{ with $language }}{{ . }} · {{ end }}{{ $lines }}&nbsp;{{ i18n "linesCount" $lines }}</span>
+  <div class="dc-code__meta" lang="en">
+    <span>{{ with $language }}{{ . }} · {{ end }}{{ partial "en-count.html" (dict "n" $lines "one" "line" "many" "lines") }}</span>
   </div>
   {{- with $caption }}
   <figcaption class="dc-code__caption">{{ . }}</figcaption>

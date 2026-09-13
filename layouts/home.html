@@ -112,7 +112,7 @@
       {{/* Dithered image always links to the original. */}}
       {{ $source := partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}
       <p class="dc-portrait-original">
-        <a class="dc-figure__original" data-image-original href="{{ ($source.Process "fill 848x848").RelPermalink }}">{{ i18n "imageOriginal" }}</a>
+        <a class="dc-figure__original" data-image-original href="{{ ($source.Process "fill 848x848").RelPermalink }}" lang="en">{{ i18n "imageOriginal" }}</a>
       </p>
       </dc-image-toggle>
     </div>
@@ -131,16 +131,16 @@
         {{ range (.Site.GetPage "/library").Pages.ByDate.Reverse | first 3 }}
         {{ partial "library/material-row.html" (dict "page" . "density" "dense" "level" 3) }}
         {{ else }}
-        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+        <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
         {{ end }}
       </ul>
       <p class="dc-home-recent__more">
         {{ with .OutputFormats.Get "rss" }}
-        <a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}">rss</a>
+        <a class="dc-badge" href="{{ partial "canonical-url.html" .RelPermalink }}" lang="en">rss</a>
         {{ else }}
         {{ errorf "home: RSS output is required on Recent" }}
         {{ end }}
-        <a class="dc-panel__more" href="{{ "/library" | relLangURL }}">Библиотека →</a>
+        <a class="dc-panel__more" href="{{ "/library" | relLangURL }}" lang="en">library →</a>
       </p>
     </div>
   </section>
@@ -160,7 +160,7 @@
     {{- /* Last scrobbled track; missing snapshot removes the module. */ -}}
     {{- with (index (default dict hugo.Data.lastfm) "track") }}
     <section class="as-activity__module" data-activity-module="music" aria-labelledby="activity-music">
-      <h2 class="as-activity__name" id="activity-music">music</h2>
+      <h2 class="as-activity__name" id="activity-music" lang="en">music</h2>
       {{- /* The line is the link, but a quiet one: it wears the colour of its
       own role and shows itself only under the pointer or the keyboard. Its
       tooltip names the service and the moment the snapshot was taken — the
@@ -169,7 +169,7 @@
         <a href="{{ .url }}" target="_blank" rel="noopener"
            title="{{ partial "activity/source-title.html" (dict "source" "Last.fm" "snapshot" (default dict hugo.Data.lastfm)) }}">{{ .artist }} — {{ .name }}</a>
       </p>
-      <p class="as-activity__meta">слушал {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}</p>
+      <p class="as-activity__meta"><span lang="en">played</span> {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}</p>
     </section>
     {{- end }}
 
@@ -177,12 +177,13 @@
     {{- with (default dict hugo.Data.dev) }}
     {{- $bars := slice "▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" }}
     <section class="as-activity__module" data-activity-module="dev" aria-labelledby="activity-dev">
-      <h2 class="as-activity__name" id="activity-dev">dev</h2>
+      <h2 class="as-activity__name" id="activity-dev" lang="en">dev</h2>
       {{- with .weekly_seconds }}
       {{- $hours := math.Floor (div . 3600) }}
       {{- $minutes := math.Floor (div (mod (int .) 3600) 60) }}
       <p class="as-activity__value">
         <a href="https://wakatime.com/@batyshkaLenin" target="_blank" rel="noopener"
+           lang="en"
            title="{{ partial "activity/source-title.html" (dict "source" "WakaTime" "snapshot" (default dict hugo.Data.dev)) }}">{{ i18n "activityDevWeek" (dict "Hours" $hours "Minutes" $minutes) }}</a>
       </p>
       {{- end }}
@@ -190,6 +191,7 @@
       <as-dev data-src="https://codestats.net/api/users/batyshkaLenin">
       <p class="as-activity__meta as-activity__spark" data-dev-levels="{{ delimit . "," }}">
         <a href="https://codestats.net/users/batyshkaLenin" target="_blank" rel="noopener"
+           lang="en"
            title="{{ partial "activity/source-title.html" (dict "source" "Code::Stats" "snapshot" (default dict hugo.Data.dev)) }}"
           ><span aria-hidden="true" data-dev-bars>{{- range . }}{{ index $bars (int .) }}{{ end -}}</span
           ><span class="dc-visually-hidden">{{ i18n "activityDevShape" }}</span></a>
@@ -203,13 +205,14 @@
     {{ $full := strings.TrimSpace . }}
     {{ $short := $full | truncate 7 "" }}
     <section class="as-activity__module" data-activity-module="site" aria-labelledby="activity-site">
-      <h2 class="as-activity__name" id="activity-site">site</h2>
+      <h2 class="as-activity__name" id="activity-site" lang="en">site</h2>
       <p class="as-activity__value">
         <a href="{{ printf "%s/commit/%s" $projectRepo $full }}" target="_blank" rel="noopener"
+           lang="en"
            aria-label="{{ i18n "activityRevision" $short }}"
-           title="собрано {{ $builtAt.Format "02.01.2006 15:04 UTC" }}">{{ $short }}</a>
+           title="built {{ $builtAt.Format "02.01.2006 15:04 UTC" }}">{{ $short }}</a>
       </p>
-      <p class="as-activity__meta" data-activity-freshness>собрано <time datetime="{{ $builtAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ $builtAt.Format "02.01.2006 15:04 UTC" }}</time></p>
+      <p class="as-activity__meta" data-activity-freshness lang="en">built <time datetime="{{ $builtAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ $builtAt.Format "02.01.2006 15:04 UTC" }}</time></p>
     </section>
     {{- end }}
   </div>

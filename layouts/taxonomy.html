@@ -5,7 +5,7 @@
   <section class="dc-panel dc-panel--primary dc-panel--doc">
     {{ partial "declassified/panel-label.html" "library/" }}
     <h1 class="dc-section-title">{{ .Title }}</h1>
-    <p class="dc-section-meta">{{ len .Pages }} {{ i18n "topicsCount" (len .Pages) }}</p>
+    <p class="dc-section-meta" lang="en">{{ partial "en-count.html" (dict "n" (len .Pages) "one" "topic" "many" "topics") }}</p>
     {{ with .Content }}<div class="dc-panel__body dc-prose">{{ . }}</div>{{ end }}
     <div class="dc-panel__body">
       {{ partial "declassified/component.html" "dc-listnav" }}
@@ -16,7 +16,7 @@
           <h2 class="dc-list__title"><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></h2>
         </li>
         {{ else }}
-        <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+        <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
         {{ end }}
       </ul>
       </dc-listnav>

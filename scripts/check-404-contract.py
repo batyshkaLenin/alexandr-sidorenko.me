@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Verify the 404 page's metadata: noindex, no canonical.
 
-A not-found response is not a real, indexable resource: it must be
-Russian-titled, carry robots noindex, and skip the canonical/Open Graph/
-Twitter/JSON-LD identity a real publication or section page gets — showing
-that identity would misleadingly claim a URL that doesn't exist is a real,
-canonical piece of content.
+A not-found response is not a real, indexable resource: it must carry a
+site-owned title (not Hugo's default), robots noindex, and skip the
+canonical/Open Graph/Twitter/JSON-LD identity a real publication or section
+page gets — showing that identity would misleadingly claim a URL that doesn't
+exist is a real, canonical piece of content.
 """
 
 from __future__ import annotations
@@ -92,7 +92,11 @@ def main() -> int:
             not ENGLISH_DEFAULT_TITLE.search(parsed.title),
             f"title still leaks Hugo's English default: {parsed.title!r}",
         )
-        check(errors, "Страница не найдена" in parsed.title, f"title not Russian: {parsed.title!r}")
+        check(
+            errors,
+            "Page not found" in parsed.title and not ENGLISH_DEFAULT_TITLE.search(parsed.title),
+            f"title is not the site-owned 404 string: {parsed.title!r}",
+        )
 
     check(errors, parsed.robots == "noindex", f"robots meta is {parsed.robots!r}, expected 'noindex'")
     check(errors, not parsed.canonical_present, "canonical link present on 404 (there is no canonical URL for a page that doesn't exist)")
@@ -106,7 +110,7 @@ def main() -> int:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print("OK: 404 page is Russian-titled, noindex, no canonical/OG/JSON-LD, has a home link")
+    print("OK: 404 page is site-titled, noindex, no canonical/OG/JSON-LD, has a home link")
     return 0
 
 

@@ -18,7 +18,7 @@
   ) -}}
 {{- end -}}
 
-{{- /* The ways to browse are findable too: a visitor who types "таблица" or
+{{- /* The ways to browse are findable too: a visitor who types "table" or
 "library/types" is looking for a page, not a material. */ -}}
 {{- range where site.RegularPages "Params.view" "!=" nil -}}
   {{- $entries = $entries | append (dict

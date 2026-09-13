@@ -23,7 +23,7 @@ Shell/identity/title/tail stay; art owns composition.
   </div>
   <footer class="dc-poem__colophon">
     {{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}
-    {{ with .Params.type }} · <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
+    {{ with .Params.type }} · <span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
   </footer>
   {{ partial "publication/tail.html" . }}
 </article>

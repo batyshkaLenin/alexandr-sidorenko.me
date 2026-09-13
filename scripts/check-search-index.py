@@ -17,8 +17,10 @@ hold, and neither is visible by looking at a page:
    normalized text stream, including authored poetry line breaks.
 
 The size budget is the third thing: the index is fetched by a visitor who
-searches, and it grows with the corpus. The ceiling is per material, so a
-growing library fails here before it becomes a download nobody expects.
+searches, and it grows with the corpus. The **file** ceiling still fails the
+build if the whole JSON becomes a download nobody expects. The **per-entry**
+ceiling is deferred to T192 (owner, 2026-09-13): a long publication may make
+one record large until search stops storing full bodies.
 """
 
 from __future__ import annotations
@@ -34,11 +36,11 @@ from webmention_targets import RegistryError, build_registry, material_text
 
 INDEX = "search-index.json"
 
-# Per material, uncompressed. A body of this site's longest publication is
-# ~13 KB of text; twice that leaves room for a long one without letting the
-# file grow unnoticed into hundreds of kilobytes.
-MAX_BYTES_PER_ENTRY = 32 * 1024
+# Uncompressed whole-file ceiling: a download bound, independent of T192.
 MAX_BYTES_TOTAL = 512 * 1024
+# Per-entry ceiling is owned by T192. Until that research lands, a long
+# material may inflate one record; do not fail the build on it.
+MAX_BYTES_PER_ENTRY = None
 
 REQUIRED_FIELDS = ("title", "url", "path", "type", "kind", "topics", "summary", "text")
 
@@ -159,6 +161,8 @@ def check_redactions(errors: list[str], entries: list[dict], public: Path, root:
 def check_size(errors: list[str], raw: bytes, entries: list[dict]) -> None:
     if len(raw) > MAX_BYTES_TOTAL:
         errors.append(f"index is {len(raw)} bytes, over the {MAX_BYTES_TOTAL} budget")
+    if MAX_BYTES_PER_ENTRY is None:
+        return
     for entry in entries:
         size = len(json.dumps(entry, ensure_ascii=False).encode("utf-8"))
         if size > MAX_BYTES_PER_ENTRY:

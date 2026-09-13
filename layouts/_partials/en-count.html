@@ -1,0 +1,11 @@
+{{- /*
+English chrome counts (T169): 1 noun / N nouns.
+Do not use Hugo i18n plural slots — defaultContentLanguage is ru, so 21
+would pick the Slavic "one" form.
+*/ -}}
+{{- $n := int .n -}}
+{{- if eq $n 1 -}}
+{{- printf "%d %s" $n .one -}}
+{{- else -}}
+{{- printf "%d %s" $n .many -}}
+{{- end -}}

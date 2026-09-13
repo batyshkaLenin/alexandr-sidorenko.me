@@ -16,6 +16,11 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 ### Changed
 
+- The app chrome is English: status bar, type badges (`READ · FICTION`),
+  counts (`1 material` / `N materials`), keys, help, search, 404 and the
+  other shell strings. Publication titles, bodies, dates, type-page headings
+  (`Статьи`) and responses stay Russian. English chrome islands carry
+  `lang="en"`; the document stays `ru-RU`.
 - Workers Builds / PR gate entry is now `scripts/ci.sh` (`build.sh` then
   `validate.sh`), wired from `wrangler.jsonc` with `preview_urls` enabled and
   Wrangler pinned in `package.json` for Git integration. Hugo is pinned as
@@ -38,7 +43,7 @@ is folded into the entry describing the finished behaviour rather than listed as
   a Vienna gonzo piece, plus a type page for notes.
 - Attached recordings state how long they run before anyone presses play, and
   an author reading inside a publication now looks like what it is — one quiet
-  line, `▶ Авторское чтение · 02:18`, and a control that stops short of the
+  line, `▶ Author reading · 02:18`, and a control that stops short of the
   text column instead of spanning it. Nothing preloads and nothing autoplays.
 - Video as a block inside a publication: a dithered poster, the browser's own
   controls, optional captions and a caption line. It needs no JavaScript and

@@ -9,7 +9,7 @@ Call: materials, mode ("list" | "table")
 {{- $tableURL := partial "canonical-url.html" ("/library/table" | relLangURL) -}}
 {{ partial "declassified/component.html" "dc-modes" }}
 <dc-modes>
-  <p class="dc-mode-switch">
+  <p class="dc-mode-switch" lang="en">
     <a href="{{ $listURL }}" data-mode="list"{{ if eq $mode "list" }} aria-current="true"{{ end }}>[list]</a>
     <a href="{{ $tableURL }}" data-mode="table"{{ if eq $mode "table" }} aria-current="true"{{ end }}>[table]</a>
   </p>
@@ -26,19 +26,19 @@ Call: materials, mode ("list" | "table")
   <div data-mode-panel="table"{{ if ne $mode "table" }} hidden{{ end }}>
     <div class="dc-table-scroll">
       <table class="dc-table">
-        <thead>
+        <thead lang="en">
           <tr>
-            <th scope="col">название</th>
-            <th scope="col">тип</th>
-            <th scope="col">дата <span aria-hidden="true">↓</span></th>
-            <th scope="col">объём</th>
+            <th scope="col">title</th>
+            <th scope="col">type</th>
+            <th scope="col">date <span aria-hidden="true">↓</span></th>
+            <th scope="col">size</th>
           </tr>
         </thead>
         <tbody>
           {{ range $materials.ByDate.Reverse }}
           <tr>
             <td><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></td>
-            <td>{{- with .Params.type -}}<span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{- end -}}</td>
+            <td>{{- with .Params.type -}}<span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{- end -}}</td>
             <td>{{ partial "publication/date.html" (dict "date" .Date "form" "iso") }}</td>
             <td>{{ partial "library/material-size.html" . }}</td>
           </tr>

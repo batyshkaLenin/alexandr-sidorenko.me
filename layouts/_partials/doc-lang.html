@@ -1,0 +1,4 @@
+{{- /* Document BCP 47 tag. Re-assert this on publication copy that sits
+       inside an English chrome island (T169), so the island can carry
+       lang="en" without pulling Russian headings into an English voice. */ -}}
+{{- .Site.Language.Locale | default (.Site.Language.Lang | default "en") -}}

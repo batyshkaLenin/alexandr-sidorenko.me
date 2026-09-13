@@ -13,63 +13,63 @@
 
 navigation:
   ">":
-    meaning: "текущий или выбранный элемент списка"
-    text: "текущий"
+    meaning: "current or selected list item"
+    text: "current"
   "←":
-    meaning: "возврат в родительский контекст"
-    text: "назад"
+    meaning: "back to parent context"
+    text: "back"
   "→":
-    meaning: "переход дальше: открыть, оригинал, скачать"
-    text: "открыть"
+    meaning: "go further: open, original, download"
+    text: "open"
   "↗":
-    meaning: "внешняя ссылка, уводит с сайта"
-    text: "внешняя ссылка"
+    meaning: "external link, leaves the site"
+    text: "external link"
 
 structure:
   "│ ├":
-    meaning: "декор дерева"
+    meaning: "tree decoration"
     text: ""
     decorative: true
   "●":
-    meaning: "событие на таймлайне"
+    meaning: "timeline event"
     text: ""
     decorative: true
   "·":
-    meaning: "разделитель метаданных"
+    meaning: "metadata separator"
     text: ""
     decorative: true
   "$":
-    meaning: "prompt: дальше идёт команда"
+    meaning: "prompt: a command follows"
     text: ""
     decorative: true
   "/":
-    meaning: "поиск (улучшение, появляется только с JavaScript)"
-    text: "поиск"
+    meaning: "search (enhancement, appears only with JavaScript)"
+    text: "search"
 
 capabilities:
   # Keyed by the capability itself, so a row can go
   # from "this material has audio" to its marker without a second lookup table.
   audio:
     glyph: "♪"
-    meaning: "есть аудио"
+    meaning: "has audio"
     text: "has:audio"
   math:
     glyph: "ƒ"
-    meaning: "есть математика"
+    meaning: "has math"
     text: "has:math"
   code:
     glyph: "<>"
-    meaning: "есть код"
+    meaning: "has code"
     text: "has:code"
   image:
     glyph: "▣"
-    meaning: "есть изображения"
+    meaning: "has images"
     text: "has:image"
   gallery:
     glyph: "▣"
-    meaning: "есть галерея"
+    meaning: "has a gallery"
     text: "has:gallery"
   video:
     glyph: "▶"
-    meaning: "есть видео"
+    meaning: "has video"
     text: "has:video"

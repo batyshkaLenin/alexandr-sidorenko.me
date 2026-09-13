@@ -1,6 +1,6 @@
 {{- /* 404: Kind 404, noindex; section list from main menu. */ -}}
 {{ define "main" }}
-<section class="dc-panel dc-panel--detail">
+<section class="dc-panel dc-panel--detail" lang="en">
   {{ partial "declassified/panel-label.html" (i18n "notFoundPanelLabel") }}
   <h1 class="dc-title dc-404__command">{{ i18n "notFoundCommand" }}</h1>
   <a class="dc-back dc-404__home" href="{{ partial "canonical-url.html" ("/" | relLangURL) }}">{{ i18n "notFoundHome" }}</a>

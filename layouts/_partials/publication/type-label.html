@@ -1,14 +1,14 @@
 {{- /*
-type → Russian label from data/creative_types.yaml (plural optional).
-Unknown type → build error.
+T169: chrome prints the machine type key (`upper` of the front-matter key),
+not the Russian label. Labels in data/creative_types.yaml stay for type-page
+titles (content). Unknown type → build error.
 */ -}}
 {{- $type := .type -}}
 {{- $page := .page -}}
-{{- $plural := .plural -}}
 {{- with $type -}}
   {{- with index hugo.Data.creative_types . -}}
-    {{- if $plural -}}{{- .label_plural -}}{{- else -}}{{- .label -}}{{- end -}}
+    {{- upper $type -}}
   {{- else -}}
-    {{- errorf "%s: unknown type %q (see data/creative_types.yaml)" $page.File.Path . -}}
+    {{- errorf "%s: unknown type %q (see data/creative_types.yaml)" $page.File.Path $type -}}
   {{- end -}}
 {{- end -}}

@@ -20,7 +20,7 @@ Density/grouping varies; rows come from MaterialRow.
           {{ range $tracks.ByDate.Reverse }}
           {{ partial "library/material-row.html" (dict "page" . "density" "dense" "showType" false) }}
           {{ else }}
-          <li class="dc-list__empty">{{ i18n "nothingHereYet" }}</li>
+          <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
           {{ end }}
         </ul>
       {{ else if eq .Params.view "timeline" }}
@@ -39,7 +39,7 @@ Density/grouping varies; rows come from MaterialRow.
                   <span class="dc-timeline__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></span>
                   <span class="dc-timeline__meta">
                     {{- with .Params.type -}}
-                    <span class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>
+                    <span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>
                     {{- end -}}
                     <span class="dc-material__sep" aria-hidden="true">·</span>
                     <span class="dc-timeline__size">{{ partial "library/material-size.html" . }}</span>
