@@ -34,6 +34,8 @@ is folded into the entry describing the finished behaviour rather than listed as
   preserved in page HTML and in feeds alike, and a body image declares its real
   dimensions so the text below it does not jump while it loads — one pointing
   at a file that isn't there fails the build instead of shipping without them.
+- Publications that were not on the previous site: music notes, two poems, and
+  a Vienna gonzo piece, plus a type page for notes.
 - Attached recordings state how long they run before anyone presses play, and
   an author reading inside a publication now looks like what it is — one quiet
   line, `▶ Авторское чтение · 02:18`, and a control that stops short of the
