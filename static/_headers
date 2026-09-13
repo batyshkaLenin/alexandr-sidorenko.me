@@ -13,7 +13,7 @@
 # the shape of the week from the public Code::Stats endpoint when JavaScript is
 # available. Nothing else on the page fetches anything from anywhere.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self' https://codestats.net; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'sha256-jIYvFlbrTvZJM0yhCOi+McaDsFrlU9pAIVR+pEqDn94='; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self' https://codestats.net; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff
   Cross-Origin-Resource-Policy: same-origin

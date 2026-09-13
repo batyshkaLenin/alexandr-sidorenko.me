@@ -14,6 +14,8 @@ what the platform ends up sending.
 from __future__ import annotations
 
 import argparse
+import base64
+import hashlib
 import re
 import sys
 import urllib.error
@@ -30,12 +32,14 @@ DAY = "public, max-age=86400"
 HOUR = "public, max-age=3600"
 REVALIDATE = "public, max-age=0, must-revalidate"
 
-SECURITY = {
-    "Content-Security-Policy": (
-        "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; "
-        "font-src 'self'; media-src 'self'; connect-src 'self' https://codestats.net; "
-        "form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
-    ),
+CSP = (
+    "default-src 'self'; script-src 'self'; style-src 'self' {offline_style_hash}; "
+    "img-src 'self'; font-src 'self'; media-src 'self'; "
+    "connect-src 'self' https://codestats.net; form-action 'none'; "
+    "frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
+)
+
+SECURITY_WITHOUT_CSP = {
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "X-Content-Type-Options": "nosniff",
     "Cross-Origin-Resource-Policy": "same-origin",
@@ -43,6 +47,36 @@ SECURITY = {
         "geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()"
     ),
 }
+
+
+def expected_security(errors: list[str], public_dir: Path) -> dict[str, str]:
+    """Build the exact CSP from the rendered self-contained offline style."""
+    offline = public_dir / "offline" / "index.html"
+    if not offline.is_file():
+        errors.append(f"missing {offline}; cannot verify the offline style CSP hash")
+        style_hash = "'sha256-missing-offline-document'"
+    else:
+        styles = re.findall(
+            rb"<style(?:\s[^>]*)?>(.*?)</style\s*>",
+            offline.read_bytes(),
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+        if len(styles) != 1:
+            errors.append(
+                f"/offline has {len(styles)} inline style blocks; expected exactly one"
+            )
+            style_hash = "'sha256-invalid-offline-style-count'"
+        else:
+            digest = base64.b64encode(hashlib.sha256(styles[0]).digest()).decode(
+                "ascii"
+            )
+            style_hash = f"'sha256-{digest}'"
+
+    return {
+        "Content-Security-Policy": CSP.format(offline_style_hash=style_hash),
+        **SECURITY_WITHOUT_CSP,
+    }
+
 
 EXPECTED_CACHE = {
     "/css/*": IMMUTABLE,
@@ -140,7 +174,11 @@ def matching_cache_rule(path: str, rules: dict[str, dict[str, str]]) -> str | No
 
 
 def check_rules(
-    errors: list[str], rules: dict[str, dict[str, str]], order: list[str], text: str
+    errors: list[str],
+    rules: dict[str, dict[str, str]],
+    order: list[str],
+    text: str,
+    security: dict[str, str],
 ) -> None:
     if len(order) > RULE_LIMIT:
         errors.append(f"{len(order)} rules, platform limit is {RULE_LIMIT}")
@@ -160,7 +198,10 @@ def check_rules(
         errors.append(
             "/* sets Cache-Control: it would be comma-joined with every other rule"
         )
-    for name, value in SECURITY.items():
+    csp = catch_all.get("Content-Security-Policy", "")
+    if "'unsafe-inline'" in csp:
+        errors.append("/*: Content-Security-Policy must not allow 'unsafe-inline'")
+    for name, value in security.items():
         actual = catch_all.get(name)
         if actual is None:
             errors.append(f"/*: missing {name}")
@@ -233,7 +274,12 @@ def fetch_headers(url: str) -> dict[str, str]:
         return {key.lower(): value for key, value in response.headers.items()}
 
 
-def check_live(errors: list[str], base_url: str, public_dir: Path) -> None:
+def check_live(
+    errors: list[str],
+    base_url: str,
+    public_dir: Path,
+    security: dict[str, str],
+) -> None:
     samples: list[tuple[str, str]] = [("/", HTML_EXPECTED)]
     for pattern, expected in EXPECTED_CACHE.items():
         regex = pattern_to_regex(pattern)
@@ -256,7 +302,7 @@ def check_live(errors: list[str], base_url: str, public_dir: Path) -> None:
             errors.append(
                 f"{url}: served Cache-Control {actual!r}, expected {expected!r}"
             )
-        for name, value in SECURITY.items():
+        for name, value in security.items():
             served = headers.get(name.lower())
             if served != value:
                 errors.append(f"{url}: served {name} {served!r} differs from expected")
@@ -296,10 +342,11 @@ def main() -> int:
     text = headers_file.read_text()
     rules, order = parse_headers_file(text)
     errors: list[str] = []
-    check_rules(errors, rules, order, text)
+    security = expected_security(errors, public_dir)
+    check_rules(errors, rules, order, text, security)
     check_coverage(errors, rules, public_dir)
     if args.base_url and not errors:
-        check_live(errors, args.base_url, public_dir)
+        check_live(errors, args.base_url, public_dir, security)
 
     if errors:
         print("headers contract check failed:", file=sys.stderr)
