@@ -200,7 +200,9 @@ is folded into the entry describing the finished behaviour rather than listed as
   the keyboard: it looks through titles, bodies, types, topics and
   addresses, and shows the line around the match with the searched words
   highlighted in it and in the title, so a hit inside a long text says why it
-  is a hit. Arrows and Enter work, Esc closes it, and focus returns
+  is a hit. On a phone the field is 16px so Safari does not auto-zoom, and a
+  match wraps instead of being clipped as a broken token. Arrows and Enter
+  work, Esc closes it, and focus returns
   to where it was. With JavaScript off there is no button, no field and no
   broken promise — the library, its views and the topic pages remain the way to
   everything, as they were. A redacted fragment is as absent from the search
