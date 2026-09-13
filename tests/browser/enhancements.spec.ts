@@ -1,6 +1,76 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page, type Route } from "@playwright/test";
+
+const controlScript = /\/js\/dc-(?:clock|command-palette|help)\.min\./;
+
+type GeometryBox = { x: number; y: number; width: number; height: number };
+
+async function topbarGeometry(page: Page) {
+  return page.evaluate(() => {
+    const rect = (selector: string) => {
+      const box = document.querySelector(selector)!.getBoundingClientRect();
+      return { x: box.x, y: box.y, width: box.width, height: box.height };
+    };
+
+    const topbar = document.querySelector<HTMLElement>(".dc-topbar")!;
+    return {
+      tools: rect(".dc-topbar__tools"),
+      header: rect(".dc-header"),
+      main: rect("#main"),
+      overflows: topbar.scrollWidth > topbar.clientWidth
+        || document.documentElement.scrollWidth > window.innerWidth,
+    };
+  });
+}
+
+function expectStableBox(before: GeometryBox, after: GeometryBox) {
+  for (const edge of ["x", "y", "width", "height"] as const) {
+    expect(Math.abs(after[edge] - before[edge]), edge).toBeLessThanOrEqual(0.5);
+  }
+}
 
 test.describe("enhancements", () => {
+  for (const viewport of [
+    { width: 320, height: 800 },
+    { width: 390, height: 844 },
+    { width: 1024, height: 768 },
+    { width: 1440, height: 900 },
+  ]) {
+    test(`topbar keeps its geometry while controls upgrade at ${viewport.width}px`, async ({
+      page,
+    }, testInfo) => {
+      test.skip(testInfo.project.name === "chromium-mobile", "Explicit viewport matrix runs once.");
+      await page.setViewportSize(viewport);
+
+      const heldRoutes: Route[] = [];
+      await page.route(controlScript, async (route) => {
+        heldRoutes.push(route);
+      });
+      await page.route("**/*.woff2", async (route) => route.abort());
+
+      await page.goto("/", { waitUntil: "commit" });
+      await page.locator(".dc-topbar__tools").waitFor();
+      await expect.poll(() => heldRoutes.length).toBe(3);
+      const before = await topbarGeometry(page);
+
+      await Promise.all(heldRoutes.map((route) => route.continue()));
+      await page.waitForLoadState("load");
+      await expect.poll(() => page.evaluate(() => [
+        "dc-command-palette",
+        "dc-help",
+        "dc-clock",
+      ].every((selector) => document.querySelector(selector)!.matches(":defined"))))
+        .toBe(true);
+      await expect(page.locator(".dc-palette__trigger")).toBeVisible();
+      const after = await topbarGeometry(page);
+
+      expectStableBox(before.tools, after.tools);
+      expectStableBox(before.header, after.header);
+      expectStableBox(before.main, after.main);
+      expect(before.overflows).toBe(false);
+      expect(after.overflows).toBe(false);
+    });
+  }
+
   test("search palette opens from the home toolbar", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "chromium-mobile", "Palette covered on desktop.");
     await page.goto("/");
