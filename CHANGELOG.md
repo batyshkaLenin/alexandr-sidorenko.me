@@ -189,7 +189,9 @@ is folded into the entry describing the finished behaviour rather than listed as
   build's own snapshot; the graph refreshes itself from a public endpoint when
   JavaScript is available and otherwise stays as the build left it. Hovering
   any line says which service the numbers came from and when they were taken.
-  No counts are published beyond the hours — the bars show shape, not scores.
+  The hours link and the graph are spaced so a finger can hit one without the
+  other. No counts are published beyond the hours — the bars show shape, not
+  scores.
 - The command line in the top bar works. Until it is opened the line keeps a
   blinking `_`, so it looks like a place to type; once the real caret is in,
   that mark is gone. `:` opens it, and it takes the small vocabulary it has
@@ -203,11 +205,13 @@ is folded into the entry describing the finished behaviour rather than listed as
   materials once focus is in it, Enter opens what is focused, `1`/`2` go to the
   sections, Esc goes back up, and `?` opens a sheet listing exactly the keys
   that work on the page in front of you. Every one of them has something to
-  click instead. The status bar names the mode and the keys — and prints
+  click instead — except on a phone, where those keys are not advertised:
+  there is no command line to type into, so Help and the digit prefixes stay
+  off the chrome. The status bar names the mode and the keys — and prints
   neither without JavaScript, where none of them exist.
 - Search. On a wide screen a `/ search` button sits in the top bar; on a phone
-  a compact bordered `/` control shares one row with `[1] home` and
-  `[2] library`, named `Search the site` for assistive tech. `/` opens the
+  a compact bordered `search` control shares one row with `home` and
+  `library`, named `Search the site` for assistive tech. `/` opens the
   same palette from
   the keyboard: it looks through titles, bodies, types, topics and
   addresses, and shows the line around the match with the searched words
@@ -255,15 +259,17 @@ is folded into the entry describing the finished behaviour rather than listed as
   is two columns: portrait beside `about.md`, neofetch beside `library/`,
   `activity/` under both. The portrait keeps its full square frame in a
   capped left column. The file tree `site/` is gone — `about.md` and
-  `library/` already have panes and `[1] home` / `[2] library`. On a
+  `library/` already have panes and `[1] home` / `[2] library` on a
+  keyboard-capable shell. On a
   phone the first screen is the portrait, then
   `about.md`, `library/` and `activity/`; the same stack holds on a short
   landscape phone and on a portrait tablet, because Home follows its own
   inline width rather than a device class. Two columns begin around `56rem`
   of that width: portrait beside `about.md`, neofetch beside `library/`,
-  `activity/` under both. Compact header chrome (`/` Search, no prompt) is
+  `activity/` under both. Compact header chrome (`search` without the slash,
+  no digit prefixes, no Help, no prompt) is
   a separate contract for phone portrait and short landscape; an iPad
-  portrait keeps `search` / help. Neighbouring Home panes size themselves;
+  portrait keeps `/ search` / help. Neighbouring Home panes size themselves;
   the grid only places them. `about.md` keeps a reading measure on a very
   wide pane. A narrow `library/` pane gives each title its own line, with
   type and date underneath, instead of clipping the title under the

@@ -16,7 +16,7 @@
           class="dc-nav__link"
           href="{{ partial "canonical-url.html" $item.URL }}"
           {{ if $.IsMenuCurrent "main" $item }}aria-current="page"{{ end }}
-        ><span class="dc-nav__index" aria-hidden="true">[{{ add $i 1 }}]</span> {{ $item.Name }}</a>
+        ><span class="dc-nav__index" aria-hidden="true">[{{ add $i 1 }}] </span>{{ $item.Name }}</a>
       </li>
       {{ end }}
     </ul>

@@ -79,6 +79,25 @@ function boxesOverlap(a: Box, b: Box) {
     || a.bottom <= b.top + 0.5 || b.bottom <= a.top + 0.5);
 }
 
+function circleHitsRect(cx: number, cy: number, diameter: number, box: Box) {
+  const radius = diameter / 2;
+  const closestX = Math.max(box.left, Math.min(cx, box.right));
+  const closestY = Math.max(box.top, Math.min(cy, box.bottom));
+  const dx = cx - closestX;
+  const dy = cy - closestY;
+  return dx * dx + dy * dy < radius * radius - 0.01;
+}
+
+function targetSizePairOk(a: Box, b: Box, min = 24) {
+  const sized = (box: Box) =>
+    box.right - box.left + 0.5 >= min && box.bottom - box.top + 0.5 >= min;
+  const hits = (from: Box, into: Box) =>
+    circleHitsRect((from.left + from.right) / 2, (from.top + from.bottom) / 2, min, into);
+  if (!sized(a) && hits(a, b)) return false;
+  if (!sized(b) && hits(b, a)) return false;
+  return true;
+}
+
 async function homeLibraryRows(page: Page) {
   return page.evaluate(() => {
     const box = (el: Element | null): Box | null => {
@@ -120,6 +139,41 @@ test.describe("home shell", () => {
       expectOneRow(boxes.home!, boxes.library!, boxes.search!);
       expect(boxes.pageOverflow).toBe(false);
       expect(boxes.headerOverflow).toBe(false);
+    });
+
+    test(`phone ${viewport.width}×${viewport.height} does not advertise keyboard chrome`, async ({
+      page,
+    }, testInfo) => {
+      test.skip(testInfo.project.name === "chromium-mobile", "Explicit viewport matrix runs once.");
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      const trigger = page.locator(".dc-palette__trigger");
+      await expect(trigger).toBeVisible();
+      await expect(trigger.locator(".dc-palette__key")).toBeHidden();
+      await expect(trigger.locator(".dc-palette__label")).toBeVisible();
+      expect((await trigger.innerText()).trim()).toBe("search");
+      await expect(page.locator(".dc-help__trigger")).toBeHidden();
+      const indices = page.locator(".dc-nav__index");
+      await expect(indices).toHaveCount(2);
+      for (const index of await indices.all()) {
+        await expect(index).toBeHidden();
+      }
+
+      const activity = await page.evaluate(() => {
+        const box = (el: Element | null) => {
+          if (!el) return null;
+          const rect = el.getBoundingClientRect();
+          return { top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left };
+        };
+        const module = document.querySelector('.as-activity__module[data-activity-module="dev"]');
+        return {
+          waka: box(module?.querySelector(".as-activity__value a") ?? null),
+          stats: box(module?.querySelector(".as-activity__spark a") ?? null),
+        };
+      });
+      expect(activity.waka, "WakaTime link is present").toBeTruthy();
+      expect(activity.stats, "Code::Stats link is present").toBeTruthy();
+      expect(targetSizePairOk(activity.waka!, activity.stats!)).toBe(true);
     });
 
     test(`phone ${viewport.width}×${viewport.height} Home content is portrait → about → library → activity`, async ({
@@ -233,8 +287,9 @@ test.describe("home shell", () => {
     const trigger = page.locator(".dc-palette__trigger");
     await expect(trigger).toBeVisible();
     await expect(trigger).toHaveAttribute("aria-label", /search/i);
-    await expect(trigger.locator(".dc-palette__label")).toBeHidden();
-    expect((await trigger.innerText()).trim()).toBe("/");
+    await expect(trigger.locator(".dc-palette__key")).toBeHidden();
+    await expect(trigger.locator(".dc-palette__label")).toBeVisible();
+    expect((await trigger.innerText()).trim()).toBe("search");
     const border = await trigger.evaluate((el) => getComputedStyle(el).borderTopWidth);
     expect(border).not.toBe("0px");
     await trigger.focus();
@@ -343,6 +398,9 @@ test.describe("home shell", () => {
         page.locator("img.dc-portrait").evaluate((img: HTMLImageElement) => img.naturalWidth),
       ).toBeGreaterThan(0);
       await expect(page.locator(".dc-palette__trigger")).toContainText("search");
+      await expect(page.locator(".dc-palette__key")).toBeVisible();
+      await expect(page.locator(".dc-nav__index").first()).toBeVisible();
+      await expect(page.locator(".dc-help__trigger")).toBeVisible();
       await expect(page.locator(".dc-identity")).toBeVisible();
       await expect(page.locator(".dc-neofetch")).toBeHidden();
       const labels = await visiblePanelLabels(page);
@@ -371,6 +429,9 @@ test.describe("home shell", () => {
       await expect(page.locator(".dc-neofetch")).toBeVisible();
       await expect(page.locator(".dc-identity")).toBeVisible();
       await expect(page.locator(".dc-palette__trigger")).toContainText("search");
+      await expect(page.locator(".dc-palette__key")).toBeVisible();
+      await expect(page.locator(".dc-nav__index").first()).toBeVisible();
+      await expect(page.locator(".dc-help__trigger")).toBeVisible();
       const labels = await visiblePanelLabels(page);
       expect(labels).toEqual(expect.arrayContaining([
         "neofetch",

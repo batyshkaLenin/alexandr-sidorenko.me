@@ -999,6 +999,18 @@ dc-copy[copied] .dc-copy__button {
   vertical-align: bottom;
 }
 
+/* WakaTime + Code::Stats were 23px safe diameter (WCAG 2.5.8). */
+.as-activity__module[data-activity-module="dev"] .as-activity__value a,
+.as-activity__module[data-activity-module="dev"] .as-activity__spark a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+
+.as-activity__module[data-activity-module="dev"] .as-activity__spark {
+  margin-top: 10px;
+}
+
 @media (max-width: 640px), (max-height: 30rem) and (orientation: landscape) {
   .as-activity__body {
     grid-template-columns: 1fr;
