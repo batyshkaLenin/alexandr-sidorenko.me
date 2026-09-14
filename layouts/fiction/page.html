@@ -12,12 +12,10 @@ Art-directed pieces use a custom layout.
   </div>
   <footer class="dc-fiction__colophon">
     {{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}
-    {{ with .Params.type }} · <span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{ end }}
+    {{ with .Params.type }} · {{ partial "library/type-badge.html" (dict "page" $ "linked" true) }}{{ end }}
     {{ with .Params.created }} · <span lang="en">created</span> {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}
   </footer>
   {{ partial "publication/tail.html" . }}
 </article>
-{{ partial "publication/relations.html" . }}
-{{ partial "publication/webmentions.html" . }}
-{{ partial "publication/adjacent.html" . }}
+{{ partial "publication/aftermatter.html" . }}
 {{ end }}

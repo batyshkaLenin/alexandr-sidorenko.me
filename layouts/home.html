@@ -1,10 +1,10 @@
 {{- /* Site home: overrides theme home.html. Identity, recent, activity. */ -}}
 {{ define "main" }}
 {{- partial "publication/identity-invariants.html" . -}}
-{{ $projectRepo := printf "https://github.com/%s" .Site.Params.github_repo }}
 {{ if not .Site.Params.github_repo }}
   {{ errorf "hugo.toml: params.github_repo must be the project repository (owner/name)" }}
 {{ end }}
+{{ $projectRepo := printf "https://github.com/%s" .Site.Params.github_repo }}
 
 {{- /* One listnav for the whole workspace so arrows follow reading order. */ -}}
 {{ partial "declassified/component.html" "dc-listnav" }}
@@ -54,53 +54,25 @@
       <div class="p-note">
         {{ .Content }}
       </div>
-      {{ with .Params.location }}
-      <p class="dc-hero-meta"># location: {{ . }}</p>
-      {{ end }}
-      {{/* Visible identity links with rel=me (not repeated in head). */}}
-      {{ with where hugo.Data.links "visible" true }}
-      <p class="dc-region-label">socials/</p>
-      <ul class="dc-identity-links">
-        {{ range . }}
-        <li><a rel="me" href="{{ .url }}">{{ .label }}</a></li>
+      {{ $visibleLinks := where hugo.Data.links "visible" true }}
+      {{ if or .Params.location $visibleLinks }}
+      <div class="dc-hero-foot">
+        {{ with .Params.location }}
+        <p class="dc-hero-meta"># location: {{ . }}</p>
         {{ end }}
-      </ul>
-      {{ end }}
-    </div>
-  </section>
-
-  {{/* Provenance only: about.md and library/ already have panes and nav. */}}
-  <section class="dc-panel dc-panel--structural">
-    {{ partial "declassified/panel-label.html" "neofetch" }}
-    <div class="dc-panel__body">
-      <dl class="dc-neofetch">
-        <div><dt>OS</dt><dd>human</dd></div>
-        <div><dt>HOST</dt><dd>{{ strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) }}</dd></div>
-        {{/* Roles only — do not prefix with the author's name. */}}
-        {{ with .Params.roles }}<div><dt>ROLE</dt><dd>{{ . }}</dd></div>{{ end }}
-        {{ with .Params.status }}<div><dt>STATUS</dt><dd>{{ . }}</dd></div>{{ end }}
-        {{/* Site age from Params.since; only ~N years is drawn. */}}
-        {{ with .Params.since }}
-        {{ $sinceYear := int . }}
-        {{ if or (lt $sinceYear 1990) (gt $sinceYear now.Year) }}
-          {{ errorf "home: since must be the launch year, got %v" . }}
-        {{ end }}
-        {{ $years := math.Max 1 (sub now.Year $sinceYear) }}
-        <div>
-          <dt>uptime</dt>
-          <dd>
-            <span class="dc-visually-hidden">{{ i18n "siteSince" $sinceYear }}</span>
-            <span aria-hidden="true">~{{ $years }} {{ cond (eq $years 1) "year" "years" }}</span>
-          </dd>
+        {{/* Visible identity links with rel=me (not repeated in head). */}}
+        {{ with $visibleLinks }}
+        <div class="dc-hero-socials">
+          <p class="dc-region-label"># socials:</p>
+          <ul class="dc-identity-links">
+            {{ range . }}
+            <li><a rel="me" href="{{ .url }}">{{ .label }}</a></li>
+            {{ end }}
+          </ul>
         </div>
-        {{ else }}
-          {{ errorf "home: Params.since is required to compute neofetch uptime" }}
         {{ end }}
-        <div>
-          <dt>source</dt>
-          <dd><a href="{{ $projectRepo }}" target="_blank" rel="noopener" aria-label="{{ i18n "neofetchSource" }}">github</a></dd>
-        </div>
-      </dl>
+      </div>
+      {{ end }}
     </div>
   </section>
 
@@ -111,11 +83,11 @@
   <section class="dc-panel dc-panel--primary">
     {{ partial "declassified/panel-label.html" "library/" }}
     <div class="dc-panel__body">
-      {{- /* Same MaterialRow as a Types group: a scan line, not a reading
-      card. The pane is `tail -n3`; excerpts belong in Library Recent. */ -}}
+      {{- /* Same MaterialRow as a Types group. On a wide scan line the
+      description occupies the gap between title and TYPE; a phone hides it. */ -}}
       <ul class="dc-material-list dc-material-list--dense h-feed">
         {{ range (.Site.GetPage "/library").Pages.ByDate.Reverse | first 3 }}
-        {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+        {{ partial "library/material-row.html" (dict "page" . "density" "dense" "excerpt" true) }}
         {{ else }}
         <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
         {{ end }}

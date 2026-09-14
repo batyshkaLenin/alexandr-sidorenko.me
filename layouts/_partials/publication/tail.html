@@ -1,7 +1,11 @@
-{{- /* Shared post-body: updated note + topics. */ -}}
+{{- /* Shared post-body: updated note + topics. Sit in the reading measure. */ -}}
+<div class="dc-article__tail">
 {{ partial "publication/updated.html" . }}
-{{ with .Params.tags }}
+{{ with .GetTerms "tags" }}
 <ul class="tags">
-  {{ range . }}<li class="p-category">{{ . }}</li>{{ end }}
+  {{ range . }}
+  <li class="p-category"><a href="{{ partial "canonical-url.html" .RelPermalink }}" rel="tag">{{ .LinkTitle }}</a></li>
+  {{ end }}
 </ul>
 {{ end }}
+</div>

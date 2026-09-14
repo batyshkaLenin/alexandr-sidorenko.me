@@ -29,7 +29,7 @@ Separate from webmentions. Types from data/relation_types.yaml. Omit if empty.
       {{- end -}}
     {{- end -}}
   {{- end -}}
-  {{- if $items -}}
+  {{- if gt (len $items) 0 -}}
     {{- $outgoingGroups = $outgoingGroups | append (dict "label" $meta.label "items" $items) -}}
   {{- end -}}
 {{- end -}}
@@ -50,7 +50,7 @@ Separate from webmentions. Types from data/relation_types.yaml. Omit if empty.
   {{- end -}}
 {{- end -}}
 
-{{- if or $outgoingGroups $backlinkItems }}
+{{- if or (gt (len $outgoingGroups) 0) (gt (len $backlinkItems) 0) }}
 <section class="dc-relations" aria-labelledby="relations-heading">
   {{ partial "declassified/panel-label.html" "relations/" }}
   <h2 class="dc-visually-hidden" id="relations-heading">{{ i18n "relationsHeading" }}</h2>

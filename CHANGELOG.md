@@ -23,6 +23,30 @@ is folded into the entry describing the finished behaviour rather than listed as
   pages from clipping.
 - The Home name is the page `<h1>`. The duplicate visually-hidden site-title
   heading is gone.
+- The compact shell holds through 740px, so the two-row header does not appear
+  in the band where prompt, help and indices do not yet fit.
+- Home location and socials share a line when they fit, then wrap as
+  location / socials, then each on its own line.
+- Library view tabs keep a reserved caret column, so switching the current
+  view does not shift the row.
+- Publication relations, responses and adjacent hang as workspace chrome
+  after the article, in the reading measure, not as a second pane. The
+  publication header no longer repeats a `library` back link — the nav
+  already has it. A material with a table of contents keeps its pane label
+  on the article at 1100px, instead of sliding it over the site header.
+- Publication tags are links to `/library/topics/…`. The type badge on a
+  material is the type page, the same destination as on `/library/types`.
+- Interface dates are `DD.MM.YYYY`.
+- Poems, lyrics, parallel translation and `{.dc-verse}` share one verse
+  measure.
+- Home has no neofetch pane: after GitHub and ROLE left, the leftover
+  block was empty. Wide Home is portrait beside `about.md`, then
+  `library/` across the full width, `activity/` under both. Recent stays
+  three scan lines; the description sits in the gap between title and
+  TYPE, marked off with the same `·` as TYPE · DATE, and a phone hides
+  it. The socials line is a comment, like location.
+- A relation group with no resolved targets is omitted; incoming links
+  still show as backlinks.
 
 - Library list and publication pages share one workspace: a 150px rail track
   and a wide document pane, collapsing together below 1101px. Article contents
@@ -258,22 +282,21 @@ is folded into the entry describing the finished behaviour rather than listed as
   `data/redactions.yaml` with its ground, its date and the edition of the
   rules it was made under.
 
-- Window labels speak one resource vocabulary: `neofetch`, `about.md`,
-  `library/`, `activity/`. The command line still names actions and views.
+- Window labels speak one resource vocabulary: `about.md`, `library/`,
+  `activity/`. The command line still names actions and views.
   They agree in meaning and are not copies of each other.
 
-- Home no longer pretends the missing footer is an open question. `neofetch`
-  shows how long the site has been up and links to the repository. Wide Home
-  is two columns: portrait beside `about.md`, neofetch beside `library/`,
-  `activity/` under both. The portrait keeps its full square frame in a
-  capped left column. The file tree `site/` is gone — `about.md` and
-  `library/` already have panes and `[1] home` / `[2] library` on a
-  keyboard-capable shell. On a
+- Home no longer pretends the missing footer is an open question. Wide Home
+  is two columns for identity: portrait beside `about.md`, then `library/`
+  across the full width, `activity/` under both. The portrait keeps its full
+  square frame in a capped left column. The file tree `site/` is gone —
+  `about.md` and `library/` already have panes and `[1] home` / `[2] library`
+  on a keyboard-capable shell. On a
   phone the first screen is the portrait, then
   `about.md`, `library/` and `activity/`; the same stack holds on a short
   landscape phone and on a portrait tablet, because Home follows its own
   inline width rather than a device class. Two columns begin around `56rem`
-  of that width: portrait beside `about.md`, neofetch beside `library/`,
+  of that width: portrait beside `about.md`, `library/` full-width below,
   `activity/` under both. Compact header chrome (`search` without the slash,
   no digit prefixes, no Help, no prompt) is
   a separate contract for phone portrait and short landscape; an iPad

@@ -1,8 +1,8 @@
 {{- /*
 Application bar: guest prompt + page command (`home`, `library --…`, `read`/`play`).
-On publications: quiet command + back link. <dc-clock> fills only with JS.
+On publications: quiet command only — Library is already in the nav. <dc-clock> fills only with JS.
 */ -}}
-{{- $host := strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL) -}}
+{{- $host := strings.TrimPrefix "http://" (strings.TrimPrefix "https://" (strings.TrimSuffix "/" .Site.BaseURL)) -}}
 {{- $isPublication := and (eq .Kind "page") (eq .Section "library") -}}
 {{- $isTypePage := ne (default "" .Params.material_type) "" -}}
 {{- $isTopicIndex := eq .Kind "taxonomy" -}}
@@ -81,11 +81,6 @@ On publications: quiet command + back link. <dc-clock> fills only with JS.
 </p>
 {{ if not $isPublication }}</dc-prompt>{{ end }}
 {{ with $modePrompts }}</as-prompt>{{ end }}
-{{- if $isPublication }}
-{{- with .Parent }}
-<p class="dc-identity__back"><a href="{{ partial "canonical-url.html" .RelPermalink }}"><span aria-hidden="true">← </span>library</a></p>
-{{- end }}
-{{- end }}
 {{- /* Palette markup is empty without JS; copy is passed in (theme is language-agnostic). */ -}}
 <span class="dc-topbar__tools">
 {{ partial "declassified/component.html" "as-search-target" -}}

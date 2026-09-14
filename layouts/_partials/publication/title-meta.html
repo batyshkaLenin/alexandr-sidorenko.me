@@ -12,7 +12,7 @@ Visual line follows COMP-DOCUMENT-HEADER / Rev3 §11.2:
 {{- $created := default false .created -}}
 {{- if $meta }}
 <p class="dc-publication__meta">
-  {{ with $page.Params.type }}<span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span> · {{ end }}
+  {{ with $page.Params.type }}{{ partial "library/type-badge.html" (dict "page" $page "linked" true) }} · {{ end }}
   <a class="u-url" href="{{ partial "canonical-url.html" $page.Permalink }}">
     {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-list__date dt-published") }}
   </a>

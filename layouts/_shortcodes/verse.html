@@ -1,0 +1,18 @@
+{{- /*
+A verse block in a prose page. Poems and tracks already sit in this measure;
+a note or article can wrap a stanza in this shortcode. A single Markdown
+paragraph can use the class dc-verse instead.
+*/ -}}
+{{- $inner := strings.TrimSpace .Inner -}}
+{{- $inner = strings.Replace $inner "\r\n" "\n" -1 -}}
+{{- if not $inner -}}
+  {{- errorf "%s: verse shortcode is empty" .Page.File.Path -}}
+{{- end -}}
+<div class="dc-verse">
+{{- range split $inner "\n" -}}
+  {{- $line := strings.TrimSpace . -}}
+  {{- if $line -}}
+<p>{{ $line | $.Page.RenderString }}</p>
+  {{- end -}}
+{{- end -}}
+</div>

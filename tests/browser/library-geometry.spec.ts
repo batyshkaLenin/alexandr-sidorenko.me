@@ -221,6 +221,28 @@ test.describe("library geometry", () => {
     });
   }
 
+  test("horizontal ViewsNav caret does not shift sibling labels", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Caret reservation once is enough.");
+    await page.setViewportSize({ width: 800, height: 900 });
+    await page.goto("/library");
+    await waitViewsReady(page);
+    const recent = await viewsGeometry(page);
+    expectOneRow(recent);
+    await page.goto("/library/all");
+    await waitViewsReady(page);
+    const all = await viewsGeometry(page);
+    expectOneRow(all);
+    expect(recent.labels.map((label) => label.text)).toEqual(all.labels.map((label) => label.text));
+    for (let i = 0; i < recent.labels.length; i += 1) {
+      expect(
+        Math.abs(recent.labels[i].left - all.labels[i].left),
+        recent.labels[i].text,
+      ).toBeLessThanOrEqual(1);
+    }
+  });
+
   test("ViewsNav current item is keyboard-reachable at 320px", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "chromium-mobile", "Explicit viewport matrix runs once.");
     await page.setViewportSize({ width: 320, height: 568 });

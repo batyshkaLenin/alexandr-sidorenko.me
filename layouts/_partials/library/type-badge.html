@@ -1,10 +1,19 @@
 {{- /*
 Type badge: family colour + machine type key (T169).
-Input: dict "page" … ["plural" true] is accepted and ignored — chrome has
-no Russian plural; type-page headings stay in content files.
+Input: dict "page" … ["plural" true] ["linked" true].
+`linked` turns the badge into the type page. Types group headings already
+wrap the badge, so they pass linked=false.
 */ -}}
 {{- $page := .page -}}
 {{- $plural := .plural -}}
+{{- $linked := default false .linked -}}
 {{- with $page.Params.type -}}
-<span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page "plural" $plural) }}</span>
+  {{- $class := printf "dc-list__type dc-type--%s" (partial "publication/type-family.html" .) -}}
+  {{- $label := partial "publication/type-label.html" (dict "type" . "page" $page "plural" $plural) -}}
+  {{- $typePage := site.GetPage (printf "/types/%s" .) -}}
+  {{- if and $linked $typePage -}}
+<a href="{{ partial "canonical-url.html" $typePage.RelPermalink }}" lang="en" class="{{ $class }}">{{ $label }}</a>
+  {{- else -}}
+<span lang="en" class="{{ $class }}">{{ $label }}</span>
+  {{- end -}}
 {{- end -}}

@@ -28,7 +28,7 @@ Blank line = stanza boundary. Inline Markdown in each half via RenderString.
 {{- $delim := " // " -}}
 {{- $inStanza := false -}}
 {{- $pairs := 0 -}}
-<blockquote class="as-parallel-text">
+<blockquote class="as-parallel-text dc-verse">
 {{- range split $inner "\n" -}}
   {{- $line := strings.TrimSpace . -}}
   {{- if eq $line "" -}}

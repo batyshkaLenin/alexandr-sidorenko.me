@@ -1,5 +1,6 @@
 {{- /*
 Date forms: long | short | iso | year. Always set datetime on <time>.
+Interface chrome uses numeric dates; `datetime` stays ISO-8601.
 */ -}}
 {{- $date := .date -}}
 {{- $form := default "long" .form -}}
@@ -9,9 +10,9 @@ Date forms: long | short | iso | year. Always set datetime on <time>.
 {{- end -}}
 {{- $visible := "" -}}
 {{- if eq $form "long" -}}
-  {{- $visible = printf "%d %s %d" $date.Day (index hugo.Data.months (printf "%d" (int $date.Month))) $date.Year -}}
+  {{- $visible = $date.Format "02.01.2006" -}}
 {{- else if eq $form "short" -}}
-  {{- $visible = printf "%d %s" $date.Day (index hugo.Data.months_short (printf "%d" (int $date.Month))) -}}
+  {{- $visible = $date.Format "02.01" -}}
 {{- else if eq $form "iso" -}}
   {{- $visible = $date.Format "2006-01-02" -}}
 {{- else if eq $form "year" -}}

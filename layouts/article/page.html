@@ -35,11 +35,7 @@ TOC only when there are three or more headings.
   <div class="dc-prose e-content dc-article__body">
     {{ .Content }}
   </div>
-  <div class="dc-article__tail">
-    {{ partial "publication/tail.html" . }}
-  </div>
+  {{ partial "publication/tail.html" . }}
 </article>
-{{ partial "publication/relations.html" . }}
-{{ partial "publication/webmentions.html" . }}
-{{ partial "publication/adjacent.html" . }}
+{{ partial "publication/aftermatter.html" . }}
 {{ end }}

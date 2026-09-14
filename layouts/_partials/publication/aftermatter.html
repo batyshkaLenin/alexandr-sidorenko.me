@@ -1,0 +1,9 @@
+{{- /*
+Site chrome after the document: relations, responses, adjacent.
+Not part of the article pane — the layout hangs these as a lower register.
+*/ -}}
+<div class="dc-aftermatter">
+{{ partial "publication/relations.html" . }}
+{{ partial "publication/webmentions.html" . }}
+{{ partial "publication/adjacent.html" . }}
+</div>

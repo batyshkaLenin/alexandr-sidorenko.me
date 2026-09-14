@@ -185,7 +185,7 @@ test.describe("home shell", () => {
       const labels = await visiblePanelLabels(page);
       expect(labels).toEqual(["avatar.jpg", "about.md", "library/", "activity/"]);
       await expect(page.locator(".dc-home .dc-filetree")).toHaveCount(0);
-      await expect(page.locator(".dc-neofetch")).toBeHidden();
+      await expect(page.locator(".dc-neofetch")).toHaveCount(0);
       await expect(page.locator(".dc-identity")).toBeHidden();
       const selfUrl = page.locator(".h-card .u-url");
       await expect(selfUrl).toHaveAttribute("href", "https://alexandr-sidorenko.me/");
@@ -303,6 +303,41 @@ test.describe("home shell", () => {
     await page.keyboard.press("Escape");
   });
 
+  test("700px keeps the compact one-row shell", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Band between phone and tablet once.");
+    await page.setViewportSize({ width: 700, height: 900 });
+    await page.goto("/");
+    await expect(page.locator(".dc-identity")).toBeHidden();
+    await expect(page.locator(".dc-help__trigger")).toBeHidden();
+    await expect(page.locator(".dc-palette__key")).toBeHidden();
+    await expect(page.locator(".dc-nav__index").first()).toBeHidden();
+    const boxes = await shellBoxes(page);
+    expect(boxes.home).toBeTruthy();
+    expect(boxes.library).toBeTruthy();
+    expect(boxes.search).toBeTruthy();
+    expectOneRow(boxes.home!, boxes.library!, boxes.search!);
+    expect(boxes.pageOverflow).toBe(false);
+    expect(boxes.headerOverflow).toBe(false);
+  });
+
+  test("Home has no neofetch pane; socials is a comment", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Home provenance once.");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await expect(page.locator(".dc-neofetch")).toHaveCount(0);
+    await expect(page.getByText("neofetch", { exact: true })).toHaveCount(0);
+    await expect(page.locator(".dc-roles")).toBeVisible();
+    await expect(page.locator(".dc-region-label")).toHaveText("# socials:");
+    const commentColors = await page.evaluate(() => {
+      const location = getComputedStyle(document.querySelector(".dc-hero-meta")!).color;
+      const socials = getComputedStyle(document.querySelector(".dc-region-label")!).color;
+      return { location, socials };
+    });
+    expect(commentColors.socials).toBe(commentColors.location);
+  });
+
   for (const viewport of NARROW_LIBRARY_ROWS) {
     test(`phone ${viewport.width}×${viewport.height} stacks Home library titles above type and date`, async ({
       page,
@@ -324,6 +359,19 @@ test.describe("home shell", () => {
         expect(row.titleWrap, row.title).not.toBe("nowrap");
         expect(row.titleEllipsis, row.title).not.toBe("ellipsis");
       }
+      const excerptHidden = await page.evaluate(() => {
+        const hidden = (el: Element | null) => {
+          if (!el) return true;
+          const cs = getComputedStyle(el);
+          const box = el.getBoundingClientRect();
+          return cs.display === "none" || box.height < 1;
+        };
+        return Array.from(document.querySelectorAll(".dc-home .dc-material--dense")).every((row) => {
+          return hidden(row.querySelector(".dc-material__excerpt"))
+            && hidden(row.querySelector(".dc-material__sep--excerpt"));
+        });
+      });
+      expect(excerptHidden).toBe(true);
     });
   }
 
@@ -366,7 +414,6 @@ test.describe("home shell", () => {
         overflow: document.documentElement.scrollWidth - window.innerWidth,
         avatar: panel("avatar.jpg"),
         about: panel("about.md"),
-        neofetch: panel("neofetch"),
         library: panel("library/"),
         activity: panel("activity/"),
         portrait: imgBox && imgCs && img
@@ -398,7 +445,7 @@ test.describe("home shell", () => {
       await expect(page.locator(".dc-nav__index").first()).toBeVisible();
       await expect(page.locator(".dc-help__trigger")).toBeVisible();
       await expect(page.locator(".dc-identity")).toBeVisible();
-      await expect(page.locator(".dc-neofetch")).toBeHidden();
+      await expect(page.locator(".dc-neofetch")).toHaveCount(0);
       const labels = await visiblePanelLabels(page);
       expect(labels).toEqual(["avatar.jpg", "about.md", "library/", "activity/"]);
       const geo = await homeGeometry(page);
@@ -422,39 +469,83 @@ test.describe("home shell", () => {
         page.locator("img.dc-portrait").evaluate((img: HTMLImageElement) => img.naturalWidth),
       ).toBeGreaterThan(0);
       await expect(page.locator(".dc-home .dc-filetree")).toHaveCount(0);
-      await expect(page.locator(".dc-neofetch")).toBeVisible();
+      await expect(page.locator(".dc-neofetch")).toHaveCount(0);
       await expect(page.locator(".dc-identity")).toBeVisible();
       await expect(page.locator(".dc-palette__trigger")).toContainText("search");
       await expect(page.locator(".dc-palette__key")).toBeVisible();
       await expect(page.locator(".dc-nav__index").first()).toBeVisible();
       await expect(page.locator(".dc-help__trigger")).toBeVisible();
       const labels = await visiblePanelLabels(page);
-      expect(labels).toEqual(expect.arrayContaining([
-        "neofetch",
-        "about.md",
-        "avatar.jpg",
-        "library/",
-        "activity/",
-      ]));
+      expect(labels).toEqual(["avatar.jpg", "about.md", "library/", "activity/"]);
       expect(labels).not.toContain("site/");
       const geo = await homeGeometry(page);
       expect(geo.cols).toBe(2);
       expect(geo.overflow).toBeLessThanOrEqual(1);
       expect(geo.avatar).toBeTruthy();
       expect(geo.about).toBeTruthy();
-      expect(geo.neofetch).toBeTruthy();
       expect(geo.library).toBeTruthy();
       expect(Math.abs(geo.avatar!.y - geo.about!.y)).toBeLessThan(8);
       expect(geo.about!.x).toBeGreaterThan(geo.avatar!.x + geo.avatar!.w - 1);
-      expect(Math.abs(geo.neofetch!.y - geo.library!.y)).toBeLessThan(8);
-      expect(geo.library!.x).toBeGreaterThan(geo.neofetch!.x + geo.neofetch!.w - 1);
-      expect(geo.neofetch!.y).toBeGreaterThanOrEqual(geo.avatar!.y + geo.avatar!.h - 1);
+      expect(geo.library!.y).toBeGreaterThanOrEqual(geo.avatar!.y + geo.avatar!.h - 1);
+      expect(geo.library!.w).toBeGreaterThan(geo.about!.w);
+      expect(Math.abs(geo.library!.x - geo.avatar!.x)).toBeLessThan(8);
       const rows = await homeLibraryRows(page);
-      expect(rows.length).toBeGreaterThan(0);
+      expect(rows.length).toBe(3);
       for (const row of rows) {
         expect(boxesOverlap(row.titleBox!, row.typeBox!), row.title).toBe(false);
         expect(boxesOverlap(row.titleBox!, row.dateBox!), row.title).toBe(false);
       }
+      const excerpts = await page.evaluate(() => {
+        return Array.from(document.querySelectorAll(".dc-home .dc-material--dense")).map((row) => {
+          const excerpt = row.querySelector(".dc-material__excerpt");
+          const sep = row.querySelector(".dc-material__sep--excerpt");
+          const title = row.querySelector(".dc-material__title");
+          const type = row.querySelector(".dc-list__type");
+          if (!excerpt || !sep || !title || !type) return { present: false };
+          const excerptBox = excerpt.getBoundingClientRect();
+          const sepBox = sep.getBoundingClientRect();
+          const titleBox = title.getBoundingClientRect();
+          const typeBox = type.getBoundingClientRect();
+          const cs = getComputedStyle(excerpt);
+          return {
+            present: true,
+            text: (excerpt.textContent || "").trim(),
+            visible: cs.display !== "none" && excerptBox.width > 8,
+            afterTitle: excerptBox.left >= titleBox.right - 1,
+            sepBetween: sepBox.left >= titleBox.right - 1 && sepBox.right <= excerptBox.left + 1,
+            sepMark: (sep.textContent || "").trim() === "·",
+            beforeType: excerptBox.right <= typeBox.left + 1,
+            sameRow: Math.abs(excerptBox.top - titleBox.top) < 8,
+          };
+        });
+      });
+      expect(excerpts).toHaveLength(3);
+      for (const excerpt of excerpts) {
+        expect(excerpt.present).toBe(true);
+        expect(excerpt.text.length).toBeGreaterThan(0);
+        expect(excerpt.visible).toBe(true);
+        expect(excerpt.afterTitle).toBe(true);
+        expect(excerpt.sepBetween).toBe(true);
+        expect(excerpt.sepMark).toBe(true);
+        expect(excerpt.beforeType).toBe(true);
+        expect(excerpt.sameRow).toBe(true);
+      }
+      const titleVsExcerpt = await page.evaluate(() => {
+        const title = document.querySelector(".dc-home .dc-material--dense .dc-material__title a");
+        const excerpt = document.querySelector(".dc-home .dc-material--dense .dc-material__excerpt");
+        const date = document.querySelector(".dc-home .dc-material--dense .dc-material__date");
+        if (!title || !excerpt || !date) return null;
+        return {
+          title: getComputedStyle(title).color,
+          excerpt: getComputedStyle(excerpt).color,
+          date: getComputedStyle(date).color,
+          underline: getComputedStyle(title).textDecorationLine,
+        };
+      });
+      expect(titleVsExcerpt).toBeTruthy();
+      expect(titleVsExcerpt!.title).not.toBe(titleVsExcerpt!.excerpt);
+      expect(titleVsExcerpt!.excerpt).toBe(titleVsExcerpt!.date);
+      expect(titleVsExcerpt!.underline).not.toContain("underline");
       const packed = await page.evaluate(() => {
         const panel = (label) =>
           Array.from(document.querySelectorAll(".dc-home .dc-panel")).find(
@@ -519,13 +610,9 @@ test.describe("home shell", () => {
           };
           return {
             utility: look(".dc-home-row--identity > .dc-panel--utility"),
-            structural: look(".dc-home .dc-panel--structural"),
             activity: look(".dc-home > .as-activity"),
           };
         });
-        expect(chrome.structural.borderLeft).toBe("0px");
-        expect(chrome.structural.borderTop).not.toBe("0px");
-        expect(chrome.structural.labelBottom).not.toBe("0px");
         expect(chrome.utility.borderTop).not.toBe("0px");
         expect(chrome.activity.borderTop).not.toBe("0px");
         expect(chrome.utility.labelBottom).not.toBe("0px");

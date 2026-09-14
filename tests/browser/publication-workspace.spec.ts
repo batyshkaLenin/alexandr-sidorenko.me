@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 const LIBRARY = "/library";
 const SKVER = "/library/skver";
 const ARTICLE = "/library/bluredu-new-teachers";
+const NOTE = "/library/cool-kids-of-death-a-moze-tak";
 
 type Box = { x: number; w: number; y: number; h: number };
 
@@ -78,5 +79,44 @@ test.describe("publication workspace", () => {
     });
     expect(jsonLd?.author).toBeTruthy();
     expect(jsonLd.author.name || jsonLd.author[0]?.name).toBeTruthy();
+  });
+
+  test("aftermatter follows the reading measure, not a second pane", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Aftermatter geometry once.");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(ARTICLE);
+    await expect(page.locator(".dc-identity__back")).toHaveCount(0);
+    const article = await paneBox(page, ".dc-panel--detail");
+    const title = await paneBox(page, ".dc-title");
+    const after = await paneBox(page, ".dc-aftermatter");
+    expect(after.x).toBeGreaterThanOrEqual(article.x - 1);
+    expect(after.x + after.w).toBeLessThanOrEqual(article.x + article.w + 1);
+    expect(Math.abs(after.x - title.x)).toBeLessThan(8);
+    expect(Math.abs(after.w - title.w)).toBeLessThan(24);
+  });
+
+  test("publication chrome: type, date, tags", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Chrome links once.");
+    await page.setViewportSize({ width: 1100, height: 900 });
+    await page.goto(ARTICLE);
+    const type = page.locator(".dc-publication__meta a.dc-list__type");
+    await expect(type).toHaveAttribute("href", /\/library\/types\/article\/?$/);
+    await expect(page.locator(".dc-publication__meta time.dt-published")).toHaveText(/^\d{2}\.\d{2}\.\d{4}$/);
+
+    await page.goto(NOTE);
+    const tag = page.locator(".tags a[rel='tag']").first();
+    await expect(tag).toHaveAttribute("href", /\/library\/topics\/.+/);
+    const emptyGroup = await page.evaluate(
+      () =>
+        [...document.querySelectorAll(".dc-relations__group")].some(
+          (group) => group.querySelectorAll("li").length === 0,
+        ),
+    );
+    expect(emptyGroup).toBe(false);
+    await expect(page.locator(".dc-relations")).toContainText("Hej chłopcze");
+    await expect(page.locator("div.dc-verse")).toHaveCount(1);
+    await expect(page.locator("blockquote.as-parallel-text.dc-verse").first()).toBeVisible();
   });
 });

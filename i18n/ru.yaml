@@ -143,10 +143,6 @@ activityDevShape:
   other: "Intensity of the last seven days"
 activitySourceAt:
   other: "Per {{ .Source }} as of {{ .At }}"
-siteSince:
-  other: "site since {{ . }}"
-neofetchSource:
-  other: "source code on GitHub"
 activityRevision:
   other: "snapshot {{ . }}"
 relationsHeading:

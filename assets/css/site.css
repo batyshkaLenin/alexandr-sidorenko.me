@@ -249,6 +249,7 @@
 
 .dc-identity {
   margin: 0;
+  min-width: 0;
   font-size: var(--dc-fs-ui);
   font-weight: 700;
   color: var(--dc-accent);
@@ -262,19 +263,84 @@
 
 .dc-identity__command {
   color: var(--dc-muted);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.dc-identity__back {
-  margin: 0;
-  font-size: var(--dc-fs-meta);
-}
+/* Phone + the awkward band after it: keep the one-row shell until the
+   two-row header (prompt, help, indices) actually has room. Theme compact
+   stops at 640px; this extends the same contract through 740px. */
+@media (max-width: 740px), (max-height: 30rem) and (orientation: landscape) {
+  .dc-header {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    padding-inline: 16px;
+  }
 
-.dc-identity__back a {
-  color: var(--dc-muted);
-}
+  .dc-topbar {
+    order: 2;
+    flex: 0 0 auto;
+    padding: 0;
+    gap: 0;
+    justify-content: flex-end;
+    min-width: 0;
+  }
 
-/* Phone: hide full guest@host prompt line, even if `:` opens the command. */
-@media (max-width: 640px), (max-height: 30rem) and (orientation: landscape) {
+  dc-prompt,
+  dc-prompt[open] {
+    display: none;
+  }
+
+  dc-keynav {
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .dc-nav {
+    border-top: 0;
+  }
+
+  .dc-nav__list {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 16px;
+    padding: 8px 0;
+  }
+
+  .dc-nav__link {
+    padding: 8px 0;
+  }
+
+  .dc-nav__index {
+    display: none;
+  }
+
+  dc-command-palette:not(:defined)::before {
+    content: "search";
+  }
+
+  .dc-palette__key {
+    display: none;
+  }
+
+  .dc-palette__input {
+    font-size: 16px;
+  }
+
+  dc-help {
+    display: contents;
+  }
+
+  dc-help:not(:defined),
+  .dc-help__trigger {
+    display: none;
+  }
+
   .dc-identity,
   dc-prompt[open] .dc-identity {
     display: none;
@@ -282,6 +348,23 @@
 
   as-prompt {
     display: none;
+  }
+}
+
+@media (min-width: 741px) {
+  .dc-topbar {
+    flex-wrap: nowrap;
+  }
+
+  .dc-identity {
+    flex: 1 1 auto;
+  }
+
+  dc-prompt:not([open]) .dc-identity,
+  .dc-identity--quiet {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -316,7 +399,6 @@ dc-prompt[open] .dc-identity__cursor {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  /* Aligns with panel; sits outside it. */
   max-width: var(--dc-detail-width);
   margin: 24px auto 0;
   padding: 0 26px;
@@ -585,11 +667,7 @@ dc-copy[copied] .dc-copy__button {
   margin-bottom: 0;
 }
 
-/* Stacked Home: neofetch stays out. DOM order is portrait → about → library
-   → activity. */
-.dc-home .dc-panel--structural {
-  display: none;
-}
+/* Stacked Home: portrait → about → library → activity. */
 
 .dc-home dc-image-toggle {
   display: flex;
@@ -624,11 +702,22 @@ dc-copy[copied] .dc-copy__button {
   }
 
   .dc-home .dc-material--dense .dc-material__title {
-    flex: 1 1 auto;
-    min-width: 0;
+    flex: 0 1 auto;
+    min-width: 8ch;
+    max-width: 36ch;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .dc-home .dc-material--dense .dc-material__sep--type,
+  .dc-home .dc-material--dense .dc-list__type {
+    order: 3;
+  }
+
+  .dc-home .dc-material--dense .dc-material__sep--date,
+  .dc-home .dc-material--dense .dc-material__date {
+    order: 4;
   }
 }
 
@@ -653,10 +742,6 @@ dc-copy[copied] .dc-copy__button {
     width: 100%;
   }
 
-  .dc-home .dc-panel--structural {
-    display: block;
-  }
-
   .dc-home-row--identity > .dc-panel--utility {
     grid-column: 1;
     grid-row: 1;
@@ -667,31 +752,14 @@ dc-copy[copied] .dc-copy__button {
     grid-row: 1;
   }
 
-  .dc-home-row--identity > .dc-panel--structural {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
   .dc-home-row--recent > .dc-panel {
-    grid-column: 2;
+    grid-column: 1 / -1;
     grid-row: 2;
   }
 
   .dc-home > .as-activity {
     grid-column: 1 / -1;
     grid-row: 3;
-  }
-
-  .dc-home .dc-home-row--recent .dc-panel__body {
-    padding-block: 8px;
-  }
-
-  .dc-home .dc-panel__more {
-    margin-top: 2px;
-  }
-
-  .dc-home .dc-home-recent__more .dc-panel__more {
-    margin-top: 0;
   }
 }
 
@@ -734,41 +802,6 @@ dc-copy[copied] .dc-copy__button {
   margin: 0;
   color: var(--dc-primary);
   font-size: var(--dc-fs-pane-title);
-}
-
-.dc-neofetch {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: var(--dc-fs-meta);
-  color: var(--dc-muted);
-}
-
-.dc-neofetch div {
-  display: flex;
-  gap: 6px;
-}
-
-.dc-neofetch dt {
-  font-weight: 400;
-}
-
-.dc-neofetch dd {
-  margin: 0;
-  color: var(--dc-text);
-}
-
-.dc-neofetch a {
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-}
-
-.dc-neofetch a:hover,
-.dc-neofetch a:focus-visible {
-  color: var(--dc-accent);
-  border-bottom-color: currentColor;
 }
 
 .dc-hero-name {
@@ -820,16 +853,8 @@ dc-copy[copied] .dc-copy__button {
 }
 
 .dc-home .dc-panel__label,
-.dc-home .dc-panel--utility .dc-panel__label,
-.dc-home .dc-panel--structural .dc-panel__label {
+.dc-home .dc-panel--utility .dc-panel__label {
   color: var(--dc-primary);
-}
-
-/* Home neofetch uses the same title bar as portrait/activity: top + bottom,
-   no structural rail. */
-.dc-home .dc-panel--structural {
-  border-inline-start: 0;
-  border-top: 1px solid var(--dc-border);
 }
 
 .dc-home-recent__more {
@@ -844,10 +869,31 @@ dc-copy[copied] .dc-copy__button {
   margin-top: 0;
 }
 
+.dc-hero-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 1.25em;
+  row-gap: 0.35em;
+  margin-top: 10px;
+}
+
 .dc-hero-meta {
-  margin: 10px 0 0;
+  margin: 0;
+  flex: 0 0 auto;
   color: var(--dc-faint);
   font-size: var(--dc-fs-meta);
+  white-space: nowrap;
+}
+
+.dc-hero-socials {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.85em;
+  row-gap: 0.35em;
+  flex: 1 1 14rem;
+  min-width: 0;
 }
 
 /* Wide gap between comments via span, not punctuation. */
@@ -1011,7 +1057,7 @@ dc-copy[copied] .dc-copy__button {
   margin-top: 10px;
 }
 
-@media (max-width: 640px), (max-height: 30rem) and (orientation: landscape) {
+@media (max-width: 740px), (max-height: 30rem) and (orientation: landscape) {
   .as-activity__body {
     grid-template-columns: 1fr;
     gap: 14px;
@@ -1496,6 +1542,15 @@ dc-copy[copied] .dc-copy__button {
   text-transform: uppercase;
 }
 
+a.dc-list__type {
+  text-decoration: none;
+}
+
+a.dc-list__type:hover,
+a.dc-list__type:focus-visible {
+  text-decoration: underline;
+}
+
 /* Type colour is secondary; label is primary. */
 .dc-type--knowledge {
   color: var(--dc-type-knowledge);
@@ -1763,7 +1818,6 @@ dc-copy[copied] .dc-copy__button {
    Tight inside a stanza; only a blank line in the shortcode opens air. */
 .dc-prose .as-parallel-text {
   margin-block: 1.2em;
-  margin-inline: 0;
   padding: 0;
   border: 0;
   font-style: inherit;
@@ -1866,7 +1920,7 @@ body:has(.dc-statusbar) {
 }
 
 
-@media (max-width: 640px), (max-height: 30rem) and (orientation: landscape) {
+@media (max-width: 740px), (max-height: 30rem) and (orientation: landscape) {
   .dc-statusbar {
     display: none;
   }
@@ -1882,10 +1936,11 @@ body:has(.dc-statusbar) {
   }
 }
 
-/* Identity links: quiet row under about prose. */
+/* Identity links: packed with location when they fit; wrap as a unit. */
 .dc-region-label {
-  margin: 14px 0 0;
-  color: var(--dc-primary);
+  margin: 0;
+  flex: 0 0 auto;
+  color: var(--dc-faint);
   font-size: var(--dc-fs-meta);
 }
 
@@ -1893,10 +1948,33 @@ body:has(.dc-statusbar) {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 14px;
-  margin: 6px 0 0;
+  flex: 1 1 10rem;
+  min-width: 0;
+  margin: 0;
   padding: 0;
   list-style: none;
   font-size: var(--dc-fs-meta);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--dc-fs-meta);
+}
+
+.tags a {
+  color: var(--dc-muted);
+  text-decoration: none;
+}
+
+.tags a:hover,
+.tags a:focus-visible {
+  color: var(--dc-text);
+  text-decoration: underline;
 }
 
 @media (max-width: 640px) {
@@ -1994,7 +2072,20 @@ as-viewsnav {
   color: var(--dc-primary);
 }
 
-.dc-library__view--current::before {
+/* Reserve the caret column so switching the current view does not shift the row. */
+.dc-library__views-list li {
+  position: relative;
+  padding-inline-start: 1.25em;
+}
+
+.dc-library__views-list li::before {
+  content: "> ";
+  position: absolute;
+  inset-inline-start: 0;
+  color: transparent;
+}
+
+.dc-library__views-list li.dc-library__view--current::before {
   content: "> ";
   color: var(--dc-primary);
 }
@@ -2233,6 +2324,34 @@ as-viewsnav {
   line-height: var(--dc-lh-ui);
 }
 
+.dc-material__date {
+  color: var(--dc-muted);
+}
+
+.dc-home .dc-material--dense .dc-material__excerpt,
+.dc-home .dc-material--dense .dc-material__sep--excerpt {
+  display: none;
+}
+
+@container material-list (width >= 30rem) {
+  .dc-home .dc-material--dense .dc-material__sep--excerpt {
+    display: inline;
+    flex: 0 0 auto;
+    order: 2;
+  }
+
+  .dc-home .dc-material--dense .dc-material__excerpt {
+    display: block;
+    flex: 1 1 12ch;
+    min-width: 0;
+    order: 2;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 /* Phone: ~44px tap targets on list rows. */
 @media (max-width: 640px) {
   .dc-material {
@@ -2278,6 +2397,11 @@ as-viewsnav {
     overflow: visible;
     text-overflow: unset;
     white-space: normal;
+  }
+
+  .dc-home .dc-material--dense .dc-material__excerpt,
+  .dc-home .dc-material--dense .dc-material__sep--excerpt {
+    display: none;
   }
 
   .dc-material--dense .dc-material__title a {
@@ -2523,19 +2647,49 @@ as-viewsnav {
 }
 
 .dc-main:has(> .dc-panel--detail) > .dc-panel--detail,
-.dc-main:has(> .dc-panel--detail) > .dc-relations,
-.dc-main:has(> .dc-panel--detail) > .dc-responses,
-.dc-main:has(> .dc-panel--detail) > .dc-adjacent {
+.dc-main:has(> .dc-panel--detail) > .dc-aftermatter {
   grid-column: 1;
   min-width: 0;
   width: 100%;
-  max-width: none;
-  margin-inline: 0;
 }
 
 .dc-main:has(> .dc-panel--detail) > .dc-panel--detail {
+  max-width: none;
+  margin-inline: 0;
   container: reading-pane / inline-size;
   overflow: visible;
+}
+
+.dc-main:has(> .dc-panel--detail) > .dc-aftermatter {
+  max-width: var(--dc-measure);
+  margin-inline: auto;
+}
+
+/* Site chrome after the document: quieter appendix in the reading column,
+   not a full-bleed footer and not a second article pane. */
+.dc-aftermatter {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-block-start: 8px;
+  padding-block-start: 16px;
+  border-block-start: 1px dashed var(--dc-border);
+}
+
+.dc-aftermatter .dc-relations,
+.dc-aftermatter .dc-responses,
+.dc-aftermatter .dc-adjacent {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 1101px) {
+  .dc-aftermatter {
+    margin-block-start: 28px;
+    padding-block-start: 20px;
+  }
 }
 
 .dc-panel--detail > .dc-poem__head,
@@ -2575,6 +2729,10 @@ as-viewsnav {
 
 .dc-article--with-toc {
   display: block;
+  /* Keep the pane as the abspos containing block for .dc-panel__label at
+     every width. Collapsing the TOC with `position: static` on this class
+     sent the label into the shell and over the header. */
+  position: relative;
 }
 
 .dc-toc {
@@ -2687,22 +2845,23 @@ as-viewsnav {
     row-gap: 0;
   }
 
-  .dc-main:has(> .dc-panel--detail) > .dc-panel--detail,
-  .dc-main:has(> .dc-panel--detail) > .dc-relations,
-  .dc-main:has(> .dc-panel--detail) > .dc-responses,
-  .dc-main:has(> .dc-panel--detail) > .dc-adjacent {
+  .dc-main:has(> .dc-panel--detail) > .dc-panel--detail {
     grid-column: 2;
+  }
+
+  .dc-main:has(> .dc-panel--detail) > .dc-aftermatter {
+    grid-column: 2;
+    max-width: var(--dc-measure);
+    margin-inline: auto;
   }
 
   /*
    * TOC stays in document order (title → type/date → toc → body). Wide CSS
    * parks the same node at the top of the Library rail track — matching
    * ViewsNav — and stretches it over the article so sticky has a scroll range
-   * without affecting pane flow. Collapse restores inline presentation.
+   * without affecting pane flow. Below 1101px the TOC node itself is static;
+   * the article stays relative so the pane label does not leave the pane.
    */
-  .dc-article--with-toc {
-    position: relative;
-  }
 
   .dc-panel--detail > .dc-article__head > .dc-toc {
     position: absolute;
@@ -2748,10 +2907,6 @@ as-viewsnav {
 }
 
 @media (max-width: 1100px) {
-  .dc-article--with-toc {
-    position: static;
-  }
-
   .dc-panel--detail > .dc-article__head > .dc-toc {
     position: static;
     top: auto;
@@ -2837,19 +2992,24 @@ as-viewsnav {
   color: var(--dc-faint);
 }
 
-/* Poetry reader: line is the unit; no justify/hyphenate. */
-.dc-poem__head {
-  text-align: center;
-}
-
-.dc-poem__body {
+/* Poetry reader: line is the unit; no justify/hyphenate.
+   Shared verse measure: poems, lyrics, parallel translation, or `{.dc-verse}`. */
+.dc-verse,
+.dc-poem__body,
+.dc-track__lyrics,
+.dc-prose .as-parallel-text {
   max-width: 46ch;
   margin-inline: auto;
   text-wrap: pretty;
   hyphens: none;
 }
 
-.dc-poem__body p {
+.dc-poem__head {
+  text-align: center;
+}
+
+.dc-poem__body p,
+.dc-verse p {
   margin: 0 0 1.6em;
 }
 
@@ -2940,8 +3100,6 @@ as-viewsnav {
 }
 
 .dc-track__lyrics {
-  max-width: 46ch;
-  margin-inline: auto;
   line-height: 1.95;
 }
 
@@ -2981,6 +3139,7 @@ as-viewsnav {
 @media print {
   /* Publication as a paper document: no site chrome, no grid/sticky, no green. */
   .dc-toc,
+  .dc-aftermatter,
   .dc-responses,
   .dc-relations,
   .tags,

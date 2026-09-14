@@ -64,11 +64,15 @@ test.describe("article toc", () => {
       const meta = pane.querySelector(".dc-publication__meta")!;
       const toc = pane.querySelector(".dc-toc")!;
       const body = pane.querySelector(".dc-article__body")!;
+      const header = document.querySelector(".dc-header")!;
       const labelBox = label.getBoundingClientRect();
       const titleBox = title.getBoundingClientRect();
       const metaBox = meta.getBoundingClientRect();
       const tocBox = toc.getBoundingClientRect();
       const paneBox = pane.getBoundingClientRect();
+      const headerBox = header.getBoundingClientRect();
+      const overlaps = (a, b) =>
+        a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
       return {
         labelBeforeTitle: label.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING,
         titleBeforeMeta: title.compareDocumentPosition(meta) & Node.DOCUMENT_POSITION_FOLLOWING,
@@ -80,6 +84,8 @@ test.describe("article toc", () => {
         tocInsidePane: tocBox.x >= paneBox.x - 1,
         tocInsideHead: !!title.parentElement?.contains(toc),
         detailsOpen: toc.querySelector("details")?.open ?? null,
+        labelOverlapsHeader: overlaps(labelBox, headerBox),
+        labelOnPaneEdge: labelBox.top < paneBox.top && labelBox.bottom > paneBox.top,
       };
     });
     expect(order.labelBeforeTitle).toBeTruthy();
@@ -92,6 +98,8 @@ test.describe("article toc", () => {
     expect(order.tocInsidePane).toBe(true);
     expect(order.tocInsideHead).toBe(true);
     expect(order.detailsOpen).toBe(false);
+    expect(order.labelOverlapsHeader).toBe(false);
+    expect(order.labelOnPaneEdge).toBe(true);
     await expect(page.locator(".dc-toc__summary")).toBeVisible();
   });
 

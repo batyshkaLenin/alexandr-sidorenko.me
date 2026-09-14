@@ -9,10 +9,9 @@ The `dev` module has one rule of its own worth asserting: XP is never printed.
 The page shows weekly hours and seven bars, and the numbers behind the bars stay
 in the importer.
 
-On Home: neofetch carries `uptime` and `source` (repo URL, never
-a commit hash); activity/site carries a linked `revision` and build metadata,
-never the repo string as a field; Recent shows primary RSS; `# since:` and
-`main@` stay off the page.
+On Home there is no neofetch pane: GitHub already lives in socials, the
+deployed commit lives in activity/site, and `# since:` / `main@` stay off
+the page. Recent shows primary RSS.
 """
 
 from __future__ import annotations
@@ -28,7 +27,6 @@ COMMIT_HREF = re.compile(
     rf"^{re.escape(SOURCE_REPO)}/commit/[0-9a-f]{{7,40}}$"
 )
 SHORT_HASH = re.compile(r"^[0-9a-f]{7}$")
-UPTIME = re.compile(r"~[1-9]\d* years?")
 
 
 class HomeFacts(HTMLParser):
@@ -37,16 +35,10 @@ class HomeFacts(HTMLParser):
         self.activity_panes = 0
         self.modules: list[str] = []
         self.external_scripts: list[str] = []
-        self.neofetch_keys: list[str] = []
-        self.source_href: str | None = None
         self.site_href: str | None = None
         self.site_text = ""
         self.rss_hrefs: list[str] = []
         self._activity_depth = 0
-        self._neofetch_depth = 0
-        self._in_dt = False
-        self._dt_text: list[str] = []
-        self._current_key = ""
         self._site_depth = 0
         self._site_value_depth = 0
         self._site_text: list[str] = []
@@ -65,15 +57,6 @@ class HomeFacts(HTMLParser):
         if tag == "as-activity":
             self.activity_panes += 1
             self._activity_depth += 1
-        if tag == "dl" and "dc-neofetch" in classes:
-            self._neofetch_depth += 1
-
-        if self._neofetch_depth:
-            if tag == "dt":
-                self._in_dt = True
-                self._dt_text = []
-            elif tag == "a" and self._current_key == "source":
-                self.source_href = attributes.get("href") or ""
 
         if self._activity_depth and tag == "section":
             module = attributes.get("data-activity-module")
@@ -94,30 +77,19 @@ class HomeFacts(HTMLParser):
             self._badge_href = attributes.get("href") or ""
 
     def handle_endtag(self, tag: str) -> None:
-        if tag == "dt" and self._in_dt:
-            self._in_dt = False
-            key = "".join(self._dt_text).strip()
-            self._current_key = key
-            if key:
-                self.neofetch_keys.append(key)
-        elif tag == "p" and self._site_value_depth:
+        if tag == "p" and self._site_value_depth:
             self._site_value_depth -= 1
             self.site_text = "".join(self._site_text).strip()
         elif tag == "section" and self._site_depth:
             self._site_depth -= 1
         elif tag == "as-activity" and self._activity_depth:
             self._activity_depth -= 1
-        elif tag == "dl" and self._neofetch_depth:
-            self._neofetch_depth -= 1
-            self._current_key = ""
         elif tag == "a" and self._badge_text is not None:
             if "".join(self._badge_text).strip().lower() == "rss":
                 self.rss_hrefs.append(self._badge_href)
             self._badge_text = None
 
     def handle_data(self, data: str) -> None:
-        if self._in_dt:
-            self._dt_text.append(data)
         if self._site_value_depth:
             self._site_text.append(data)
         if self._badge_text is not None:
@@ -158,14 +130,8 @@ def main() -> int:
     if facts.external_scripts:
         errors.append(f"external scripts found: {facts.external_scripts}")
 
-    if "uptime" not in facts.neofetch_keys:
-        errors.append("neofetch is missing uptime")
-    elif not UPTIME.search(html):
-        errors.append("neofetch uptime is not '~N years'")
-    if "source" not in facts.neofetch_keys:
-        errors.append("neofetch is missing source")
-    elif facts.source_href != SOURCE_REPO:
-        errors.append(f"neofetch source points at {facts.source_href!r}, expected {SOURCE_REPO}")
+    if "dc-neofetch" in html or ">neofetch<" in html:
+        errors.append("Home still has a neofetch pane")
     if "# since:" in html:
         errors.append("visible '# since:' is still on Home")
     if "main@" in html:
