@@ -88,6 +88,7 @@ The ladder is the common recommendation for a 700-800px article column —
           "alt" $alt
           "sizes" $sizes
           "class" "dc-image dc-image--dithered"
+          "print" $original
           "attrs" $loading) -}}
   {{- else -}}
     {{- $image = partial "responsive-image.html" (dict

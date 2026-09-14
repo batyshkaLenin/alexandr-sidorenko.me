@@ -16,6 +16,14 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 ### Changed
 
+- Printing a publication yields a paper document: site chrome, TOC, tags,
+  responses and relations are omitted; dithered figures use the original
+  photograph without an empty caption box; type is black (and a quiet gray
+  for interlinear translation); `@page` margins and a block flow keep later
+  pages from clipping.
+- The Home name is the page `<h1>`. The duplicate visually-hidden site-title
+  heading is gone.
+
 - Library list and publication pages share one workspace: a 150px rail track
   and a wide document pane, collapsing together below 1101px. Article contents
   stay a single `#TableOfContents` in the document; wide CSS only draws that

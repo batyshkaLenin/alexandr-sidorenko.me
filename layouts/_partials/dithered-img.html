@@ -15,4 +15,12 @@ No resize/WebP — dither is single-pixel. Each ladder rung is dithered from sou
        responsive-image.html: a browser without srcset is a small, slow one. */ -}}
 {{- $fallback := index $entry.variants 0 -}}
 {{- $class := .class | default "" -}}
+{{- /* print src: a <source media="print"> so screen does not fetch the original. */ -}}
+{{- if .print -}}
+<picture>
+  <source media="print" srcset="{{ .print }}">
+{{- end -}}
 <img{{ with $class }} class="{{ . }}"{{ end }} src="{{ (resources.Get $fallback.path).RelPermalink }}" srcset="{{ delimit $srcset ", " }}" sizes="{{ .sizes }}" alt="{{ .alt }}" width="{{ int $fallback.width }}" height="{{ int $fallback.height }}" {{ .attrs }} decoding="async">
+{{- if .print -}}
+</picture>
+{{- end -}}

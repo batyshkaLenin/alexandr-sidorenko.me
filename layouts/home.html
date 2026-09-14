@@ -5,7 +5,6 @@
 {{ if not .Site.Params.github_repo }}
   {{ errorf "hugo.toml: params.github_repo must be the project repository (owner/name)" }}
 {{ end }}
-<h1 class="dc-visually-hidden">{{ .Site.Title }}</h1>
 
 {{- /* One listnav for the whole workspace so arrows follow reading order. */ -}}
 {{ partial "declassified/component.html" "dc-listnav" }}
@@ -45,8 +44,8 @@
   <section class="dc-panel dc-panel--primary h-card">
     {{ partial "declassified/panel-label.html" "about.md" }}
     <div class="dc-panel__body dc-prose">
-      {{/* Name parts are separate so uppercase stays CSS-only for MF2. */}}
-      <h2 class="dc-hero-name p-name">{{ range $i, $part := split $owner.name " " }}{{ if $i }} {{ end }}<span class="dc-hero-name__part">{{ $part }}</span>{{ end }}</h2>
+      {{/* Visible page title. Uppercase is CSS-only so p-name stays title case. */}}
+      <h1 class="dc-hero-name p-name">{{ $owner.name }}</h1>
       {{/* Visible self URL is gone; the h-card still exposes u-url/rel=me. */}}
       <a class="u-url dc-visually-hidden" rel="me" href="{{ absURL $owner.url }}">{{ absURL $owner.url }}</a>
       {{/* Portrait is outside this h-card; u-photo is a hidden data value. */}}
@@ -116,7 +115,7 @@
       card. The pane is `tail -n3`; excerpts belong in Library Recent. */ -}}
       <ul class="dc-material-list dc-material-list--dense h-feed">
         {{ range (.Site.GetPage "/library").Pages.ByDate.Reverse | first 3 }}
-        {{ partial "library/material-row.html" (dict "page" . "density" "dense" "level" 3) }}
+        {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
         {{ else }}
         <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
         {{ end }}

@@ -245,12 +245,8 @@ test.describe("home shell", () => {
       test.skip(testInfo.project.name === "chromium-mobile", "Explicit viewport matrix runs once.");
       await page.setViewportSize(viewport);
       await page.goto("/");
-      const parts = page.locator(".dc-hero-name__part");
-      await expect(parts).toHaveCount(2);
-      const tops = await parts.evaluateAll((nodes) =>
-        nodes.map((node) => node.getBoundingClientRect().top),
-      );
-      expect(Math.abs(tops[0] - tops[1])).toBeLessThan(1);
+      await expect(page.locator("h1.dc-hero-name")).toHaveCount(1);
+      await expect(page.locator("h1.dc-visually-hidden")).toHaveCount(0);
       const overflow = await page.locator(".dc-hero-name").evaluate((el) =>
         el.scrollWidth - el.clientWidth > 1
       );

@@ -1822,14 +1822,6 @@ dc-copy[copied] .dc-copy__button {
   text-align: right;
 }
 
-@media print {
-  /* Print: hide photo links (no useful URL). */
-  .dc-figure__original,
-  .dc-portrait-original {
-    display: none;
-  }
-}
-
 /* Status bar: fixed bottom; height reserved in layout. */
 /* <as-statusbar> is display:contents. */
 as-statusbar {
@@ -2984,4 +2976,57 @@ as-viewsnav {
   border-top: 1px solid var(--dc-border);
   font-size: var(--dc-fs-meta);
   color: var(--dc-faint);
+}
+
+@media print {
+  /* Publication as a paper document: no site chrome, no grid/sticky, no green. */
+  .dc-toc,
+  .dc-responses,
+  .dc-relations,
+  .tags,
+  .dc-adjacent,
+  .dc-heading-anchor,
+  .dc-statusbar,
+  .dc-figure__original,
+  .dc-portrait-original,
+  .dc-figure figcaption:not(:has(.dc-figure__caption, .dc-figure__source)) {
+    display: none !important;
+  }
+
+  body:has(.dc-statusbar) {
+    padding-bottom: 0;
+  }
+
+  .dc-main:has(> .dc-panel--detail),
+  .dc-article--with-toc,
+  .dc-article__head,
+  .dc-article__body,
+  .dc-article__tail {
+    display: block;
+    position: static;
+    inset: auto;
+    width: auto;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    grid-template-columns: none;
+  }
+
+  .dc-title,
+  .dc-prose,
+  .dc-prose .as-parallel-source {
+    color: #000;
+  }
+
+  .dc-prose .as-parallel-translation,
+  .dc-publication__meta,
+  .dc-figure figcaption {
+    color: #555;
+  }
+
+  .as-parallel-pair {
+    break-inside: avoid;
+  }
 }
