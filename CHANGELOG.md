@@ -359,3 +359,8 @@ is folded into the entry describing the finished behaviour rather than listed as
 - The publication `humility-and-open-mindedness` and its attached images.
 - HTML migration provenance comments from publication markdown; the content
   parity check no longer requires them.
+
+### Security
+
+- Pinned Wrangler is 4.131.2, so the Workers Builds toolchain uses sharp
+  0.35.4 and is no longer on the libheif advisory.
