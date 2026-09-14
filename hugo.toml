@@ -140,6 +140,12 @@ theme = 'declassified'
 [markup.goldmark.parser]
   wrapStandAloneImageWithinParagraph = false
 
+# `{.wide}` / `{.full}` on a standalone Markdown image. Default figures get
+# no class; intrinsic size never picks a wider measure.
+[markup.goldmark.parser.attribute]
+  block = true
+  title = true
+
 # Chroma emits classes instead of inline style attributes. The default
 # (noClasses = true) would put a style="" on every token and force
 # 'unsafe-inline' into style-src — a wider CSP hole than the fonts.

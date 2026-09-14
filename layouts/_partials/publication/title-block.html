@@ -2,24 +2,5 @@
 Title block. meta:false keeps heading+identity, drops the metadata line.
 cover is OG/JSON-LD only — not a visible <img> here.
 */ -}}
-{{- $page := .page -}}
-{{- $meta := default true .meta -}}
-{{- /* created = work begun (optional); notes often omit it. */ -}}
-{{- $created := default true .created -}}
-<h1 class="dc-title p-name">{{ $page.Title }}</h1>
-<data class="u-uid" value="{{ partial "publication/identity-uri.html" $page }}"></data>
-{{- if $meta }}
-<p class="dc-publication__meta">
-  <a class="u-url" href="{{ partial "canonical-url.html" $page.Permalink }}">
-    {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-list__date dt-published") }}
-  </a>
-  {{ with $page.Params.type }} · <span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span>{{ end }}
-  {{ if $created }}{{ with $page.Params.created }} · <span lang="en">created</span> {{ partial "publication/date.html" (dict "date" (. | time.AsTime) "form" "long") }}{{ end }}{{ end }}
-</p>
-{{ partial "byline.html" $page }}
-{{- else }}
-<a class="u-url dc-visually-hidden" href="{{ partial "canonical-url.html" $page.Permalink }}">
-  {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dt-published") }}
-</a>
-{{ partial "byline.html" $page }}
-{{- end }}
+{{ partial "publication/title-heading.html" . }}
+{{ partial "publication/title-meta.html" . }}

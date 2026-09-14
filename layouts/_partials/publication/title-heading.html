@@ -1,0 +1,3 @@
+{{- $page := .page -}}
+<h1 class="dc-title p-name">{{ $page.Title }}</h1>
+<data class="u-uid" value="{{ partial "publication/identity-uri.html" $page }}"></data>

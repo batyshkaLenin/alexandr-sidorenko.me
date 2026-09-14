@@ -236,6 +236,10 @@
   --syntax-inserted-rule: #9ab4a6;
 
   --portrait-frame: #2a1420;
+
+  /* Shared Library / publication workspace tracks (T190). */
+  --dc-rail-track: 150px;
+  --dc-rail-gap: 24px;
 }
 
 /* Serif only on publication body, not TUI chrome. */
@@ -1902,14 +1906,15 @@ body:has(.dc-statusbar) {
 
 /* Library layout: rail → content → phone stack. */
 /* Stable pane width: scrollbar-gutter / overlay scrollbars. */
-html:has(.dc-library) {
+html:has(.dc-library),
+html:has(.dc-panel--detail) {
   scrollbar-gutter: stable;
 }
 
 .dc-library {
   display: grid;
-  grid-template-columns: 150px minmax(0, 1fr);
-  gap: 24px;
+  grid-template-columns: var(--dc-rail-track) minmax(0, 1fr);
+  gap: var(--dc-rail-gap);
   align-items: start;
 }
 
@@ -2495,34 +2500,80 @@ as-viewsnav {
   font-size: var(--dc-fs-meta);
 }
 
-/* Article reader: TOC beside body on wide screens. */
-.dc-article--with-toc {
+/*
+ * Publication workspace (T190): the same [rail | pane] shell as Library.
+ * Collapsed by default; two columns only at min-width 1101px so both shells
+ * switch together. The rail track stays for STATE-NO-TOC; there is no empty
+ * <aside>. Prose keeps its own measure inside the pane.
+ */
+.dc-main:has(> .dc-panel--detail) {
+  --dc-measure: 42rem;
+  --dc-figure-default: min(calc(var(--dc-measure) + 2rem), calc(100cqi - 2rem));
+  --dc-figure-wide: min(calc(var(--dc-measure) + 10rem), calc(100cqi - 4.5rem));
+  --dc-figure-full: calc(100cqi - 0.75rem);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 200px;
-  grid-template-areas:
-    "head toc"
-    "body toc"
-    "tail tail";
-  gap: 0 28px;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 14px;
   align-items: start;
 }
 
-.dc-article__head {
-  grid-area: head;
+.dc-main:has(> .dc-panel--detail) > .dc-panel--detail,
+.dc-main:has(> .dc-panel--detail) > .dc-relations,
+.dc-main:has(> .dc-panel--detail) > .dc-responses,
+.dc-main:has(> .dc-panel--detail) > .dc-adjacent {
+  grid-column: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
 }
 
-.dc-article__body {
-  grid-area: body;
+.dc-main:has(> .dc-panel--detail) > .dc-panel--detail {
+  container: reading-pane / inline-size;
+  overflow: visible;
 }
 
-.dc-article__tail {
-  grid-area: tail;
+.dc-panel--detail > .dc-poem__head,
+.dc-panel--detail > .dc-track__head,
+.dc-panel--detail > .dc-title,
+.dc-panel--detail > .dc-publication__meta,
+.dc-panel--detail > .dc-prose,
+.dc-panel--detail > .dc-article__lead,
+.dc-panel--detail > .dc-article__body,
+.dc-panel--detail > .dc-article__tail,
+.dc-panel--detail > .dc-fiction__colophon,
+.dc-panel--detail > .dc-poem__colophon,
+.dc-panel--detail > .dc-track__meta,
+.dc-panel--detail > .dc-paper__abstract,
+.dc-panel--detail > .dc-paper__keywords,
+.dc-panel--detail > .dc-article__head > .dc-title,
+.dc-panel--detail > .dc-article__head > .dc-publication__meta,
+.dc-panel--detail > .dc-article__head > .dc-article__lead {
+  max-width: var(--dc-measure);
+  margin-inline: auto;
+}
+
+.dc-panel--detail > .dc-article__head > .dc-toc {
+  max-width: var(--dc-measure);
+  margin-inline: auto;
+  margin-block: 12px 18px;
+}
+
+.dc-panel--detail > .dc-panel__label {
+  max-width: none;
+}
+
+.dc-panel--detail .dc-prose {
+  max-width: var(--dc-measure);
+  overflow: visible;
+}
+
+.dc-article--with-toc {
+  display: block;
 }
 
 .dc-toc {
-  grid-area: toc;
-  position: sticky;
-  top: 24px;
   font-size: var(--dc-fs-meta);
 }
 
@@ -2530,26 +2581,20 @@ as-viewsnav {
   color: var(--dc-faint);
   cursor: pointer;
   margin-bottom: 6px;
+  list-style: none;
 }
 
-.dc-toc__title {
-  margin: 0 0 6px;
-  color: var(--dc-faint);
-}
-
-/* Only one TOC in the a11y tree (one shape hidden). */
-.dc-toc--folded {
+.dc-toc__summary::-webkit-details-marker {
   display: none;
 }
 
-@media (max-width: 900px) {
-  .dc-toc--column {
-    display: none;
-  }
+.dc-toc__disclosure[open] > .dc-toc__summary {
+  margin-bottom: 8px;
+}
 
-  .dc-toc--folded {
-    display: block;
-  }
+/* Narrow: tree is a sibling of details so closed <details> cannot hide it. */
+.dc-toc:not(:has(.dc-toc__disclosure[open])) > .dc-toc__rail > .dc-toc__tree {
+  display: none;
 }
 
 .dc-toc ul {
@@ -2581,19 +2626,154 @@ as-viewsnav {
   color: var(--dc-text);
 }
 
-/* Narrow: TOC above text, starts closed. */
-@media (max-width: 900px) {
+.dc-panel--detail dc-image-toggle:has(.dc-figure) {
+  display: contents;
+}
+
+.dc-panel--detail .dc-prose > .dc-figure,
+.dc-panel--detail .dc-prose > dc-image-toggle .dc-figure {
+  display: block;
+  width: var(--dc-figure-default);
+  max-width: var(--dc-figure-default);
+  margin-inline: calc(50% - var(--dc-figure-default) / 2);
+}
+
+.dc-panel--detail .dc-prose > .dc-figure.dc-figure--wide,
+.dc-panel--detail .dc-prose > dc-image-toggle .dc-figure--wide {
+  width: var(--dc-figure-wide);
+  max-width: var(--dc-figure-wide);
+  margin-inline: calc(50% - var(--dc-figure-wide) / 2);
+}
+
+.dc-panel--detail .dc-prose > .dc-figure.dc-figure--full,
+.dc-panel--detail .dc-prose > dc-image-toggle .dc-figure--full {
+  width: var(--dc-figure-full);
+  max-width: var(--dc-figure-full);
+  margin-inline: calc(50% - var(--dc-figure-full) / 2);
+}
+
+.dc-panel--detail .dc-prose > .dc-figure:not(.dc-figure--wide):not(.dc-figure--full) img,
+.dc-panel--detail .dc-prose > dc-image-toggle .dc-figure:not(.dc-figure--wide):not(.dc-figure--full) .dc-image {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+  display: block;
+}
+
+.dc-panel--detail .dc-prose > .dc-figure.dc-figure--wide img,
+.dc-panel--detail .dc-prose > .dc-figure.dc-figure--full img,
+.dc-panel--detail .dc-prose > dc-image-toggle .dc-figure--wide .dc-image,
+.dc-panel--detail .dc-prose > dc-image-toggle .dc-figure--full .dc-image {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.dc-gallery .dc-figure {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+@media (min-width: 1101px) {
+  .dc-main:has(> .dc-panel--detail) {
+    grid-template-columns: var(--dc-rail-track) minmax(0, 1fr);
+    column-gap: var(--dc-rail-gap);
+    row-gap: 0;
+  }
+
+  .dc-main:has(> .dc-panel--detail) > .dc-panel--detail,
+  .dc-main:has(> .dc-panel--detail) > .dc-relations,
+  .dc-main:has(> .dc-panel--detail) > .dc-responses,
+  .dc-main:has(> .dc-panel--detail) > .dc-adjacent {
+    grid-column: 2;
+  }
+
+  /*
+   * TOC stays in document order (title → type/date → toc → body). Wide CSS
+   * parks the same node at the top of the Library rail track — matching
+   * ViewsNav — and stretches it over the article so sticky has a scroll range
+   * without affecting pane flow. Collapse restores inline presentation.
+   */
   .dc-article--with-toc {
-    display: block;
+    position: relative;
   }
 
-  .dc-toc {
+  .dc-panel--detail > .dc-article__head > .dc-toc {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: auto;
+    max-width: none;
+    margin: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__rail {
+    position: sticky;
+    top: 24px;
+    box-sizing: border-box;
+    width: var(--dc-rail-track);
+    margin-inline-start: calc(-1 * (var(--dc-rail-track) + var(--dc-rail-gap) + 1px));
+    pointer-events: auto;
+  }
+
+  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__disclosure {
+    display: contents;
+  }
+
+  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__summary {
+    pointer-events: none;
+    cursor: default;
+    margin: 0 0 8px;
+  }
+
+  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__tree {
+    display: block !important;
+  }
+
+  .dc-panel--detail > .dc-article__head > .dc-toc ul {
+    padding: 0 10px 0 0;
+    border-inline-start: 0;
+    border-inline-end: 1px solid var(--dc-border);
+  }
+}
+
+@media (max-width: 1100px) {
+  .dc-article--with-toc {
     position: static;
-    margin: 14px 0 0;
   }
 
-  .dc-toc__details[open] > .dc-toc__summary {
-    margin-bottom: 8px;
+  .dc-panel--detail > .dc-article__head > .dc-toc {
+    position: static;
+    top: auto;
+    bottom: auto;
+    left: auto;
+    width: auto;
+    height: auto;
+    max-width: var(--dc-measure);
+    margin-block: 12px 18px;
+    overflow: visible;
+    pointer-events: auto;
+  }
+
+  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__rail {
+    position: static;
+    width: auto;
+    margin-inline-start: 0;
+    pointer-events: auto;
+  }
+}
+
+@container reading-pane (max-width: 24rem) {
+  .dc-panel--detail .dc-title {
+    font-size: clamp(var(--dc-fs-prose), 5.1vw, var(--dc-fs-lead));
+    line-height: var(--dc-lh-tight);
+    text-wrap: balance;
   }
 }
 

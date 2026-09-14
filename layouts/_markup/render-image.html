@@ -1,9 +1,13 @@
 {{- /*
 Markdown image → publication/figure.html (same as the figure shortcode).
+wide/full only from an explicit Markdown class, never from file size.
 */ -}}
+{{- $class := "" -}}
+{{- with .Attributes -}}{{- $class = index . "class" | default "" -}}{{- end -}}
 {{- partial "publication/figure.html" (dict
       "page" .Page
       "src" .Destination
       "alt" .Text
       "caption" .Title
-      "ordinal" .Ordinal) -}}
+      "ordinal" .Ordinal
+      "class" $class) -}}

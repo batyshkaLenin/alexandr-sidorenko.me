@@ -1,0 +1,34 @@
+{{- /*
+Publication metadata line and machine-only author h-card.
+
+Visual line follows COMP-DOCUMENT-HEADER / Rev3 §11.2:
+  article/note/paper → TYPE · published DATE
+  created is not part of the default visual line (note: usually absent;
+  article form is title + type + date). Pass created=true only to show a
+  distinct created date when it differs from published.
+*/ -}}
+{{- $page := .page -}}
+{{- $meta := default true .meta -}}
+{{- $created := default false .created -}}
+{{- if $meta }}
+<p class="dc-publication__meta">
+  {{ with $page.Params.type }}<span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $page) }}</span> · {{ end }}
+  <a class="u-url" href="{{ partial "canonical-url.html" $page.Permalink }}">
+    {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-list__date dt-published") }}
+  </a>
+  {{- if $created }}
+    {{- with $page.Params.created }}
+      {{- $createdTime := . | time.AsTime }}
+      {{- if ne ($createdTime.Format "2006-01-02") ($page.Date.Format "2006-01-02") }}
+        · <span lang="en">created</span> {{ partial "publication/date.html" (dict "date" $createdTime "form" "long") }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+</p>
+{{ partial "byline.html" $page }}
+{{- else }}
+<a class="u-url dc-visually-hidden" href="{{ partial "canonical-url.html" $page.Permalink }}">
+  {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dt-published") }}
+</a>
+{{ partial "byline.html" $page }}
+{{- end }}

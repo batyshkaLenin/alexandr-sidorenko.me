@@ -4,16 +4,8 @@
   {{ with index hugo.Data.authors $key }}
   {{ $author := . }}
   {{/* No url → plain p-name (do not point u-url at the site root). */}}
-  <p class="byline p-author h-card">
-    {{/* Avatar: fixed 32px box → 32/64 ladder, sizes=32px. */}}
-    {{ with $author.avatar }}{{ partial "responsive-image.html" (dict
-         "resource" (partial "image-resource.html" (dict "path" . "context" "data/authors.yaml"))
-         "alt" ""
-         "sizes" "32px"
-         "widths" (slice 32 64)
-         "square" true
-         "class" "u-photo"
-         "attrs" (safeHTMLAttr `loading="lazy"`)) }}{{ end }}
+  <p class="byline p-author h-card dc-visually-hidden">
+    {{ with $author.avatar }}<data class="u-photo" value="{{ partial "preview-image.html" (dict "path" . "context" "data/authors.yaml") }}" hidden></data>{{ end }}
     {{- with $author.url }}<a class="p-name u-url" href="{{ . | relURL }}">{{ $author.name }}</a>{{ else }}<span class="p-name">{{ $author.name }}</span>{{ end }}
     {{- with $author.username }} <span class="username">@{{ . }}</span>{{ end }}
   </p>

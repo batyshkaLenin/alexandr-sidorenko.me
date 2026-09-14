@@ -16,6 +16,18 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 ### Changed
 
+- Library list and publication pages share one workspace: a 150px rail track
+  and a wide document pane, collapsing together below 1101px. Article contents
+  stay a single `#TableOfContents` in the document; wide CSS only draws that
+  node into the Library sidebar slot, and a phone keeps the same node as a
+  closed `toc/` disclosure under the title.
+- Ordinary publications no longer show an author card. The byline h-card,
+  JSON-LD author and feeds stay in the document for machines.
+- Markdown images use a default figure slightly wider than the reading
+  measure. `{.wide}` and `{.full}` are explicit authoring choices, not a
+  guess from file size.
+- Publication metadata follows TYPE · published date; a duplicate created
+  date is not shown on the visual line.
 - The app chrome is English: status bar, type badges (`READ · FICTION`),
   counts (`1 material` / `N materials`), keys, help, search, 404 and the
   other shell strings. Publication titles, bodies, dates, type-page headings

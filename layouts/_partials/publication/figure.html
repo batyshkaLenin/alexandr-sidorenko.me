@@ -12,6 +12,14 @@ Call with a dict:
 {{- $source := .source -}}
 {{- $sourceURL := .sourceURL -}}
 {{- $ordinal := default 1 .ordinal -}}
+{{- $role := "" -}}
+{{- with .class -}}
+  {{- range split . " " -}}
+    {{- if eq . "wide" "full" -}}
+      {{- $role = . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
 {{- $context := $page.File.Path -}}
 {{- $external := or (hasPrefix $src "http://") (hasPrefix $src "https://") (hasPrefix $src "//") -}}
 {{- /*
@@ -35,7 +43,16 @@ The ladder is the common recommendation for a 700-800px article column —
   326 CSS px @ 3x    -> 978  takes 1200
   760 CSS px @ 2x    -> 1520 takes 1200, the one place the ladder is short
 */ -}}
-{{- $sizes := default "(max-width: 860px) calc(100vw - 86px), 760px" .sizes -}}
+{{- $sizes := .sizes -}}
+{{- if not $sizes -}}
+  {{- if eq $role "full" -}}
+    {{- $sizes = "(max-width: 1100px) calc(100vw - 32px), 1108px" -}}
+  {{- else if eq $role "wide" -}}
+    {{- $sizes = "(max-width: 1100px) calc(100vw - 48px), 832px" -}}
+  {{- else -}}
+    {{- $sizes = "(max-width: 1100px) calc(100vw - 32px), 704px" -}}
+  {{- end -}}
+{{- end -}}
 {{- $widths := slice 400 600 800 1200 -}}
 {{- $image := "" -}}
 {{- $original := "" -}}
@@ -87,7 +104,7 @@ The ladder is the common recommendation for a 700-800px article column —
 {{- /* Dithered: keep original link; JS may swap in place. */ -}}
 {{- if $dithered }}{{ partial "declassified/component.html" "dc-image-toggle" }}{{ end }}
 {{ if $dithered }}<dc-image-toggle data-label-processed="{{ i18n "imageProcessed" }}">{{ end }}
-<figure class="dc-figure{{ if $dithered }} dc-figure--dithered{{ end }}"{{ if $dithered }} data-dither="{{ (index hugo.Data.dither $src).family }}"{{ end }}>
+<figure class="dc-figure{{ if $dithered }} dc-figure--dithered{{ end }}{{ with $role }} dc-figure--{{ . }}{{ end }}"{{ if $dithered }} data-dither="{{ (index hugo.Data.dither $src).family }}"{{ end }}>
   {{ $image }}
   {{- if $hasLine }}
   <figcaption>

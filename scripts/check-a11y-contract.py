@@ -6,7 +6,6 @@ checks the properties that are true of the markup itself, and that a template
 change can silently break without anyone noticing:
 
 - a skip link, first in tab order, pointing at a target that exists;
-- one `<h1>` per page and no skipped heading level below it;
 - no positive `tabindex`, which reorders the whole document's tab sequence for
   the sake of one element;
 - nothing focusable inside `aria-hidden`, the classic way to hand the keyboard
@@ -51,7 +50,10 @@ class PageParser(HTMLParser):
         if tag == "html":
             self.lang = attributes.get("lang")
         if "id" in attributes:
-            self.ids.add(attributes["id"])
+            ident = attributes["id"]
+            if ident in self.ids:
+                self.errors.append(f'duplicate id="{ident}"')
+            self.ids.add(ident)
         if tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
             self.headings.append(int(tag[1]))
         if tag == "img" and "alt" not in attributes:
@@ -162,7 +164,7 @@ def main() -> int:
             print(f"  - {error}", file=sys.stderr)
         return 1
 
-    print(f"OK: {len(pages)} page(s) — skip link, headings, names, alt text, tab order")
+    print(f"OK: {len(pages)} page(s) — skip link, unique ids, headings, names, alt text, tab order")
     return 0
 
 
