@@ -58,6 +58,11 @@ user only when needed to explain staging scope or a missing requested file.
   stages their remaining hunks.
 - When the user selects paths, stage only those paths using explicit pathspecs
   and `--` where supported. Leave declined paths untouched.
+- `data/dev.json` is a committed build snapshot from
+  `scripts/fetch-dev-activity.py`. A refresh of `fetched_at`, weekly hours, or
+  levels after `build.sh` / `ci.sh` is expected. Include it in the same commit
+  freely. Do not treat it as unrelated WIP, generated junk, or exclude it
+  because the agent did not edit it by hand.
 - If the resulting index is empty, report that there is nothing prepared to
   commit and stop.
 

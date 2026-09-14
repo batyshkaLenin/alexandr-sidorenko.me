@@ -33,7 +33,9 @@ checks, reports conflicts, or leaves the intended index ambiguous.
    line length, and footer conventions.
 4. Stop if the index is empty or contains unrelated changes that cannot be
    described as one coherent commit. Ask whether to split genuinely independent
-   changes instead of hiding them under a vague message.
+   changes instead of hiding them under a vague message. A dirty
+   `data/dev.json` is not unrelated: it is the committed dev-activity snapshot
+   and belongs in the same commit when it changed.
 
 ## 3. Compose the message
 
