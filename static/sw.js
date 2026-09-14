@@ -17,9 +17,20 @@ function isHtml(response) {
     .startsWith("text/html");
 }
 
+function isOfflineDocument(response) {
+  const path = new URL(response.url).pathname;
+  return (
+    response.ok &&
+    isHtml(response) &&
+    (path === OFFLINE_URL || path === `${OFFLINE_URL}/`)
+  );
+}
+
 async function installOfflineDocument() {
   const response = await fetch(new Request(OFFLINE_URL, { cache: "reload" }));
-  if (!response.ok || response.redirected || !isHtml(response)) {
+  // Production serves /offline directly. Hugo's live server 301s to /offline/;
+  // that trailing slash is the same document.
+  if (!isOfflineDocument(response)) {
     throw new Error("The offline document is unavailable.");
   }
 

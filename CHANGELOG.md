@@ -40,11 +40,19 @@ is folded into the entry describing the finished behaviour rather than listed as
 - Poems, lyrics, parallel translation and `{.dc-verse}` share one verse
   measure.
 - Home has no neofetch pane: after GitHub and ROLE left, the leftover
-  block was empty. Wide Home is portrait beside `about.md`, then
-  `library/` across the full width, `activity/` under both. Recent stays
-  three scan lines; the description sits in the gap between title and
-  TYPE, marked off with the same `·` as TYPE · DATE, and a phone hides
-  it. The socials line is a comment, like location.
+  block was empty. Home has three layouts: a phone stacks portrait,
+  `about.md`, `library/` and `activity/`; a tablet keeps portrait beside
+  `about.md` at the same height and puts `library/` beside `activity/`
+  stacked as a column; a wide screen is portrait beside `about.md` at
+  the same height, then `library/` across the full width, `activity/`
+  under both. The photo pane hugs the square and stays modest.
+  `about.md` uses the shell type size on every stage — filling the pane
+  is layout, not a larger tablet size. Recent stays three scan lines;
+  the tablet `library/` pane hugs those lines instead of stretching to
+  `activity/`. The description sits in the gap between title and TYPE,
+  marked off with the same `·` as TYPE · DATE, and hides as soon as the
+  title would lose the scan line. The socials line is a comment, like
+  location.
 - A relation group with no resolved targets is omitted; incoming links
   still show as backlinks.
 
@@ -167,6 +175,8 @@ is folded into the entry describing the finished behaviour rather than listed as
 - A navigation-only service worker (`/sw.js`) that keeps recently visited
   documents available offline and falls back to a self-contained `/offline`
   page, while leaving every subresource — including audio — to the network.
+  Precache accepts Hugo's live-server hop from `/offline` to `/offline/` as
+  the same document, so install no longer throws in local development.
 - Server-side syntax highlighting for code blocks (Hugo's own Chroma, no client
   JavaScript and no external script), colored so that every kind of token is
   told apart without turning the block into a rainbow, and without borrowing

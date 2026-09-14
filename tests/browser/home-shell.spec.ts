@@ -123,6 +123,27 @@ async function homeLibraryRows(page: Page) {
   });
 }
 
+async function aboutTypeSize(page: Page) {
+  return page.evaluate(
+    () => getComputedStyle(document.querySelector(".dc-home .h-card > .dc-prose")!).fontSize,
+  );
+}
+
+async function activityModuleLayout(page: Page) {
+  return page.evaluate(() =>
+    Array.from(document.querySelectorAll(".as-activity__module")).map((el) => {
+      const r = el.getBoundingClientRect();
+      const cs = getComputedStyle(el);
+      return {
+        x: r.x,
+        y: r.y,
+        borderLeft: Number.parseFloat(cs.borderLeftWidth),
+        paddingLeft: Number.parseFloat(cs.paddingLeft),
+      };
+    }),
+  );
+}
+
 test.describe("home shell", () => {
   for (const viewport of PHONES) {
     test(`phone ${viewport.width}×${viewport.height} keeps Home/Library/Search on one row`, async ({
@@ -262,7 +283,7 @@ test.describe("home shell", () => {
         };
       });
       expect(type.name).toBe(type.library);
-      expect(type.note).toBeGreaterThan(type.name);
+      expect(type.note).toBe(type.name);
       expect(type.activity).toBeLessThanOrEqual(type.name);
       const labelColors = await page.evaluate(() => {
         const labels = Array.from(document.querySelectorAll(".dc-home .dc-panel"))
@@ -412,6 +433,7 @@ test.describe("home shell", () => {
       return {
         cols: cols === "none" ? 0 : cols.split(" ").filter(Boolean).length,
         overflow: document.documentElement.scrollWidth - window.innerWidth,
+        overflowY: document.documentElement.scrollHeight - window.innerHeight,
         avatar: panel("avatar.jpg"),
         about: panel("about.md"),
         library: panel("library/"),
@@ -431,7 +453,7 @@ test.describe("home shell", () => {
   }
 
   for (const viewport of TABLET_STACKS) {
-    test(`tablet ${viewport.width}×${viewport.height} stacks Home and keeps the full shell`, async ({
+    test(`tablet ${viewport.width}×${viewport.height} uses identity then library|activity`, async ({
       page,
     }, testInfo) => {
       test.skip(testInfo.project.name === "chromium-mobile", "Explicit viewport matrix runs once.");
@@ -449,12 +471,91 @@ test.describe("home shell", () => {
       const labels = await visiblePanelLabels(page);
       expect(labels).toEqual(["avatar.jpg", "about.md", "library/", "activity/"]);
       const geo = await homeGeometry(page);
-      expect(geo.cols).toBe(0);
+      expect(geo.cols).toBe(2);
       expect(geo.overflow).toBeLessThanOrEqual(1);
-      expect(geo.about).toBeTruthy();
-      expect(geo.about!.w).toBeGreaterThan(viewport.width * 0.7);
-      expect(geo.about!.y).toBeGreaterThan(geo.avatar!.y + geo.avatar!.h - 1);
+      expect(Math.abs(geo.avatar!.y - geo.about!.y)).toBeLessThan(8);
+      expect(geo.about!.x).toBeGreaterThan(geo.avatar!.x + geo.avatar!.w - 1);
+      expect(Math.abs(geo.library!.y - geo.activity!.y)).toBeLessThan(8);
+      expect(geo.activity!.x).toBeGreaterThan(geo.library!.x + geo.library!.w - 1);
+      expect(geo.library!.w).toBeGreaterThan(geo.activity!.w);
+      expect(geo.library!.y).toBeGreaterThanOrEqual(
+        Math.max(geo.avatar!.y + geo.avatar!.h, geo.about!.y + geo.about!.h) - 1,
+      );
+      expect(Math.abs(geo.avatar!.h - geo.about!.h)).toBeLessThan(4);
+      expect(geo.avatar!.w).toBeLessThanOrEqual(16 * 16 + 48);
+      expect(await aboutTypeSize(page)).toBe("14px");
+      const mods = await activityModuleLayout(page);
+      expect(mods.length).toBeGreaterThanOrEqual(2);
+      expect(Math.abs(mods[0].x - mods[1].x)).toBeLessThan(4);
+      expect(mods[1].y).toBeGreaterThan(mods[0].y + 8);
+      for (const mod of mods) {
+        expect(mod.borderLeft, "tablet activity stacks without a left rail").toBeLessThan(1);
+        expect(mod.paddingLeft).toBeLessThan(4);
+      }
       await expect(page.locator(".dc-portrait-quote")).toHaveCount(0);
+    });
+  }
+
+  test("974×768 uses the tablet Home without a giant portrait", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Narrow-desktop regression once.");
+    await page.setViewportSize({ width: 974, height: 768 });
+    await page.goto("/");
+    await expect.poll(async () =>
+      page.locator("img.dc-portrait").evaluate((img: HTMLImageElement) => img.naturalWidth),
+    ).toBeGreaterThan(0);
+    const geo = await homeGeometry(page);
+    expect(geo.cols).toBe(2);
+    expect(geo.overflow).toBeLessThanOrEqual(1);
+    expect(Math.abs(geo.avatar!.y - geo.about!.y)).toBeLessThan(8);
+    expect(geo.about!.x).toBeGreaterThan(geo.avatar!.x + geo.avatar!.w - 1);
+    expect(geo.activity!.x).toBeGreaterThan(geo.library!.x + geo.library!.w - 1);
+    expect(geo.library!.w).toBeGreaterThan(geo.activity!.w);
+    expect(Math.abs(geo.avatar!.h - geo.about!.h)).toBeLessThan(4);
+    expect(geo.avatar!.w).toBeLessThan(974 * 0.35);
+    expect(geo.portrait!.w).toBeLessThanOrEqual(16 * 16 + 2);
+    expect(await aboutTypeSize(page)).toBe("14px");
+    const rows = await homeLibraryRows(page);
+    for (const row of rows) {
+      expect(row.titleOverflow, row.title).toBe(false);
+    }
+  });
+
+  for (const viewport of [
+    { width: 925, height: 768 },
+    { width: 980, height: 768 },
+  ] as const) {
+    test(`${viewport.width}×${viewport.height} keeps the library pane tight`, async ({
+      page,
+    }, testInfo) => {
+      test.skip(testInfo.project.name === "chromium-mobile", "Tablet library slack once.");
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      const slack = await page.evaluate(() => {
+        const panel = Array.from(document.querySelectorAll(".dc-home .dc-panel")).find(
+          (node) => node.querySelector(".dc-panel__label")?.textContent?.trim() === "library/",
+        );
+        const more = document.querySelector(".dc-home-recent__more");
+        if (!panel || !more) return null;
+        const p = panel.getBoundingClientRect();
+        const m = more.getBoundingClientRect();
+        const excerpts = Array.from(
+          document.querySelectorAll(".dc-home .dc-material--dense .dc-material__excerpt"),
+        );
+        return {
+          slack: p.bottom - m.bottom,
+          excerptVisible: excerpts.some((el) => {
+            const cs = getComputedStyle(el);
+            return cs.display !== "none" && el.getBoundingClientRect().width > 8;
+          }),
+        };
+      });
+      expect(slack).toBeTruthy();
+      expect(slack!.slack).toBeLessThan(48);
+      expect(slack!.excerptVisible).toBe(true);
+      const rows = await homeLibraryRows(page);
+      for (const row of rows) {
+        expect(row.titleOverflow, row.title).toBe(false);
+      }
     });
   }
 
@@ -481,19 +582,30 @@ test.describe("home shell", () => {
       const geo = await homeGeometry(page);
       expect(geo.cols).toBe(2);
       expect(geo.overflow).toBeLessThanOrEqual(1);
+      expect(geo.overflowY).toBeLessThanOrEqual(1);
       expect(geo.avatar).toBeTruthy();
       expect(geo.about).toBeTruthy();
       expect(geo.library).toBeTruthy();
+      expect(geo.activity).toBeTruthy();
       expect(Math.abs(geo.avatar!.y - geo.about!.y)).toBeLessThan(8);
+      expect(Math.abs(geo.avatar!.h - geo.about!.h)).toBeLessThan(4);
       expect(geo.about!.x).toBeGreaterThan(geo.avatar!.x + geo.avatar!.w - 1);
-      expect(geo.library!.y).toBeGreaterThanOrEqual(geo.avatar!.y + geo.avatar!.h - 1);
+      expect(geo.library!.y).toBeGreaterThanOrEqual(
+        Math.max(geo.avatar!.y + geo.avatar!.h, geo.about!.y + geo.about!.h) - 1,
+      );
       expect(geo.library!.w).toBeGreaterThan(geo.about!.w);
       expect(Math.abs(geo.library!.x - geo.avatar!.x)).toBeLessThan(8);
+      for (const pane of [geo.avatar, geo.about, geo.library, geo.activity]) {
+        expect(pane!.y).toBeGreaterThanOrEqual(-1);
+        expect(pane!.y + pane!.h).toBeLessThanOrEqual(viewport.height + 1);
+      }
       const rows = await homeLibraryRows(page);
       expect(rows.length).toBe(3);
+      expect(await aboutTypeSize(page)).toBe("14px");
       for (const row of rows) {
         expect(boxesOverlap(row.titleBox!, row.typeBox!), row.title).toBe(false);
         expect(boxesOverlap(row.titleBox!, row.dateBox!), row.title).toBe(false);
+        expect(row.titleOverflow, row.title).toBe(false);
       }
       const excerpts = await page.evaluate(() => {
         return Array.from(document.querySelectorAll(".dc-home .dc-material--dense")).map((row) => {
@@ -575,9 +687,21 @@ test.describe("home shell", () => {
       expect(packed.moreInLibrary).toBe(true);
       expect(packed.originalInAvatar).toBe(true);
       expect(packed.socialsInAbout).toBe(true);
-      expect(geo.avatar!.w).toBeLessThanOrEqual(25 * 16 + 2);
+      const aboutFill = await page.evaluate(() => {
+        const about = Array.from(document.querySelectorAll(".dc-home .dc-panel")).find(
+          (node) => node.querySelector(".dc-panel__label")?.textContent?.trim() === "about.md",
+        );
+        const foot = document.querySelector(".dc-hero-foot");
+        if (!about || !foot) return null;
+        return about.getBoundingClientRect().bottom - foot.getBoundingClientRect().bottom;
+      });
+      expect(aboutFill).toBeTruthy();
+      expect(aboutFill!).toBeGreaterThanOrEqual(-1);
+      expect(aboutFill!).toBeLessThan(56);
+      expect(geo.avatar!.w).toBeLessThanOrEqual(20 * 16 + 48);
       expect(geo.portrait).toBeTruthy();
-      expect(geo.portrait!.w).toBeLessThanOrEqual(25 * 16);
+      expect(geo.portrait!.w).toBeLessThanOrEqual(20 * 16 + 2);
+      expect(geo.avatar!.w - geo.portrait!.w).toBeLessThan(48);
       expect(geo.portrait!.fit).toBe("contain");
       expect(Math.abs(geo.portrait!.boxRatio - geo.portrait!.naturalRatio)).toBeLessThan(0.03);
       expect(geo.portrait!.originalGap).not.toBeNull();
@@ -633,4 +757,27 @@ test.describe("home shell", () => {
       expect(labelColors).toHaveLength(1);
     });
   }
+
+  test("wide Home portrait and its pane scale with the viewport", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Scale contract is desktop.");
+    const measure = async (viewport: { width: number; height: number }) => {
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      await expect.poll(async () =>
+        page.locator("img.dc-portrait").evaluate((img: HTMLImageElement) => img.naturalWidth),
+      ).toBeGreaterThan(0);
+      return homeGeometry(page);
+    };
+    const short = await measure({ width: 1024, height: 768 });
+    const tall = await measure({ width: 1440, height: 900 });
+    expect(short.portrait).toBeTruthy();
+    expect(tall.portrait).toBeTruthy();
+    expect(short.portrait!.w).toBeLessThan(tall.portrait!.w - 8);
+    expect(short.portrait!.h).toBeLessThan(tall.portrait!.h - 8);
+    expect(short.avatar!.w).toBeLessThan(tall.avatar!.w - 8);
+    expect(short.avatar!.w - short.portrait!.w).toBeLessThan(48);
+    expect(tall.avatar!.w - tall.portrait!.w).toBeLessThan(48);
+  });
 });

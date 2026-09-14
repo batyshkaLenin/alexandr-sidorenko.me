@@ -648,6 +648,37 @@ dc-copy[copied] .dc-copy__button {
   container: home / inline-size;
 }
 
+/* Wide Home fills the viewport. Below 1024px Home stacks and scrolls. */
+@media (min-width: 64rem) {
+  body:has(.dc-home) {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .dc-main:has(.dc-home) {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-block: clamp(12px, 2svh, 24px) clamp(8px, 1.4svh, 16px);
+    overflow: hidden;
+  }
+
+  .dc-main:has(.dc-home) > dc-listnav {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dc-main:has(.dc-home) .dc-home {
+    flex: 1 1 0;
+    min-height: 0;
+    container: home-box / size;
+  }
+}
+
 .dc-home {
   display: flex;
   flex-direction: column;
@@ -680,7 +711,7 @@ dc-copy[copied] .dc-copy__button {
   width: 100%;
   height: auto;
   flex: 0 0 auto;
-  align-self: stretch;
+  align-self: start;
   object-position: top center;
 }
 
@@ -704,7 +735,6 @@ dc-copy[copied] .dc-copy__button {
   .dc-home .dc-material--dense .dc-material__title {
     flex: 0 1 auto;
     min-width: 8ch;
-    max-width: 36ch;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -721,14 +751,112 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-/* ~56rem of Home (≈1024 viewport after chrome). Below that, about.md must
-   not sit in a 15–20ch column beside the portrait. */
-@container home (min-width: 56rem) {
+/* Stacked Home: a 974px column must not stretch the photo to the pane. */
+.dc-home-row--identity > .dc-panel--utility {
+  max-width: min(20rem, 100%);
+  --dc-home-avatar: min(16rem, 26svh, 28cqi);
+}
+
+@media (min-width: 64rem) {
+  .dc-home-row--identity > .dc-panel--utility {
+    --dc-home-avatar: min(20rem, 28svh, 28cqi, calc(100cqh - 24.5rem));
+  }
+}
+
+/* Tablet Home: identity on line 1, library | activity on line 2.
+   Columns are not 50/50: the photo hugs the square, library takes the
+   remaining south, activity is a compact rail. Short landscape phones
+   stay stacked. */
+@media (min-width: 741px) and (min-height: 30.0625rem) {
+  @container home (width < 60rem) {
+    .dc-home {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(12rem, 20rem);
+      grid-template-rows: auto auto;
+      gap: clamp(8px, 1.5svh, 16px);
+      align-items: stretch;
+    }
+
+    .dc-home-row > .dc-panel,
+    .dc-home > .as-activity {
+      margin-bottom: 0;
+    }
+
+    .dc-home-row--identity {
+      display: grid;
+      grid-column: 1 / -1;
+      grid-row: 1;
+      grid-template-columns: max-content minmax(0, 1fr);
+      gap: inherit;
+      align-items: stretch;
+    }
+
+    .dc-home-row--identity > .dc-panel--utility {
+      display: flex;
+      flex-direction: column;
+      width: var(--dc-home-avatar);
+      max-width: min(16rem, 36cqi);
+      min-height: 0;
+    }
+
+    .dc-home-row--identity > .h-card {
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .dc-home-row--identity .dc-portrait {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+
+    .dc-home-row--recent {
+      display: contents;
+    }
+
+    .dc-home-row--recent > .dc-panel {
+      grid-column: 1;
+      grid-row: 2;
+      min-width: 0;
+      align-self: start;
+    }
+
+    .dc-home > .as-activity {
+      grid-column: 2;
+      grid-row: 2;
+      min-width: 0;
+      align-self: start;
+    }
+
+    .dc-home > .as-activity .as-activity__body {
+      grid-template-columns: 1fr;
+      align-content: start;
+      gap: 14px;
+    }
+
+    .dc-home > .as-activity .as-activity__module {
+      padding: 14px 0 0;
+      border-left: 0;
+      border-top: 1px solid var(--dc-border);
+    }
+
+    .dc-home > .as-activity .as-activity__module:first-child {
+      padding-top: 0;
+      padding-left: 0;
+      border-top: 0;
+      border-left: 0;
+    }
+  }
+}
+@container home (min-width: 60rem) {
   .dc-home {
     display: grid;
-    grid-template-columns: minmax(20rem, 25rem) minmax(0, 1fr);
-    gap: 16px;
-    align-items: start;
+    grid-template-columns: max-content minmax(0, 1fr);
+    grid-template-rows: minmax(12rem, 1fr) auto auto;
+    gap: clamp(8px, 1.5svh, 16px);
+    align-items: stretch;
+    min-height: 0;
   }
 
   .dc-home-row > .dc-panel,
@@ -738,18 +866,52 @@ dc-copy[copied] .dc-copy__button {
 
   .dc-home .dc-panel,
   .dc-home > .as-activity {
-    align-self: start;
     width: 100%;
+    min-height: 0;
   }
 
   .dc-home-row--identity > .dc-panel--utility {
     grid-column: 1;
     grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-self: start;
+    align-self: stretch;
+    width: var(--dc-home-avatar);
+    max-width: 28cqi;
+    min-height: 0;
   }
 
   .dc-home-row--identity > .h-card {
     grid-column: 2;
     grid-row: 1;
+    min-width: 0;
+    min-height: 0;
+    align-self: stretch;
+  }
+
+  .dc-home-row--identity > .dc-panel--utility > .dc-portrait-body {
+    flex: 0 0 auto;
+  }
+
+  .dc-home-row--identity dc-image-toggle {
+    flex: 0 0 auto;
+    height: auto;
+  }
+
+  .dc-home-row--identity .dc-portrait {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    object-position: top center;
+    flex: 0 0 auto;
+    align-self: start;
+  }
+
+  .dc-home-row--identity .dc-portrait-original {
+    flex: 0 0 auto;
   }
 
   .dc-home-row--recent > .dc-panel {
@@ -760,12 +922,6 @@ dc-copy[copied] .dc-copy__button {
   .dc-home > .as-activity {
     grid-column: 1 / -1;
     grid-row: 3;
-  }
-}
-
-@container home (min-width: 64rem) {
-  .dc-home {
-    gap: 12px;
   }
 }
 
@@ -814,15 +970,16 @@ dc-copy[copied] .dc-copy__button {
   white-space: nowrap;
 }
 
-/* Home chrome stays shell type; about.md uses prose so it can fill its pane. */
+/* Home chrome stays shell type, including about.md — tablet must not read
+   larger than the wide stage. Filling the pane is layout, not type size. */
 .dc-home {
   font-size: var(--dc-fs-ui-strong);
   line-height: var(--dc-lh-ui);
 }
 
 .dc-home .h-card > .dc-prose {
-  font-size: var(--dc-fs-prose);
-  line-height: var(--dc-lh-prose);
+  font-size: var(--dc-fs-ui-strong);
+  line-height: 1.45;
 }
 
 .dc-home .dc-prose {
@@ -843,6 +1000,24 @@ dc-copy[copied] .dc-copy__button {
 
 .dc-home .p-note p:last-child {
   margin-bottom: 0;
+}
+
+@media (min-width: 741px) and (min-height: 30.0625rem) {
+  .dc-home .p-note p {
+    margin-block: clamp(0.25em, 0.55svh, 0.55em);
+  }
+
+  .dc-home-row--identity .dc-portrait-body {
+    gap: clamp(4px, 0.8svh, 10px);
+  }
+
+  .dc-home .dc-roles {
+    margin-top: clamp(4px, 0.8svh, 10px);
+  }
+
+  .dc-home .dc-hero-foot {
+    margin-top: clamp(6px, 1svh, 10px);
+  }
 }
 
 .dc-home .dc-roles,
@@ -867,6 +1042,52 @@ dc-copy[copied] .dc-copy__button {
 
 .dc-home-recent__more .dc-panel__more {
   margin-top: 0;
+}
+
+@media (min-width: 64rem) {
+  .dc-home .dc-panel__body {
+    padding: clamp(8px, 1.3svh, 14px) clamp(10px, 1.2svh, 16px);
+  }
+
+  .dc-home .dc-material--dense {
+    padding-block: clamp(1px, 0.45svh, 6px);
+  }
+
+  .dc-home .dc-material--dense .dc-material__row {
+    gap: clamp(4px, 0.8svh, 8px);
+  }
+
+  .dc-home .as-activity__body {
+    padding-block: clamp(6px, 1svh, 12px);
+  }
+
+  .dc-home-recent__more {
+    margin-top: clamp(4px, 0.8svh, 8px);
+  }
+}
+
+@media (min-width: 741px) and (min-height: 30.0625rem) {
+  .dc-home-row--identity > .h-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dc-home-row--identity > .h-card > .dc-prose {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dc-home-row--identity .p-note {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .dc-home-row--identity .dc-hero-foot {
+    margin-top: auto;
+    padding-top: 0.6em;
+  }
 }
 
 .dc-hero-foot {
@@ -2333,6 +2554,8 @@ as-viewsnav {
   display: none;
 }
 
+/* Description fills the scan line as soon as the list is one-line.
+   It yields to the title (flex-shrink) instead of waiting for 40rem. */
 @container material-list (width >= 30rem) {
   .dc-home .dc-material--dense .dc-material__sep--excerpt {
     display: inline;
@@ -2342,13 +2565,25 @@ as-viewsnav {
 
   .dc-home .dc-material--dense .dc-material__excerpt {
     display: block;
-    flex: 1 1 12ch;
+    flex: 1 100 0%;
     min-width: 0;
     order: 2;
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .dc-home .dc-material--dense .dc-material__title {
+    flex: 0 1 auto;
+    max-width: none;
+  }
+
+  .dc-home .dc-material--dense .dc-list__type,
+  .dc-home .dc-material--dense .dc-material__date,
+  .dc-home .dc-material--dense .dc-material__sep--type,
+  .dc-home .dc-material--dense .dc-material__sep--date {
+    flex: 0 0 auto;
   }
 }
 

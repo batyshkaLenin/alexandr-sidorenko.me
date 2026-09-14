@@ -9,7 +9,8 @@
 {{- /* One listnav for the whole workspace so arrows follow reading order. */ -}}
 {{ partial "declassified/component.html" "dc-listnav" }}
 <dc-listnav>
-{{- /* Home ≥56rem: 2-col. Narrower: stack. Compact shell is independent. */ -}}
+{{- /* Home: phone stacks; tablet is identity then library|activity;
+     wide is identity, library/, activity/. Compact shell is independent. */ -}}
 <div class="dc-home">
 
 <div class="dc-home-row dc-home-row--identity">
@@ -30,7 +31,7 @@
       {{ partial "dithered-img.html" (dict
            "entry" $portrait
            "alt" $owner.avatar_alt
-           "sizes" "(max-width: 56rem) calc(100vw - 68px), 25rem"
+           "sizes" "(max-width: 46rem) calc(100vw - 68px), min(16rem, 28cqi)"
            "class" "dc-portrait"
            "attrs" (safeHTMLAttr `loading="lazy"`)) }}
       {{ $source := partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}
