@@ -255,10 +255,12 @@ test.describe("library geometry", () => {
       test.skip(testInfo.project.name === "chromium-mobile", "Explicit viewport matrix runs once.");
       await page.setViewportSize(viewport);
       await page.goto("/library/timeline");
-      await expect(page.locator(".dc-timeline__marker")).toHaveCount(5);
+      const itemCount = await page.locator(".dc-timeline__item").count();
+      expect(itemCount).toBeGreaterThan(0);
+      await expect(page.locator(".dc-timeline__marker")).toHaveCount(itemCount);
 
       const alignment = await timelineAlignment(page);
-      expect(alignment.rows.length).toBe(5);
+      expect(alignment.rows.length).toBe(itemCount);
       expect(alignment.maxDelta, JSON.stringify(alignment.rows, null, 2)).toBeLessThanOrEqual(1);
 
       const first = page.locator(".dc-timeline__item").first();
@@ -291,7 +293,13 @@ test.describe("library geometry", () => {
     await page.goto("/library/timeline");
     const titles = page.locator(".dc-timeline__title a");
     const title = page.getByRole("link", { name: "Философия свободы" });
-    await titles.nth(3).focus();
+    const titleCount = await titles.count();
+    const philosophyIndex = await titles.evaluateAll(
+      (nodes) => nodes.findIndex((node) => (node.textContent || "").trim() === "Философия свободы"),
+    );
+    expect(philosophyIndex).toBeGreaterThan(0);
+    expect(philosophyIndex).toBeLessThan(titleCount);
+    await titles.nth(philosophyIndex - 1).focus();
     await page.keyboard.press("Tab");
     await expect(title).toBeFocused();
     await expect.poll(() => title.evaluate((el) => el.matches(":focus-visible"))).toBe(true);

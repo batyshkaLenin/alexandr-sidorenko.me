@@ -7,6 +7,8 @@ const DOCUMENTS_CACHE_NAME = "dc-sw:documents:v1";
 const publicDir = path.resolve(process.env.PUBLIC_DIR || "public");
 const generatedFixtures = ["__sw-large", "sw-broken.js", "sw-legacy.js", "sw-upgrade.js"];
 
+test.use({ serviceWorkers: "allow" });
+
 async function waitForWorker(page: Page, script = "/sw.js") {
   await page.waitForFunction(async (expectedScript) => {
     const registration = await navigator.serviceWorker.getRegistration("/");
@@ -18,7 +20,70 @@ async function waitForWorker(page: Page, script = "/sw.js") {
   }, script);
 }
 
+function documentPath(href: string, base: string) {
+  const url = new URL(href, base);
+  return { pathname: url.pathname.replace(/\/$/, "") || "/", search: url.search };
+}
+
+/**
+ * Client-initiated navigation from an already-controlled document.
+ * CDP `page.goto` can commit without the worker intercepting, so Cache Storage
+ * stays empty while the network document is already on screen.
+ */
+async function clientNavigate(
+  page: Page,
+  href: string,
+  options?: { waitUntil?: "load" | "domcontentloaded" },
+) {
+  const waitUntil = options?.waitUntil ?? "load";
+  const target = documentPath(href, page.url());
+  const current = documentPath(page.url(), page.url());
+  if (current.pathname === target.pathname && current.search === target.search) {
+    return clientReload(page, options);
+  }
+  const responsePromise = page.waitForResponse((response) => {
+    const actual = documentPath(response.url(), response.url());
+    return (
+      actual.pathname === target.pathname &&
+      actual.search === target.search &&
+      response.request().isNavigationRequest()
+    );
+  });
+  const settled = page.waitForURL(
+    (url) => {
+      const actual = documentPath(url.toString(), url.toString());
+      return actual.pathname === target.pathname && actual.search === target.search;
+    },
+    { waitUntil },
+  );
+  await page.evaluate((path) => location.assign(path), href).catch(() => undefined);
+  const [response] = await Promise.all([responsePromise, settled]);
+  await waitForWorker(page);
+  return response;
+}
+
+async function clientReload(
+  page: Page,
+  options?: { waitUntil?: "load" | "domcontentloaded" },
+) {
+  const waitUntil = options?.waitUntil ?? "load";
+  const target = documentPath(page.url(), page.url());
+  const responsePromise = page.waitForResponse((response) => {
+    const actual = documentPath(response.url(), response.url());
+    return (
+      actual.pathname === target.pathname &&
+      actual.search === target.search &&
+      response.request().isNavigationRequest()
+    );
+  });
+  await page.evaluate(() => location.reload()).catch(() => undefined);
+  const response = await responsePromise;
+  await page.waitForLoadState(waitUntil);
+  return response;
+}
+
 async function waitForCached(page: Page, pathname: string) {
+  await waitForWorker(page);
   await expect
     .poll(() =>
       page.evaluate(
@@ -44,8 +109,8 @@ test.describe("navigation-only Service Worker", () => {
 
   test.beforeEach(async ({}, testInfo) => {
     test.skip(
-      testInfo.project.name === "chromium-mobile",
-      "Service Worker behavior is origin-wide; one Chromium profile is representative.",
+      testInfo.project.name !== "chromium-service-worker",
+      "Service Worker scenarios run after the other projects so the test origin is not under parallel load.",
     );
   });
 
@@ -83,15 +148,17 @@ test.describe("navigation-only Service Worker", () => {
   test("serves a visited document and the system fallback offline", async ({ page, context }) => {
     await page.goto("/");
     await waitForWorker(page);
-    await page.goto("/library/philosophy-of-freedom");
+    await clientNavigate(page, "/library/philosophy-of-freedom");
     await waitForCached(page, "/library/philosophy-of-freedom");
 
     await context.setExtraHTTPHeaders({ "X-SW-Test-Network-Failure": "1" });
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await clientReload(page, { waitUntil: "domcontentloaded" });
     await expect(page.locator("h1")).not.toHaveText("Нет сети");
     await expect(page.locator("article, .dc-panel--detail").first()).toBeVisible();
 
-    await page.goto("/not-visited-by-service-worker", { waitUntil: "domcontentloaded" });
+    await clientNavigate(page, "/not-visited-by-service-worker", {
+      waitUntil: "domcontentloaded",
+    });
     await expect(page.locator("h1")).toHaveText("Нет сети");
     await expect(page).toHaveURL(/\/not-visited-by-service-worker$/);
   });
@@ -100,7 +167,7 @@ test.describe("navigation-only Service Worker", () => {
     const pathname = "/library/skver";
     await page.goto("/");
     await waitForWorker(page);
-    await page.goto(pathname);
+    await clientNavigate(page, pathname);
     await waitForCached(page, pathname);
 
     await page.evaluate(
@@ -124,7 +191,7 @@ test.describe("navigation-only Service Worker", () => {
     );
 
     await context.setExtraHTTPHeaders({ "X-SW-Test-Network-Failure": "1" });
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await clientReload(page, { waitUntil: "domcontentloaded" });
     await expect(page.locator("h1")).toHaveText("Нет сети");
     await expect.poll(() => documentUrls(page)).not.toContain(pathname);
   });
@@ -133,7 +200,7 @@ test.describe("navigation-only Service Worker", () => {
     const pathname = "/removed-service-worker-fixture";
     await page.goto("/");
     await waitForWorker(page);
-    await page.goto("/library/23");
+    await clientNavigate(page, "/library/23");
     await waitForCached(page, "/library/23");
     await page.evaluate(
       async ({ cacheName, sourcePath, removedPath }) => {
@@ -149,12 +216,12 @@ test.describe("navigation-only Service Worker", () => {
       },
     );
 
-    const response = await page.goto(pathname);
-    expect(response?.status()).toBe(404);
+    const response = await clientNavigate(page, pathname);
+    expect(response.status()).toBe(404);
     await expect.poll(() => documentUrls(page)).not.toContain(pathname);
 
     await context.setExtraHTTPHeaders({ "X-SW-Test-Network-Failure": "1" });
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await clientReload(page, { waitUntil: "domcontentloaded" });
     await expect(page.locator("h1")).toHaveText("Нет сети");
   });
 
@@ -162,17 +229,17 @@ test.describe("navigation-only Service Worker", () => {
     const pathname = "/library/23";
     await page.goto("/");
     await waitForWorker(page);
-    await page.goto(pathname);
+    await clientNavigate(page, pathname);
     await waitForCached(page, pathname);
 
     await context.setExtraHTTPHeaders({ "X-SW-Test-Status": "410" });
-    const response = await page.reload();
-    expect(response?.status()).toBe(410);
+    const response = await clientReload(page);
+    expect(response.status()).toBe(410);
     await expect(page.locator("h1")).toHaveText("Test 410");
     await expect.poll(() => documentUrls(page)).not.toContain(pathname);
 
     await context.setExtraHTTPHeaders({ "X-SW-Test-Network-Failure": "1" });
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await clientReload(page, { waitUntil: "domcontentloaded" });
     await expect(page.locator("h1")).toHaveText("Нет сети");
   });
 
@@ -180,32 +247,32 @@ test.describe("navigation-only Service Worker", () => {
     await page.goto("/");
     await waitForWorker(page);
 
-    await page.goto("/library/");
+    await clientNavigate(page, "/library/");
     await page.waitForTimeout(100);
     expect(await documentUrls(page)).not.toContain("/library/");
 
-    await page.goto("/library/all?sw-test=1");
+    await clientNavigate(page, "/library/all?sw-test=1");
     await page.waitForTimeout(100);
     expect(await documentUrls(page)).not.toContain("/library/all");
 
     const cachedPath = "/library/skver";
-    await page.goto(cachedPath);
+    await clientNavigate(page, cachedPath);
     await waitForCached(page, cachedPath);
     await context.setExtraHTTPHeaders({ "X-SW-Test-Status": "503" });
-    const failed = await page.reload();
-    expect(failed?.status()).toBe(503);
+    const failed = await clientReload(page);
+    expect(failed.status()).toBe(503);
     await expect(page.locator("h1")).toHaveText("Test 503");
     expect(await documentUrls(page)).toContain(cachedPath);
 
     await context.setExtraHTTPHeaders({ "X-SW-Test-Network-Failure": "1" });
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await clientReload(page, { waitUntil: "domcontentloaded" });
     await expect(page.locator("h1")).toHaveText("Сквер");
   });
 
   test("keeps audio and every subresource outside Cache Storage", async ({ page }) => {
     await page.goto("/");
     await waitForWorker(page);
-    await page.goto("/library/regular-visitor");
+    await clientNavigate(page, "/library/regular-visitor");
     await waitForCached(page, "/library/regular-visitor");
 
     const audio = await page.locator("audio").getAttribute("src");
@@ -249,8 +316,8 @@ test.describe("navigation-only Service Worker", () => {
     await page.goto("/");
     await waitForWorker(page);
     for (const route of routes) {
-      const response = await page.goto(route);
-      expect(response?.status(), route).toBe(200);
+      const response = await clientNavigate(page, route);
+      expect(response.status(), route).toBe(200);
       await waitForCached(page, route);
     }
 
@@ -270,8 +337,8 @@ test.describe("navigation-only Service Worker", () => {
 
     await page.goto("/");
     await waitForWorker(page);
-    const response = await page.goto("/__sw-large");
-    expect(response?.status()).toBe(200);
+    const response = await clientNavigate(page, "/__sw-large");
+    expect(response.status()).toBe(200);
     await expect(page.locator("main")).toContainText("xxx");
     await page.waitForTimeout(500);
     expect(await documentUrls(page)).not.toContain("/__sw-large");
@@ -383,7 +450,7 @@ test.describe("navigation-only Service Worker", () => {
     await waitForWorker(page, "/sw-legacy.js");
 
     await page.unroute("**/js/sw-register.*.js");
-    await page.reload();
+    await clientReload(page);
     await waitForWorker(page);
   });
 

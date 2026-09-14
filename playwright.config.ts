@@ -17,6 +17,9 @@ export default defineConfig({
   use: {
     baseURL,
     trace: "on-first-retry",
+    // Non-SW specs must not register a worker: every navigation would hit
+    // Cache Storage and contend with Service Worker scenarios on the same host.
+    serviceWorkers: "block",
   },
   webServer: {
     command: `python3 scripts/serve-public.py --host 127.0.0.1 --port 4173 --enable-sw-test-network-failures --public-dir ${JSON.stringify(publicDir)}`,
@@ -29,11 +32,21 @@ export default defineConfig({
   projects: [
     {
       name: "chromium-desktop",
+      testIgnore: /service-worker\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
     },
     {
       name: "chromium-mobile",
+      testIgnore: /service-worker\.spec\.ts/,
       use: { ...devices["Pixel 7"] },
+    },
+    {
+      // After the other projects: Cache Storage and the test HTTP server
+      // stay quiet enough for the worker to intercept client navigations.
+      name: "chromium-service-worker",
+      testMatch: /service-worker\.spec\.ts/,
+      dependencies: ["chromium-desktop", "chromium-mobile"],
+      use: { ...devices["Desktop Chrome"], serviceWorkers: "allow" },
     },
   ],
 });
