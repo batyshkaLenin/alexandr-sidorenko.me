@@ -378,4 +378,71 @@ test.describe("keyboard", () => {
     expect(outline.style).not.toBe("none");
     expect(Number.parseFloat(outline.width)).toBeGreaterThan(0);
   });
+
+  test("search and prompt keyboard selection stay in the combobox", async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name === "chromium-mobile",
+      "Composite selection is asserted on desktop browsers.",
+    );
+    await page.route("**/search-index.json", async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({
+          entries: [
+            {
+              title: "Alpha Needle",
+              url: "/library/alpha",
+              path: "~/library/alpha",
+              type: "Текст",
+              kind: "text",
+              topics: [],
+              summary: "",
+              text: "alpha needle",
+            },
+            {
+              title: "Beta Needle",
+              url: "/library/beta",
+              path: "~/library/beta",
+              type: "Текст",
+              kind: "text",
+              topics: [],
+              summary: "",
+              text: "beta needle",
+            },
+          ],
+        }),
+      });
+    });
+
+    await page.goto("/");
+    await page.keyboard.press("/");
+    const searchInput = page.locator("dc-command-palette .dc-palette__input");
+    await searchInput.fill("needle");
+    await expect(page.locator(".dc-palette__link")).toHaveCount(2);
+    await page.keyboard.press("ArrowDown");
+    await expect(searchInput).toBeFocused();
+    await expect(page.locator(".dc-palette__link[aria-selected='true']")).toHaveCount(1);
+    await expect(page.locator(".dc-palette__link[aria-current]")).toHaveCount(0);
+    await expect(page.locator(".dc-nav__link[aria-current='page']")).toHaveCount(1);
+    await page.keyboard.press("Escape");
+    await expect(page.locator("dialog[open]")).toHaveCount(0);
+
+    await page.goto("/");
+    const prompt = page.locator("dc-prompt");
+    await expect(prompt).toHaveAttribute("ready", "");
+    await prompt.locator("[data-prompt-command]").click();
+    const promptInput = prompt.locator("input.dc-prompt__input");
+    await expect(prompt).toHaveAttribute("open", "");
+    await expect(promptInput).toBeVisible();
+    await promptInput.fill("read ");
+    await expect(prompt.locator(".dc-prompt__suggestion")).toHaveCount(2);
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowDown");
+    await expect(promptInput).toBeFocused();
+    await expect(prompt.locator(".dc-prompt__suggestion[aria-selected='true']")).toHaveCount(1);
+    await expect(prompt.locator(".dc-prompt__suggestion[aria-current]")).toHaveCount(0);
+    await expect(page.locator(".dc-nav__link[aria-current='page']")).toHaveCount(1);
+  });
 });

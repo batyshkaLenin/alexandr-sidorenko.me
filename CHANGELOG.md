@@ -16,6 +16,9 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 ### Changed
 
+- Search and the command-line prompt mark the chosen candidate as widget
+  selection (`aria-selected` / `aria-activedescendant`), not as the current page;
+  `aria-current="page"` stays on navigation only.
 - In Help, each CLI command row is one control: marker and label share a hit
   target and Tab stop; the run marker appears on hover or keyboard focus (always
   on touch).

@@ -153,6 +153,148 @@ test.describe("enhancements", () => {
       .toHaveAttribute("href", /\/library\/context-result#:~:text=.+same/);
   });
 
+  test("search selection uses listbox semantics, not aria-current", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Palette selection covered on desktop.");
+    await page.route("**/search-index.json", async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({
+          entries: [
+            {
+              title: "Alpha Needle",
+              url: "/library/alpha",
+              path: "~/library/alpha",
+              type: "Текст",
+              kind: "text",
+              topics: [],
+              summary: "",
+              text: "alpha needle",
+            },
+            {
+              title: "Beta Needle",
+              url: "/library/beta",
+              path: "~/library/beta",
+              type: "Текст",
+              kind: "text",
+              topics: [],
+              summary: "",
+              text: "beta needle",
+            },
+            {
+              title: "Gamma Needle",
+              url: "/library/gamma",
+              path: "~/library/gamma",
+              type: "Текст",
+              kind: "text",
+              topics: [],
+              summary: "",
+              text: "gamma needle",
+            },
+          ],
+        }),
+      });
+    });
+
+    await page.goto("/");
+    await expect(page.locator(".dc-nav__link[aria-current='page']")).toHaveCount(1);
+
+    await page.keyboard.press("/");
+    const input = page.locator("dc-command-palette .dc-palette__input");
+    await expect(input).toBeFocused();
+    await input.fill("needle");
+
+    const links = page.locator(".dc-palette__link");
+    await expect(links).toHaveCount(3);
+    await expect(links.first()).toHaveAttribute("role", "option");
+    await expect(page.locator(".dc-palette__link[aria-current]")).toHaveCount(0);
+    await expect(links.nth(0)).toHaveAttribute("aria-selected", "true");
+    await expect(links.nth(1)).toHaveAttribute("aria-selected", "false");
+    await expect(links.nth(2)).toHaveAttribute("aria-selected", "false");
+
+    const firstId = await links.nth(0).getAttribute("id");
+    expect(firstId).toBeTruthy();
+    await expect(input).toHaveAttribute("role", "combobox");
+    await expect(input).toHaveAttribute("aria-expanded", "true");
+    await expect(input).toHaveAttribute("aria-activedescendant", firstId!);
+    await expect
+      .poll(() => links.nth(0).evaluate((el) => getComputedStyle(el, "::before").content))
+      .toMatch(/>/);
+
+    await page.keyboard.press("ArrowDown");
+    await expect(links.nth(0)).toHaveAttribute("aria-selected", "false");
+    await expect(links.nth(1)).toHaveAttribute("aria-selected", "true");
+    const secondId = await links.nth(1).getAttribute("id");
+    await expect(input).toHaveAttribute("aria-activedescendant", secondId!);
+    await expect(input).toBeFocused();
+
+    await links.nth(2).hover();
+    await expect(links.nth(1)).toHaveAttribute("aria-selected", "false");
+    await expect(links.nth(2)).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator(".dc-palette__link[aria-selected='true']")).toHaveCount(1);
+    await expect(page.locator(".dc-nav__link[aria-current='page']")).toHaveCount(1);
+
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/\/library\/gamma\/?$/);
+  });
+
+  test("prompt suggestion selection uses listbox semantics, not aria-current", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Prompt selection covered on desktop.");
+    await page.route("**/search-index.json", async (route) => {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({
+          entries: [
+            {
+              title: "First Text",
+              url: "/library/first-text",
+              kind: "text",
+            },
+            {
+              title: "Second Text",
+              url: "/library/second-text",
+              kind: "text",
+            },
+            {
+              title: "Third Text",
+              url: "/library/third-text",
+              kind: "text",
+            },
+          ],
+        }),
+      });
+    });
+
+    await page.goto("/");
+    await page.keyboard.press(":");
+    const prompt = page.locator("dc-prompt");
+    const input = prompt.locator("input.dc-prompt__input");
+    await expect(input).toBeVisible();
+    await input.fill("read ");
+    const rows = prompt.locator(".dc-prompt__suggestion");
+    await expect(rows).toHaveCount(3);
+    await page.keyboard.press("ArrowDown");
+
+    await expect(rows.first()).toHaveAttribute("role", "option");
+    await expect(prompt.locator(".dc-prompt__suggestion[aria-current]")).toHaveCount(0);
+    await expect(prompt.locator(".dc-prompt__suggestion[aria-selected='true']")).toHaveCount(1);
+    await expect(rows.nth(1)).toHaveAttribute("aria-selected", "true");
+
+    const selectedId = await rows.nth(1).getAttribute("id");
+    expect(selectedId).toBeTruthy();
+    await expect(input).toHaveAttribute("role", "combobox");
+    await expect(input).toHaveAttribute("aria-expanded", "true");
+    await expect(input).toHaveAttribute("aria-activedescendant", selectedId!);
+    await expect(input).toBeFocused();
+    await expect
+      .poll(() => rows.nth(1).evaluate((el) => getComputedStyle(el, "::before").content))
+      .toMatch(/>/);
+
+    await rows.nth(2).dispatchEvent("mousedown");
+    await expect(input).toHaveValue(/Third Text$/);
+  });
+
   test("prompt accepts : and shows an input when open", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "chromium-mobile", "Prompt covered on desktop.");
     await page.goto("/");
