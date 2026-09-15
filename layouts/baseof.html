@@ -13,6 +13,11 @@
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "declassified/footer.html" . }}
+  {{- /* A component inside the content registers here, in this page's own
+         template: registering from a render hook writes into whichever page
+         first renders the content (a feed or the search index on a busy
+         build), and the article then loses its script. */ -}}
+  {{- if strings.Contains .Content "<dc-image-toggle" }}{{ partial "declassified/component.html" "dc-image-toggle" }}{{ end }}
   {{ partial "declassified/components.html" . }}
   {{ partial "declassified/hooks/enhance.html" . }}
 </body>

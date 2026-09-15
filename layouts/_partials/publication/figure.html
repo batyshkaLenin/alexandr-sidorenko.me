@@ -119,7 +119,6 @@ The ladder is the common recommendation for a 700-800px article column —
 {{- /* A figcaption is needed whenever anything belongs under the image: a
        caption, a credit, or the slot for the dithered image's toggle. */ -}}
 {{- $hasLine := or $caption $source $dithered -}}
-{{- if $dithered }}{{ partial "declassified/component.html" "dc-image-toggle" }}{{ end }}
 {{ if $dithered }}<dc-image-toggle data-original="{{ $original }}" data-label-original="{{ i18n "imageShowOriginal" }}" data-label-processed="{{ i18n "imageShowDithered" }}">{{ end }}
 <figure class="dc-figure{{ if $dithered }} dc-figure--dithered{{ end }}{{ with $role }} dc-figure--{{ . }}{{ end }}"{{ if $dithered }} data-dither="{{ (index hugo.Data.dither $src).family }}"{{ end }}>
   {{ $image }}

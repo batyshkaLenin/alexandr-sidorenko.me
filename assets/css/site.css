@@ -2114,15 +2114,23 @@ a.dc-list__type:focus-visible {
 }
 
 .dc-image-original > summary {
+  display: flex;
+  align-items: center;
   width: fit-content;
   min-height: 24px;
   margin-inline-start: auto;
-  padding: 1px 8px;
-  border: 1px solid var(--dc-border);
   color: var(--dc-primary);
   line-height: 1.4;
   list-style: none;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
   cursor: pointer;
+}
+
+.dc-image-original > summary:hover,
+.dc-image-original > summary:focus-visible {
+  text-decoration-color: currentColor;
 }
 
 .dc-image-original > summary::-webkit-details-marker {

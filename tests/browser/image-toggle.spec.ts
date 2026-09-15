@@ -47,6 +47,17 @@ test.describe("image variant toggle", () => {
     await expect(overlay).toHaveAttribute("aria-hidden", "true");
     expect(await overlay.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
     expect(await overlay.evaluate((img) => getComputedStyle(img).pointerEvents)).toBe("none");
+    // The original keeps the same frame as the dithered image it covers.
+    const frame = (img: HTMLImageElement) => {
+      const style = getComputedStyle(img);
+      return [style.boxSizing, style.borderTopWidth, style.borderTopStyle, style.borderTopColor,
+        style.borderLeftWidth, style.borderLeftStyle, style.borderLeftColor];
+    };
+    const baseFrame = await base.evaluate(frame);
+    expect(baseFrame[1]).not.toBe("0px");
+    const overlayFrame = await overlay.evaluate(frame);
+    expect(overlayFrame.slice(1)).toEqual(baseFrame.slice(1));
+    expect(overlayFrame[0]).toBe("border-box");
 
     const after = await base.evaluate((img: HTMLImageElement) => ({
       src: img.getAttribute("src"),
