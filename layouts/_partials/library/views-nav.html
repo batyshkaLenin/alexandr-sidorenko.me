@@ -7,7 +7,7 @@ Types and Topics sit in the secondary list.
 {{- $current := cond (eq .Kind "section") "recent" (cond $isTopic "topics" (cond $isType "types" (default "" .Params.view))) -}}
 {{ partial "declassified/component.html" "as-viewsnav" }}
 <as-viewsnav>
-<nav class="dc-library__views" lang="en" aria-label="Library views" tabindex="0">
+<nav class="dc-library__views" lang="en" aria-label="Library views">
   <ul class="dc-library__views-list">
     <li{{ if eq $current "recent" }} class="dc-library__view--current"{{ end }}>
       <a href="{{ partial "canonical-url.html" ("/library" | relLangURL) }}"{{ if eq $current "recent" }} aria-current="page"{{ end }}>recent</a>

@@ -12,7 +12,7 @@ test.describe("no-js", () => {
   }) => {
     // Home runs on both desktop and mobile viewports (T31 fixture map).
     await page.goto("/");
-    await expect(page.locator("a.dc-skip-link")).toBeVisible();
+    await expect(page.locator("a.dc-skip-link[href='#main']")).toBeVisible();
     await expect(page.locator("a[href='/library']").first()).toBeVisible();
     await expect(page.locator("a[href='/']").first()).toBeVisible();
     await expect(page.locator(".dc-palette__trigger")).toHaveCount(0);

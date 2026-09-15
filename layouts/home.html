@@ -90,8 +90,8 @@
       {{- /* Same MaterialRow as a Types group. On a wide scan line the
       description occupies the gap between title and TYPE; a phone hides it. */ -}}
       <ul class="dc-material-list dc-material-list--dense h-feed">
-        {{ range (.Site.GetPage "/library").Pages.ByDate.Reverse | first 3 }}
-        {{ partial "library/material-row.html" (dict "page" . "density" "dense" "excerpt" true) }}
+        {{ range $i, $row := (.Site.GetPage "/library").Pages.ByDate.Reverse | first 3 }}
+        {{ partial "library/material-row.html" (dict "page" $row "density" "dense" "excerpt" true "anchor" (eq $i 0)) }}
         {{ else }}
         <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
         {{ end }}

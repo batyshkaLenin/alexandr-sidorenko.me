@@ -59,7 +59,7 @@ test.describe("keyboard", () => {
     );
     await page.goto("/");
     await page.keyboard.press("Tab");
-    const skip = page.locator("a.dc-skip-link");
+    const skip = page.locator("a.dc-skip-link[href='#main']");
     await expect(skip).toBeFocused();
     const focusVisible = await skip.evaluate((el) => el.matches(":focus-visible"));
     expect(focusVisible).toBe(true);
@@ -80,7 +80,7 @@ test.describe("keyboard", () => {
     await page.goto("/");
 
     await page.keyboard.press("Tab");
-    await expect(page.locator("a.dc-skip-link")).toBeFocused();
+    await expect(page.locator("a.dc-skip-link[href='#main']")).toBeFocused();
 
     await page.keyboard.press("Tab");
     const second = page.locator(":focus");
@@ -363,7 +363,7 @@ test.describe("keyboard", () => {
     await page.goto("/");
 
     await page.keyboard.press("Tab");
-    const skip = page.locator("a.dc-skip-link");
+    const skip = page.locator("a.dc-skip-link[href='#main']");
     await expect(skip).toBeFocused();
     await expect.poll(() => skip.evaluate((el) => el.matches(":focus-visible"))).toBe(true);
 

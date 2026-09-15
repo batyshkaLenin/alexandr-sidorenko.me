@@ -1,0 +1,24 @@
+{{- /*
+Whether this page renders a non-empty material list, so it gets a
+"Skip to list" link to #list-start (the first material link). Mirrors the list
+templates: Home recent, Library Recent, library views, a type, a topic.
+*/ -}}
+{{- $page := . -}}
+{{- $has := false -}}
+{{- $library := where site.RegularPages "Section" "library" -}}
+{{- if $page.IsHome -}}
+  {{- with site.GetPage "/library" }}{{ $has = gt (len .Pages) 0 }}{{ end -}}
+{{- else if and (eq $page.Kind "section") (eq $page.Section "library") -}}
+  {{- $has = gt (len $page.Pages) 0 -}}
+{{- else if eq $page.Layout "library-view" -}}
+  {{- if eq $page.Params.view "music" -}}
+    {{- $has = gt (len (where $library "Params.type" "track")) 0 -}}
+  {{- else -}}
+    {{- $has = gt (len $library) 0 -}}
+  {{- end -}}
+{{- else if eq $page.Layout "library-type" -}}
+  {{- $has = gt (len (where $library "Params.type" $page.Params.material_type)) 0 -}}
+{{- else if eq $page.Kind "term" -}}
+  {{- $has = gt (len $page.Pages) 0 -}}
+{{- end -}}
+{{- return $has -}}

@@ -16,8 +16,8 @@ Density/grouping varies; rows come from MaterialRow.
         {{- /* Music: local track list only. */ -}}
         {{ $tracks := where $materials "Params.type" "track" }}
         <ul class="dc-material-list dc-music-list h-feed">
-          {{ range $tracks.ByDate.Reverse }}
-          {{ partial "library/material-row.html" (dict "page" . "density" "dense" "showType" false) }}
+          {{ range $i, $row := $tracks.ByDate.Reverse }}
+          {{ partial "library/material-row.html" (dict "page" $row "density" "dense" "showType" false "anchor" (eq $i 0)) }}
           {{ else }}
           <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
           {{ end }}
@@ -26,16 +26,16 @@ Density/grouping varies; rows come from MaterialRow.
         {{- /* Timeline: one axis; year groups; date on the rail; title first. */ -}}
         <div class="dc-timeline">
           <span class="dc-timeline__axis" aria-hidden="true"></span>
-          {{ range $materials.GroupByDate "2006" }}
+          {{ range $gi, $year := $materials.GroupByDate "2006" }}
           <section class="dc-timeline__group">
             <h2 class="dc-timeline__year">{{ .Key }}</h2>
             <ol class="dc-timeline__list h-feed">
-              {{ range .Pages.ByDate.Reverse }}
+              {{ range $i, $row := .Pages.ByDate.Reverse }}
               <li class="dc-timeline__item h-entry">
                 {{ partial "publication/date.html" (dict "date" .Date "form" "short" "class" "dc-timeline__date dt-published") }}
                 <span class="dc-timeline__marker" aria-hidden="true"></span>
                 <span class="dc-timeline__body">
-                  <span class="dc-timeline__title"><a class="u-url p-name" href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></span>
+                  <span class="dc-timeline__title"><a class="u-url p-name"{{ if and (eq $gi 0) (eq $i 0) }} id="list-start"{{ end }} href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></span>
                   <span class="dc-timeline__meta">
                     {{- with .Params.type -}}
                     <span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>
@@ -53,7 +53,7 @@ Density/grouping varies; rows come from MaterialRow.
       {{ else if eq .Params.view "table" }}
         {{ partial "library/mode-panels.html" (dict "materials" $materials "mode" "table") }}
       {{ else if eq .Params.view "types" }}
-        {{ range $materials.GroupByParam "type" }}
+        {{ range $gi, $typeGroup := $materials.GroupByParam "type" }}
         {{ $type := .Key }}
         {{ $group := .Pages }}
         {{- /* Group heading links to that type's page (and its feeds). */ -}}
@@ -64,8 +64,8 @@ Density/grouping varies; rows come from MaterialRow.
           <span class="dc-library__count">{{ len $group }}</span>
         </h2>
         <ul class="dc-material-list dc-material-list--dense h-feed">
-          {{ range $group.ByDate.Reverse }}
-          {{ partial "library/material-row.html" (dict "page" . "density" "dense" "level" 3 "showType" false) }}
+          {{ range $i, $row := $group.ByDate.Reverse }}
+          {{ partial "library/material-row.html" (dict "page" $row "density" "dense" "level" 3 "showType" false "anchor" (and (eq $gi 0) (eq $i 0))) }}
           {{ end }}
         </ul>
         {{ end }}

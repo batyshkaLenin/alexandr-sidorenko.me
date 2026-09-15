@@ -19,6 +19,8 @@ notFoundSectionsLabel:
   other: "$ ls /"
 notFoundBody:
   other: "This page doesn't exist. It may have been moved or removed."
+skipToList:
+  other: "Skip to list"
 skipToContent:
   other: "Skip to content"
 nothingHereYet:

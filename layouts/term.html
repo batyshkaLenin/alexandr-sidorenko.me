@@ -13,8 +13,8 @@
       {{ partial "declassified/component.html" "dc-listnav" }}
       <dc-listnav>
       <ul class="dc-material-list dc-material-list--dense h-feed">
-        {{ range .Pages.ByDate.Reverse }}
-        {{ partial "library/material-row.html" (dict "page" . "density" "dense") }}
+        {{ range $i, $row := .Pages.ByDate.Reverse }}
+        {{ partial "library/material-row.html" (dict "page" $row "density" "dense" "anchor" (eq $i 0)) }}
         {{ else }}
         <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
         {{ end }}

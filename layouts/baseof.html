@@ -8,6 +8,11 @@
 <body>
   {{ partial "declassified/hooks/body-start.html" . }}
   <a class="dc-skip-link" href="#main" lang="en">{{ i18n "skipToContent" }}</a>
+  {{- /* A focusable target: the browser moves focus to the first material
+         link, so dc-listnav's j/k work from there, with or without JS. */ -}}
+  {{- if partial "library/has-list-start.html" . }}
+  <a class="dc-skip-link" href="#list-start" lang="en">{{ i18n "skipToList" }}</a>
+  {{- end }}
   {{ partial "declassified/header.html" . }}
   <main id="main" class="dc-main">
     {{ block "main" . }}{{ end }}
