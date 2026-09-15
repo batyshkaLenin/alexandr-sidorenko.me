@@ -28,7 +28,8 @@
       {{ end }}
       {{ $source := partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}
       {{ $original := $source.Process "fill 848x848" }}
-      {{/* The portrait opens the phone Home and is its LCP image: no lazy. */}}
+      {{/* The portrait opens the phone Home and is its LCP image: not lazy.
+           No fetchpriority hint: it did not improve LCP and delayed FCP. */}}
       {{ partial "declassified/component.html" "dc-image-toggle" }}
       <dc-image-toggle data-original="{{ $original.RelPermalink }}" data-label-original="{{ i18n "imageShowOriginal" }}" data-label-processed="{{ i18n "imageShowDithered" }}">
       {{ partial "dithered-img.html" (dict
@@ -36,7 +37,7 @@
            "alt" $owner.avatar_alt
            "sizes" "(max-width: 46rem) calc(100vw - 68px), min(16rem, 28cqi)"
            "class" "dc-portrait"
-           "attrs" (safeHTMLAttr `fetchpriority="high"`)) }}
+           "attrs" (safeHTMLAttr "")) }}
       {{ partial "image-original-fallback.html" (dict "url" $original.RelPermalink "width" $original.Width "height" $original.Height) }}
       <p class="dc-portrait-original" data-image-toggle-slot lang="en" hidden></p>
       </dc-image-toggle>
