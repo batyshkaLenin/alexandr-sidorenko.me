@@ -14,7 +14,7 @@
 # available. frame-src permits the external media player; its iframe is created
 # after an explicit click and the initial document makes no YouTube request.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'sha256-jIYvFlbrTvZJM0yhCOi+McaDsFrlU9pAIVR+pEqDn94='; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self' https://codestats.net; frame-src https://www.youtube-nocookie.com; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self' https://codestats.net; frame-src https://www.youtube-nocookie.com; form-action 'none'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff
   Cross-Origin-Resource-Policy: same-origin

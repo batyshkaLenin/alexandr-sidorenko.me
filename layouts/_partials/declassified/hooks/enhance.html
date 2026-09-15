@@ -1,14 +1,14 @@
-{{- /* Site-owned progressive enhancement: the offline Service Worker. */ -}}
+{{- /* Site-owned cleanup: the Service Worker layer is retired (T227). */ -}}
 {{- /* The worker keeps its stable root URL; the build ships it minified. */ -}}
 {{- with resources.Get "js/sw.js" -}}
 {{- $published := ((. | minify).Content | resources.FromString "sw.js").RelPermalink -}}
 {{- else -}}
 {{- errorf "site enhance hook: assets/js/sw.js does not exist" -}}
 {{- end -}}
-{{- with resources.Get "js/sw-register.js" -}}
+{{- with resources.Get "js/sw-cleanup.js" -}}
 {{- with . | minify | fingerprint }}
 <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>
 {{- end -}}
 {{- else -}}
-{{- errorf "site enhance hook: assets/js/sw-register.js does not exist" -}}
+{{- errorf "site enhance hook: assets/js/sw-cleanup.js does not exist" -}}
 {{- end -}}

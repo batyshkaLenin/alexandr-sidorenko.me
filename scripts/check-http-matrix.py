@@ -35,11 +35,10 @@ HTML_ROUTES = [
     "/library/philosophy-of-freedom",
     "/library/skver",
     "/library/topics",
-    "/offline",
 ]
 
 # Addressable HTML that deliberately carries no canonical publication identity.
-SYSTEM_ROUTES = {"/offline"}
+SYSTEM_ROUTES: set[str] = set()
 
 # path -> expected media type prefix
 MEDIA_TYPES = {

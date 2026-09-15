@@ -19,6 +19,6 @@
     "Audio/video bodies are out of the image budget (a track recording is intentionally large).",
     "search-index.json has its own ceiling in check-search-index.py.",
     "CSS ceiling was raised from 64 KiB to 72 KiB by owner decision so T197/T198 are not blocked; T208 must measure the growth and ratify or replace the permanent limit.",
-    "/sw.js is outside the JS ceiling by owner decision (T226, 2026-09-15): it does not block rendering and is fetched only on Service Worker registration."
+    "/sw.js is outside the JS ceiling by owner decision (T226, 2026-09-15): it does not block rendering and is fetched only on Service Worker registration. Since T227 it is the cleanup worker that retires that layer."
   ]
 }

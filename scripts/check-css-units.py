@@ -6,8 +6,6 @@
 A `font-size` in px ignores the size a reader picked in the browser, so type
 sizes and the `--dc-fs-*` scale are written in rem (or em/%/keywords, or
 through a token). `-webkit-overflow-scrolling` has done nothing since iOS 13.
-The self-contained offline page keeps its inline CSS under a CSP hash and is
-not part of these stylesheets.
 """
 
 from __future__ import annotations

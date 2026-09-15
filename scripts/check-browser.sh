@@ -26,8 +26,7 @@ echo "Browser suite (Chromium) against ${PUBLIC_DIR}..."
 if [[ "$#" -eq 0 ]]; then
   npm run test:browser -- \
     --project=chromium-desktop \
-    --project=chromium-mobile \
-    --project=chromium-service-worker
+    --project=chromium-mobile
 else
   npm run test:browser -- "$@"
 fi

@@ -14,8 +14,6 @@ what the platform ends up sending.
 from __future__ import annotations
 
 import argparse
-import base64
-import hashlib
 import re
 import sys
 import urllib.error
@@ -33,7 +31,7 @@ HOUR = "public, max-age=3600"
 REVALIDATE = "public, max-age=0, must-revalidate"
 
 CSP = (
-    "default-src 'self'; script-src 'self'; style-src 'self' {offline_style_hash}; "
+    "default-src 'self'; script-src 'self'; style-src 'self'; "
     "img-src 'self'; font-src 'self'; media-src 'self'; "
     "connect-src 'self' https://codestats.net; "
     "frame-src https://www.youtube-nocookie.com; form-action 'none'; "
@@ -51,32 +49,7 @@ SECURITY_WITHOUT_CSP = {
 
 
 def expected_security(errors: list[str], public_dir: Path) -> dict[str, str]:
-    """Build the exact CSP from the rendered self-contained offline style."""
-    offline = public_dir / "offline" / "index.html"
-    if not offline.is_file():
-        errors.append(f"missing {offline}; cannot verify the offline style CSP hash")
-        style_hash = "'sha256-missing-offline-document'"
-    else:
-        styles = re.findall(
-            rb"<style(?:\s[^>]*)?>(.*?)</style\s*>",
-            offline.read_bytes(),
-            flags=re.IGNORECASE | re.DOTALL,
-        )
-        if len(styles) != 1:
-            errors.append(
-                f"/offline has {len(styles)} inline style blocks; expected exactly one"
-            )
-            style_hash = "'sha256-invalid-offline-style-count'"
-        else:
-            digest = base64.b64encode(hashlib.sha256(styles[0]).digest()).decode(
-                "ascii"
-            )
-            style_hash = f"'sha256-{digest}'"
-
-    return {
-        "Content-Security-Policy": CSP.format(offline_style_hash=style_hash),
-        **SECURITY_WITHOUT_CSP,
-    }
+    return {"Content-Security-Policy": CSP, **SECURITY_WITHOUT_CSP}
 
 
 EXPECTED_CACHE = {

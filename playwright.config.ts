@@ -32,26 +32,15 @@ export default defineConfig({
   projects: [
     {
       name: "chromium-desktop",
-      testIgnore: /service-worker\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
     },
     {
       name: "firefox-desktop",
-      testIgnore: /service-worker\.spec\.ts/,
       use: { ...devices["Desktop Firefox"] },
     },
     {
       name: "chromium-mobile",
-      testIgnore: /service-worker\.spec\.ts/,
       use: { ...devices["Pixel 7"] },
-    },
-    {
-      // After the other projects: Cache Storage and the test HTTP server
-      // stay quiet enough for the worker to intercept client navigations.
-      name: "chromium-service-worker",
-      testMatch: /service-worker\.spec\.ts/,
-      dependencies: ["chromium-desktop", "firefox-desktop", "chromium-mobile"],
-      use: { ...devices["Desktop Chrome"], serviceWorkers: "allow" },
     },
   ],
 });
