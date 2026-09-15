@@ -17,8 +17,25 @@ test.describe("no-js", () => {
     await expect(page.locator("a[href='/']").first()).toBeVisible();
     await expect(page.locator(".dc-palette__trigger")).toHaveCount(0);
     await expect(page.locator("dialog[open]")).toHaveCount(0);
+    // Without JS there are no handlers, so Home must not invent a status bar.
+    await expect(page.locator(".dc-statusbar")).toHaveCount(0);
     await page.locator("a[href='/library']").first().click();
     await expect(page).toHaveURL(/\/library$/);
+  });
+
+  test("Library no-JS status keeps count without hint cosplay or library/ label", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Status bar is desktop-only.");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/library");
+    await expect(page.locator(".dc-library > .dc-panel > .dc-panel__label")).toHaveCount(0);
+    const bar = page.locator(".dc-statusbar");
+    await expect(bar).toBeVisible();
+    await expect(bar).not.toContainText("LIBRARY");
+    await expect(bar).not.toContainText("RECENT");
+    await expect(bar.locator("[data-statusbar-keys]")).toHaveText("");
+    await expect(bar.locator("[data-statusbar-state]")).toBeVisible();
   });
 
   test("track page keeps a native audio element", async ({ page }, testInfo) => {

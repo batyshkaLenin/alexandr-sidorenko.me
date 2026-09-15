@@ -182,4 +182,56 @@ test.describe("enhancements", () => {
     const clipboard = await page.evaluate(() => navigator.clipboard.readText());
     expect(clipboard).toContain("bluredu-new-teachers");
   });
+
+  test("status chrome uses unambiguous hints without NORMAL or LIBRARY · VIEW", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Status bar is desktop-only.");
+    await page.setViewportSize({ width: 1440, height: 900 });
+
+    await page.goto("/");
+    await expect(page.locator(".dc-nav__hint")).toHaveText("[1] [2] · apps");
+    const homeBar = page.locator(".dc-statusbar");
+    await expect(homeBar).toBeVisible();
+    await expect(homeBar.locator("[data-statusbar-mode]")).toBeHidden();
+    await expect(homeBar).not.toContainText("NORMAL");
+    await expect(homeBar.locator("[data-statusbar-keys]")).toContainText("[↑↓] [j k] · list");
+    await expect(homeBar.locator("[data-statusbar-keys]")).toContainText("[/] · search");
+    await expect(homeBar.locator("[data-statusbar-keys]")).toContainText("[?] · help");
+
+    await page.keyboard.press("?");
+    const help = page.locator("dialog.dc-help[open]");
+    await expect(help).toBeVisible();
+    const keyColumn = help.locator(".dc-help__column").filter({ has: page.locator(".dc-help__column-title", { hasText: "keys" }) });
+    const helpKeys = keyColumn.locator("dt.dc-help__keys");
+    await expect(helpKeys.filter({ hasText: /^\[\/\]$/ })).toHaveCount(1);
+    await expect(helpKeys.filter({ hasText: /^\[\?\]$/ })).toHaveCount(1);
+    await expect(helpKeys.filter({ hasText: /^\[↑↓\] \[j k\]$/ })).toHaveCount(1);
+    await expect(helpKeys.filter({ hasText: /^\[Esc\]$/ })).toHaveCount(1);
+    const helpMeanings = keyColumn.locator("dd.dc-help__meaning");
+    await expect(helpMeanings.filter({ hasText: /^search$/ })).toHaveCount(1);
+    await expect(helpMeanings.filter({ hasText: /^list$/ })).toHaveCount(1);
+    await expect(helpMeanings.filter({ hasText: /^apps$/ })).toHaveCount(1);
+    await page.keyboard.press("Escape");
+    await expect(page.locator("dialog.dc-help[open]")).toHaveCount(0);
+
+    await page.goto("/library");
+    const libraryBar = page.locator(".dc-statusbar");
+    await expect(libraryBar).toBeVisible();
+    await expect(libraryBar.locator("[data-statusbar-mode]")).toBeHidden();
+    await expect(libraryBar).not.toContainText("LIBRARY");
+    await expect(libraryBar).not.toContainText("RECENT");
+    await expect(libraryBar.locator("[data-statusbar-state]")).toBeVisible();
+    await expect(page.locator(".dc-library > .dc-panel > .dc-panel__label")).toHaveCount(0);
+    await expect(page.locator("h1.dc-section-title")).toBeVisible();
+
+    await page.goto("/library/timeline");
+    await expect(page.locator(".dc-statusbar")).not.toContainText("TIMELINE");
+    await expect(page.locator(".dc-library > .dc-panel > .dc-panel__label")).toHaveCount(0);
+
+    await page.goto("/library/bluredu-new-teachers");
+    const readBar = page.locator(".dc-statusbar");
+    await expect(readBar.locator("[data-statusbar-mode]")).toHaveText("READ");
+    await expect(readBar.locator("[data-statusbar-state]")).toHaveText("ARTICLE");
+  });
 });

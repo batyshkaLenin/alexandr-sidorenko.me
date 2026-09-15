@@ -104,16 +104,20 @@ handles 1–3, and the menu decides how many of them exist. */ -}}
 the words are ours, the check is the component's. Starts from a pair that is
 always true, because `append` on an empty `slice` would flatten the first row
 into loose strings. */ -}}
-{{- $shortcuts := slice (slice "/" (i18n "helpSearch")) -}}
-{{- $shortcuts = $shortcuts | append (slice "?" (i18n "helpSelf")) -}}
-{{- $shortcuts = $shortcuts | append (slice "↑↓ / j k" (i18n "helpList") "dc-listnav") -}}
-{{- $shortcuts = $shortcuts | append (slice "↵" (i18n "helpOpen") "dc-listnav") -}}
-{{- $shortcuts = $shortcuts | append (slice "o" (i18n "helpOriginal") "dc-image-toggle") -}}
-{{- $shortcuts = $shortcuts | append (slice ":" (i18n "helpPrompt") "dc-prompt") -}}
+{{- $shortcuts := slice (slice "[/]" (i18n "helpSearch")) -}}
+{{- $shortcuts = $shortcuts | append (slice "[?]" (i18n "helpSelf")) -}}
+{{- $shortcuts = $shortcuts | append (slice "[↑↓] [j k]" (i18n "helpList") "dc-listnav") -}}
+{{- $shortcuts = $shortcuts | append (slice "[Enter]" (i18n "helpOpen") "dc-listnav") -}}
+{{- $shortcuts = $shortcuts | append (slice "[o]" (i18n "helpOriginal") "dc-image-toggle") -}}
+{{- $shortcuts = $shortcuts | append (slice "[:]" (i18n "helpPrompt") "dc-prompt") -}}
 {{- with $digits -}}
-  {{- $shortcuts = $shortcuts | append (slice (delimit . " ") (i18n "helpNav")) -}}
+  {{- $bracketed := slice -}}
+  {{- range . -}}
+    {{- $bracketed = $bracketed | append (printf "[%s]" .) -}}
+  {{- end -}}
+  {{- $shortcuts = $shortcuts | append (slice (delimit $bracketed " ") (i18n "helpNav")) -}}
 {{- end -}}
-{{- $shortcuts = $shortcuts | append (slice "Esc" (i18n "helpBack")) -}}
+{{- $shortcuts = $shortcuts | append (slice "[Esc]" (i18n "helpBack")) -}}
 {{ partial "declassified/component.html" "dc-help" -}}
 {{- /* The command line's vocabulary lives here, next to the keys: both are
 things the reader can type, and the sheet is where they are explained. */ -}}

@@ -2257,8 +2257,9 @@ as-viewsnav {
   outline: none;
 }
 
+/* Region focus: same quiet spatial cue as COMP-PANE, not accent control ring. */
 .dc-library__views:focus-visible {
-  outline: 1px solid var(--dc-primary);
+  outline: 1px solid var(--dc-faint);
   outline-offset: 4px;
 }
 
@@ -2289,8 +2290,9 @@ as-viewsnav {
   text-decoration: underline;
 }
 
+/* Current View matches global nav current: accent, not shell primary. */
 .dc-library__view--current a {
-  color: var(--dc-primary);
+  color: var(--dc-accent);
 }
 
 /* Reserve the caret column so switching the current view does not shift the row. */
@@ -2308,7 +2310,7 @@ as-viewsnav {
 
 .dc-library__views-list li.dc-library__view--current::before {
   content: "> ";
-  color: var(--dc-primary);
+  color: var(--dc-accent);
 }
 
 .dc-library__group {
@@ -2825,7 +2827,7 @@ as-viewsnav {
 }
 
 .dc-mode-switch [aria-current="true"] {
-  color: var(--dc-primary);
+  color: var(--dc-accent);
   text-decoration: none;
 }
 

@@ -1,55 +1,37 @@
 {{- /*
-Status bar: mode + static state when useful (counts, type). Hidden on phone.
-Home has no static bar; <as-statusbar> may still add JS-only hints.
+Status bar: useful static state (counts, publication mode) + JS hints.
+Hidden on phone. Home has no NORMAL mode; <as-statusbar> may build a
+hints-only bar when handlers exist. Library listings omit LIBRARY · VIEW —
+count and capability hints only (T203 / DS-INTERACTION 5.3).
 */ -}}
-{{- $prefix := "" -}}
 {{- $mode := "" -}}
 {{- $state := "" -}}
 {{- if eq .Kind "page" -}}
   {{- if eq .Section "library" -}}
-    {{- /* T169: chrome prints the machine type key (`upper .Params.type`),
-      not the Russian label. READ · FICTION, including POETRY-COLLECTION. */ -}}
+    {{- /* T169: chrome prints the machine type key (`upper .Params.type`). */ -}}
     {{- $mode = cond (eq .Params.type "track") "PLAY" "READ" -}}
     {{- $state = upper .Params.type -}}
   {{- else if .Params.material_type -}}
     {{- $mt := .Params.material_type -}}
     {{- $materials := where (where site.RegularPages "Section" "library") "Params.type" $mt -}}
-    {{- $prefix = "LIBRARY" -}}
-    {{- $mode = upper $mt -}}
     {{- $state = partial "en-count.html" (dict "n" (len $materials) "one" "material" "many" "materials") -}}
   {{- else if .Params.view -}}
-    {{- /* Count what this view lists (Music = tracks only). */ -}}
     {{- $view := .Params.view -}}
     {{- $materials := where site.RegularPages "Section" "library" -}}
     {{- if eq $view "music" -}}
       {{- $materials = where $materials "Params.type" "track" -}}
     {{- end -}}
-    {{- $prefix = "LIBRARY" -}}
-    {{- $mode = upper $view -}}
     {{- $state = partial "en-count.html" (dict "n" (len $materials) "one" "material" "many" "materials") -}}
   {{- end -}}
 {{- else if and (eq .Kind "section") (eq .Section "library") -}}
-  {{- $prefix = "LIBRARY" -}}
-  {{- $mode = "RECENT" -}}
   {{- $state = partial "en-count.html" (dict "n" (len .Pages) "one" "material" "many" "materials") -}}
 {{- else if eq .Kind "term" -}}
-  {{- $prefix = "LIBRARY" -}}
-  {{- $mode = "TOPIC" -}}
   {{- $state = partial "en-count.html" (dict "n" (len .Pages) "one" "material" "many" "materials") -}}
 {{- else if eq .Kind "taxonomy" -}}
-  {{- $prefix = "LIBRARY" -}}
-  {{- $mode = "TOPICS" -}}
   {{- $state = partial "en-count.html" (dict "n" (len .Pages) "one" "topic" "many" "topics") -}}
-{{- end -}}
-{{- /* <as-statusbar>: JS keyboard hints; on Home it builds the bar itself. */ -}}
-{{- $modeNames := "" -}}
-{{- if and (eq .Kind "page") (in (slice "all" "table") (default "" .Params.view)) -}}
-  {{- $modeNames = dict "list" "ALL" "table" "TABLE" | jsonify -}}
 {{- end -}}
 {{ partial "declassified/component.html" "as-statusbar" -}}
 <as-statusbar lang="en"
-  {{ with $modeNames }}modes="{{ . }}"{{ end }}
-  {{ if not $mode }}mode-default="{{ i18n "normalMode" }}"{{ end }}
   mode-search="{{ i18n "searchMode" }}"
   keys-palette="{{ i18n "searchKeys" }}"
   keys-list="{{ i18n "listKeys" }}"
@@ -57,15 +39,13 @@ Home has no static bar; <as-statusbar> may still add JS-only hints.
   keys-image="{{ i18n "imageKeys" }}"
   keys-prompt="{{ i18n "promptKeys" }}"
   keys-help="{{ i18n "helpKey" }}">
-{{- with $mode }}
+{{- if or $mode $state }}
 <p class="dc-statusbar" role="status">
-  {{- with $prefix }}
-  <span class="dc-statusbar__prefix">{{ . }}</span>
-  <span class="dc-statusbar__sep" aria-hidden="true">·</span>
+  <span class="dc-statusbar__mode" data-statusbar-mode{{ if not $mode }} hidden{{ end }}>{{ $mode }}</span>
+  {{- if and $mode $state }}
+  <span class="dc-statusbar__sep" data-statusbar-mode-sep aria-hidden="true">·</span>
   {{- end }}
-  <span class="dc-statusbar__mode" data-statusbar-mode>{{ . }}</span>
   {{- with $state }}
-  <span class="dc-statusbar__sep" aria-hidden="true">·</span>
   <span class="dc-statusbar__state" data-statusbar-state>{{ . }}</span>
   {{- end }}
   <span class="dc-statusbar__keys" data-statusbar-keys></span>

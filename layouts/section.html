@@ -6,9 +6,7 @@ Section override: h-feed/h-entry MF2; summaries via publication/summary.txt.
 <div class="dc-library">
   {{ partial "library/views-nav.html" . }}
   <section class="dc-panel dc-panel--primary dc-panel--doc">
-    {{ if eq .Section "library" }}
-    {{ partial "declassified/panel-label.html" "library/" }}
-    {{ else }}
+    {{ if ne .Section "library" }}
     {{ partial "declassified/panel-label.html" (printf "%s/" .Section) }}
     {{ end }}
     {{/* Feed paths come from .OutputFormats, never written out by hand, so the

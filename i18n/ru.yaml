@@ -26,7 +26,7 @@ nothingHereYet:
 headingAnchor:
   other: "Link to this section"
 navKeysHint:
-  other: "1/2 — go · Esc — back"
+  other: "[1] [2] · apps"
 imageOriginal:
   other: "original →"
 imageProcessed:
@@ -56,15 +56,13 @@ searchError:
 searchMode:
   other: "SEARCH"
 searchKeys:
-  other: "↑↓ choose · ↵ open · Esc close"
-normalMode:
-  other: "NORMAL"
+  other: "[↑↓] · choose · [Enter] · open · [Esc] · close"
 listKeys:
-  other: "↑↓ / j k — list · ↵ open"
+  other: "[↑↓] [j k] · list · [Enter] · open"
 searchKey:
-  other: "/ search"
+  other: "[/] · search"
 helpKey:
-  other: "? help"
+  other: "[?] · help"
 helpTitle:
   other: "Help"
 helpLabel:
@@ -74,9 +72,9 @@ searchLabel:
 helpList:
   other: "list"
 helpOpen:
-  other: "open selected"
+  other: "open"
 helpNav:
-  other: "menu sections"
+  other: "apps"
 helpSearch:
   other: "search"
 helpBack:
@@ -86,7 +84,7 @@ helpSelf:
 helpOriginal:
   other: "show original"
 imageKeys:
-  other: "o original"
+  other: "[o] · original"
 commandLabel:
   other: "Command line"
 commandUnknown:
@@ -126,7 +124,7 @@ commandFind:
 commandHelp:
   other: "show keys"
 promptKeys:
-  other: ": command"
+  other: "[:] · command"
 helpPrompt:
   other: "command line"
 helpKeysTitle:

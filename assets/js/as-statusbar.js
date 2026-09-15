@@ -1,11 +1,10 @@
 /**
  * <as-statusbar> — bottom mode line: mode label and keyboard hints.
  *
- * Attrs: modes (JSON mode→label), mode-default, mode-search, keys-list,
- * keys-search, keys-prompt, keys-image, keys-help, keys-palette.
- * Events: dc-command-palette:open|close, dc-modes:change.
- * Hints only list components present on the page. Creates the bar when
- * the template omitted it and mode-default is set.
+ * Attrs: mode-search, keys-list, keys-search, keys-prompt, keys-image,
+ * keys-help, keys-palette. Events: dc-command-palette:open|close.
+ * Hints only list components present on the page. Creates a hints-only bar
+ * when the template omitted it and handlers exist (no NORMAL cosplay).
  */
 "use strict";
 
@@ -15,50 +14,33 @@ class AsStatusbar extends HTMLElement {
     if (!this.bar) return;
 
     this.mode = this.bar.querySelector("[data-statusbar-mode]");
+    this.modeSep = this.bar.querySelector("[data-statusbar-mode-sep]");
     this.state = this.bar.querySelector("[data-statusbar-state]");
     this.keys = this.bar.querySelector("[data-statusbar-keys]");
-    if (!this.mode) return;
 
-    this.staticMode = this.mode.textContent;
+    this.staticMode = this.mode && !this.mode.hidden ? this.mode.textContent : "";
     if (this.keys) this.keys.textContent = this.hints();
-
-    try {
-      this.modes = JSON.parse(this.getAttribute("modes") || "{}");
-    } catch (error) {
-      this.modes = {};
-    }
 
     this.onOpen = () => this.enter();
     this.onClose = () => this.leave();
-    this.onMode = (event) => this.rename(event.detail && event.detail.mode);
     document.addEventListener("dc-command-palette:open", this.onOpen);
     document.addEventListener("dc-command-palette:close", this.onClose);
-    document.addEventListener("dc-modes:change", this.onMode);
   }
 
   disconnectedCallback() {
     document.removeEventListener("dc-command-palette:open", this.onOpen);
     document.removeEventListener("dc-command-palette:close", this.onClose);
-    document.removeEventListener("dc-modes:change", this.onMode);
-  }
-
-  rename(mode) {
-    const name = this.modes[mode];
-    if (!name) return;
-    this.staticMode = name;
-    if (this.mode.textContent !== this.getAttribute("mode-search")) this.mode.textContent = name;
   }
 
   create() {
-    const mode = this.getAttribute("mode-default");
-    if (!mode) return null;
+    const hints = this.hints();
+    if (!hints) return null;
     const bar = document.createElement("p");
     bar.className = "dc-statusbar";
     bar.setAttribute("role", "status");
     bar.innerHTML =
-      '<span class="dc-statusbar__mode" data-statusbar-mode></span>' +
+      '<span class="dc-statusbar__mode" data-statusbar-mode hidden></span>' +
       '<span class="dc-statusbar__keys" data-statusbar-keys></span>';
-    bar.querySelector("[data-statusbar-mode]").textContent = mode;
     this.append(bar);
     return bar;
   }
@@ -75,13 +57,26 @@ class AsStatusbar extends HTMLElement {
   }
 
   enter() {
+    if (!this.mode) return;
+    this.mode.hidden = false;
+    if (this.modeSep) this.modeSep.hidden = true;
     this.mode.textContent = this.getAttribute("mode-search") || "SEARCH";
     if (this.keys) this.keys.textContent = this.getAttribute("keys-palette") || "";
     if (this.state) this.state.hidden = true;
   }
 
   leave() {
-    this.mode.textContent = this.staticMode;
+    if (this.mode) {
+      if (this.staticMode) {
+        this.mode.hidden = false;
+        this.mode.textContent = this.staticMode;
+        if (this.modeSep) this.modeSep.hidden = false;
+      } else {
+        this.mode.textContent = "";
+        this.mode.hidden = true;
+        if (this.modeSep) this.modeSep.hidden = true;
+      }
+    }
     if (this.keys) this.keys.textContent = this.hints();
     if (this.state) this.state.hidden = false;
   }

@@ -85,6 +85,36 @@ function expectOneRow(geometry: ViewsGeometry) {
   }
 }
 
+function tone(value: string) {
+  if (value === "transparent") return "transparent";
+  const m = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/);
+  if (!m) return value.toLowerCase();
+  if (m[4] !== undefined && Number(m[4]) === 0) return "transparent";
+  return (
+    "#"
+    + [m[1], m[2], m[3]]
+      .map((n) => Number(n).toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
+
+async function expectCurrentViewUsesAccent(page: Page) {
+  const colors = await page.evaluate(() => {
+    const root = getComputedStyle(document.documentElement);
+    const current = document.querySelector<HTMLElement>(".dc-library__view--current a");
+    if (!current) throw new Error("current view link missing");
+    return {
+      accent: root.getPropertyValue("--dc-accent").trim().toLowerCase(),
+      primary: root.getPropertyValue("--dc-primary").trim().toLowerCase(),
+      color: getComputedStyle(current).color,
+    };
+  });
+  expect(tone(colors.color), "current View uses accent, not shell primary").toBe(
+    tone(colors.accent),
+  );
+  expect(tone(colors.color)).not.toBe(tone(colors.primary));
+}
+
 function expectCurrentOutsideFade(geometry: ViewsGeometry) {
   const current = geometry.labels.find((label) => label.current);
   expect(current, "current view is present").toBeTruthy();
@@ -220,6 +250,33 @@ test.describe("library geometry", () => {
       expect(geometry.labels.some((label) => label.current && label.text === "recent")).toBe(true);
     });
   }
+
+  test("Library current chrome uses accent, not shell primary green", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Colour contract once on desktop.");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/library");
+    await waitViewsReady(page);
+    await expectCurrentViewUsesAccent(page);
+
+    await page.goto("/library/all");
+    await waitViewsReady(page);
+    const modeCurrent = page.locator(".dc-mode-switch [aria-current='true']");
+    await expect(modeCurrent).toBeVisible();
+    const modeColors = await modeCurrent.evaluate((el) => {
+      const root = getComputedStyle(document.documentElement);
+      return {
+        accent: root.getPropertyValue("--dc-accent").trim().toLowerCase(),
+        primary: root.getPropertyValue("--dc-primary").trim().toLowerCase(),
+        color: getComputedStyle(el).color,
+      };
+    });
+    expect(tone(modeColors.color), "mode-switch current uses accent").toBe(
+      tone(modeColors.accent),
+    );
+    expect(tone(modeColors.color)).not.toBe(tone(modeColors.primary));
+  });
 
   test("horizontal ViewsNav caret does not shift sibling labels", async ({
     page,
