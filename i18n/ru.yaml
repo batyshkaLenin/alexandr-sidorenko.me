@@ -27,8 +27,6 @@ nothingHereYet:
   other: "Nothing here yet."
 headingAnchor:
   other: "Link to this section"
-navKeysHint:
-  other: "[1] [2] · apps"
 imageShowOriginal:
   other: "show original"
 imageShowDithered:
@@ -75,18 +73,12 @@ helpList:
   other: "list"
 helpOpen:
   other: "open"
-helpNav:
-  other: "apps"
 helpSearch:
   other: "search"
 helpBack:
   other: "back"
 helpSelf:
   other: "this help"
-helpOriginal:
-  other: "show original"
-imageKeys:
-  other: "[o] · original"
 commandLabel:
   other: "Command line"
 commandUnknown:

@@ -94,12 +94,6 @@ On publications: quiet command only — Library is already in the nav. <dc-clock
   data-empty="{{ i18n "searchEmpty" }}"
   data-error="{{ i18n "searchError" }}"></dc-command-palette>
 {{- /* Help sheet: only list shortcuts for elements present on the page. */ -}}
-{{- /* The digits the nav actually draws, not a guessed range: <dc-keynav>
-handles 1–3, and the menu decides how many of them exist. */ -}}
-{{- $digits := slice -}}
-{{- range $i, $item := first 3 site.Menus.main -}}
-  {{- $digits = $digits | append (string (add $i 1)) -}}
-{{- end -}}
 {{- /* Rows with a third field appear only where that element is on the page:
 the words are ours, the check is the component's. Starts from a pair that is
 always true, because `append` on an empty `slice` would flatten the first row
@@ -108,15 +102,7 @@ into loose strings. */ -}}
 {{- $shortcuts = $shortcuts | append (slice "[?]" (i18n "helpSelf")) -}}
 {{- $shortcuts = $shortcuts | append (slice "[↑↓] [j k]" (i18n "helpList") "dc-listnav") -}}
 {{- $shortcuts = $shortcuts | append (slice "[Enter]" (i18n "helpOpen") "dc-listnav") -}}
-{{- $shortcuts = $shortcuts | append (slice "[o]" (i18n "helpOriginal") "dc-image-toggle") -}}
 {{- $shortcuts = $shortcuts | append (slice "[:]" (i18n "helpPrompt") "dc-prompt") -}}
-{{- with $digits -}}
-  {{- $bracketed := slice -}}
-  {{- range . -}}
-    {{- $bracketed = $bracketed | append (printf "[%s]" .) -}}
-  {{- end -}}
-  {{- $shortcuts = $shortcuts | append (slice (delimit $bracketed " ") (i18n "helpNav")) -}}
-{{- end -}}
 {{- $shortcuts = $shortcuts | append (slice "[Esc]" (i18n "helpBack")) -}}
 {{ partial "declassified/component.html" "dc-help" -}}
 {{- /* The command line's vocabulary lives here, next to the keys: both are

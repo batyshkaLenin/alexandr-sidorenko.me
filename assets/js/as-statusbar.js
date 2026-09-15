@@ -1,8 +1,8 @@
 /**
  * <as-statusbar> — bottom mode line: mode label and keyboard hints.
  *
- * Attrs: mode-search, keys-list, keys-search, keys-prompt, keys-image,
- * keys-help, keys-palette. Events: dc-command-palette:open|close.
+ * Attrs: mode-search, keys-list, keys-search, keys-prompt, keys-help,
+ * keys-palette. Events: dc-command-palette:open|close.
  * Hints only list components present on the page. Creates a hints-only bar
  * when the template omitted it and handlers exist (no NORMAL cosplay).
  */
@@ -50,7 +50,6 @@ class AsStatusbar extends HTMLElement {
       document.querySelector("dc-listnav") && this.getAttribute("keys-list"),
       document.querySelector("dc-command-palette") && this.getAttribute("keys-search"),
       document.querySelector("dc-prompt") && this.getAttribute("keys-prompt"),
-      document.querySelector("dc-image-toggle") && this.getAttribute("keys-image"),
       document.querySelector("dc-help") && this.getAttribute("keys-help"),
     ];
     return parts.filter(Boolean).join(" · ");

@@ -10,18 +10,22 @@
   <nav class="dc-nav" aria-labelledby="dc-nav-label">
     <span id="dc-nav-label" class="dc-visually-hidden" lang="{{ partial "doc-lang.html" $ }}">{{ $.Site.Title }}</span>
     <ul class="dc-nav__list">
-      {{ range $i, $item := . }}
+      {{ range $item := . }}
       <li>
         <a
           class="dc-nav__link"
           href="{{ partial "canonical-url.html" $item.URL }}"
           {{ if $.IsMenuCurrent "main" $item }}aria-current="page"{{ end }}
-        ><span class="dc-nav__index" aria-hidden="true">[{{ add $i 1 }}] </span>{{ $item.Name }}</a>
+        >
+        {{- /* Brackets mark the current section; decoration only, so the
+               accessible name stays the section name. */ -}}
+        {{- if $.IsMenuCurrent "main" $item }}<span class="dc-nav__bracket" aria-hidden="true">[ </span>{{ end -}}
+        {{ $item.Name }}
+        {{- if $.IsMenuCurrent "main" $item }}<span class="dc-nav__bracket" aria-hidden="true"> ]</span>{{ end -}}
+        </a>
       </li>
       {{ end }}
     </ul>
-    {{- /* Key hint stays hidden until <dc-keynav> attaches; same row height. */ -}}
-    <p class="dc-nav__hint" data-keynav-hint hidden>{{ i18n "navKeysHint" }}</p>
   </nav>
   </dc-keynav>
   {{ end }}

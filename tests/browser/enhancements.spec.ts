@@ -332,7 +332,7 @@ test.describe("enhancements", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
 
     await page.goto("/");
-    await expect(page.locator(".dc-nav__hint")).toHaveText("[1] [2] · apps");
+    await expect(page.locator(".dc-nav__hint")).toHaveCount(0);
     const homeBar = page.locator(".dc-statusbar");
     await expect(homeBar).toBeVisible();
     await expect(homeBar.locator("[data-statusbar-mode]")).toBeHidden();
@@ -353,7 +353,8 @@ test.describe("enhancements", () => {
     const helpMeanings = keyColumn.locator("dd.dc-help__meaning");
     await expect(helpMeanings.filter({ hasText: /^search$/ })).toHaveCount(1);
     await expect(helpMeanings.filter({ hasText: /^list$/ })).toHaveCount(1);
-    await expect(helpMeanings.filter({ hasText: /^apps$/ })).toHaveCount(1);
+    await expect(helpMeanings.filter({ hasText: /^apps$/ })).toHaveCount(0);
+    await expect(helpKeys.filter({ hasText: /\[[123o]\]/ })).toHaveCount(0);
     await page.keyboard.press("Escape");
     await expect(page.locator("dialog.dc-help[open]")).toHaveCount(0);
 

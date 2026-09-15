@@ -316,10 +316,6 @@
     padding: 8px 0;
   }
 
-  .dc-nav__index {
-    display: none;
-  }
-
   dc-command-palette:not(:defined)::before {
     content: "search";
   }

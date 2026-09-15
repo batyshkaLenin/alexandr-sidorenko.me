@@ -174,11 +174,7 @@ test.describe("home shell", () => {
       await expect(trigger.locator(".dc-palette__label")).toBeVisible();
       expect((await trigger.innerText()).trim()).toBe("search");
       await expect(page.locator(".dc-help__trigger")).toBeHidden();
-      const indices = page.locator(".dc-nav__index");
-      await expect(indices).toHaveCount(2);
-      for (const index of await indices.all()) {
-        await expect(index).toBeHidden();
-      }
+      await expect(page.locator(".dc-nav__index")).toHaveCount(0);
 
       const activity = await page.evaluate(() => {
         const box = (el: Element | null) => {
@@ -332,7 +328,7 @@ test.describe("home shell", () => {
     await expect(page.locator(".dc-identity")).toBeHidden();
     await expect(page.locator(".dc-help__trigger")).toBeHidden();
     await expect(page.locator(".dc-palette__key")).toBeHidden();
-    await expect(page.locator(".dc-nav__index").first()).toBeHidden();
+    await expect(page.locator(".dc-nav__index")).toHaveCount(0);
     const boxes = await shellBoxes(page);
     expect(boxes.home).toBeTruthy();
     expect(boxes.library).toBeTruthy();
@@ -465,7 +461,7 @@ test.describe("home shell", () => {
       ).toBeGreaterThan(0);
       await expect(page.locator(".dc-palette__trigger")).toContainText("search");
       await expect(page.locator(".dc-palette__key")).toBeVisible();
-      await expect(page.locator(".dc-nav__index").first()).toBeVisible();
+      await expect(page.locator(".dc-nav__link[aria-current='page'] .dc-nav__bracket").first()).toBeVisible();
       await expect(page.locator(".dc-help__trigger")).toBeVisible();
       await expect(page.locator(".dc-identity")).toBeVisible();
       await expect(page.locator(".dc-neofetch")).toHaveCount(0);
@@ -575,7 +571,7 @@ test.describe("home shell", () => {
       await expect(page.locator(".dc-identity")).toBeVisible();
       await expect(page.locator(".dc-palette__trigger")).toContainText("search");
       await expect(page.locator(".dc-palette__key")).toBeVisible();
-      await expect(page.locator(".dc-nav__index").first()).toBeVisible();
+      await expect(page.locator(".dc-nav__link[aria-current='page'] .dc-nav__bracket").first()).toBeVisible();
       await expect(page.locator(".dc-help__trigger")).toBeVisible();
       const labels = await visiblePanelLabels(page);
       expect(labels).toEqual(["avatar.jpg", "about.md", "library/", "activity/"]);
