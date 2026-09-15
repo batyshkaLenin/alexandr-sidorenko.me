@@ -269,74 +269,9 @@
   white-space: nowrap;
 }
 
-/* Phone + the awkward band after it: keep the one-row shell until the
-   two-row header (prompt, help, indices) actually has room. Theme compact
-   stops at 640px; this extends the same contract through 740px. */
-@media (max-width: 740px), (max-height: 30rem) and (orientation: landscape) {
-  .dc-header {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 8px;
-    padding-inline: 16px;
-  }
-
-  .dc-topbar {
-    order: 2;
-    flex: 0 0 auto;
-    padding: 0;
-    gap: 0;
-    justify-content: flex-end;
-    min-width: 0;
-  }
-
-  dc-prompt,
-  dc-prompt[open] {
-    display: none;
-  }
-
-  dc-keynav {
-    order: 1;
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .dc-nav {
-    border-top: 0;
-  }
-
-  .dc-nav__list {
-    justify-content: flex-start;
-    flex-wrap: nowrap;
-    gap: 16px;
-    padding: 8px 0;
-  }
-
-  .dc-nav__link {
-    padding: 8px 0;
-  }
-
-  dc-command-palette:not(:defined)::before {
-    content: "search";
-  }
-
-  .dc-palette__key {
-    display: none;
-  }
-
-  .dc-palette__input {
-    font-size: 16px;
-  }
-
-  dc-help {
-    display: contents;
-  }
-
-  dc-help:not(:defined),
-  .dc-help__trigger {
-    display: none;
-  }
-
+/* Compact shell (theme, width <= 740px): the site identity and its prompt
+   leave the row. */
+@media (width <= 740px), (height <= 30rem) and (orientation: landscape) {
   .dc-identity,
   dc-prompt[open] .dc-identity {
     display: none;
@@ -347,7 +282,7 @@
   }
 }
 
-@media (min-width: 741px) {
+@media (width > 740px) {
   .dc-topbar {
     flex-wrap: nowrap;
   }
@@ -421,7 +356,7 @@ dc-prompt[open] .dc-identity__cursor {
 }
 
 /* One line at all widths; ellipsis instead of wrap. */
-@media (max-width: 860px) {
+@media (width <= 860px) {
   .dc-adjacent {
     gap: 12px;
   }
@@ -645,7 +580,7 @@ dc-copy[copied] .dc-copy__button {
 }
 
 /* Wide Home fills the viewport. Below 1024px Home stacks and scrolls. */
-@media (min-width: 64rem) {
+@media (width >= 64rem) {
   body:has(.dc-home) {
     height: 100dvh;
     max-height: 100dvh;
@@ -754,7 +689,7 @@ dc-copy[copied] .dc-copy__button {
   --dc-home-avatar: min(16rem, 26svh, 28cqi);
 }
 
-@media (min-width: 64rem) {
+@media (width >= 64rem) {
   .dc-home-row--identity > .dc-panel--utility {
     --dc-home-avatar: min(20rem, 28svh, 28cqi);
   }
@@ -764,7 +699,7 @@ dc-copy[copied] .dc-copy__button {
    Columns are not 50/50: the photo hugs the square, library takes the
    remaining south, activity is a compact rail. Short landscape phones
    stay stacked. */
-@media (min-width: 741px) and (min-height: 30.0625rem) {
+@media (width > 740px) and (height > 30rem) {
   @container home (width < 60rem) {
     .dc-home {
       display: grid;
@@ -840,7 +775,7 @@ dc-copy[copied] .dc-copy__button {
     }
   }
 }
-@container home (min-width: 60rem) {
+@container home (width >= 60rem) {
   .dc-home {
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
@@ -971,7 +906,7 @@ dc-copy[copied] .dc-copy__button {
   margin-bottom: 0;
 }
 
-@media (min-width: 741px) and (min-height: 30.0625rem) {
+@media (width > 740px) and (height > 30rem) {
   .dc-home .p-note p {
     margin-block: clamp(0.25em, 0.55svh, 0.55em);
   }
@@ -1009,7 +944,7 @@ dc-copy[copied] .dc-copy__button {
   margin-top: 0;
 }
 
-@media (min-width: 64rem) {
+@media (width >= 64rem) {
   .dc-home .dc-panel__body {
     padding: clamp(8px, 1.3svh, 14px) clamp(10px, 1.2svh, 16px);
   }
@@ -1031,7 +966,7 @@ dc-copy[copied] .dc-copy__button {
   }
 }
 
-@media (min-width: 741px) and (min-height: 30.0625rem) {
+@media (width > 740px) and (height > 30rem) {
   /* A column, not a fill: sibling margins add up instead of collapsing. */
   .dc-home-row--identity > .h-card > .dc-prose {
     display: flex;
@@ -1102,7 +1037,7 @@ dc-copy[copied] .dc-copy__button {
   gap: 10px;
 }
 
-@media (max-width: 860px) {
+@media (width <= 860px) {
   .dc-creativity-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -1231,7 +1166,7 @@ dc-copy[copied] .dc-copy__button {
   margin-top: 10px;
 }
 
-@media (max-width: 740px), (max-height: 30rem) and (orientation: landscape) {
+@media (width <= 740px), (height <= 30rem) and (orientation: landscape) {
   .as-activity__body {
     grid-template-columns: 1fr;
     gap: 14px;
@@ -2151,7 +2086,7 @@ body:has(.dc-statusbar) {
 }
 
 
-@media (max-width: 740px), (max-height: 30rem) and (orientation: landscape) {
+@media (width <= 740px), (height <= 30rem) and (orientation: landscape) {
   .dc-statusbar {
     display: none;
   }
@@ -2208,7 +2143,7 @@ body:has(.dc-statusbar) {
   text-decoration: underline;
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .dc-portrait {
     aspect-ratio: 1 / 1;
     height: auto;
@@ -2347,7 +2282,7 @@ as-viewsnav {
   text-decoration: underline;
 }
 
-@media (max-width: 1100px) {
+@media (width <= 1100px) {
   /* minmax(0,1fr) so content can shrink. */
   .dc-library {
     grid-template-columns: minmax(0, 1fr);
@@ -2430,14 +2365,14 @@ as-viewsnav {
   }
 }
 
-@media (max-width: 1100px) and (min-width: 361px) {
+@media (width <= 1100px) and (width > 360px) {
   /* 390px+ usually fits; do not keep a right fade without overflow. */
   as-viewsnav:not(:has([data-viewsnav-ready]))::after {
     opacity: 0;
   }
 }
 
-@media (max-width: 1100px) and (forced-colors: active) {
+@media (width <= 1100px) and (forced-colors: active) {
   .dc-library__views {
     scrollbar-width: thin;
   }
@@ -2600,7 +2535,7 @@ as-viewsnav {
 }
 
 /* Phone: ~44px tap targets on list rows. */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .dc-material {
     padding: 8px 0;
   }
@@ -2842,7 +2777,7 @@ as-viewsnav {
 }
 
 /* Phone: hide index table view. */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .dc-mode-switch {
     display: none;
   }
@@ -2932,7 +2867,7 @@ as-viewsnav {
   padding: 0;
 }
 
-@media (min-width: 1101px) {
+@media (width > 1100px) {
   .dc-aftermatter {
     margin-block-start: 28px;
     padding-block-start: 20px;
@@ -3086,7 +3021,7 @@ as-viewsnav {
   margin: 0;
 }
 
-@media (min-width: 1101px) {
+@media (width > 1100px) {
   .dc-main:has(> .dc-panel--detail) {
     grid-template-columns: var(--dc-rail-track) minmax(0, 1fr);
     column-gap: var(--dc-rail-gap);
@@ -3154,7 +3089,7 @@ as-viewsnav {
   }
 }
 
-@media (max-width: 1100px) {
+@media (width <= 1100px) {
   .dc-panel--detail > .dc-article__head > .dc-toc {
     position: static;
     top: auto;
@@ -3176,7 +3111,7 @@ as-viewsnav {
   }
 }
 
-@container reading-pane (max-width: 24rem) {
+@container reading-pane (width <= 24rem) {
   .dc-panel--detail .dc-title {
     font-size: clamp(var(--dc-fs-prose), 5.1vw, var(--dc-fs-lead));
     line-height: var(--dc-lh-tight);

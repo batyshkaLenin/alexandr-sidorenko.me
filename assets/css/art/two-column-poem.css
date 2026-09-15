@@ -18,7 +18,7 @@
 }
 
 /* Stack to one column on narrow viewports. */
-@media (max-width: 720px) {
+@media (width <= 720px) {
   .dc-art--two-column-poem .dc-art__grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 18px;
