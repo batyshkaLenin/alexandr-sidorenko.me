@@ -32,4 +32,36 @@ test.describe("font scaling", () => {
       }
     });
   }
+
+  // A reader at 200% text must not have to scroll sideways (WCAG 1.4.4/1.4.10).
+  // The browser's own font size is what media queries read, so emulate that
+  // setting instead of styling the root element.
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }] as const) {
+    test(`${viewport.width}px with a 32px browser font keeps every page in one column`, async ({ page, context }) => {
+      const client = await context.newCDPSession(page);
+      await client.send("Page.enable");
+      await client.send("Page.setFontSizes" as never, { fontSizes: { standard: 32, fixed: 32 } } as never);
+      await page.setViewportSize(viewport);
+      for (const path of ["/", "/library", "/library/all", "/library/timeline", "/library/topics", "/library/types", "/library/types/fiction", "/library/skver", "/library/bluredu-new-teachers"]) {
+        await page.goto(path);
+        await page.evaluate(() => document.fonts.ready.then(() => undefined));
+        const measured = await page.evaluate(() => ({
+          overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          root: Number.parseFloat(getComputedStyle(document.documentElement).fontSize),
+        }));
+        expect(measured.root, "the browser font size is emulated").toBe(32);
+        expect(measured.overflow, `${path} at ${viewport.width}px`).toBeLessThanOrEqual(1);
+      }
+    });
+  }
+
+  test("the copy control keeps a 24px target on a phone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/library/bluredu-new-teachers");
+    const button = page.locator(".dc-copy__button").first();
+    await button.scrollIntoViewIfNeeded();
+    const box = (await button.boundingBox())!;
+    expect(box.height).toBeGreaterThanOrEqual(24);
+    expect(box.width).toBeGreaterThanOrEqual(24);
+  });
 });

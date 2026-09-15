@@ -535,6 +535,9 @@ dc-prompt[open] .dc-identity__cursor {
 }
 
 .dc-copy__button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
   border: 1px solid var(--dc-border);
   border-radius: 0;
   background: none;
@@ -2616,7 +2619,9 @@ as-viewsnav {
 
 .dc-timeline__year {
   margin: 0 0 10px;
-  padding-inline-start: var(--dc-timeline-body-start);
+  /* Aligned with the row body, but never wider than half the pane: at a large
+     reader font size the year would otherwise push the list sideways. */
+  padding-inline-start: min(var(--dc-timeline-body-start), 50%);
   font-size: var(--dc-fs-title);
   font-weight: 400;
   color: var(--dc-muted);
@@ -2657,6 +2662,8 @@ as-viewsnav {
 .dc-timeline__body {
   min-width: 0;
   padding-inline-start: var(--dc-timeline-caret);
+  /* A long title wraps instead of pushing the row past the viewport. */
+  overflow-wrap: anywhere;
 }
 
 .dc-timeline__title {
