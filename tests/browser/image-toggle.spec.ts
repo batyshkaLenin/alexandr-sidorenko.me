@@ -92,6 +92,26 @@ test.describe("image variant toggle", () => {
     expect(requests.slice(beforeClick).filter((path) => path.includes(".dither-"))).toEqual([]);
   });
 
+  test("a figure toggle places the overlay without writing styles into markup", async ({ page }) => {
+    await page.goto(ARTICLE);
+    const toggle = page.locator("dc-image-toggle:has(figure)").first();
+    const figure = toggle.locator("figure");
+    const image = figure.locator("img").first();
+    await toggle.scrollIntoViewIfNeeded();
+    await settledImage(page, "dc-image-toggle figure img");
+    await toggle.getByRole("button", { name: "show original" }).click();
+    await expect(toggle).toHaveAttribute("showing", "original");
+    const overlay = figure.locator(".dc-image-toggle__overlay");
+    await expect(overlay).toBeVisible();
+    const imageBox = await image.boundingBox();
+    const overlayBox = await overlay.boundingBox();
+    for (const key of ["x", "y", "width", "height"] as const) {
+      expect(Math.abs(overlayBox![key] - imageBox![key]), key).toBeLessThan(1);
+    }
+    await expect(figure).not.toHaveAttribute("style", /.*/);
+    await expect(toggle).not.toHaveAttribute("style", /.*/);
+  });
+
   test("keyboard activates the native button", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "chromium-mobile", "Keyboard runs on desktop projects.");
     await page.goto(SINGLE);

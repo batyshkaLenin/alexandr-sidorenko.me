@@ -331,9 +331,6 @@ dc-prompt[open] .dc-identity__cursor {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  max-width: var(--dc-detail-width);
-  margin: 24px auto 0;
-  padding: 0 26px;
 }
 
 .dc-adjacent__link {
@@ -384,9 +381,6 @@ dc-prompt[open] .dc-identity__cursor {
 
 /* responses/ */
 .dc-responses {
-  max-width: var(--dc-detail-width);
-  margin: 24px auto 0;
-  padding: 0 26px;
   color: var(--dc-muted);
   font-size: var(--dc-fs-ui);
 }
@@ -502,9 +496,6 @@ dc-prompt[open] .dc-identity__cursor {
 
 /* relations/ */
 .dc-relations {
-  max-width: var(--dc-detail-width);
-  margin: 24px auto 0;
-  padding: 0 26px;
   color: var(--dc-muted);
   font-size: var(--dc-fs-ui);
 }
@@ -615,20 +606,11 @@ dc-copy[copied] .dc-copy__button {
 .dc-home {
   display: flex;
   flex-direction: column;
+  gap: 16px;
 }
 
 .dc-home-row {
   display: contents;
-}
-
-.dc-home-row > .dc-panel,
-.dc-home > .as-activity {
-  margin-bottom: 16px;
-}
-
-.dc-home > .as-activity:last-child,
-.dc-home-row:last-child > .dc-panel:last-child {
-  margin-bottom: 0;
 }
 
 /* Stacked Home: portrait → about → library → activity. */
@@ -710,11 +692,6 @@ dc-copy[copied] .dc-copy__button {
       align-items: start;
     }
 
-    .dc-home-row > .dc-panel,
-    .dc-home > .as-activity {
-      margin-bottom: 0;
-    }
-
     .dc-home-row--identity {
       display: grid;
       grid-column: 1 / -1;
@@ -785,11 +762,6 @@ dc-copy[copied] .dc-copy__button {
     align-items: start;
     align-content: start;
     min-height: 0;
-  }
-
-  .dc-home-row > .dc-panel,
-  .dc-home > .as-activity {
-    margin-bottom: 0;
   }
 
   .dc-home .dc-panel,
@@ -1067,7 +1039,6 @@ dc-copy[copied] .dc-copy__button {
 /* Activity pane */
 .as-activity {
   display: block;
-  margin-bottom: 16px;
 }
 
 .as-activity__body {
@@ -2858,15 +2829,6 @@ as-viewsnav {
   border-block-start: 1px dashed var(--dc-border);
 }
 
-.dc-aftermatter .dc-relations,
-.dc-aftermatter .dc-responses,
-.dc-aftermatter .dc-adjacent {
-  max-width: none;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
 @media (width > 1100px) {
   .dc-aftermatter {
     margin-block-start: 28px;
@@ -2937,9 +2899,12 @@ as-viewsnav {
   margin-bottom: 8px;
 }
 
-/* Narrow: tree is a sibling of details so closed <details> cannot hide it. */
-.dc-toc:not(:has(.dc-toc__disclosure[open])) > .dc-toc__rail > .dc-toc__tree {
-  display: none;
+/* Narrow: tree is a sibling of details so closed <details> cannot hide it.
+   Wide parks the tree in the rail, where it is always open. */
+@media (width <= 1100px) {
+  .dc-toc:not(:has(.dc-toc__disclosure[open])) > .dc-toc__rail > .dc-toc__tree {
+    display: none;
+  }
 }
 
 .dc-toc ul {
@@ -3076,10 +3041,6 @@ as-viewsnav {
     pointer-events: none;
     cursor: default;
     margin: 0 0 8px;
-  }
-
-  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__tree {
-    display: block !important;
   }
 
   .dc-panel--detail > .dc-article__head > .dc-toc ul {
