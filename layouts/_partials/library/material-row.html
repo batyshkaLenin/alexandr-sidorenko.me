@@ -50,7 +50,7 @@ Markers from capabilities + data/glyphs.yaml (max three).
     {{- if .excerpt }}
     {{- with strings.TrimSpace (partial "publication/summary.txt" $page) }}
     <span class="dc-material__sep dc-material__sep--excerpt" aria-hidden="true">·</span>
-    <span class="dc-material__excerpt p-summary">{{ . }}</span>
+    <span class="dc-material__excerpt p-summary" title="{{ . }}">{{ . }}</span>
     {{- end }}
     {{- end }}
     {{- if $showType }}

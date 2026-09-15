@@ -526,6 +526,7 @@ dc-prompt[open] .dc-identity__cursor {
 /* External relation target. */
 .dc-relations__item--external a::after {
   content: " ↗";
+  content: " ↗" / "";
 }
 
 .dc-relations__rel {
@@ -825,15 +826,6 @@ dc-copy[copied] .dc-copy__button {
   text-decoration: underline;
 }
 
-.dc-filetree__current {
-  color: var(--dc-text);
-}
-
-.dc-filetree__rule {
-  border-top: 1px solid var(--dc-border);
-  margin: 12px 0;
-}
-
 .dc-filetree__label {
   margin: 0;
   color: var(--dc-primary);
@@ -981,12 +973,6 @@ dc-copy[copied] .dc-copy__button {
   min-width: 0;
 }
 
-/* Wide gap between comments via span, not punctuation. */
-.dc-hero-meta__gap {
-  display: inline-block;
-  width: 1.5em;
-}
-
 .dc-roles {
   color: var(--dc-primary);
   font-size: var(--dc-fs-ui);
@@ -1005,38 +991,6 @@ dc-copy[copied] .dc-copy__button {
   object-fit: contain;
   object-position: center;
   border: 1px solid var(--portrait-frame);
-}
-
-.dc-creativity-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-@media (width <= 860px) {
-  .dc-creativity-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.dc-creativity-card {
-  display: block;
-  border-left: 2px solid var(--dc-primary);
-  padding-left: 8px;
-  color: inherit;
-  text-decoration: none;
-}
-
-.dc-creativity-card__title {
-  display: block;
-  color: var(--dc-text);
-  font-size: var(--dc-fs-ui);
-  margin-top: 5px;
-}
-
-.dc-creativity-card:hover .dc-creativity-card__title,
-.dc-creativity-card:focus-visible .dc-creativity-card__title {
-  text-decoration: underline;
 }
 
 /* Activity pane */
@@ -1606,20 +1560,6 @@ dc-copy[copied] .dc-copy__button {
   border-color: var(--dc-accent);
 }
 
-.dc-list__read {
-  display: block;
-  margin-top: 6px;
-  color: var(--dc-accent);
-  font-size: var(--dc-fs-meta);
-}
-
-.dc-list__meta {
-  display: flex;
-  gap: 8px;
-  align-items: baseline;
-  margin: 0 0 3px;
-}
-
 .dc-list__type {
   color: var(--dc-primary);
   font-size: var(--dc-fs-meta);
@@ -2045,7 +1985,6 @@ as-statusbar {
   color: var(--dc-faint);
 }
 
-.dc-statusbar__prefix,
 .dc-statusbar__mode {
   color: var(--dc-primary);
   font-weight: 700;
@@ -2223,6 +2162,7 @@ as-viewsnav {
 
 .dc-library__views-list li::before {
   content: "> ";
+  content: "> " / "";
   position: absolute;
   inset-inline-start: 0;
   color: transparent;
@@ -2230,6 +2170,7 @@ as-viewsnav {
 
 .dc-library__views-list li.dc-library__view--current::before {
   content: "> ";
+  content: "> " / "";
   color: var(--dc-accent);
 }
 

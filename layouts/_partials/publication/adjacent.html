@@ -19,13 +19,13 @@ Omit a side when missing — do not use .PrevInSection/.NextInSection.
   {{- with $prev }}
   <a class="dc-adjacent__link dc-adjacent__link--prev" href="{{ partial "canonical-url.html" .RelPermalink }}">
     <span class="dc-adjacent__dir"><span aria-hidden="true">← </span>previous</span>
-    <span class="dc-adjacent__title" lang="{{ $docLang }}">{{ .Title }}</span>
+    <span class="dc-adjacent__title" lang="{{ $docLang }}" title="{{ .Title }}">{{ .Title }}</span>
   </a>
   {{- end }}
   {{- with $next }}
   <a class="dc-adjacent__link dc-adjacent__link--next" href="{{ partial "canonical-url.html" .RelPermalink }}">
     <span class="dc-adjacent__dir">next<span aria-hidden="true"> →</span></span>
-    <span class="dc-adjacent__title" lang="{{ $docLang }}">{{ .Title }}</span>
+    <span class="dc-adjacent__title" lang="{{ $docLang }}" title="{{ .Title }}">{{ .Title }}</span>
   </a>
   {{- end }}
 </nav>
