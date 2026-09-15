@@ -4,6 +4,7 @@ import path from "node:path";
 
 const PRECACHE_NAME = "dc-sw:precache:v1";
 const DOCUMENTS_CACHE_NAME = "dc-sw:documents:v1";
+const STYLES_CACHE_NAME = "dc-sw:styles:v1";
 const publicDir = path.resolve(process.env.PUBLIC_DIR || "public");
 const generatedFixtures = ["__sw-large", "sw-broken.js", "sw-legacy.js", "sw-upgrade.js"];
 
@@ -82,6 +83,19 @@ async function clientReload(
   return response;
 }
 
+/**
+ * Open a page and wait until the worker handles its navigations. Chromium can
+ * send the first navigation after clients.claim() to the network although the
+ * page already reports a controller; scenarios start after that has passed.
+ */
+async function startControlled(page: Page, href: string) {
+  await startControlled(page, href);
+  for (let attempt = 0; attempt < 5; attempt++) {
+    if ((await clientReload(page)).fromServiceWorker()) return;
+  }
+  throw new Error(`the worker never handled a navigation to ${href}`);
+}
+
 async function waitForCached(page: Page, pathname: string) {
   await waitForWorker(page);
   await expect
@@ -104,7 +118,32 @@ async function documentUrls(page: Page) {
   }, DOCUMENTS_CACHE_NAME);
 }
 
-test.describe("navigation-only Service Worker", () => {
+async function styleUrls(page: Page) {
+  return page.evaluate(async (cacheName) => {
+    const cache = await caches.open(cacheName);
+    return (await cache.keys()).map((request) => new URL(request.url).pathname).sort();
+  }, STYLES_CACHE_NAME);
+}
+
+async function linkedStyles(page: Page) {
+  return page.evaluate(() =>
+    Array.from(document.querySelectorAll<HTMLLinkElement>("link[rel~='stylesheet']"))
+      .map((link) => new URL(link.href).pathname)
+      .sort(),
+  );
+}
+
+function trackStylesheets(page: Page) {
+  const fromWorker: boolean[] = [];
+  page.on("response", (response) => {
+    if (response.request().resourceType() === "stylesheet") {
+      fromWorker.push(response.fromServiceWorker());
+    }
+  });
+  return fromWorker;
+}
+
+test.describe("offline Service Worker: documents and their stylesheets", () => {
   test.describe.configure({ mode: "serial" });
 
   test.beforeEach(async ({}, testInfo) => {
@@ -123,8 +162,7 @@ test.describe("navigation-only Service Worker", () => {
   });
 
   test("registers at the root and precaches only the offline document", async ({ page }) => {
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
 
     const registrationScript = page.locator("script[src^='/js/sw-register.']");
     await expect(registrationScript).toHaveCount(1);
@@ -146,8 +184,7 @@ test.describe("navigation-only Service Worker", () => {
   });
 
   test("serves a visited document and the system fallback offline", async ({ page, context }) => {
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
     await clientNavigate(page, "/library/philosophy-of-freedom");
     await waitForCached(page, "/library/philosophy-of-freedom");
 
@@ -163,10 +200,92 @@ test.describe("navigation-only Service Worker", () => {
     await expect(page).toHaveURL(/\/not-visited-by-service-worker$/);
   });
 
+  test("stores a visited document's stylesheets and serves them offline", async ({ page, context }) => {
+    await startControlled(page, "/");
+    await clientNavigate(page, "/library/skver");
+    await waitForCached(page, "/library/skver");
+    const linked = await linkedStyles(page);
+    expect(linked.length).toBeGreaterThan(0);
+    await expect.poll(() => styleUrls(page)).toEqual(linked);
+    const onlineBackground = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+
+    // Without the browser's HTTP cache the stylesheets can only come from the worker.
+    const client = await context.newCDPSession(page);
+    await client.send("Network.clearBrowserCache");
+    const fromWorker = trackStylesheets(page);
+    await context.setExtraHTTPHeaders({ "X-SW-Test-Network-Failure": "1" });
+    await clientReload(page);
+
+    await expect(page.locator("h1")).not.toHaveText("Нет сети");
+    expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe(onlineBackground);
+    expect(fromWorker.length).toBeGreaterThan(0);
+    expect(fromWorker.every(Boolean)).toBe(true);
+  });
+
+  test("keeps the stylesheet of an older build for its document", async ({ page, context }) => {
+    const pathname = "/library/older-build-fixture";
+    await startControlled(page, "/library/skver");
+    const onlineBackground = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    await page.evaluate(
+      async ({ documentsName, stylesName, pathToStore }) => {
+        const links = Array.from(document.querySelectorAll<HTMLLinkElement>("link[rel~='stylesheet']"));
+        let html = document.documentElement.outerHTML.replace(/\sintegrity="[^"]*"/g, "");
+        const styles = await caches.open(stylesName);
+        const olderUrls: string[] = [];
+        for (const [index, link] of links.entries()) {
+          const older = new URL(`/css/older-build-${index}.css`, location.origin);
+          const css = await (await fetch(link.href)).text();
+          await styles.put(older.href, new Response(css, { headers: { "Content-Type": "text/css" } }));
+          html = html.split(`"${link.getAttribute("href")}"`).join(`"${older.pathname}"`);
+          olderUrls.push(older.href);
+        }
+        const documents = await caches.open(documentsName);
+        await documents.put(
+          new URL(pathToStore, location.origin).href,
+          new Response(`<!doctype html>${html}`, {
+            headers: {
+              "Content-Type": "text/html; charset=utf-8",
+              "X-DC-SW-Cached-At": new Date().toISOString(),
+              "X-DC-SW-Styles": olderUrls.join(" "),
+            },
+          }),
+        );
+      },
+      { documentsName: DOCUMENTS_CACHE_NAME, stylesName: STYLES_CACHE_NAME, pathToStore: pathname },
+    );
+
+    const fromWorker = trackStylesheets(page);
+    await context.setExtraHTTPHeaders({ "X-SW-Test-Network-Failure": "1" });
+    await clientNavigate(page, pathname);
+
+    await expect(page).toHaveURL(new RegExp(`${pathname}$`));
+    await expect(page.locator("h1")).not.toHaveText("Нет сети");
+    expect(await linkedStyles(page)).toEqual(expect.arrayContaining(["/css/older-build-0.css"]));
+    expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe(onlineBackground);
+    expect(fromWorker.length).toBeGreaterThan(0);
+    expect(fromWorker.every(Boolean)).toBe(true);
+  });
+
+  test("drops stylesheets that no cached document links to", async ({ page }) => {
+    await startControlled(page, "/");
+    await page.evaluate(async (stylesName) => {
+      const styles = await caches.open(stylesName);
+      await styles.put(
+        new URL("/css/orphan-fixture.css", location.origin).href,
+        new Response("body{}", { headers: { "Content-Type": "text/css" } }),
+      );
+    }, STYLES_CACHE_NAME);
+    expect(await styleUrls(page)).toContain("/css/orphan-fixture.css");
+
+    await clientNavigate(page, "/library/skver");
+    await waitForCached(page, "/library/skver");
+    await expect.poll(() => styleUrls(page)).not.toContain("/css/orphan-fixture.css");
+    expect(await styleUrls(page)).toEqual(await linkedStyles(page));
+  });
+
   test("expires stale documents instead of serving them", async ({ page, context }) => {
     const pathname = "/library/skver";
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
     await clientNavigate(page, pathname);
     await waitForCached(page, pathname);
 
@@ -198,8 +317,7 @@ test.describe("navigation-only Service Worker", () => {
 
   test("returns a 404 and revokes an old cached copy", async ({ page, context }) => {
     const pathname = "/removed-service-worker-fixture";
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
     await clientNavigate(page, "/library/23");
     await waitForCached(page, "/library/23");
     await page.evaluate(
@@ -227,8 +345,7 @@ test.describe("navigation-only Service Worker", () => {
 
   test("returns a 410 and revokes the cached document", async ({ page, context }) => {
     const pathname = "/library/23";
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
     await clientNavigate(page, pathname);
     await waitForCached(page, pathname);
 
@@ -244,8 +361,7 @@ test.describe("navigation-only Service Worker", () => {
   });
 
   test("does not cache redirects, queries, or replace a 5xx", async ({ page, context }) => {
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
 
     await clientNavigate(page, "/library/");
     await page.waitForTimeout(100);
@@ -269,9 +385,8 @@ test.describe("navigation-only Service Worker", () => {
     await expect(page.locator("h1")).toHaveText("Сквер");
   });
 
-  test("keeps audio and every subresource outside Cache Storage", async ({ page }) => {
-    await page.goto("/");
-    await waitForWorker(page);
+  test("keeps audio, scripts, fonts and images outside Cache Storage", async ({ page }) => {
+    await startControlled(page, "/");
     await clientNavigate(page, "/library/regular-visitor");
     await waitForCached(page, "/library/regular-visitor");
 
@@ -292,9 +407,14 @@ test.describe("navigation-only Service Worker", () => {
     });
     expect(cachedUrls).not.toEqual(
       expect.arrayContaining([
-        expect.stringMatching(/\.(?:css|js|woff2|png|jpe?g|webp|mp3)(?:\?|$)/),
+        expect.stringMatching(/\.(?:js|woff2|png|jpe?g|webp|mp3)(?:\?|$)/),
       ]),
     );
+    // Stylesheets are stored only because a cached document links to them.
+    const linked = await linkedStyles(page);
+    const storedCss = cachedUrls.filter((url) => /\.css(?:\?|$)/.test(url)).map((url) => new URL(url).pathname);
+    expect(storedCss.length).toBeGreaterThan(0);
+    for (const pathname of storedCss) expect(linked).toContain(pathname);
   });
 
   test("evicts the oldest document after the twelfth entry", async ({ page }) => {
@@ -313,8 +433,7 @@ test.describe("navigation-only Service Worker", () => {
       "/library/types",
       "/library/types/article",
     ];
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
     for (const route of routes) {
       const response = await clientNavigate(page, route);
       expect(response.status(), route).toBe(200);
@@ -335,8 +454,7 @@ test.describe("navigation-only Service Worker", () => {
       `<!doctype html><html lang="en"><title>Large</title><main>${"x".repeat(513 * 1024)}</main></html>`,
     );
 
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
     const response = await clientNavigate(page, "/__sw-large");
     expect(response.status()).toBe(200);
     await expect(page.locator("main")).toContainText("xxx");
@@ -349,8 +467,7 @@ test.describe("navigation-only Service Worker", () => {
       path.join(publicDir, "sw-upgrade.js"),
       `// Test-only worker update.\n${await readFile(path.join(publicDir, "sw.js"), "utf8")}`,
     );
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
     await page.evaluate(async () => {
       await caches.open("dc-sw:precache:v0");
       await caches.open("dc-sw:documents:v0");
@@ -377,15 +494,12 @@ test.describe("navigation-only Service Worker", () => {
 
   test("a broken install leaves the current worker active", async ({ page }) => {
     const currentSource = await readFile(path.join(publicDir, "sw.js"), "utf8");
-    const brokenSource = currentSource.replace(
-      'const OFFLINE_URL = "/offline";',
-      'const OFFLINE_URL = "/__missing-offline";',
-    );
+    // The shipped worker is minified; its only root URL is the offline document.
+    const brokenSource = currentSource.replaceAll('"/offline"', '"/__missing-offline"');
     expect(brokenSource).not.toBe(currentSource);
     await writeFile(path.join(publicDir, "sw-broken.js"), brokenSource);
 
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
     const result = await page.evaluate(async () => {
       const current = await navigator.serviceWorker.getRegistration("/");
       const currentScript = current?.active?.scriptURL;
@@ -455,8 +569,7 @@ test.describe("navigation-only Service Worker", () => {
   });
 
   test("unregistering and removing registration leaves the site usable", async ({ page, context }) => {
-    await page.goto("/");
-    await waitForWorker(page);
+    await startControlled(page, "/");
     await page.evaluate(async () => {
       const registration = await navigator.serviceWorker.getRegistration("/");
       if (!registration || !(await registration.unregister())) {

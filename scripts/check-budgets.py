@@ -59,7 +59,8 @@ def main() -> int:
         limits["css_total_bytes"] = 1
 
     css = [p for p in public.rglob("*.css") if p.is_file()]
-    js = [p for p in public.rglob("*.js") if p.is_file()]
+    # The Service Worker is fetched on registration, never by a page render.
+    js = [p for p in public.rglob("*.js") if p.is_file() and p != public / "sw.js"]
     html = [p for p in public.rglob("*.html") if p.is_file()]
     images = [
         p

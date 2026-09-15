@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the built navigation-only Service Worker contract."""
+"""Verify the built Service Worker contract: documents and their stylesheets."""
 
 from __future__ import annotations
 
@@ -174,13 +174,17 @@ def check_registration(errors: list[str], public_dir: Path) -> None:
         )
 
 
-def check_worker(errors: list[str], public_dir: Path) -> None:
-    path = public_dir / "sw.js"
-    check(errors, path.is_file(), f"missing {path}")
-    if not path.is_file():
+def check_worker(errors: list[str], root: Path, public_dir: Path) -> None:
+    source_path = root / "assets" / "js" / "sw.js"
+    built_path = public_dir / "sw.js"
+    check(errors, source_path.is_file(), f"missing worker source {source_path}")
+    check(errors, built_path.is_file(), f"missing {built_path}")
+    if not source_path.is_file() or not built_path.is_file():
         return
-    source = path.read_text(encoding="utf-8")
+    source = source_path.read_text(encoding="utf-8")
+    built = built_path.read_text(encoding="utf-8")
 
+    # The contract is read from the source: the build minifies names away.
     required = {
         "private cache namespace": 'const CACHE_PREFIX = "dc-sw:"',
         "offline precache": 'const OFFLINE_URL = "/offline"',
@@ -188,6 +192,11 @@ def check_worker(errors: list[str], public_dir: Path) -> None:
         "12-document limit": "const MAX_DOCUMENTS = 12",
         "512 KiB limit": "const MAX_DOCUMENT_BYTES = 512 * 1024",
         "7-day TTL": "const DOCUMENT_TTL_MS = 7 * 24 * 60 * 60 * 1000",
+        "stylesheet cache": "const STYLES_CACHE_NAME = `${CACHE_PREFIX}styles:v1`",
+        "stylesheet list per document": 'const STYLES_HEADER = "X-DC-SW-Styles"',
+        "256 KiB stylesheet limit": "const MAX_STYLE_BYTES = 256 * 1024",
+        "stylesheet-only subresource route": 'request.destination === "style"',
+        "unreferenced stylesheet pruning": "async function pruneStyles()",
         "navigation-only guard": 'request.mode !== "navigate"',
         "same-origin guard": "url.origin !== self.location.origin",
         "404 revocation": "response.status === 404",
@@ -200,15 +209,24 @@ def check_worker(errors: list[str], public_dir: Path) -> None:
         "immediate control": "self.clients.claim()",
     }
     for label, needle in required.items():
-        check(errors, needle in source, f"/sw.js lacks {label}")
+        check(errors, needle in source, f"assets/js/sw.js lacks {label}")
 
-    check(errors, "importScripts" not in source, "/sw.js must stay vanilla")
-    check(errors, "workbox" not in source.lower(), "/sw.js must not use Workbox")
-    root_urls = set(re.findall(r'["\'](/[^"\']*)["\']', source))
+    for text, name in ((source, "assets/js/sw.js"), (built, "/sw.js")):
+        check(errors, "importScripts" not in text, f"{name} must stay vanilla")
+        check(errors, "workbox" not in text.lower(), f"{name} must not use Workbox")
+        root_urls = set(re.findall(r'["\'`](/[^"\'`]*)["\'`]', text))
+        check(
+            errors,
+            root_urls == {"/offline"},
+            f"{name} names resources other than the offline document: {sorted(root_urls)}",
+        )
+
+    for literal in ("dc-sw:", "X-DC-SW-Cached-At", "X-DC-SW-Styles", "styles:v1"):
+        check(errors, literal in built, f"/sw.js lost {literal!r} in the build")
     check(
         errors,
-        root_urls == {"/offline"},
-        f"/sw.js names resources other than the offline document: {sorted(root_urls)}",
+        len(built.encode()) < len(source.encode()) and "\n\n" not in built.strip(),
+        "/sw.js is not minified from assets/js/sw.js",
     )
 
 
@@ -223,7 +241,7 @@ def main() -> int:
         args.public_dir if args.public_dir.is_absolute() else root / args.public_dir
     )
     errors: list[str] = []
-    check_worker(errors, public_dir)
+    check_worker(errors, root, public_dir)
     check_offline(errors, public_dir)
     check_registration(errors, public_dir)
 
@@ -235,7 +253,7 @@ def main() -> int:
 
     size = (public_dir / "offline" / "index.html").stat().st_size
     print(
-        "OK: navigation-only /sw.js, one fingerprinted registration asset, "
+        "OK: minified /sw.js from assets/js/sw.js, one fingerprinted registration asset, "
         f"self-contained /offline ({size} bytes)"
     )
     return 0

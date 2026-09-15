@@ -1,4 +1,10 @@
-{{- /* Site-owned progressive enhancement: navigation-only Service Worker. */ -}}
+{{- /* Site-owned progressive enhancement: the offline Service Worker. */ -}}
+{{- /* The worker keeps its stable root URL; the build ships it minified. */ -}}
+{{- with resources.Get "js/sw.js" -}}
+{{- $published := ((. | minify).Content | resources.FromString "sw.js").RelPermalink -}}
+{{- else -}}
+{{- errorf "site enhance hook: assets/js/sw.js does not exist" -}}
+{{- end -}}
 {{- with resources.Get "js/sw-register.js" -}}
 {{- with . | minify | fingerprint }}
 <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>

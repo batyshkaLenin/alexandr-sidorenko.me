@@ -50,7 +50,7 @@ export default defineConfig({
       // stay quiet enough for the worker to intercept client navigations.
       name: "chromium-service-worker",
       testMatch: /service-worker\.spec\.ts/,
-      dependencies: ["chromium-desktop", "chromium-mobile"],
+      dependencies: ["chromium-desktop", "firefox-desktop", "chromium-mobile"],
       use: { ...devices["Desktop Chrome"], serviceWorkers: "allow" },
     },
   ],
