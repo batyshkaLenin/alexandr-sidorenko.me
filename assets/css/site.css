@@ -236,6 +236,7 @@
   --syntax-inserted-rule: #9ab4a6;
 
   --portrait-frame: #2a1420;
+  --media-letterbox: #000;
 
   /* Shared Library / publication workspace tracks (T190). */
   --dc-rail-track: 150px;
@@ -445,7 +446,7 @@ dc-prompt[open] .dc-identity__cursor {
   margin: 0;
   color: var(--dc-text);
   font-family: var(--dc-font-prose);
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.55;
   overflow-wrap: anywhere;
 }
@@ -2297,7 +2298,6 @@ as-viewsnav {
     gap: 0 20px;
     overflow-x: auto;
     overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
     white-space: nowrap;
     min-width: 0;
     width: 100%;
@@ -3237,7 +3237,7 @@ as-viewsnav {
 .as-external-media__frame {
   width: 100%;
   margin-block-start: 12px;
-  background: #000;
+  background: var(--media-letterbox);
 }
 
 .as-external-media[data-layout="video"] .as-external-media__frame {
