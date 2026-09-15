@@ -118,6 +118,111 @@ test.describe("keyboard", () => {
     await expect(trigger).toBeFocused();
   });
 
+  test("help command rows share one hit target for marker and label", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name === "chromium-mobile", "Help overlay is desktop-representative.");
+    await page.goto("/");
+
+    // Capture run requests before <dc-prompt> acts (avoids navigation).
+    await page.evaluate(() => {
+      const runs = [];
+      window["__helpRuns"] = runs;
+      document.addEventListener(
+        "dc-prompt:run-request",
+        (event) => {
+          const detail = event["detail"];
+          runs.push(String(detail && detail.command != null ? detail.command : ""));
+          event.stopImmediatePropagation();
+        },
+        true,
+      );
+    });
+
+    await page.keyboard.press("?");
+    const help = page.locator("dialog.dc-help[open]");
+    await expect(help).toBeVisible();
+
+    const commandColumn = help
+      .locator(".dc-help__column")
+      .filter({ has: page.locator(".dc-help__column-title", { hasText: /^cli$/i }) });
+    const homeRow = commandColumn.locator("dt.dc-help__command").filter({ hasText: /^home$/ });
+    const homeRun = homeRow.locator("button.dc-help__run");
+    await expect(homeRun).toHaveCount(1);
+    await expect(homeRun.locator(".dc-help__term")).toHaveText("home");
+    await expect(homeRun).toHaveCSS("cursor", "pointer");
+    // Marker is hover/focus confirmation only; the label itself is the control.
+    await expect
+      .poll(() => homeRun.locator(".dc-help__run-icon").evaluate((el) => getComputedStyle(el).opacity))
+      .toBe("0");
+    await homeRun.hover();
+    await expect
+      .poll(() => homeRun.locator(".dc-help__run-icon").evaluate((el) => getComputedStyle(el).opacity))
+      .toBe("1");
+    await expect(homeRun).toHaveAttribute("aria-label", /(?:^|\s)home(?:\s|$)/i);
+
+    // Exactly one tab stop per command row: the unified button.
+    await expect(homeRow.locator("button")).toHaveCount(1);
+    await expect(homeRow.locator(".dc-help__term")).toHaveCount(1);
+
+    // Click the command label (not only the marker).
+    await homeRun.locator(".dc-help__term").click();
+    await expect(page.locator("dialog.dc-help[open]")).toHaveCount(0);
+    expect(await page.evaluate(() => window["__helpRuns"])).toEqual(["home"]);
+
+    await page.keyboard.press("?");
+    await expect(help).toBeVisible();
+
+    const libraryRow = commandColumn
+      .locator("dt.dc-help__command")
+      .filter({ hasText: /^library --music$/ });
+    const libraryRun = libraryRow.locator("button.dc-help__run");
+    await expect(libraryRun).toHaveAttribute("aria-label", /library --music/i);
+
+    // Placeholder rows keep trailing-space semantics for target completion.
+    const readRow = commandColumn
+      .locator("dt.dc-help__command")
+      .filter({ hasText: /^read <material>$/ });
+    const readRun = readRow.locator("button.dc-help__run");
+    await expect(readRun).toHaveAttribute("aria-label", /(?:^|\s)read(?:\s|$)/i);
+
+    await libraryRun.focus();
+    await expect(libraryRun).toBeFocused();
+    await expect.poll(() => libraryRun.evaluate((el) => el.matches(":focus-visible"))).toBe(true);
+    await expect
+      .poll(() => libraryRun.locator(".dc-help__run-icon").evaluate((el) => getComputedStyle(el).opacity))
+      .toBe("1");
+    const focusBox = await libraryRun.boundingBox();
+    const termBox = await libraryRun.locator(".dc-help__term").boundingBox();
+    const iconBox = await libraryRun.locator(".dc-help__run-icon").boundingBox();
+    expect(focusBox).toBeTruthy();
+    expect(termBox).toBeTruthy();
+    expect(iconBox).toBeTruthy();
+    // Visible focus box covers marker + label, not a tiny icon-only control.
+    expect(focusBox!.width).toBeGreaterThan(iconBox!.width + termBox!.width * 0.5);
+    expect(focusBox!.x).toBeLessThanOrEqual(iconBox!.x + 1);
+    expect(focusBox!.x + focusBox!.width).toBeGreaterThanOrEqual(termBox!.x + termBox!.width - 1);
+
+    await page.evaluate(() => {
+      window["__helpRuns"].length = 0;
+    });
+    await page.keyboard.press("Enter");
+    await expect(page.locator("dialog.dc-help[open]")).toHaveCount(0);
+    expect(await page.evaluate(() => window["__helpRuns"])).toEqual(["library --music"]);
+
+    // Re-open via pointer trigger and activate a placeholder row with Space.
+    const trigger = page.locator("dc-help .dc-help__trigger").first();
+    await trigger.click();
+    await expect(help).toBeVisible();
+    await page.evaluate(() => {
+      window["__helpRuns"].length = 0;
+    });
+    await readRun.focus();
+    await page.keyboard.press("Space");
+    await expect(page.locator("dialog.dc-help[open]")).toHaveCount(0);
+    expect(await page.evaluate(() => window["__helpRuns"])).toEqual(["read "]);
+  });
+
   test("external media hands keyboard focus to the loaded player", async ({
     page,
   }, testInfo) => {

@@ -16,6 +16,9 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 ### Changed
 
+- In Help, each CLI command row is one control: marker and label share a hit
+  target and Tab stop; the run marker appears on hover or keyboard focus (always
+  on touch).
 - Machine-only identity URLs on Home, author bylines and publications without
   a visual meta line are no longer keyboard tab stops; `u-url`, document-level
   `rel=me` and microformats parsing stay intact.
