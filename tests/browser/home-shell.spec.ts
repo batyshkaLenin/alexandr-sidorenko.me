@@ -478,7 +478,6 @@ test.describe("home shell", () => {
       expect(geo.library!.y).toBeGreaterThanOrEqual(
         Math.max(geo.avatar!.y + geo.avatar!.h, geo.about!.y + geo.about!.h) - 1,
       );
-      expect(Math.abs(geo.avatar!.h - geo.about!.h)).toBeLessThan(4);
       expect(geo.avatar!.w).toBeLessThanOrEqual(16 * 16 + 48);
       expect(await aboutTypeSize(page)).toBe("14px");
       const mods = await activityModuleLayout(page);
@@ -507,7 +506,6 @@ test.describe("home shell", () => {
     expect(geo.about!.x).toBeGreaterThan(geo.avatar!.x + geo.avatar!.w - 1);
     expect(geo.activity!.x).toBeGreaterThan(geo.library!.x + geo.library!.w - 1);
     expect(geo.library!.w).toBeGreaterThan(geo.activity!.w);
-    expect(Math.abs(geo.avatar!.h - geo.about!.h)).toBeLessThan(4);
     expect(geo.avatar!.w).toBeLessThan(974 * 0.35);
     expect(geo.portrait!.w).toBeLessThanOrEqual(16 * 16 + 2);
     expect(await aboutTypeSize(page)).toBe("14px");
@@ -585,7 +583,6 @@ test.describe("home shell", () => {
       expect(geo.library).toBeTruthy();
       expect(geo.activity).toBeTruthy();
       expect(Math.abs(geo.avatar!.y - geo.about!.y)).toBeLessThan(8);
-      expect(Math.abs(geo.avatar!.h - geo.about!.h)).toBeLessThan(4);
       expect(geo.about!.x).toBeGreaterThan(geo.avatar!.x + geo.avatar!.w - 1);
       expect(geo.library!.y).toBeGreaterThanOrEqual(
         Math.max(geo.avatar!.y + geo.avatar!.h, geo.about!.y + geo.about!.h) - 1,

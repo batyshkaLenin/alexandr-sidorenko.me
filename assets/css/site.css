@@ -770,7 +770,7 @@ dc-copy[copied] .dc-copy__button {
       grid-template-columns: minmax(0, 1fr) minmax(12rem, 20rem);
       grid-template-rows: auto auto;
       gap: clamp(8px, 1.5svh, 16px);
-      align-items: stretch;
+      align-items: start;
     }
 
     .dc-home-row > .dc-panel,
@@ -784,7 +784,7 @@ dc-copy[copied] .dc-copy__button {
       grid-row: 1;
       grid-template-columns: max-content minmax(0, 1fr);
       gap: inherit;
-      align-items: stretch;
+      align-items: start;
     }
 
     .dc-home-row--identity > .dc-panel--utility {
@@ -849,9 +849,10 @@ dc-copy[copied] .dc-copy__button {
   .dc-home {
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
-    grid-template-rows: minmax(12rem, 1fr) auto auto;
+    grid-template-rows: auto auto auto;
     gap: clamp(8px, 1.5svh, 16px);
-    align-items: stretch;
+    align-items: start;
+    align-content: start;
     min-height: 0;
   }
 
@@ -872,7 +873,6 @@ dc-copy[copied] .dc-copy__button {
     display: flex;
     flex-direction: column;
     justify-self: start;
-    align-self: stretch;
     width: var(--dc-home-avatar);
     max-width: 28cqi;
     min-height: 0;
@@ -883,7 +883,6 @@ dc-copy[copied] .dc-copy__button {
     grid-row: 1;
     min-width: 0;
     min-height: 0;
-    align-self: stretch;
   }
 
   .dc-home-row--identity > .dc-panel--utility > .dc-portrait-body {
@@ -898,7 +897,6 @@ dc-copy[copied] .dc-copy__button {
   .dc-home-row--identity .dc-portrait {
     width: 100%;
     height: auto;
-    max-height: 100%;
     aspect-ratio: 1 / 1;
     object-fit: contain;
     object-position: top center;
@@ -967,7 +965,7 @@ dc-copy[copied] .dc-copy__button {
 }
 
 /* Home chrome stays shell type, including about.md — tablet must not read
-   larger than the wide stage. Filling the pane is layout, not type size. */
+   larger than the wide stage. */
 .dc-home {
   font-size: var(--dc-fs-ui-strong);
   line-height: var(--dc-lh-ui);
@@ -1009,10 +1007,6 @@ dc-copy[copied] .dc-copy__button {
 
   .dc-home .dc-roles {
     margin-top: clamp(4px, 0.8svh, 10px);
-  }
-
-  .dc-home .dc-hero-foot {
-    margin-top: clamp(6px, 1svh, 10px);
   }
 }
 
@@ -1063,26 +1057,8 @@ dc-copy[copied] .dc-copy__button {
 }
 
 @media (min-width: 741px) and (min-height: 30.0625rem) {
-  .dc-home-row--identity > .h-card {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .dc-home-row--identity > .h-card > .dc-prose {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .dc-home-row--identity .p-note {
-    flex: 1 1 auto;
-    min-height: 0;
-  }
-
   .dc-home-row--identity .dc-hero-foot {
-    margin-top: auto;
-    padding-top: 0.6em;
+    margin-top: 0.6em;
   }
 }
 
