@@ -55,7 +55,7 @@ test.describe("CSS isolation", () => {
       await page.setViewportSize(viewport);
       for (const path of PAGES) {
         await page.goto(path);
-        await page.evaluate(() => document.fonts.ready);
+        await page.evaluate(() => document.fonts.ready.then(() => undefined));
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         expect(overflow, path).toBeLessThanOrEqual(1);
         for (const panel of await panels(page, ".dc-main .dc-panel")) {
@@ -69,7 +69,7 @@ test.describe("CSS isolation", () => {
     test(`${viewport.width}×${viewport.height}: Home panes are as tall as their content`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await page.goto("/");
-      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(() => document.fonts.ready.then(() => undefined));
       const reports = await panels(page, ".dc-home .dc-panel, .dc-home > .as-activity");
       expect(reports.length).toBeGreaterThanOrEqual(3);
       for (const panel of reports) {
@@ -82,6 +82,33 @@ test.describe("CSS isolation", () => {
         return getComputedStyle(document.body).overflow === "hidden" && last > window.innerHeight + 1;
       });
       expect(clipped).toBe(false);
+    });
+  }
+
+  for (const viewport of [{ width: 1024, height: 600 }, { width: 1100, height: 500 }] as const) {
+    test(`${viewport.width}×${viewport.height}: a short wide Home keeps every pane reachable`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      await page.evaluate(() => document.fonts.ready.then(() => undefined));
+      const reach = await page.evaluate(() => {
+        const main = document.querySelector(".dc-main") as HTMLElement;
+        const box = main.getBoundingClientRect();
+        const last = Array.from(document.querySelectorAll(".dc-home .dc-panel, .dc-home > .as-activity"))
+          .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), box.top);
+        const overflowY = getComputedStyle(main).overflowY;
+        const scrollable = overflowY === "auto" || overflowY === "scroll";
+        main.scrollTop = main.scrollHeight;
+        const after = Array.from(document.querySelectorAll(".dc-home .dc-panel, .dc-home > .as-activity"))
+          .reduce((max, el) => Math.max(max, el.getBoundingClientRect().bottom), box.top);
+        const portrait = document.querySelector(".dc-portrait")!.getBoundingClientRect().width;
+        return { hidden: getComputedStyle(document.body).overflow === "hidden", beyond: last > box.bottom + 1, scrollable, reached: after <= box.bottom + 1, portrait };
+      });
+      expect(reach.hidden).toBe(true);
+      expect(reach.portrait, "the portrait is not sized away by a short window").toBeGreaterThanOrEqual(64);
+      if (reach.beyond) {
+        expect(reach.scrollable).toBe(true);
+        expect(reach.reached).toBe(true);
+      }
     });
   }
 });

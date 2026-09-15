@@ -658,7 +658,8 @@ dc-copy[copied] .dc-copy__button {
     display: flex;
     flex-direction: column;
     padding-block: clamp(12px, 2svh, 24px) clamp(8px, 1.4svh, 16px);
-    overflow: hidden;
+    /* A window too short for the panes scrolls; it never cuts them off. */
+    overflow-y: auto;
   }
 
   .dc-main:has(.dc-home) > dc-listnav {
@@ -755,7 +756,7 @@ dc-copy[copied] .dc-copy__button {
 
 @media (min-width: 64rem) {
   .dc-home-row--identity > .dc-panel--utility {
-    --dc-home-avatar: min(20rem, 28svh, 28cqi, calc(100cqh - 24.5rem));
+    --dc-home-avatar: min(20rem, 28svh, 28cqi);
   }
 }
 
@@ -788,16 +789,12 @@ dc-copy[copied] .dc-copy__button {
     }
 
     .dc-home-row--identity > .dc-panel--utility {
-      display: flex;
-      flex-direction: column;
       width: var(--dc-home-avatar);
       max-width: min(16rem, 36cqi);
-      min-height: 0;
     }
 
     .dc-home-row--identity > .h-card {
       min-width: 0;
-      min-height: 0;
     }
 
     .dc-home-row--identity .dc-portrait {
@@ -815,14 +812,12 @@ dc-copy[copied] .dc-copy__button {
       grid-column: 1;
       grid-row: 2;
       min-width: 0;
-      align-self: start;
     }
 
     .dc-home > .as-activity {
       grid-column: 2;
       grid-row: 2;
       min-width: 0;
-      align-self: start;
     }
 
     .dc-home > .as-activity .as-activity__body {
@@ -864,34 +859,20 @@ dc-copy[copied] .dc-copy__button {
   .dc-home .dc-panel,
   .dc-home > .as-activity {
     width: 100%;
-    min-height: 0;
   }
 
   .dc-home-row--identity > .dc-panel--utility {
     grid-column: 1;
     grid-row: 1;
-    display: flex;
-    flex-direction: column;
     justify-self: start;
     width: var(--dc-home-avatar);
     max-width: 28cqi;
-    min-height: 0;
   }
 
   .dc-home-row--identity > .h-card {
     grid-column: 2;
     grid-row: 1;
     min-width: 0;
-    min-height: 0;
-  }
-
-  .dc-home-row--identity > .dc-panel--utility > .dc-portrait-body {
-    flex: 0 0 auto;
-  }
-
-  .dc-home-row--identity dc-image-toggle {
-    flex: 0 0 auto;
-    height: auto;
   }
 
   .dc-home-row--identity .dc-portrait {
@@ -900,12 +881,6 @@ dc-copy[copied] .dc-copy__button {
     aspect-ratio: 1 / 1;
     object-fit: contain;
     object-position: top center;
-    flex: 0 0 auto;
-    align-self: start;
-  }
-
-  .dc-home-row--identity .dc-portrait-original {
-    flex: 0 0 auto;
   }
 
   .dc-home-row--recent > .dc-panel {
@@ -1057,6 +1032,12 @@ dc-copy[copied] .dc-copy__button {
 }
 
 @media (min-width: 741px) and (min-height: 30.0625rem) {
+  /* A column, not a fill: sibling margins add up instead of collapsing. */
+  .dc-home-row--identity > .h-card > .dc-prose {
+    display: flex;
+    flex-direction: column;
+  }
+
   .dc-home-row--identity .dc-hero-foot {
     margin-top: 0.6em;
   }
