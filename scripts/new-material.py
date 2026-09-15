@@ -40,6 +40,7 @@ TYPES = (
     "note",
     "article",
     "paper",
+    "talk",
     "fiction",
     "poem",
     "poetry-collection",

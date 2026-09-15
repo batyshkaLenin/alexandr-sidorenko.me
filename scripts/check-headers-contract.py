@@ -35,7 +35,8 @@ REVALIDATE = "public, max-age=0, must-revalidate"
 CSP = (
     "default-src 'self'; script-src 'self'; style-src 'self' {offline_style_hash}; "
     "img-src 'self'; font-src 'self'; media-src 'self'; "
-    "connect-src 'self' https://codestats.net; form-action 'none'; "
+    "connect-src 'self' https://codestats.net; "
+    "frame-src https://www.youtube-nocookie.com; form-action 'none'; "
     "frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
 )
 

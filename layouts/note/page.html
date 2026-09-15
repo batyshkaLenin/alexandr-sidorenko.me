@@ -1,9 +1,27 @@
-{{- /* Note: title block, body, tail — no TOC/lead. */ -}}
+{{- /* Note: title block, optional media, body, tail — no TOC/lead. */ -}}
 {{ define "main" }}
+{{- $media := false -}}
+{{- range .Params.relations -}}
+  {{- if eq .rel "media-subject" -}}
+    {{- if $media -}}
+      {{- errorf "%s: note supports only one media-subject relation" $.File.Path -}}
+    {{- end -}}
+    {{- $media = . -}}
+  {{- end -}}
+{{- end -}}
 <article class="dc-panel dc-panel--primary dc-panel--detail h-entry">
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
   {{ partial "publication/title-block.html" (dict "page" . "created" false) }}
   {{ partial "publication/audio-block.html" . }}
+  {{- with $media }}
+    {{ partial "publication/external-media.html" (dict
+      "page" $
+      "provider" "youtube"
+      "url" .url
+      "title" (default $.Title .title)
+      "action" "listen"
+    ) }}
+  {{- end }}
   <div class="dc-prose e-content">
     {{ .Content }}
   </div>

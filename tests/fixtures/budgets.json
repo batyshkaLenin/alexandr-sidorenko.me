@@ -4,10 +4,12 @@
   "source": {
     "story": "S15",
     "task": "T69",
-    "image_weight_kib_after_s15": 2077
+    "image_weight_kib_after_s15": 2077,
+    "css_override_task": "T208",
+    "css_override_date": "2026-09-15"
   },
   "limits": {
-    "css_total_bytes": 65536,
+    "css_total_bytes": 73728,
     "js_total_bytes": 49152,
     "image_total_bytes": 2621440,
     "html_page_max_bytes": 131072
@@ -15,6 +17,7 @@
   "image_extensions": [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"],
   "notes": [
     "Audio/video bodies are out of the image budget (a track recording is intentionally large).",
-    "search-index.json has its own ceiling in check-search-index.py."
+    "search-index.json has its own ceiling in check-search-index.py.",
+    "CSS ceiling was raised from 64 KiB to 72 KiB by owner decision so T197/T198 are not blocked; T208 must measure the growth and ratify or replace the permanent limit."
   ]
 }

@@ -39,6 +39,9 @@ related:
 references:
   label: "Ссылается на"
   targets: both
+media-subject:
+  label: "Послушать"
+  targets: external
 cites:
   label: "Цитирует"
   targets: both

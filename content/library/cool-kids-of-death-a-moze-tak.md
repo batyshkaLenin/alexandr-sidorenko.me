@@ -7,6 +7,10 @@ authors: ["batyshkaLenin"]
 id: "01a09b9d-4fa1-7751-a6f4-4a2130a8b6ea"
 type: "note"
 tags: ["Музыка"]
+relations:
+  - rel: media-subject
+    url: "https://www.youtube.com/watch?v=gbaU0tY9nJ4"
+    title: "Cool Kids of Death — A może tak"
 draft: false
 ---
 2006 год, Лодзь, Польша.
@@ -68,5 +72,3 @@ uciec za jakiś czas
 {{< /verse >}}
 
 Ну ладно, только одну строчку. Последнюю: а может сбежать когда нибудь потом?
-
-[A może tak](https://www.youtube.com/watch?v=gbaU0tY9nJ4)

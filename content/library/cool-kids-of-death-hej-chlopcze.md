@@ -10,6 +10,9 @@ tags: ["Музыка"]
 relations:
   - rel: related
     id: "01a09b9d-4fa1-7751-a6f4-4a2130a8b6ea"
+  - rel: media-subject
+    url: "https://www.youtube.com/watch?v=1Thy1DUPh44"
+    title: "Cool Kids of Death — Hej chłopcze"
 draft: false
 ---
 Hej chłopcze, уже капитализм

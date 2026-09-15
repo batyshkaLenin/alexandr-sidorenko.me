@@ -1,0 +1,37 @@
+{{- /*
+Talk: title, source link and user-activated player, body.
+The primary object is off-site; no local audio or TOC.
+*/ -}}
+{{ define "main" }}
+{{- $source := false -}}
+{{- range .Params.relations -}}
+  {{- if and (not $source) (eq .rel "external-source") .url -}}
+    {{- $source = . -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $source -}}
+  {{- errorf "%s: talk needs relations.rel=external-source with a url" .File.Path -}}
+{{- end -}}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-talk">
+  {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
+  <div class="dc-talk__head">
+    {{ partial "publication/title-block.html" (dict "page" .) }}
+    <p class="dc-talk__source">
+      <span class="dc-talk__source-label" lang="en">source/</span>
+      <a class="dc-talk__source-link" href="{{ $source.url }}">{{ or $source.title $source.url }}</a>
+    </p>
+    {{ partial "publication/external-media.html" (dict
+      "page" .
+      "provider" "youtube"
+      "url" $source.url
+      "title" .Title
+      "action" "watch"
+    ) }}
+  </div>
+  <div class="dc-prose e-content dc-talk__body">
+    {{ .Content }}
+  </div>
+  {{ partial "publication/tail.html" . }}
+</article>
+{{ partial "publication/aftermatter.html" . }}
+{{ end }}

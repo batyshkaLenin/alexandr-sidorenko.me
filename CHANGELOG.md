@@ -91,6 +91,13 @@ is folded into the entry describing the finished behaviour rather than listed as
   preserved in page HTML and in feeds alike, and a body image declares its real
   dimensions so the text below it does not jump while it loads — one pointing
   at a file that isn't there fails the build instead of shipping without them.
+- A `talk` type for guest appearances, interviews and later talks: chrome
+  `TALK`, the collection «Выступления», and a source link in the header
+  around a link-first media facade. Two ITChatter episodes with Sergey
+  Grechishnikov are in the library; their privacy-enhanced YouTube players
+  load only after an explicit click, while no-JS, feeds and print keep links.
+  The same facade lets four music notes play their subject from YouTube; the
+  Zelda note links the full playlist and embeds its first track.
 - Publications that were not on the previous site: music notes, two poems, and
   a Vienna gonzo piece, plus a type page for notes.
 - Attached recordings state how long they run before anyone presses play, and

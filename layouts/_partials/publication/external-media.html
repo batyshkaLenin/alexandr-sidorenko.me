@@ -1,0 +1,65 @@
+{{- /*
+Site-owned external media facade. The initial document is local HTML only;
+<as-external-media> creates the provider iframe after an explicit click.
+
+Call with: page, provider, url, title, action (watch or listen).
+*/ -}}
+{{- $page := .page -}}
+{{- $provider := .provider -}}
+{{- $url := .url -}}
+{{- $title := .title -}}
+{{- $action := default "watch" .action -}}
+{{- if not (and $page $provider $url $title) -}}
+  {{- errorf "publication/external-media: page, provider, url, and title are required" -}}
+{{- end -}}
+
+{{- $embedURL := "" -}}
+{{- $providerLabel := "" -}}
+{{- $actionLabel := "" -}}
+{{- $frameTitle := "" -}}
+{{- $frameAllow := "" -}}
+{{- $layout := "" -}}
+
+{{- if eq $provider "youtube" -}}
+  {{- $shortURL := findRE `^https://youtu\.be/[A-Za-z0-9_-]{11}$` $url -}}
+  {{- $watchURL := findRE `^https://www\.youtube\.com/watch\?v=[A-Za-z0-9_-]{11}(&list=[A-Za-z0-9_-]+)?$` $url -}}
+  {{- if not (or $shortURL $watchURL) -}}
+    {{- errorf "%s: YouTube external media needs canonical youtu.be/<id> or youtube.com/watch?v=<id>[&list=<id>], got %q" $page.File.Path $url -}}
+  {{- end -}}
+  {{- $videoID := "" -}}
+  {{- if $shortURL -}}
+    {{- $videoID = replaceRE `^https://youtu\.be/([A-Za-z0-9_-]{11})$` `${1}` $url -}}
+  {{- else -}}
+    {{- $videoID = replaceRE `^https://www\.youtube\.com/watch\?v=([A-Za-z0-9_-]{11})(&list=[A-Za-z0-9_-]+)?$` `${1}` $url -}}
+  {{- end -}}
+  {{- $embedURL = printf "https://www.youtube-nocookie.com/embed/%s" $videoID -}}
+  {{- $providerLabel = "YOUTUBE" -}}
+  {{- if eq $action "watch" -}}
+    {{- $actionLabel = "WATCH" -}}
+  {{- else if eq $action "listen" -}}
+    {{- $actionLabel = "LISTEN" -}}
+  {{- else -}}
+    {{- errorf "%s: unsupported external media action %q" $page.File.Path $action -}}
+  {{- end -}}
+  {{- $frameTitle = printf "YouTube: %s" $title -}}
+  {{- $frameAllow = "autoplay; encrypted-media; picture-in-picture" -}}
+  {{- $layout = "video" -}}
+{{- else -}}
+  {{- errorf "%s: unsupported external media provider %q" $page.File.Path $provider -}}
+{{- end -}}
+
+{{- partial "declassified/component.html" "as-external-media" -}}
+<as-external-media
+  class="as-external-media"
+  data-provider="{{ $provider }}"
+  data-embed-url="{{ $embedURL }}"
+  data-frame-title="{{ $frameTitle }}"
+  data-frame-allow="{{ $frameAllow }}"
+  data-layout="{{ $layout }}">
+  <p class="as-external-media__eyebrow" lang="en">{{ $actionLabel }} · {{ $providerLabel }}</p>
+  <p class="as-external-media__title">{{ $title }}</p>
+  <p class="as-external-media__actions" data-external-media-actions>
+    <a class="as-external-media__link" href="{{ $url }}"><span lang="en">OPEN {{ $providerLabel }}</span><span aria-hidden="true"> ↗</span></a>
+  </p>
+  <p class="as-external-media__print"><span lang="en">{{ lower $providerLabel }}:</span> {{ $url }}</p>
+</as-external-media>

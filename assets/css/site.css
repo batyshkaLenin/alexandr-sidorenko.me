@@ -2928,6 +2928,7 @@ as-viewsnav {
 }
 
 .dc-panel--detail > .dc-poem__head,
+.dc-panel--detail > .dc-talk__head,
 .dc-panel--detail > .dc-track__head,
 .dc-panel--detail > .dc-title,
 .dc-panel--detail > .dc-publication__meta,
@@ -3214,6 +3215,100 @@ as-viewsnav {
   color: var(--dc-faint);
 }
 
+/* Talk: the appearance lives off-site; link-first media can be loaded on demand. */
+.dc-talk__source {
+  margin: 12px 0 0;
+  font-size: var(--dc-fs-meta);
+  line-height: var(--dc-lh-ui);
+}
+
+.dc-talk__source-label {
+  margin-inline-end: 8px;
+  color: var(--dc-faint);
+}
+
+.as-external-media {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 660px;
+  margin: 18px auto 0;
+  padding: 12px 14px;
+  border: 1px solid var(--dc-border);
+  background: var(--dc-bg);
+  color: var(--dc-text);
+}
+
+.as-external-media__eyebrow,
+.as-external-media__title,
+.as-external-media__actions,
+.as-external-media__print {
+  margin: 0;
+}
+
+.as-external-media__eyebrow {
+  color: var(--dc-accent);
+  font-size: var(--dc-fs-meta);
+  letter-spacing: 0.08em;
+}
+
+.as-external-media__title {
+  margin-block-start: 8px;
+  line-height: var(--dc-lh-ui);
+}
+
+.as-external-media__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  margin-block-start: 12px;
+  font-size: var(--dc-fs-meta);
+}
+
+.as-external-media__load {
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--dc-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--dc-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.as-external-media__load:hover,
+.as-external-media__load:focus-visible {
+  border-color: var(--dc-accent);
+  color: var(--dc-accent);
+}
+
+.as-external-media__link {
+  overflow-wrap: anywhere;
+}
+
+.as-external-media__frame {
+  width: 100%;
+  margin-block-start: 12px;
+  background: #000;
+}
+
+.as-external-media[data-layout="video"] .as-external-media__frame {
+  aspect-ratio: 16 / 9;
+}
+
+.as-external-media__iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.as-external-media__print {
+  display: none;
+  overflow-wrap: anywhere;
+}
+
 /* Fiction reader: narrower measure. */
 .dc-fiction__body {
   max-width: 58ch;
@@ -3383,6 +3478,9 @@ as-viewsnav {
   .dc-statusbar,
   .dc-figure__original,
   .dc-portrait-original,
+  .as-external-media__load,
+  .as-external-media__frame,
+  .as-external-media__actions,
   .dc-figure figcaption:not(:has(.dc-figure__caption, .dc-figure__source)) {
     display: none !important;
   }
@@ -3422,5 +3520,22 @@ as-viewsnav {
 
   .as-parallel-pair {
     break-inside: avoid;
+  }
+
+  .as-external-media {
+    border-color: #999;
+    background: transparent;
+    color: #000;
+    break-inside: avoid;
+  }
+
+  .as-external-media__eyebrow,
+  .as-external-media__print {
+    color: #555;
+  }
+
+  .as-external-media__print {
+    display: block;
+    margin-block-start: 8px;
   }
 }

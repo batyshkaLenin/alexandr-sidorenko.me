@@ -7,6 +7,10 @@ authors: ["batyshkaLenin"]
 id: "01a09b9d-505f-721f-97b9-6c6bbc064831"
 type: "note"
 tags: ["Музыка"]
+relations:
+  - rel: media-subject
+    url: "https://www.youtube.com/watch?v=0W-H1hW-uno"
+    title: "Kruh — Dinosaur"
 draft: false
 ---
 Давно не было рубрики #thoughts!
@@ -32,5 +36,3 @@ Oni mě souděj podle toho Jestli dávám dýška (Они судят обо мн
 Это текст не про ностальгию, а про момент, когда ты впервые замечаешь, что никто больше не задаёт тебе вопросы, на которые не нужно отвечать правильно.
 
 Jaký je váš oblíbený saur, bráchové?
-
-[Dinosaur](https://www.youtube.com/watch?v=0W-H1hW-uno)

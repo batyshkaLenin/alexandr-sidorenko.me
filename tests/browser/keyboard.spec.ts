@@ -36,4 +36,26 @@ test.describe("keyboard", () => {
     await expect(page.locator("dialog[open]")).toHaveCount(0);
     await expect(trigger).toBeFocused();
   });
+
+  test("external media hands keyboard focus to the loaded player", async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name === "chromium-mobile",
+      "External media focus handoff is asserted on desktop.",
+    );
+    await page.goto("/library/itchatter-hakatony");
+    const load = page.getByRole("button", { name: "LOAD PLAYER" });
+    await expect(load).toBeVisible();
+    await load.focus();
+    await load.press("Enter");
+
+    const player = page.locator("as-external-media iframe");
+    await expect(player).toHaveCount(1);
+    await expect(player).toHaveAttribute(
+      "src",
+      "https://www.youtube-nocookie.com/embed/sXq_ZKYl554",
+    );
+    await expect(player).toBeFocused();
+  });
 });

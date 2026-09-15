@@ -19,6 +19,10 @@ paper:
   label: "Научная работа"
   label_plural: "Научные работы"
   family: knowledge
+talk:
+  label: "Выступление"
+  label_plural: "Выступления"
+  family: knowledge
 fiction:
   label: "Проза"
   label_plural: "Проза"

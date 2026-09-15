@@ -1,9 +1,21 @@
 {{- /*
-Feed body: make root-relative href/src/srcset absolute for feed readers.
+Feed body: make root-relative href/src/srcset absolute for feed readers and
+append a link-only representation of an external media subject.
 Second rule rewrites `, /assets/` candidates inside srcset.
 */ -}}
 {{- $baseURL := strings.TrimSuffix "/" .Site.BaseURL -}}
 {{- $content := .Content -}}
 {{- $content = replaceRE `(href|src|srcset)="/([^/])` (printf `${1}="%s/${2}` $baseURL) $content -}}
 {{- $content = replaceRE `, /assets/` (printf `, %s/assets/` $baseURL) $content -}}
+{{- $mediaSubject := false -}}
+{{- range .Params.relations -}}
+  {{- if and (not $mediaSubject) (eq .rel "media-subject") .url -}}
+    {{- $mediaSubject = . -}}
+  {{- end -}}
+{{- end -}}
+{{- with $mediaSubject -}}
+  {{- $mediaURL := .url | htmlEscape -}}
+  {{- $mediaTitle := (default $.Title .title) | htmlEscape -}}
+  {{- $content = printf `%s<p>Послушать: <a href="%s">%s</a></p>` $content $mediaURL $mediaTitle -}}
+{{- end -}}
 {{- $content | safeHTML -}}
