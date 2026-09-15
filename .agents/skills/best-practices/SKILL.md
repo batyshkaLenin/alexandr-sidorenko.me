@@ -203,15 +203,15 @@ try {
 ```jsx
 class ErrorBoundary extends React.Component {
   state = { hasError: false };
-
+  
   static getDerivedStateFromError(error) {
     return { hasError: true };
   }
-
+  
   componentDidCatch(error, info) {
     errorTracker.captureException(error, { extra: info });
   }
-
+  
   render() {
     if (this.state.hasError) {
       return <FallbackUI />;
@@ -421,11 +421,11 @@ findNearbyButton.addEventListener('click', async () => {
 
 ```html
 <!-- Restrict powerful features -->
-<meta http-equiv="Permissions-Policy"
+<meta http-equiv="Permissions-Policy" 
       content="geolocation=(), camera=(), microphone=()">
 
 <!-- Or allow for specific origins -->
-<meta http-equiv="Permissions-Policy"
+<meta http-equiv="Permissions-Policy" 
       content="geolocation=(self 'https://maps.example.com')">
 ```
 

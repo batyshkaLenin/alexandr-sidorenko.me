@@ -58,7 +58,7 @@ If the live tools are unavailable, use Lighthouse CLI or axe for automated cover
 
 <!-- ✅ Complex image with longer description -->
 <figure>
-  <img src="infographic.png" alt="2024 market trends infographic"
+  <img src="infographic.png" alt="2024 market trends infographic" 
        aria-describedby="infographic-desc">
   <figcaption id="infographic-desc">
     <!-- Detailed description -->

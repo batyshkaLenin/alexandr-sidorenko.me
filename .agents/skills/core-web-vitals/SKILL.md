@@ -56,7 +56,7 @@ Fix: CDN, caching, optimized backend, edge rendering
 
 <!-- ✅ Critical CSS inlined, rest deferred -->
 <style>/* Critical above-fold CSS */</style>
-<link rel="preload" href="/styles.css" as="style"
+<link rel="preload" href="/styles.css" as="style" 
       onload="this.onload=null;this.rel='stylesheet'">
 ```
 
