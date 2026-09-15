@@ -21,4 +21,13 @@ export PUBLIC_DIR
 export PLAYWRIGHT_BASE_URL="${PLAYWRIGHT_BASE_URL:-http://127.0.0.1:4173}"
 
 echo "Browser suite (Chromium) against ${PUBLIC_DIR}..."
-npm run test:browser -- "$@"
+# Default projects stay Chromium-only (CI installs chromium). Firefox desktop is
+# available in playwright.config.ts for explicit cross-browser matrices (T200).
+if [[ "$#" -eq 0 ]]; then
+  npm run test:browser -- \
+    --project=chromium-desktop \
+    --project=chromium-mobile \
+    --project=chromium-service-worker
+else
+  npm run test:browser -- "$@"
+fi

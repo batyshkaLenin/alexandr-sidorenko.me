@@ -164,6 +164,11 @@ test.describe("enhancements", () => {
 
   test("copy control on an article copies the wrapped link", async ({ page, context }, testInfo) => {
     test.skip(testInfo.project.name === "chromium-mobile", "Copy is desktop-representative.");
+    // Playwright Firefox does not expose clipboard-read/write permissions.
+    test.skip(
+      testInfo.project.name === "firefox-desktop",
+      "Clipboard read permission is Chromium-only in Playwright.",
+    );
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto("/library/bluredu-new-teachers");
     const copy = page.locator("dc-copy").first();
