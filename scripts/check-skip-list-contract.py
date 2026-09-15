@@ -20,8 +20,10 @@ from pathlib import Path
 ROWS = re.compile(r"""class=["']?[^"'>]*\b(?:dc-material dc-material--|dc-timeline__item)""")
 TABLE_ROW_LINK = re.compile(r"""<table class=["']?dc-table[\s\S]*?<tbody>\s*<tr>\s*<td>\s*<a""")
 SKIP = re.compile(r"""<a class=["']?dc-skip-link["']? href=["']?#list-start["'\s>]""")
-TARGET = re.compile(r"""<a\b[^>]*\bid=["']?list-start["'\s>][^>]*\bhref=""")
-ANY_TARGET = re.compile(r"""\bid=["']?list-start["'\s>]""")
+ANCHOR_TAG = re.compile(r"""<a\b[^>]*>""")
+ID = re.compile(r"""\bid=["']?list-start(?=["'\s>])""")
+HREF = re.compile(r"""\bhref=""")
+ANY_TARGET = re.compile(r"""\bid=["']?list-start(?=["'\s>])""")
 
 
 def main() -> int:
@@ -44,7 +46,7 @@ def main() -> int:
         has_rows = bool(ROWS.search(text) or TABLE_ROW_LINK.search(text))
         skips = len(SKIP.findall(text))
         targets = len(ANY_TARGET.findall(text))
-        link_targets = len(TARGET.findall(text))
+        link_targets = sum(1 for tag in ANCHOR_TAG.findall(text) if ID.search(tag) and HREF.search(tag))
         if has_rows:
             with_list += 1
             if skips != 1:

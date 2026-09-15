@@ -57,6 +57,28 @@ test.describe("keyboard bootstrap", () => {
     }
   });
 
+  test("Skip to list follows an in-place list/table switch", async ({ page }) => {
+    await page.goto("/library/all");
+    const skipAndEnter = async () => {
+      await page.locator("a.dc-skip-link[href='#main']").focus();
+      await page.keyboard.press("Tab");
+      await expect(page.locator("a.dc-skip-link[href='#list-start']")).toBeFocused();
+      await page.keyboard.press("Enter");
+    };
+    await page.locator("dc-modes [data-mode='table']").click();
+    await expect(page.locator("#list-start")).toHaveCount(1);
+    await skipAndEnter();
+    await expect(page.locator("#list-start")).toBeFocused();
+    await expect(page.locator("#list-start")).toBeVisible();
+    expect(await page.locator("#list-start").evaluate((el) => !!el.closest("[data-mode-panel='table']"))).toBe(true);
+
+    await page.locator("dc-modes [data-mode='list']").click();
+    await expect(page.locator("#list-start")).toHaveCount(1);
+    await skipAndEnter();
+    await expect(page.locator("#list-start")).toBeFocused();
+    expect(await page.locator("#list-start").evaluate((el) => !!el.closest("[data-mode-panel='list']"))).toBe(true);
+  });
+
   test("document arrows still scroll the page before entering the list", async ({ page }) => {
     await page.goto("/library");
     const before = await page.evaluate(() => scrollY);

@@ -17,7 +17,7 @@ Call: materials, mode ("list" | "table")
   <div data-mode-panel="list"{{ if ne $mode "list" }} hidden{{ end }}>
     <ul class="dc-material-list dc-material-list--dense h-feed">
       {{ range $i, $row := $materials.ByDate.Reverse }}
-      {{ partial "library/material-row.html" (dict "page" $row "density" "dense" "anchor" (and (eq $mode "list") (eq $i 0))) }}
+      {{ partial "library/material-row.html" (dict "page" $row "density" "dense" "anchor" (and (eq $mode "list") (eq $i 0)) "modeAnchor" (eq $i 0)) }}
       {{ end }}
     </ul>
   </div>
@@ -37,7 +37,7 @@ Call: materials, mode ("list" | "table")
         <tbody>
           {{ range $i, $row := $materials.ByDate.Reverse }}
           <tr>
-            <td><a{{ if and (eq $mode "table") (eq $i 0) }} id="list-start"{{ end }} href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></td>
+            <td><a{{ if and (eq $mode "table") (eq $i 0) }} id="list-start"{{ end }}{{ if eq $i 0 }} data-mode-anchor="list-start"{{ end }} href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></td>
             <td>{{- with .Params.type -}}<span lang="en" class="dc-list__type dc-type--{{ partial "publication/type-family.html" . }}">{{ partial "publication/type-label.html" (dict "type" . "page" $) }}</span>{{- end -}}</td>
             <td>{{ partial "publication/date.html" (dict "date" .Date "form" "iso") }}</td>
             <td>{{ partial "library/material-size.html" . }}</td>

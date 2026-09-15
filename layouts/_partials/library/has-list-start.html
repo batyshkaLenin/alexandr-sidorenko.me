@@ -8,7 +8,7 @@ templates: Home recent, Library Recent, library views, a type, a topic.
 {{- $library := where site.RegularPages "Section" "library" -}}
 {{- if $page.IsHome -}}
   {{- with site.GetPage "/library" }}{{ $has = gt (len .Pages) 0 }}{{ end -}}
-{{- else if and (eq $page.Kind "section") (eq $page.Section "library") -}}
+{{- else if eq $page.Kind "section" -}}
   {{- $has = gt (len $page.Pages) 0 -}}
 {{- else if eq $page.Layout "library-view" -}}
   {{- if eq $page.Params.view "music" -}}

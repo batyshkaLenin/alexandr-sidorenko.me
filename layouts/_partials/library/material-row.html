@@ -11,6 +11,8 @@ MaterialRow — one material in a list.
 `showType` false when the container already names the type.
 `level` heading level for the title (default 2; Types groups pass 3).
 `anchor` true on the page's first row: its link is #list-start (Skip to list).
+`modeAnchor` true on a mode panel's first row: <dc-modes> moves #list-start
+into whichever panel is shown.
 Markers from capabilities + data/glyphs.yaml (max three).
 */ -}}
 {{- $page := .page -}}
@@ -34,7 +36,7 @@ Markers from capabilities + data/glyphs.yaml (max three).
   <div class="dc-material__row">
     <div class="dc-material__primary">
       <h{{ $level }} class="dc-material__title">
-        <a class="u-url p-name"{{ if .anchor }} id="list-start"{{ end }} href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
+        <a class="u-url p-name"{{ if .anchor }} id="list-start"{{ end }}{{ if .modeAnchor }} data-mode-anchor="list-start"{{ end }} href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
       </h{{ $level }}>
       {{- if $markers }}
       <span class="dc-material__markers">
@@ -60,7 +62,7 @@ Markers from capabilities + data/glyphs.yaml (max three).
   </div>
 {{- else }}
   <h{{ $level }} class="dc-material__title">
-    <a class="u-url p-name"{{ if .anchor }} id="list-start"{{ end }} href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
+    <a class="u-url p-name"{{ if .anchor }} id="list-start"{{ end }}{{ if .modeAnchor }} data-mode-anchor="list-start"{{ end }} href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
   </h{{ $level }}>
   <p class="dc-material__meta">
     {{- if $showType }}
