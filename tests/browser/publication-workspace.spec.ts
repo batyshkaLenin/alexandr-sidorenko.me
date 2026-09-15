@@ -64,6 +64,9 @@ test.describe("publication workspace", () => {
     expect(visible).toBe(false);
     await expect(byline.locator(".p-name")).toHaveCount(1);
     await expect(byline.locator(".u-photo")).toHaveCount(1);
+    await expect(byline.locator(".u-url")).toHaveCount(1);
+    await expect(byline.locator(".u-url")).toHaveJSProperty("tagName", "DATA");
+    await expect(byline.locator("a")).toHaveCount(0);
     await expect(byline.locator("img, picture")).toHaveCount(0);
     for (const part of [".p-name", ".username"]) {
       const visible = await byline.locator(part).evaluate((el) => {

@@ -127,11 +127,15 @@ class UidHtmlParser(HTMLParser):
         classes = (attributes.get("class") or "").split()
         if tag == "link" and attributes.get("rel") == "canonical":
             self.canonical = attributes.get("href")
-        elif tag == "a" and "u-url" in classes and self.u_url is None:
+        elif "u-url" in classes and self.u_url is None:
             # First match only: byline.html also renders a nested p-author
             # h-card with its own u-url (the author's homepage), which must
             # not be mistaken for the h-entry's own u-url.
-            self.u_url = attributes.get("href")
+            # Machine-only values use <data value>; visible ones keep <a href>.
+            if tag == "a":
+                self.u_url = attributes.get("href")
+            elif tag == "data":
+                self.u_url = attributes.get("value")
         elif tag == "data" and "u-uid" in classes:
             self.u_uid = attributes.get("value")
         elif tag == "script" and attributes.get("type") == "application/ld+json":

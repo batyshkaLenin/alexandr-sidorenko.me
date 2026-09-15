@@ -85,6 +85,8 @@ JSON-LD, site.css after theme CSS. 404 gets noindex and skips identity tags.
 
 {{/* rel=me links; skip ones already visible on Home. */}}
 {{ $home := .IsHome }}
+{{/* Home self identity: machine-only in the h-card, document-level here. */}}
+{{ if $home }}<link rel="me" href="{{ absURL $owner.url }}">{{ end }}
 {{ range hugo.Data.links }}
 {{ if not (and $home .visible) }}<link rel="me" href="{{ .url }}">{{ end }}
 {{ end }}

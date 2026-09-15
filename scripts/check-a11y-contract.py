@@ -10,6 +10,8 @@ change can silently break without anyone noticing:
   the sake of one element;
 - nothing focusable inside `aria-hidden`, the classic way to hand the keyboard
   an element a screen reader will not announce;
+- nothing focusable inside `.dc-visually-hidden` (machine-only chrome and
+  identity values); skip-link uses its own class and stays first in tab order;
 - every link and button carries an accessible name — text, `aria-label`, or an
   image with alt text — because "link" is not a destination;
 - every `img` has an `alt` attribute, empty if decorative;
@@ -41,6 +43,7 @@ class PageParser(HTMLParser):
         self.skip_target: str | None = None
         self.lang: str | None = None
         self._hidden_depth = 0
+        self._visually_hidden_depth = 0
         self._open: list[tuple[str, dict]] = []
         self._named: list[tuple[dict, str]] = []  # (attrs, accumulated text)
 
@@ -63,18 +66,34 @@ class PageParser(HTMLParser):
         if tabindex and tabindex.lstrip("+").isdigit() and int(tabindex) > 0:
             self.errors.append(f"<{tag} tabindex={tabindex}> reorders the whole document's tab sequence")
 
-        if self._hidden_depth and tag in FOCUSABLE and attributes.get("tabindex") != "-1":
+        classes = attributes.get("class", "").split()
+        focusable = tag in FOCUSABLE and attributes.get("tabindex") != "-1"
+        if tag == "a" and not attributes.get("href"):
+            focusable = False
+        if self._hidden_depth and focusable:
             self.errors.append(
                 f"<{tag}> is focusable inside aria-hidden: the keyboard reaches what a screen reader will not read"
+            )
+        # The carrier itself counts: `<a class="dc-visually-hidden">` was the
+        # Home self-URL bug — depth alone only catches nested controls.
+        if focusable and (
+            self._visually_hidden_depth or "dc-visually-hidden" in classes
+        ):
+            self.errors.append(
+                f"<{tag}> is focusable inside .dc-visually-hidden: machine-only chrome must stay out of tab order"
             )
 
         if attributes.get("aria-hidden") == "true" and tag not in VOID:
             self._hidden_depth += 1
             attributes["__hidden__"] = "1"
 
+        if "dc-visually-hidden" in classes and tag not in VOID:
+            self._visually_hidden_depth += 1
+            attributes["__visually_hidden__"] = "1"
+
         if tag == "a" and self.first_link is None and attributes.get("href"):
             self.first_link = attributes
-            if attributes.get("class") == "dc-skip-link":
+            if "dc-skip-link" in classes:
                 self.skip_target = attributes["href"]
 
         if tag in ("a", "button"):
@@ -99,6 +118,8 @@ class PageParser(HTMLParser):
             name, attributes = self._open.pop()
             if attributes.get("__hidden__"):
                 self._hidden_depth -= 1
+            if attributes.get("__visually_hidden__"):
+                self._visually_hidden_depth -= 1
             if name == tag:
                 break
 
@@ -164,7 +185,7 @@ def main() -> int:
             print(f"  - {error}", file=sys.stderr)
         return 1
 
-    print(f"OK: {len(pages)} page(s) — skip link, unique ids, headings, names, alt text, tab order")
+    print(f"OK: {len(pages)} page(s) — skip link, unique ids, headings, names, alt text, tab order, no hidden focusables")
     return 0
 
 

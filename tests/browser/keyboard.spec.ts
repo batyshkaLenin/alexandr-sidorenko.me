@@ -70,6 +70,38 @@ test.describe("keyboard", () => {
     await expect(page.locator("#main")).toBeVisible();
   });
 
+  test("Home tab order skips machine-only h-card identity URL", async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name === "chromium-mobile",
+      "Machine-only tab order is asserted on desktop.",
+    );
+    await page.goto("/");
+
+    await page.keyboard.press("Tab");
+    await expect(page.locator("a.dc-skip-link")).toBeFocused();
+
+    await page.keyboard.press("Tab");
+    const second = page.locator(":focus");
+    await expect(second).not.toHaveClass(/u-url/);
+    await expect(second).toBeVisible();
+    const tagName = await second.evaluate((el) => el.tagName);
+    expect(tagName).not.toBe("DATA");
+
+    const selfInTabOrder = await page.evaluate(() => {
+      const self = document.querySelector(".h-card .u-url");
+      if (!self) return "missing";
+      const focusables = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          "a[href], button, input, select, textarea, [tabindex]:not([tabindex='-1'])",
+        ),
+      ).filter((node) => !node.hasAttribute("disabled") && node.getClientRects().length > 0);
+      return focusables.includes(self as HTMLElement);
+    });
+    expect(selfInTabOrder).toBe(false);
+  });
+
   test("help dialog opens, traps nothing forever, and restores focus", async ({
     page,
   }, testInfo) => {

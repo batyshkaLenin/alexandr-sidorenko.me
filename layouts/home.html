@@ -47,8 +47,9 @@
     <div class="dc-panel__body dc-prose">
       {{/* Visible page title. Uppercase is CSS-only so p-name stays title case. */}}
       <h1 class="dc-hero-name p-name">{{ $owner.name }}</h1>
-      {{/* Visible self URL is gone; the h-card still exposes u-url/rel=me. */}}
-      <a class="u-url dc-visually-hidden" rel="me" href="{{ absURL $owner.url }}">{{ absURL $owner.url }}</a>
+      {{/* Machine-only identity URL: mf2 u-url via <data>, not a tab stop.
+           Document-level rel=me for self lives in head-extra on Home. */}}
+      <data class="u-url" value="{{ absURL $owner.url }}" hidden></data>
       {{/* Portrait is outside this h-card; u-photo is a hidden data value. */}}
       <data class="u-photo" value="{{ partial "preview-image.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}" hidden></data>
       {{ with .Params.roles }}<p class="dc-roles">{{ . }}</p>{{ end }}

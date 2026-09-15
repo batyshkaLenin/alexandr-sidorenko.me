@@ -16,6 +16,9 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 ### Changed
 
+- Machine-only identity URLs on Home, author bylines and publications without
+  a visual meta line are no longer keyboard tab stops; `u-url`, document-level
+  `rel=me` and microformats parsing stay intact.
 - Printing a publication yields a paper document: site chrome, TOC, tags,
   responses and relations are omitted; dithered figures use the original
   photograph without an empty caption box; type is black (and a quiet gray

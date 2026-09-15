@@ -209,11 +209,12 @@ test.describe("home shell", () => {
       await expect(page.locator(".dc-neofetch")).toHaveCount(0);
       await expect(page.locator(".dc-identity")).toBeHidden();
       const selfUrl = page.locator(".h-card .u-url");
-      await expect(selfUrl).toHaveAttribute("href", "https://alexandr-sidorenko.me/");
-      const selfBox = await selfUrl.boundingBox();
-      expect(selfBox, "self URL stays in the h-card").toBeTruthy();
-      expect(selfBox!.width).toBeLessThanOrEqual(1);
-      expect(selfBox!.height).toBeLessThanOrEqual(1);
+      await expect(selfUrl).toHaveCount(1);
+      await expect(selfUrl).toHaveJSProperty("tagName", "DATA");
+      await expect(selfUrl).toHaveAttribute("value", "https://alexandr-sidorenko.me/");
+      await expect(selfUrl).toHaveAttribute("hidden", "");
+      await expect(page.locator('link[rel~="me"][href="https://alexandr-sidorenko.me/"]')).toHaveCount(1);
+      await expect(page.locator('a[rel~="me"][href="https://alexandr-sidorenko.me/"]')).toHaveCount(0);
     });
 
     test(`phone ${viewport.width}×${viewport.height} shows the full portrait frame`, async ({

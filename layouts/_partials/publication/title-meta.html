@@ -27,8 +27,8 @@ Visual line follows COMP-DOCUMENT-HEADER / Rev3 §11.2:
 </p>
 {{ partial "byline.html" $page }}
 {{- else }}
-<a class="u-url dc-visually-hidden" href="{{ partial "canonical-url.html" $page.Permalink }}">
-  {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dt-published") }}
-</a>
+{{/* No visual meta line: keep h-entry u-url/dt-published without a tab stop. */}}
+<data class="u-url" value="{{ partial "canonical-url.html" $page.Permalink }}" hidden></data>
+<span class="dc-visually-hidden">{{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dt-published") }}</span>
 {{ partial "byline.html" $page }}
 {{- end }}

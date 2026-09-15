@@ -3,10 +3,13 @@
   {{ $key := . }}
   {{ with index hugo.Data.authors $key }}
   {{ $author := . }}
-  {{/* No url → plain p-name (do not point u-url at the site root). */}}
+  {{/* p-name is always a span; u-url is optional machine-only data
+       (do not point empty url at the site root). */}}
   <p class="byline p-author h-card dc-visually-hidden">
     {{ with $author.avatar }}<data class="u-photo" value="{{ partial "preview-image.html" (dict "path" . "context" "data/authors.yaml") }}" hidden></data>{{ end }}
-    {{- with $author.url }}<a class="p-name u-url" href="{{ . | relURL }}">{{ $author.name }}</a>{{ else }}<span class="p-name">{{ $author.name }}</span>{{ end }}
+    <span class="p-name">{{ $author.name }}</span>
+    {{- /* u-url is machine-only; a hidden <a> would still sit in tab order. */ -}}
+    {{- with $author.url }}<data class="u-url" value="{{ . | absURL }}" hidden></data>{{ end }}
     {{- with $author.username }} <span class="username">@{{ . }}</span>{{ end }}
   </p>
   {{ else }}

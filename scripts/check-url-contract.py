@@ -125,8 +125,12 @@ class UrlHtmlParser(HTMLParser):
             self.canonical = attributes.get("href")
         # First u-url only: byline.html renders a nested p-author h-card with
         # its own u-url (the author's homepage), not the entry's location.
-        if tag == "a" and "u-url" in classes and self.u_url is None:
-            self.u_url = attributes.get("href")
+        # Machine-only values use <data class="u-url" value>, visible ones <a href>.
+        if "u-url" in classes and self.u_url is None:
+            if tag == "a":
+                self.u_url = attributes.get("href")
+            elif tag == "data":
+                self.u_url = attributes.get("value")
         if tag == "data" and "u-uid" in classes and self.u_uid is None:
             self.u_uid = attributes.get("value")
         if tag == "script" and attributes.get("type") == "application/ld+json":

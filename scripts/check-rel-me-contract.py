@@ -31,12 +31,19 @@ class RelMeParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.urls: list[str] = []
+        self.link_urls: list[str] = []
+        self.anchor_urls: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
         rel = (attributes.get("rel") or "").split()
-        if tag in ("link", "a") and "me" in rel and attributes.get("href"):
-            self.urls.append(attributes["href"])
+        href = attributes.get("href")
+        if tag in ("link", "a") and "me" in rel and href:
+            self.urls.append(href)
+            if tag == "link":
+                self.link_urls.append(href)
+            else:
+                self.anchor_urls.append(href)
 
 
 def check(errors: list[str], condition: bool, message: str) -> None:
@@ -63,6 +70,18 @@ def check_page(errors: list[str], approved: set[str], public_dir: Path, path: st
     check(errors, not missing, f"{path}: approved link(s) missing from rel=me: {sorted(missing)}")
     unexpected = found_set - approved - {SELF_URL}
     check(errors, not unexpected, f"{path}: unapproved/unexpected rel=me URL(s): {sorted(unexpected)}")
+
+    if path == "index.html":
+        check(
+            errors,
+            SELF_URL in parser.link_urls and parser.link_urls.count(SELF_URL) == 1,
+            f"{path}: self identity must appear once as <link rel=me> ({SELF_URL})",
+        )
+        check(
+            errors,
+            SELF_URL not in parser.anchor_urls,
+            f"{path}: self identity must not be a focusable <a rel=me>",
+        )
 
 
 def check_same_as(errors: list[str], approved: set[str], public_dir: Path) -> None:
