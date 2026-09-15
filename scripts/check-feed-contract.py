@@ -94,6 +94,16 @@ class BylineParser(HTMLParser):
             self._in_byline = False
 
 
+THEME_IMAGE_MARKUP = (
+    ".dither-",
+    "dc-image-toggle",
+    "data-original=",
+    "data-image-toggle-slot",
+    "dc-image-original",
+    'media="print"',
+)
+
+
 def normalized(value: str) -> str:
     return " ".join(value.split())
 
@@ -304,6 +314,14 @@ def main() -> int:
                     errors,
                     expected_url in content,
                     f"{item_id}: {content_name} lost {expected_url}",
+                )
+            # Dithering belongs to the site theme: a feed reader gets the
+            # original image itself, without the variant control.
+            for marker in THEME_IMAGE_MARKUP:
+                check(
+                    errors,
+                    marker not in content,
+                    f"{item_id}: {content_name} carries site-theme image markup {marker!r}",
                 )
 
         enclosures = list(rss_item["enclosures"])

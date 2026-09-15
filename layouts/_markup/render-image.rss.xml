@@ -1,0 +1,14 @@
+{{- /*
+Markdown image in a feed body → publication/figure.html with feed = true.
+wide/full only from an explicit Markdown class, never from file size.
+*/ -}}
+{{- $class := "" -}}
+{{- with .Attributes -}}{{- $class = index . "class" | default "" -}}{{- end -}}
+{{- partial "publication/figure.html" (dict
+      "page" .Page
+      "src" .Destination
+      "alt" .Text
+      "caption" .Title
+      "ordinal" .Ordinal
+      "class" $class
+      "feed" true) -}}

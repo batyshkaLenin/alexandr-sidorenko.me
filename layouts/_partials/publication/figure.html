@@ -2,8 +2,9 @@
 Figure shared by Markdown images and the figure shortcode.
 
 Call with a dict:
-  page, src, alt, caption?, source?, sourceURL?, ordinal?, sizes?
+  page, src, alt, caption?, source?, sourceURL?, ordinal?, sizes?, feed?
   ordinal 0 = possible LCP (eager); empty alt = decorative
+  feed = true: RSS/JSON Feed body — a dithered image is its original, no controls
 */ -}}
 {{- $page := .page -}}
 {{- $src := .src -}}
@@ -56,6 +57,8 @@ The ladder is the common recommendation for a 700-800px article column —
 {{- $widths := slice 400 600 800 1200 -}}
 {{- $image := "" -}}
 {{- $original := "" -}}
+{{- $originalResource := "" -}}
+{{- $feed := .feed | default false -}}
 {{- $dithered := false -}}
 {{- if $external -}}
   {{- $image = printf `<img src="%s" alt="%s" %s decoding="async">` $src $alt $loading | safeHTML -}}
@@ -82,7 +85,8 @@ The ladder is the common recommendation for a 700-800px article column —
            source's full size: it is the same photograph, not an archive
            master, and it is fetched only when someone asks for it. */ -}}
     {{- $limit := math.Min $resource.Width (index (last 1 $widths) 0) -}}
-    {{- $original = ($resource.Process (printf "resize %dx" (int $limit))).RelPermalink -}}
+    {{- $originalResource = $resource.Process (printf "resize %dx" (int $limit)) -}}
+    {{- $original = $originalResource.RelPermalink -}}
     {{- $image = partial "dithered-img.html" (dict
           "entry" $entry
           "alt" $alt
@@ -99,20 +103,34 @@ The ladder is the common recommendation for a 700-800px article column —
           "attrs" $loading) -}}
   {{- end -}}
 {{- end -}}
+{{- /* Outside the site theme (feeds) dithering is not part of the picture:
+       the original is the image, with no variant control. */ -}}
+{{- if and $feed $dithered -}}
+<figure class="dc-figure{{ with $role }} dc-figure--{{ . }}{{ end }}">
+  <img src="{{ $original }}" alt="{{ $alt }}" width="{{ $originalResource.Width }}" height="{{ $originalResource.Height }}">
+  {{- if or $caption $source }}
+  <figcaption>
+    {{- with $caption }}<span class="dc-figure__caption">{{ . }}</span>{{ end -}}
+    {{- with $source }}<span class="dc-figure__source">{{ with $sourceURL }}<a href="{{ . }}">{{ $source }}</a>{{ else }}{{ . }}{{ end }}</span>{{ end -}}
+  </figcaption>
+  {{- end }}
+</figure>
+{{- else -}}
 {{- /* A figcaption is needed whenever anything belongs under the image: a
-       caption, a credit, or the link a dithered image owes its original. */ -}}
+       caption, a credit, or the slot for the dithered image's toggle. */ -}}
 {{- $hasLine := or $caption $source $dithered -}}
-{{- /* Dithered: keep original link; JS may swap in place. */ -}}
 {{- if $dithered }}{{ partial "declassified/component.html" "dc-image-toggle" }}{{ end }}
-{{ if $dithered }}<dc-image-toggle data-label-processed="{{ i18n "imageProcessed" }}">{{ end }}
+{{ if $dithered }}<dc-image-toggle data-original="{{ $original }}" data-label-original="{{ i18n "imageShowOriginal" }}" data-label-processed="{{ i18n "imageShowDithered" }}">{{ end }}
 <figure class="dc-figure{{ if $dithered }} dc-figure--dithered{{ end }}{{ with $role }} dc-figure--{{ . }}{{ end }}"{{ if $dithered }} data-dither="{{ (index hugo.Data.dither $src).family }}"{{ end }}>
   {{ $image }}
+  {{- if $dithered }}{{ partial "image-original-fallback.html" (dict "url" $original "width" $originalResource.Width "height" $originalResource.Height) }}{{ end }}
   {{- if $hasLine }}
   <figcaption>
     {{- with $caption }}<span class="dc-figure__caption">{{ . }}</span>{{ end -}}
     {{- with $source }}<span class="dc-figure__source">{{ with $sourceURL }}<a href="{{ . }}">{{ $source }}</a>{{ else }}{{ . }}{{ end }}</span>{{ end -}}
-    {{- if $dithered }}<a class="dc-figure__original" data-image-original href="{{ $original }}" lang="en">{{ i18n "imageOriginal" }}</a>{{ end -}}
+    {{- if $dithered }}<span class="dc-figure__toggle" data-image-toggle-slot lang="en" hidden></span>{{ end -}}
   </figcaption>
   {{- end }}
 </figure>
 {{ if $dithered }}</dc-image-toggle>{{ end }}
+{{- end -}}

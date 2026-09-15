@@ -1,0 +1,22 @@
+{{- /*
+Figure shortcode in a feed body — same pipeline as Markdown images, feed = true.
+
+Parameters: src, alt, caption?, source?, source_url?
+*/ -}}
+{{- $src := .Get "src" -}}
+{{- if not $src -}}
+  {{- errorf "%s: figure shortcode needs a src" .Page.File.Path -}}
+{{- end -}}
+{{- /* Gallery children request a column-sized image. */ -}}
+{{- $inGallery := and .Parent (eq .Parent.Name "gallery") -}}
+{{- partial "publication/figure.html" (dict
+      "page" .Page
+      "src" $src
+      "alt" (.Get "alt")
+      "caption" (.Get "caption")
+      "source" (.Get "source")
+      "sourceURL" (.Get "source_url")
+      "ordinal" .Ordinal
+      "class" (.Get "class")
+      "feed" true
+      "sizes" (cond $inGallery "(max-width: 480px) calc(100vw - 86px), 300px" "")) -}}

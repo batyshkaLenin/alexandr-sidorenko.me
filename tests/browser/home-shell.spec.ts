@@ -252,7 +252,7 @@ test.describe("home shell", () => {
       await expect(page.locator(".dc-portrait-quote")).toHaveCount(0);
       await expect(page.locator(".dc-portrait-original")).toBeVisible();
 
-      await page.locator("[data-image-original]").click();
+      await page.locator("dc-image-toggle .dc-image-toggle__button").click();
       await expect(page.locator("dc-image-toggle")).toHaveAttribute("showing", "original");
       const after = await portraitMetrics();
       expect(after.naturalWidth).toBeGreaterThan(0);
@@ -743,7 +743,7 @@ test.describe("home shell", () => {
         expect(chrome.utility.labelBottom).not.toBe("0px");
       }
 
-      await page.locator("[data-image-original]").click();
+      await page.locator("dc-image-toggle .dc-image-toggle__button").click();
       await expect(page.locator("dc-image-toggle")).toHaveAttribute("showing", "original");
       const after = await homeGeometry(page);
       expect(Math.abs(after.portrait!.w - geo.portrait!.w)).toBeLessThan(1);

@@ -27,10 +27,10 @@ headingAnchor:
   other: "Link to this section"
 navKeysHint:
   other: "[1] [2] · apps"
-imageOriginal:
-  other: "original →"
-imageProcessed:
-  other: "← dithering"
+imageShowOriginal:
+  other: "show original"
+imageShowDithered:
+  other: "show dithered"
 audioReading:
   other: "Author reading"
 videoCaptions:

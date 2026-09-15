@@ -17,13 +17,13 @@ test.describe("publication print", () => {
     await page.goto(ARTICLE);
 
     const figure = page.locator(".dc-figure--dithered").first();
-    const originalHref = await figure.locator("[data-image-original]").getAttribute("href");
+    const originalHref = await page.locator("dc-image-toggle").first().getAttribute("data-original");
     expect(originalHref).toBeTruthy();
     await expect(figure.locator("source[media='print']")).toHaveAttribute("srcset", originalHref!);
-    await expect.poll(async () => figure.locator("img").evaluate((el: HTMLImageElement) => el.currentSrc)).toMatch(/dither-/);
+    await expect.poll(async () => figure.locator("img.dc-image").evaluate((el: HTMLImageElement) => el.currentSrc)).toMatch(/dither-/);
 
     await page.emulateMedia({ media: "print" });
-    await expect.poll(async () => figure.locator("img").evaluate((el: HTMLImageElement) => el.currentSrc)).toBe(
+    await expect.poll(async () => figure.locator("img.dc-image").evaluate((el: HTMLImageElement) => el.currentSrc)).toBe(
       new URL(originalHref!, page.url()).href,
     );
 
@@ -32,8 +32,8 @@ test.describe("publication print", () => {
     await expect(page.locator(".dc-responses")).toBeHidden();
     await expect(page.locator(".dc-adjacent")).toBeHidden();
     await expect(figure.locator("figcaption")).toBeHidden();
-    for (const link of await page.locator(".dc-figure__original").all()) {
-      await expect(link).toBeHidden();
+    for (const control of await page.locator(".dc-image-toggle__button, .dc-image-toggle__overlay").all()) {
+      await expect(control).toBeHidden();
     }
 
     const titleColor = await page.locator(".dc-title").evaluate((el) => getComputedStyle(el).color);
@@ -89,10 +89,10 @@ test.describe("publication print without JavaScript", () => {
 
     await page.goto(ARTICLE);
     const figure = page.locator(".dc-figure--dithered").first();
-    const originalHref = await figure.locator("[data-image-original]").getAttribute("href");
+    const originalHref = await page.locator("dc-image-toggle").first().getAttribute("data-original");
     expect(originalHref).toBeTruthy();
     await expect(figure.locator("source[media='print']")).toHaveAttribute("srcset", originalHref!);
-    await expect.poll(async () => figure.locator("img").evaluate((el: HTMLImageElement) => el.currentSrc)).toBe(
+    await expect.poll(async () => figure.locator("img.dc-image").evaluate((el: HTMLImageElement) => el.currentSrc)).toBe(
       new URL(originalHref!, page.url()).href,
     );
     await expect(figure.locator("figcaption")).toBeHidden();

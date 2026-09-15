@@ -1,0 +1,6 @@
+{{- /*
+No-JS way to the original of a dithered image: a disclosure inside <noscript>,
+so a scripted page never parses (or fetches) it. The dithered <img> stays the
+image with the alt; this copy is decorative. Call with dict: url, width, height.
+*/ -}}
+<noscript><details class="dc-image-original"><summary lang="en">{{ i18n "imageShowOriginal" }}</summary><img class="dc-image-original__image" src="{{ .url }}" alt="" width="{{ .width }}" height="{{ .height }}" decoding="async"></details></noscript>

@@ -299,7 +299,7 @@ test.describe("keyboard", () => {
     expect(keyboardState.outlineStyle).not.toBe("none");
 
     // Move keyboard focus into another pane; the previous pane must clear.
-    const portraitOriginal = page.locator(".dc-home a.dc-figure__original").first();
+    const portraitOriginal = page.locator(".dc-home .dc-image-toggle__button").first();
     await focusByTabFromPrevious(page, portraitOriginal);
 
     const cleared = await feed.evaluate((el) => {
