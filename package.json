@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
-    "@playwright/test": "1.56.1",
+    "@playwright/test": "^1.63.0",
     "wrangler": "4.131.2"
   },
   "allowScripts": {
