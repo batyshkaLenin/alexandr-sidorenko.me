@@ -12,6 +12,7 @@
     "css_total_bytes": 71680,
     "js_total_bytes": 49152,
     "image_total_bytes": 2621440,
+    "font_total_bytes": 262144,
     "html_page_max_bytes": 131072
   },
   "image_extensions": [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"],
@@ -19,6 +20,7 @@
     "Audio/video bodies are out of the image budget (a track recording is intentionally large).",
     "search-index.json has its own ceiling in check-search-index.py.",
     "CSS ceiling is 70 KiB (T208, 2026-09-16): 67 746 bytes measured in the preview build (site.min 52 864 + declassified.min 14 882), headroom 3 934 bytes (5.8%). Sized so a typical feature (0.5–2 KB in the T181→T208 range) fits and a layout-scale change (4–5 KB) stops at the gate.",
+    "Font ceiling is 256 KiB (T230, 2026-09-16): 219 500 bytes of published woff2 after Fira Code became one variable file per subset plus symbols and math subsets, headroom 42 644 bytes (19%). A small new subset fits; bringing back the 400/700 duplicate (+84 KB) or a whole new face set does not.",
     "/sw.js is outside the JS ceiling by owner decision (T226, 2026-09-15): it does not block rendering and is fetched only on Service Worker registration. Since T227 it is the cleanup worker that retires that layer."
   ]
 }

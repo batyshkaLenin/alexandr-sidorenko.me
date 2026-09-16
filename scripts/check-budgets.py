@@ -55,13 +55,15 @@ def main() -> int:
     image_ext = {ext.lower() for ext in fixture.get("image_extensions") or []}
 
     if args.self_test:
-        # Controlled violation: pretend CSS may not exceed 1 byte.
+        # Controlled violation: pretend CSS and fonts may not exceed 1 byte.
         limits["css_total_bytes"] = 1
+        limits["font_total_bytes"] = 1
 
     css = [p for p in public.rglob("*.css") if p.is_file()]
     # The Service Worker is fetched on registration, never by a page render.
     js = [p for p in public.rglob("*.js") if p.is_file() and p != public / "sw.js"]
     html = [p for p in public.rglob("*.html") if p.is_file()]
+    fonts = [p for p in public.rglob("*.woff2") if p.is_file()]
     images = [
         p
         for p in public.rglob("*")
@@ -72,6 +74,7 @@ def main() -> int:
     css_total = total_bytes(css)
     js_total = total_bytes(js)
     image_total = total_bytes(images)
+    font_total = total_bytes(fonts)
 
     fail(
         errors,
@@ -87,6 +90,11 @@ def main() -> int:
         errors,
         image_total <= limits["image_total_bytes"],
         f"image total {image_total} bytes > {limits['image_total_bytes']} (S15 baseline ~2077 KiB + headroom)",
+    )
+    fail(
+        errors,
+        font_total <= limits["font_total_bytes"],
+        f"font total {font_total} bytes > {limits['font_total_bytes']}",
     )
 
     page_limit = limits["html_page_max_bytes"]
@@ -108,6 +116,7 @@ def main() -> int:
         f"OK: budgets — CSS {css_total}/{limits['css_total_bytes']}, "
         f"JS {js_total}/{limits['js_total_bytes']}, "
         f"images {image_total}/{limits['image_total_bytes']}, "
+        f"fonts {font_total}/{limits['font_total_bytes']}, "
         f"{len(html)} HTML page(s) ≤ {page_limit} bytes"
     )
     return 0
