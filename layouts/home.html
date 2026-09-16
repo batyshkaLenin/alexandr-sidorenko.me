@@ -21,23 +21,27 @@
     <div class="dc-panel__body dc-portrait-body">
       {{/* The alternative text describes the photograph, not just who is in
            it; it comes from the same data/authors.yaml entry the head uses. */}}
-      {{/* sizes: phone full pane; tablet/desktop portrait column. */}}
       {{ $portrait := index hugo.Data.dither $owner.avatar }}
       {{ if not $portrait }}
         {{ errorf "portrait %q has no dithered derivative — run scripts/dither-images.py" $owner.avatar }}
       {{ end }}
       {{ $source := partial "image-resource.html" (dict "path" $owner.avatar "context" "data/authors.yaml") }}
       {{ $original := $source.Process "fill 848x848" }}
-      {{/* The portrait opens the phone Home and is its LCP image: not lazy.
-           No fetchpriority hint: it did not improve LCP and delayed FCP. */}}
+      {{/* The portrait is the Home LCP image: eager and high priority. Other
+           portraits and covers must not get the hint. */}}
+      {{/* sizes mirrors site.css: stacked panel is min(20rem, pane) minus its
+           padding and border; beside the h-card it is --dc-home-avatar.
+           Estimates err wide so a rung is never picked too narrow. */}}
+      {{ $sizes := "calc(min(20rem, 100vw - 32px) - 22px)" }}
+      {{ $sizes = printf "(max-width: 740px) %s, (max-height: 30rem) %s, (max-width: 63.99rem) min(14rem, 28vw), min(19rem, 28vw)" $sizes $sizes }}
       {{ partial "declassified/component.html" "dc-image-toggle" }}
       <dc-image-toggle data-original="{{ $original.RelPermalink }}" data-label-original="{{ i18n "imageShowOriginal" }}" data-label-processed="{{ i18n "imageShowDithered" }}">
       {{ partial "dithered-img.html" (dict
            "entry" $portrait
            "alt" $owner.avatar_alt
-           "sizes" "(max-width: 46rem) calc(100vw - 68px), min(16rem, 28cqi)"
+           "sizes" $sizes
            "class" "dc-portrait"
-           "attrs" (safeHTMLAttr "")) }}
+           "attrs" (safeHTMLAttr `fetchpriority="high"`)) }}
       {{ partial "image-original-fallback.html" (dict "url" $original.RelPermalink "width" $original.Width "height" $original.Height) }}
       <p class="dc-portrait-original" data-image-toggle-slot lang="en" hidden></p>
       </dc-image-toggle>
