@@ -20,6 +20,11 @@ theme = 'declassified'
   # stringifies them to the path, which would turn the repo into `/`.
   github_repo = 'batyshkaLenin/alexandr-sidorenko.me'
 
+# The theme stylesheet is bundled into site.css (head-extra), so a page waits
+# for one render-blocking stylesheet instead of two.
+[params.declassified.css]
+  link = false
+
 # Home and Library are the whole of the navigation.
 # Names are lowercase English because the menu is shell, not document.
 # Titles of the pages themselves stay Russian.
