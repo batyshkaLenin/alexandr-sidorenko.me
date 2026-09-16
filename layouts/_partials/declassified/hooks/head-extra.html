@@ -33,7 +33,7 @@ JSON-LD, site.css after theme CSS. 404 gets noindex and skips identity tags.
 <meta name="robots" content="noindex">
 {{ end }}
 {{ end }}
-{{ with (resources.Get "css/site.css") | minify | fingerprint }}
+{{ with (partialCached "site-css.html" .Site) | minify | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
 {{- /* Optional per-page art stylesheet: assets/css/art/<name>.css */ -}}

@@ -1,0 +1,20 @@
+{{- /*
+Returns css/site.css with every url(/fonts/<file>.woff2) pointed at the
+fingerprinted copy of assets/fonts/<file>.woff2. A missing font file fails the
+build.
+*/ -}}
+{{- $content := (resources.Get "css/site.css").Content -}}
+{{- range findRESubmatch `url\(/fonts/([^)]+\.woff2)\)` $content -1 -}}
+  {{- $name := index . 1 -}}
+  {{- with resources.Get (printf "fonts/%s" $name) -}}
+    {{- $content = replace $content (printf "url(/fonts/%s)" $name) (printf "url(%s)" (. | fingerprint).RelPermalink) -}}
+  {{- else -}}
+    {{- errorf "css/site.css references /fonts/%s, but assets/fonts/%s does not exist" $name $name -}}
+  {{- end -}}
+{{- end -}}
+{{- range findRE `[^\s("']*\.woff2` $content -}}
+  {{- if not (findRE `\.[0-9a-f]{64}\.woff2$` .) -}}
+    {{- errorf "css/site.css references %s, which is not a fingerprinted font: write it as url(/fonts/<file>.woff2)" . -}}
+  {{- end -}}
+{{- end -}}
+{{- return resources.FromString "css/site.css" $content -}}

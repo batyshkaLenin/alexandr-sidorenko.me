@@ -60,7 +60,8 @@ EXPECTED_CACHE = {
     "/assets/*.webp": IMMUTABLE,
     "/assets/*.jpg": IMMUTABLE,
     "/assets/*.png": IMMUTABLE,
-    "/fonts/*": WEEK,
+    "/fonts/*.woff2": IMMUTABLE,
+    "/fonts/*.txt": WEEK,
     "/assets/*.mp3": WEEK,
     "/favicon.ico": DAY,
     "/logo192.png": DAY,
@@ -109,7 +110,12 @@ CONTENT_ADDRESSED = (
     "/assets/*.webp",
     "/assets/*.jpg",
     "/assets/*.png",
+    "/fonts/*.woff2",
 )
+
+# Font names carry the pipeline's sha256; a woff2 dropped into static/fonts would
+# otherwise inherit immutable at a stable address.
+FINGERPRINTED_FONT = re.compile(r"^/fonts/[^/]+\.[0-9a-f]{64}\.woff2$")
 
 
 def parse_headers_file(text: str) -> tuple[dict[str, dict[str, str]], list[str]]:
@@ -230,6 +236,8 @@ def check_coverage(
             continue
         if matching_cache_rule(url, rules) is None:
             errors.append(f"{url}: no Cache-Control rule covers this file")
+        if url.startswith("/fonts/") and url.endswith(".woff2") and not FINGERPRINTED_FONT.match(url):
+            errors.append(f"{url}: font is served immutable but its name carries no content hash")
 
 
 def fetch_headers(url: str) -> dict[str, str]:

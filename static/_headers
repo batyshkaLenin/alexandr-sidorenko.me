@@ -6,8 +6,8 @@
 # else are listed below.
 #
 # immutable appears only on content-addressed URLs, where changing the bytes
-# changes the URL. Fonts and audio live at stable addresses, so they get a week
-# with revalidation instead of a year without it.
+# changes the URL. Audio lives at stable addresses, so it gets a week with
+# revalidation instead of a year without it.
 
 # connect-src carries one external host: the activity pane's dev module refreshes
 # the shape of the week from the public Code::Stats endpoint when JavaScript is
@@ -44,8 +44,12 @@
 /assets/*.png
   Cache-Control: public, max-age=31536000, immutable
 
+# Font files are fingerprinted by the asset pipeline (layouts/_partials/site-css.html).
+/fonts/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
 # Stable addresses: a week, revalidated.
-/fonts/*
+/fonts/*.txt
   Cache-Control: public, max-age=604800
 
 /assets/*.mp3
