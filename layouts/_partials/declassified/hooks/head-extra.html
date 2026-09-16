@@ -1,6 +1,6 @@
 {{- /*
 Site head-extra: description, canonical, feeds, icons, OG/Twitter, webmention,
-JSON-LD, font preloads and one stylesheet bundling theme and site CSS
+JSON-LD, one stylesheet bundling theme and site CSS
 (params.declassified.css.link = false). 404 gets noindex and skips identity tags.
 */ -}}
 {{- /* Fonts ship from this origin via site.css — no third-party font links. */ -}}
@@ -34,7 +34,6 @@ JSON-LD, font preloads and one stylesheet bundling theme and site CSS
 <meta name="robots" content="noindex">
 {{ end }}
 {{ end }}
-{{ partial "font-preloads.html" . }}
 {{ with slice (resources.Get "css/declassified.css") (partialCached "site-css.html" .Site) | resources.Concat "css/site.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
