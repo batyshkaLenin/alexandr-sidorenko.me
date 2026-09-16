@@ -1700,12 +1700,6 @@ a.dc-list__type:focus-visible {
   margin: 1.6em 0;
 }
 
-/* Gallery figure fills its column. */
-.dc-gallery .dc-figure {
-  width: 100%;
-  margin: 0;
-}
-
 /* MathML: system math fonts, then body serif. */
 .dc-prose math {
   font-family: "Latin Modern Math", "STIX Two Math", "XITS Math", "Cambria Math",
