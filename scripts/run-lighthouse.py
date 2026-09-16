@@ -55,22 +55,27 @@ from canonical_static import serve_directory
 
 LIGHTHOUSE_VERSION = "13.4.1"
 
-PREVIEW_ORIGIN = "https://alexandr-sidorenko-me.auroragamesproject.workers.dev"
+PREVIEW_ORIGIN = "https://preview.alexandr-sidorenko.workers.dev"
 PRODUCTION_ORIGIN = "https://alexandr-sidorenko.me"
 
-# One page per template that renders differently: home, the library list, an
-# article with images, a track with audio. Renderer families (S21) will need
-# one entry each once they exist.
+# One page per template that renders differently: home, the library list, and
+# one publication per renderer family.
 DEFAULT_PATHS = (
     "/",
     "/library",
-    "/library/bluredu-new-teachers",
-    "/library/regular-visitor",
+    "/library/svidetel-v-bagazhnike",  # fiction, the longest one
+    "/library/cool-kids-of-death-hej-chlopcze",  # note with an external media embed
+    "/library/trafaret",  # poem
+    "/library/regular-visitor",  # track with audio
+    "/library/bluredu-new-teachers",  # article with images
+    "/library/itchatter-hakatony",  # talk
+    "/library/philosophy-of-freedom",  # paper
 )
 
 CATEGORIES = ("performance", "accessibility", "best-practices", "seo", "agentic-browsing")
 
-FONT_HOSTS = ("https://fonts.googleapis.com/*", "https://fonts.gstatic.com/*")
+# Fonts are served by the measured origin itself, wherever it is.
+FONT_PATTERN = "/*.woff2"
 
 # Budgets are per form factor because the mobile run is throttled to a slow
 # 4x-CPU device and cannot be held to the desktop numbers.
@@ -177,10 +182,26 @@ def build_args(run: Run, url: str, out_path: Path, profile_dir: Path, headless: 
         ]
 
     if run.fonts_blocked:
-        for pattern in FONT_HOSTS:
-            args.append(f"--blocked-url-patterns={pattern}")
+        args.append(f"--blocked-url-patterns={font_block_pattern(url)}")
 
     return args
+
+
+def font_block_pattern(url: str) -> str:
+    parts = urlsplit(url)
+    return f"{parts.scheme}://{parts.netloc}{FONT_PATTERN}"
+
+
+def loaded_fonts(report: dict) -> list[str]:
+    """Font requests that got a response; a blocked request reports statusCode -1."""
+    items = (report.get("audits", {}).get("network-requests", {}).get("details") or {}).get("items", [])
+    return [
+        str(item.get("url"))
+        for item in items
+        if item.get("resourceType") == "Font"
+        and isinstance(item.get("statusCode"), int)
+        and item["statusCode"] >= 0
+    ]
 
 
 def numeric(report: dict, audit_id: str) -> float | None:
@@ -249,6 +270,19 @@ def extension_noise(report: dict) -> int:
 def methodology_problems(run: Run, report: dict) -> list[str]:
     """Catch the ways a run can look successful while measuring the wrong thing."""
     problems = []
+
+    # A missing page still yields a report, with no metrics for the budget to hold.
+    error = report.get("runtimeError")
+    if error:
+        problems.append(f"runtimeError {error.get('code')}: {error.get('message')}")
+
+    if run.fonts_blocked:
+        fonts = loaded_fonts(report)
+        if fonts:
+            problems.append(
+                f"fonts were meant to be blocked, but {len(fonts)} loaded (first: {fonts[0]}) — "
+                f"this is not the no-font measurement"
+            )
 
     mode = report.get("gatherMode")
     if mode != "navigation":
@@ -333,8 +367,9 @@ def format_aggregate(value: float | None, fmt: str, width: int) -> str:
 def summarize(
     rows: list[tuple[Run, list[dict]]], allowed: frozenset[str]
 ) -> tuple[str, list[str], list[str], list[dict]]:
+    page_width = max([len("page"), *(len(run.slug) for run, _ in rows)])
     header = (
-        f"{'page':<34} {'form':<8} {'perf':>5} {'a11y':>5} {'bp':>5} {'seo':>5} "
+        f"{'page':<{page_width}} {'form':<8} {'perf':>5} {'a11y':>5} {'bp':>5} {'seo':>5} "
         f"{'LCP':>7} {'±':>6} {'TBT':>6} {'CLS':>6} {'n':>3}"
     )
     lines = [header, "-" * len(header)]
@@ -349,7 +384,7 @@ def summarize(
                   ("performance", "accessibility", "best-practices", "seo")}
 
         lines.append(
-            f"{run.slug:<34} {run.form_factor:<8} "
+            f"{run.slug:<{page_width}} {run.form_factor:<8} "
             f"{format_aggregate(scores['performance'], '5.2f', 5)} "
             f"{format_aggregate(scores['accessibility'], '5.2f', 5)} "
             f"{format_aggregate(scores['best-practices'], '5.2f', 5)} "
@@ -502,6 +537,29 @@ def self_test() -> None:
     }
     assert methodology_problems(run, clean) == [], "self-test: clean run flagged"
 
+    missing = dict(clean, runtimeError={"code": "ERRORED_DOCUMENT_REQUEST", "message": "(Status code: 404)"})
+    assert "ERRORED_DOCUMENT_REQUEST" in " ".join(methodology_problems(run, missing)), (
+        "self-test: a page that did not load was reported as measured"
+    )
+
+    def with_font(status: int) -> dict:
+        request = {"url": "https://example.test/fonts/a.woff2", "resourceType": "Font", "statusCode": status}
+        return dict(clean, audits={"network-requests": {"details": {"items": [request]}}})
+
+    blocked_run = Run("/library", "mobile", True)
+    assert any("meant to be blocked" in p for p in methodology_problems(blocked_run, with_font(200))), (
+        "self-test: fonts that loaded in a no-font run went unnoticed"
+    )
+    assert methodology_problems(blocked_run, with_font(-1)) == [], "self-test: blocked font flagged"
+    assert methodology_problems(run, with_font(200)) == [], "self-test: loaded font flagged in a normal run"
+
+    assert font_block_pattern("https://preview.example.test/library/x") == "https://preview.example.test/*.woff2", (
+        "self-test: font pattern not bound to the measured origin"
+    )
+    assert font_block_pattern("http://127.0.0.1:8123/") == "http://127.0.0.1:8123/*.woff2", (
+        "self-test: font pattern lost the port of a served build"
+    )
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -537,8 +595,8 @@ def main() -> int:
         "--fonts",
         choices=("allowed", "blocked", "both"),
         default="allowed",
-        help="`blocked` blackholes fonts.googleapis.com and fonts.gstatic.com, "
-        "the font/CSS degradation path required to be measured",
+        help="`blocked` blocks every .woff2 on the measured origin, the degradation path "
+        "required to be measured; a blocked run in which a font still loads is reported as a problem",
     )
     parser.add_argument(
         "--out-dir",
