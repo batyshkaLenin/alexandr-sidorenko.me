@@ -17,21 +17,22 @@ class AsViewsnav extends HTMLElement {
     this.scroller = this.querySelector(".dc-library__views");
     if (!this.scroller) return;
 
+    this.revealed = false;
     this.sync = () => this.update();
     this.scroller.addEventListener("scroll", this.sync, { passive: true });
-    this.resize = new ResizeObserver(this.sync);
-    this.resize.observe(this.scroller);
-    this.revealed = false;
-    this.ready = () => {
-      if (!this.isConnected || !this.scroller) return;
+    // Geometry is read only in observer callbacks, after layout. The lists
+    // are observed too: a font swap widens them without resizing the scroller.
+    this.resize = new ResizeObserver(() => {
       if (!this.revealed) {
         this.revealCurrent();
         this.revealed = true;
       }
       this.update();
-    };
-    this.ready();
-    if (document.fonts) document.fonts.ready.then(this.ready);
+    });
+    this.resize.observe(this.scroller);
+    for (const list of this.scroller.querySelectorAll(".dc-library__views-list")) {
+      this.resize.observe(list);
+    }
   }
 
   disconnectedCallback() {
@@ -58,7 +59,7 @@ class AsViewsnav extends HTMLElement {
     const end = overflowing && max - el.scrollLeft > 2;
     el.toggleAttribute("data-overflow-start", start);
     el.toggleAttribute("data-overflow-end", end);
-    el.setAttribute("data-viewsnav-ready", "");
+    el.toggleAttribute("data-viewsnav-ready", true);
   }
 
   revealCurrent() {
