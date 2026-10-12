@@ -21,14 +21,19 @@ export default defineConfig({
     // Cache Storage and contend with Service Worker scenarios on the same host.
     serviceWorkers: "block",
   },
-  webServer: {
+  webServer: [{
     command: `python3 scripts/serve-public.py --host 127.0.0.1 --port 4173 --enable-sw-test-network-failures --public-dir ${JSON.stringify(publicDir)}`,
     url: `${baseURL}/`,
     // Never reuse: a leftover server may still be serving ./public (or a
     // hugo-server rewrite) while PUBLIC_DIR points at tmp/release-public.
     reuseExistingServer: false,
     timeout: 120_000,
-  },
+  }, ...(process.env.DESIGN_REFERENCE_ROOT ? [{
+    command: `python3 scripts/serve-public.py --host 127.0.0.1 --port 4174 --public-dir '${(process.env.DESIGN_REFERENCE_ROOT + "/theme").replace(/'/g, "'\\''")}'`,
+    url: "http://127.0.0.1:4174/",
+    reuseExistingServer: false,
+    timeout: 120_000,
+  }] : [])],
   projects: [
     {
       name: "chromium-desktop",

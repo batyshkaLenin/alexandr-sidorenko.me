@@ -1,3 +1,6 @@
+{{- if .Params.design_reference -}}
+{{ partial "design-reference/head.html" . }}
+{{- else -}}
 {{- /*
 Site head-extra: description, canonical, feeds, icons, OG/Twitter, webmention,
 JSON-LD, one stylesheet bundling theme and site CSS
@@ -126,3 +129,5 @@ from this page. Hover/focus prefetch for everything else is handled by
 {{- end }}
 
 {{ partial "schema.html" . }}
+
+{{- end -}}

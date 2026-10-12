@@ -1,0 +1,4 @@
+# Explicit local opt-in only; build.sh and deployment do not use this config.
+ignoreFiles = []
+[params]
+  design_reference = true

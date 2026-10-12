@@ -1,3 +1,5 @@
+# Local executable fixtures are absent from ordinary preview/production builds.
+ignoreFiles = ['[/\\]__preview[/\\]']
 baseURL = 'https://alexandr-sidorenko.me/'
 locale = 'ru-RU'
 # Hugo's i18n bundle selection (theme UI strings) follows this key, not

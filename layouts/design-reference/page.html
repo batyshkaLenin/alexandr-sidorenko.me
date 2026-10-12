@@ -1,0 +1,23 @@
+{{ define "main" }}
+<section class="dc-panel dc-panel--detail" data-design-reference="site">
+  <h1 class="dc-title">{{ .Title }}</h1>
+  <div class="dc-prose">
+    <p>Исполняемый пример production rendering. Нормативные решения находятся в canonical docs; известные отклонения не считаются утверждёнными.</p>
+    <section id="site-type-badge" data-design-example="site-type-badge">
+      <h2>Метка типа</h2>
+      {{ $material := site.GetPage "/library/bluredu-new-teachers" }}
+      {{ if not $material }}{{ errorf "design reference: production article missing" }}{{ end }}
+      {{ partial "library/type-badge.html" (dict "page" $material "linked" true) }}
+    </section>
+    {{ .Content }}
+    <section id="site-composition">
+      <h2>Production composition</h2>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/library/all">Library All</a></li>
+        <li><a href="/library/bluredu-new-teachers">Настоящая статья с оглавлением</a></li>
+      </ul>
+    </section>
+  </div>
+</section>
+{{ end }}

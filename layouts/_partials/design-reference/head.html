@@ -1,0 +1,7 @@
+{{- if not (and site.Params.design_reference (eq hugo.Environment "design-reference") (eq .Type "design-reference") (eq .Section "__preview")) -}}
+  {{- errorf "design reference requires the explicit local design-reference profile and service fixture" -}}
+{{- end -}}
+<meta name="robots" content="noindex,nofollow">
+{{ with slice (resources.Get "css/declassified.css") (partialCached "site-css.html" .Site) | resources.Concat "css/site.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
+{{ end }}

@@ -1,0 +1,110 @@
+{
+  "schema": "design-reference/v1",
+  "route": "/__design/site",
+  "examples": [
+    {
+      "id": "site-type-badge",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-COMPONENTS",
+      "source": "layouts/_partials/library/type-badge.html",
+      "invocation": "layouts/design-reference/page.html",
+      "state": "linked ARTICLE badge from real production Page",
+      "coverage": [
+        "1440",
+        "390",
+        "320-overflow",
+        "js",
+        "no-js",
+        "keyboard"
+      ],
+      "conformance": "pending-independent-inspection",
+      "known_deviation": null
+    },
+    {
+      "id": "site-figure",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_markup/render-image.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "default figure with existing image, caption and native image fallback",
+      "coverage": [
+        "1440",
+        "390",
+        "320-overflow",
+        "js",
+        "no-js",
+        "keyboard"
+      ],
+      "conformance": "pending-independent-inspection",
+      "known_deviation": null
+    },
+    {
+      "id": "site-code",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_markup/render-codeblock.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "rich fenced code, file and caption; server-side Chroma",
+      "coverage": [
+        "1440",
+        "390",
+        "320-overflow",
+        "js",
+        "no-js",
+        "keyboard"
+      ],
+      "conformance": "pending-independent-inspection",
+      "known_deviation": null
+    },
+    {
+      "id": "site-table",
+      "rule": "v2:docs/philosophy/design.md#INV-DESIGN-A11Y",
+      "source": "layouts/_markup/render-table.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "aligned table, column scope and keyboard scroll region",
+      "coverage": [
+        "1440",
+        "390",
+        "320-overflow",
+        "js",
+        "no-js",
+        "keyboard"
+      ],
+      "conformance": "pending-independent-inspection",
+      "known_deviation": null
+    }
+  ],
+  "composition": [
+    {
+      "url": "/",
+      "source": "layouts/home.html"
+    },
+    {
+      "url": "/library/all",
+      "source": "layouts/library-view.html"
+    },
+    {
+      "url": "/library/bluredu-new-teachers",
+      "source": "content/library/bluredu-new-teachers.md"
+    }
+  ],
+  "known_deviations": [
+    {
+      "work": "W0017",
+      "expected": "MaterialRow has a row-sized material link and a separate sibling type link",
+      "observed": "Production row/type-link structure remains unresolved; linked badge alone does not prove MaterialRow conformance"
+    },
+    {
+      "work": "W0001",
+      "expected": "Zero responses omit the response section",
+      "observed": "Production zero-response section remains; real composition link only"
+    },
+    {
+      "work": null,
+      "expected": "Focus uses --dc-primary (green)",
+      "observed": "Theme :focus-visible outline uses --dc-accent (pink); no fix or conformance approval"
+    },
+    {
+      "work": null,
+      "expected": "Reference fixtures have no editorial identity",
+      "observed": "Production reader heading requires material identity; use the real TOC article instead of a synthetic reader"
+    }
+  ]
+}

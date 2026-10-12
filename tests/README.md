@@ -306,3 +306,62 @@ desktop-representative. Does not replace `check-a11y-contract.py`.
 
 `scripts/check-budgets.py` holds filesystem ceilings from S15/T69 (CSS/JS/image
 totals and per-HTML-page size). Not part of `validate.sh`.
+
+## Local executable design reference (Phase 4)
+
+The reference is executable evidence, subordinate to `.ai/v2/docs` canonical
+contracts. It is not an editorial publication or a second design system. The
+minimal 4A set is in `data/design-reference.json` and the theme's
+`exampleSite/data/design-states.json`. Conformance remains pending independent
+inspection; known production deviations are not approved baselines.
+
+```sh
+python3 scripts/build-design-reference.py --output /tmp/design-reference
+PUBLIC_DIR=/tmp/design-reference/site DESIGN_REFERENCE_ROOT=/tmp/design-reference \
+  ./node_modules/.bin/playwright test tests/browser/design-reference.spec.ts \
+  --project=chromium-desktop --workers=2 --output=/tmp/design-reference-browser
+```
+
+Use a fresh output directory. The builder checks the pinned Hugo Extended
+version, uses a fixed clock and checked-in data, and builds normal preview,
+production, local site reference and theme control/reference. It does not run
+`build.sh`, refresh external snapshots, install tools, modify global settings,
+change hosting, or deploy. The profile is explicitly selected with
+`--config hugo.toml,config/design-reference.toml --environment design-reference`.
+Normal preview and production ignore reference content completely. Templates
+reject reference rendering in any other environment. Do not deploy the opt-in
+output; no public exposure is authorized.
+
+For manual inspection serve `site` and `theme` output directories on loopback
+(for example with `scripts/serve-public.py`, ports 4173 and 4174). Open
+`/__design/site` and `/__design/theme`. Both are service routes: noindex/nofollow,
+no publication identity/discovery. Normal navigation, feeds, sitemap, search,
+taxonomies, related/backlinks, `/id/`, redirects and llms.txt remain unchanged.
+The existing production CSP/headers apply; no new origin or inline script/style
+is needed. Existing fingerprinted assets are reused without reference CSS/JS.
+
+`check-design-reference.py --build-root DIR --self-test` is the primary checker.
+It binds manifest entries to source and rules, validates fixture constraints and
+rendered HTML, invokes the theme check, and compares *all* ordinary output bytes
+between enabled/disabled builds. The only allowed additions are the two service
+HTML files in their separate build roots. Its negative case injects a reference
+artifact into a disposable production copy and requires the ordinary CLI to fail.
+`--control-root DIR` additionally compares `control-preview`,
+`control-production` and `theme-control` pre-change outputs built with the same
+clock/Hugo/data/build-commit. Neither checker rewrites sources or baselines.
+
+Agent workflow: read canonical rule → inspect its matching example → inspect the
+production entrypoint → implement → run relevant checks. Synthetic site fixtures
+use real type-badge and Markdown figure/code/table rendering; composition links
+use actual Home, Library All and a TOC article. There is no fake reader: the
+production reader heading requires material identity. W0017 (MaterialRow/type
+link), W0001 (zero-response section), and primary/green versus accent/pink focus
+remain explicit deviations; 4A does not repair them. DR-2026-001/002 are out of
+scope. Coverage beyond the minimal set belongs to 4B.
+
+The Chromium matrix covers 1440/390/320 with JS on/off, native details, checkbox,
+Tab/local navigation, clipboard, image enhancement, renderer content, focus and
+page overflow. Four screenshots are inspection evidence, not golden snapshots.
+These implementation checks and any later bounded inspection create no canonical
+Review/QA receipts. W0025 remains in Implementation until full Phase-4 acceptance
+is implemented and the 4C lifecycle gates are satisfied.
