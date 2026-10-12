@@ -7,104 +7,692 @@
       "rule": "v2:docs/references/design-system-catalog.md#DS-COMPONENTS",
       "source": "layouts/_partials/library/type-badge.html",
       "invocation": "layouts/design-reference/page.html",
-      "state": "linked ARTICLE badge from real production Page",
-      "coverage": [
-        "1440",
-        "390",
-        "320-overflow",
-        "js",
-        "no-js",
-        "keyboard"
-      ],
-      "conformance": "pending-independent-inspection",
-      "known_deviation": null
+      "state": "Linked ARTICLE from real material Page",
+      "selector": "#site-type-badge",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["reference.geometry", "site.behavior"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-type-unlinked",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-COMPONENTS",
+      "source": "layouts/_partials/library/type-badge.html",
+      "invocation": "layouts/design-reference/page.html",
+      "state": "Same production API with linked=false",
+      "selector": "#site-type-unlinked",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["reference.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
     },
     {
       "id": "site-figure",
       "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
       "source": "layouts/_markup/render-image.html",
       "invocation": "content/__preview/design/index.md",
-      "state": "default figure with existing image, caption and native image fallback",
-      "coverage": [
-        "1440",
-        "390",
-        "320-overflow",
-        "js",
-        "no-js",
-        "keyboard"
-      ],
-      "conformance": "pending-independent-inspection",
-      "known_deviation": null
+      "state": "Default figure with existing image and native fallback",
+      "selector": "#site-figure",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen", "print"],
+      "checks": ["reference.geometry", "site.behavior", "site.degraded", "reference.media"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
     },
     {
       "id": "site-code",
       "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
       "source": "layouts/_markup/render-codeblock.html",
       "invocation": "content/__preview/design/index.md",
-      "state": "rich fenced code, file and caption; server-side Chroma",
-      "coverage": [
-        "1440",
-        "390",
-        "320-overflow",
-        "js",
-        "no-js",
-        "keyboard"
-      ],
-      "conformance": "pending-independent-inspection",
-      "known_deviation": null
+      "state": "Rich server-side Chroma, file/caption/line numbers",
+      "selector": "#site-code",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["reference.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
     },
     {
       "id": "site-table",
-      "rule": "v2:docs/philosophy/design.md#INV-DESIGN-A11Y",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
       "source": "layouts/_markup/render-table.html",
       "invocation": "content/__preview/design/index.md",
-      "state": "aligned table, column scope and keyboard scroll region",
-      "coverage": [
-        "1440",
-        "390",
-        "320-overflow",
-        "js",
-        "no-js",
-        "keyboard"
-      ],
-      "conformance": "pending-independent-inspection",
-      "known_deviation": null
+      "state": "Aligned table and column headers",
+      "selector": "#site-table",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["reference.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-prose",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_markup/render-heading.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "Prose, heading anchor, inline links, quote, footnote/backlink",
+      "selector": "#site-prose",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["reference.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-code-plain",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_markup/render-codeblock.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "Plain code and wide-line local scroll",
+      "selector": "#site-code-plain",
+      "url": "/__design/site",
+      "states": ["STATE-WIDE-CODE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen", "forced-colors", "print"],
+      "checks": ["reference.geometry", "reference.media"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-table-wide",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_markup/render-table.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "Wide aligned data table, local scroll",
+      "selector": "#site-table-wide",
+      "url": "/__design/site",
+      "states": ["STATE-WIDE-TABLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen", "forced-colors", "print"],
+      "checks": ["reference.geometry", "reference.media"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-math",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_markup/render-passthrough.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "Inline/display build-time MathML, local wide math",
+      "selector": "#site-math",
+      "url": "/__design/site",
+      "states": ["STATE-WIDE-MATH", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen", "forced-colors", "print"],
+      "checks": ["reference.geometry", "reference.media"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-figure-credit",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_shortcodes/figure.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "Existing caption/source/credit pipeline",
+      "selector": "#site-figure-credit",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen", "print"],
+      "checks": ["reference.geometry", "site.behavior", "site.degraded", "reference.media"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-figure-widths",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_partials/publication/figure.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "Approved current wide/full roles, unchanged primitive geometry",
+      "selector": "#site-figure-widths",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["reference.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-gallery",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_shortcodes/gallery.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "Two existing published images through gallery/figure APIs",
+      "selector": "#site-gallery",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["reference.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-parallel",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_shortcodes/parallel.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "BCP47 source/translation pair and stanza",
+      "selector": "#site-parallel",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["reference.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-verse",
+      "rule": "v2:docs/conventions/html-content.md#INV-HTML-SEMANTIC-HIERARCHY",
+      "source": "layouts/_shortcodes/verse.html",
+      "invocation": "content/__preview/design/index.md",
+      "state": "Verse block preserving native line rhythm",
+      "selector": "#site-verse",
+      "url": "/__design/site",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["reference.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-home",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-LAYOUTS",
+      "source": "layouts/home.html",
+      "invocation": "layouts/home.html",
+      "state": "Home",
+      "selector": ".dc-home",
+      "url": "/",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.geometry", "site.degraded"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-row-rich",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-COMPONENTS",
+      "source": "layouts/_partials/library/material-row.html",
+      "invocation": "layouts/section.html",
+      "state": "Library Recent — rich rows",
+      "selector": ".dc-material--rich",
+      "url": "/library",
+      "states": ["STATE-LONG-TITLE", "STATE-MINIMAL-METADATA"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-known-deviation",
+      "known_deviation": "Existing W0017 row/type-link deviation; no conformance approval",
+      "finding_ids": ["4B-K1"]
+    },
+    {
+      "id": "site-row-dense",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-COMPONENTS",
+      "source": "layouts/_partials/library/material-row.html",
+      "invocation": "layouts/library-view.html",
+      "state": "Library All — dense rows",
+      "selector": ".dc-material--dense",
+      "url": "/library/all",
+      "states": ["STATE-LONG-TITLE", "STATE-MINIMAL-METADATA"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-known-deviation",
+      "known_deviation": "Existing W0017 row/type-link deviation; no conformance approval",
+      "finding_ids": ["4B-K1"]
+    },
+    {
+      "id": "site-modes",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-LAYOUTS",
+      "source": "layouts/_partials/library/mode-panels.html",
+      "invocation": "layouts/_partials/library/mode-panels.html",
+      "state": "Library table mode",
+      "selector": "dc-modes",
+      "url": "/library/table",
+      "states": ["STATE-CURRENT"],
+      "viewports": [320, 390, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.reading", "site.behavior"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-toc",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-LAYOUTS",
+      "source": "content/library/bluredu-new-teachers.md",
+      "invocation": "content/library/bluredu-new-teachers.md",
+      "state": "TOC article",
+      "selector": ".dc-toc",
+      "url": "/library/bluredu-new-teachers",
+      "states": ["STATE-IDLE", "STATE-NO-JS"],
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.geometry"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-known-deviation",
+      "known_deviation": "Existing W0001 zero-response section deviation; no conformance approval",
+      "finding_ids": ["4B-K2"]
+    },
+    {
+      "id": "site-long-prose",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-LAYOUTS",
+      "source": "content/library/svidetel-v-bagazhnike.md",
+      "invocation": "content/library/svidetel-v-bagazhnike.md",
+      "state": "Long prose",
+      "selector": ".dc-prose",
+      "url": "/library/svidetel-v-bagazhnike",
+      "states": ["STATE-NO-TOC", "STATE-NO-JS"],
+      "viewports": [320, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.reading"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-poem-short",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-LAYOUTS",
+      "source": "content/library/zhizn-poeta.md",
+      "invocation": "content/library/zhizn-poeta.md",
+      "state": "Short poem",
+      "selector": ".dc-prose",
+      "url": "/library/zhizn-poeta",
+      "states": ["STATE-POEM-SHORT", "STATE-NO-JS"],
+      "viewports": [320, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.reading"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-known-deviation",
+      "known_deviation": "Existing W0001 zero-response section deviation; no conformance approval",
+      "finding_ids": ["4B-K2"]
+    },
+    {
+      "id": "site-poem-long",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-LAYOUTS",
+      "source": "content/library/23.md",
+      "invocation": "content/library/23.md",
+      "state": "Long poem",
+      "selector": ".dc-prose",
+      "url": "/library/23",
+      "states": ["STATE-POEM-LONG", "STATE-NO-JS"],
+      "viewports": [320, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.reading"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-track",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-LAYOUTS",
+      "source": "content/library/regular-visitor.md",
+      "invocation": "content/library/regular-visitor.md",
+      "state": "Track / native audio",
+      "selector": "audio",
+      "url": "/library/regular-visitor",
+      "states": ["STATE-TRACK-FULL", "STATE-NO-JS"],
+      "viewports": [320, 390, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.reading", "site.behavior", "site.media-guard"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-known-deviation",
+      "known_deviation": "4B-K6 / W0021: / ? still intercept native audio focus",
+      "finding_ids": ["4B-K6"]
+    },
+    {
+      "id": "site-translation",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-LAYOUTS",
+      "source": "content/library/cool-kids-of-death-a-moze-tak.md",
+      "invocation": "content/library/cool-kids-of-death-a-moze-tak.md",
+      "state": "Translation / parallel text",
+      "selector": ".as-parallel-text",
+      "url": "/library/cool-kids-of-death-a-moze-tak",
+      "states": ["STATE-NO-JS"],
+      "viewports": [320, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.reading"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
+    },
+    {
+      "id": "site-external",
+      "rule": "v2:docs/references/design-system-catalog.md#DS-LAYOUTS",
+      "source": "content/library/itchatter-parni-hakatonschiki.md",
+      "invocation": "content/library/itchatter-parni-hakatonschiki.md",
+      "state": "External media — user activated",
+      "selector": "as-external-media",
+      "url": "/library/itchatter-parni-hakatonschiki",
+      "states": ["STATE-ENHANCEMENT-UNAVAILABLE", "STATE-NO-JS"],
+      "viewports": [320, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"],
+      "checks": ["production.reading", "site.degraded"],
+      "coverage": ["geometry", "js", "no-js"],
+      "conformance": "covered-conformant",
+      "known_deviation": null,
+      "finding_ids": []
     }
   ],
   "composition": [
     {
       "url": "/",
-      "source": "layouts/home.html"
+      "source": "layouts/home.html",
+      "label": "Home"
+    },
+    {
+      "url": "/library",
+      "source": "layouts/section.html",
+      "label": "Library Recent — rich rows"
     },
     {
       "url": "/library/all",
-      "source": "layouts/library-view.html"
+      "source": "layouts/library-view.html",
+      "label": "Library All — dense rows"
+    },
+    {
+      "url": "/library/table",
+      "source": "layouts/_partials/library/mode-panels.html",
+      "label": "Library table mode"
     },
     {
       "url": "/library/bluredu-new-teachers",
-      "source": "content/library/bluredu-new-teachers.md"
+      "source": "content/library/bluredu-new-teachers.md",
+      "label": "TOC article"
+    },
+    {
+      "url": "/library/svidetel-v-bagazhnike",
+      "source": "content/library/svidetel-v-bagazhnike.md",
+      "label": "Long prose"
+    },
+    {
+      "url": "/library/zhizn-poeta",
+      "source": "content/library/zhizn-poeta.md",
+      "label": "Short poem"
+    },
+    {
+      "url": "/library/23",
+      "source": "content/library/23.md",
+      "label": "Long poem"
+    },
+    {
+      "url": "/library/regular-visitor",
+      "source": "content/library/regular-visitor.md",
+      "label": "Track / native audio"
+    },
+    {
+      "url": "/library/cool-kids-of-death-a-moze-tak",
+      "source": "content/library/cool-kids-of-death-a-moze-tak.md",
+      "label": "Translation / parallel text"
+    },
+    {
+      "url": "/library/itchatter-parni-hakatonschiki",
+      "source": "content/library/itchatter-parni-hakatonschiki.md",
+      "label": "External media — user activated"
     }
   ],
   "known_deviations": [
     {
       "work": "W0017",
       "expected": "MaterialRow has a row-sized material link and a separate sibling type link",
-      "observed": "Production row/type-link structure remains unresolved; linked badge alone does not prove MaterialRow conformance"
+      "observed": "Production row/type-link structure remains unresolved; linked badge alone does not prove MaterialRow conformance",
+      "id": "4B-K1",
+      "classification": "implementation defect",
+      "severity": "MAJOR",
+      "blocks_4c": false,
+      "disposition": "Existing W0017 remains open; not fixed or blessed in 4B"
     },
     {
       "work": "W0001",
       "expected": "Zero responses omit the response section",
-      "observed": "Production zero-response section remains; real composition link only"
+      "observed": "Production zero-response section remains; real composition link only",
+      "id": "4B-K2",
+      "classification": "implementation defect",
+      "severity": "MAJOR",
+      "blocks_4c": false,
+      "disposition": "Existing W0001 remains open; not fixed or blessed in 4B"
     },
     {
       "work": null,
       "expected": "Focus uses --dc-primary (green)",
-      "observed": "Theme :focus-visible outline uses --dc-accent (pink); no fix or conformance approval"
+      "observed": "Production focus outline uses --dc-accent (pink); unchanged",
+      "id": "4B-K3",
+      "classification": "implementation defect",
+      "severity": "MINOR",
+      "blocks_4c": false,
+      "disposition": "Explicit conformance disposition required in 4C; no approval here"
     },
     {
       "work": null,
       "expected": "Reference fixtures have no editorial identity",
-      "observed": "Production reader heading requires material identity; use the real TOC article instead of a synthetic reader"
+      "observed": "Production reader heading requires material identity; use the real TOC article instead of a synthetic reader",
+      "id": "4B-K4",
+      "classification": "intentional deviation / decision required",
+      "severity": "MINOR",
+      "blocks_4c": false,
+      "disposition": "Not applicable to synthetic service fixtures; real readers are used, no new decision made"
+    },
+    {
+      "id": "4B-K6",
+      "classification": "implementation defect",
+      "severity": "MAJOR",
+      "expected": "Document / and ? must not activate while native media has focus",
+      "observed": "On real track audio, / opens palette and ? opens help; independently reproduced at 1440",
+      "work": "W0021",
+      "blocks_4c": true,
+      "disposition": "Existing W0021 retained; production guard not fixed and lifecycle untouched"
     }
-  ]
+  ],
+  "viewports": [320, 390, 768, 1024, 1440],
+  "service_outputs": ["__design/site/index.html"],
+  "scenarios": ["reference.geometry", "site.behavior", "production.geometry", "production.reading", "site.degraded", "reference.media", "site.media-guard"],
+  "findings": [
+    {
+      "work": "W0017",
+      "expected": "MaterialRow has a row-sized material link and a separate sibling type link",
+      "observed": "Production row/type-link structure remains unresolved; linked badge alone does not prove MaterialRow conformance",
+      "id": "4B-K1",
+      "classification": "implementation defect",
+      "severity": "MAJOR",
+      "blocks_4c": false,
+      "disposition": "Existing W0017 remains open; not fixed or blessed in 4B"
+    },
+    {
+      "work": "W0001",
+      "expected": "Zero responses omit the response section",
+      "observed": "Production zero-response section remains; real composition link only",
+      "id": "4B-K2",
+      "classification": "implementation defect",
+      "severity": "MAJOR",
+      "blocks_4c": false,
+      "disposition": "Existing W0001 remains open; not fixed or blessed in 4B"
+    },
+    {
+      "work": null,
+      "expected": "Focus uses --dc-primary (green)",
+      "observed": "Production focus outline uses --dc-accent (pink); unchanged",
+      "id": "4B-K3",
+      "classification": "implementation defect",
+      "severity": "MINOR",
+      "blocks_4c": false,
+      "disposition": "Explicit conformance disposition required in 4C; no approval here"
+    },
+    {
+      "work": null,
+      "expected": "Reference fixtures have no editorial identity",
+      "observed": "Production reader heading requires material identity; use the real TOC article instead of a synthetic reader",
+      "id": "4B-K4",
+      "classification": "intentional deviation / decision required",
+      "severity": "MINOR",
+      "blocks_4c": false,
+      "disposition": "Not applicable to synthetic service fixtures; real readers are used, no new decision made"
+    },
+    {
+      "id": "4B-K6",
+      "classification": "implementation defect",
+      "severity": "MAJOR",
+      "expected": "Document / and ? must not activate while native media has focus",
+      "observed": "On real track audio, / opens palette and ? opens help; independently reproduced at 1440",
+      "work": "W0021",
+      "blocks_4c": true,
+      "disposition": "Existing W0021 retained; production guard not fixed and lifecycle untouched"
+    }
+  ],
+  "coverage_exclusions": [
+    {
+      "id": "synthetic-reader",
+      "classification": "not-applicable",
+      "reason": "Reader requires real material identity; only existing production pages are used."
+    },
+    {
+      "id": "native-video-draft",
+      "classification": "deferred",
+      "reason": "No published native-video page; existing track/audio and external-media facade represent media without new output assets."
+    },
+    {
+      "id": "specified-future-variants",
+      "classification": "deferred",
+      "reason": "Table sorting/mobile stack, bibliography, album and unpublished track/poem variants are not current representative production states."
+    },
+    {
+      "id": "formal-conformance",
+      "classification": "deferred",
+      "reason": "Canonical Review/QA, final findings disposition and owner visual acceptance belong to 4C."
+    },
+    {
+      "id": "phone-mode-switch",
+      "classification": "not-applicable",
+      "reason": "Current production CSS explicitly hides mode switch <=640px; desktop behavior and native direct table/list URLs are covered, no new phone interaction is invented."
+    }
+  ],
+  "visual_evidence": {
+    "retained_baselines": [],
+    "policy": "Temporary focused-region screenshots only; no full-page prose golden baselines."
+  },
+  "scenario_matrix": {
+    "reference.geometry": {
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"]
+    },
+    "theme.behavior": {
+      "viewports": [390, 1440],
+      "js": ["on"],
+      "media": ["screen"]
+    },
+    "site.behavior": {
+      "viewports": [390, 1440],
+      "js": ["on"],
+      "media": ["screen"]
+    },
+    "production.geometry": {
+      "viewports": [320, 390, 768, 1024, 1440],
+      "js": ["on"],
+      "media": ["screen"]
+    },
+    "production.reading": {
+      "viewports": [320, 1440],
+      "js": ["on", "off"],
+      "media": ["screen"]
+    },
+    "theme.degraded": {
+      "viewports": [1440],
+      "js": ["on"],
+      "media": ["screen"]
+    },
+    "site.degraded": {
+      "viewports": [1440],
+      "js": ["on"],
+      "media": ["screen"]
+    },
+    "reference.media": {
+      "viewports": [390, 1440],
+      "js": ["on"],
+      "media": ["reduced-motion", "forced-colors", "print"]
+    },
+    "site.media-guard": {
+      "viewports": [1440],
+      "js": ["on"],
+      "media": ["screen"]
+    }
+  }
 }

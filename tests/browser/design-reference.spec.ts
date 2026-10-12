@@ -1,85 +1,321 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
 
-// Explicit local reference build only. These are implementation checks, not a
-// canonical QA receipt or a visual-conformance approval of known deviations.
-for (const width of [1440, 390, 320]) {
-  for (const javaScriptEnabled of [true, false]) {
-    test.describe(`${width} ${javaScriptEnabled ? "JS" : "no-JS"}`, () => {
-      test.use({ viewport: { width, height: 900 }, javaScriptEnabled });
-      test.skip(!process.env.DESIGN_REFERENCE_ROOT, "requires explicit local reference build");
+// W0025 attempt 1: bounded implementation evidence, never canonical Review/QA.
+const theme = JSON.parse(readFileSync("themes/declassified/exampleSite/data/design-states.json", "utf8"));
+const site = JSON.parse(readFileSync("data/design-reference.json", "utf8"));
+const widths = [320, 390, 768, 1024, 1440];
+const themeURL = "http://127.0.0.1:4174/__design/theme/";
 
-      test("theme production APIs and native baseline", async ({ page, context }, info) => {
-        test.skip(info.project.name !== "chromium-desktop", "bounded Chromium matrix sets exact widths");
-        if (javaScriptEnabled) await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-        await page.goto("http://127.0.0.1:4174/__design/theme");
-        await expect(page.locator("h1")).toHaveText("Theme reference");
-        await expect(page.locator("article.dc-panel--detail")).toBeVisible();
-        await expect(page.locator(".dc-back")).toHaveAttribute("href", "/");
-        const summary = page.locator("#theme-disclosure summary");
-        await summary.focus();
+test.beforeEach(async ({ context }, info) => {
+  test.skip(!process.env.DESIGN_REFERENCE_ROOT || info.project.name !== "chromium-desktop", "explicit local reference, exact canonical widths once");
+  // Optional production refresh/providers must never reach live third parties.
+  await context.route(url => !["127.0.0.1", "localhost"].includes(url.hostname), route => route.abort());
+});
+
+async function noPageOverflow(page: Page, width: number) {
+  const extent = await page.evaluate(() => ({ width: innerWidth, scroll: document.documentElement.scrollWidth }));
+  expect(extent.width).toBe(width);
+  expect(extent.scroll, "page overflow; local scroll regions must contain wide content").toBeLessThanOrEqual(width + 1);
+}
+
+async function serviceBindings(page: Page, manifest: typeof site) {
+  for (const example of manifest.examples.filter((x: { url: string }) => x.url.replace(/\/$/, "") === manifest.route.replace(/\/$/, ""))) {
+    await expect(page.locator(example.selector), example.id).toHaveCount(1);
+  }
+  await expect(page.locator("h1")).toHaveCount(1);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex,nofollow");
+}
+
+test.describe("reference.geometry", () => {
+  for (const width of widths) for (const js of [true, false]) {
+    test.describe(`${width} ${js ? "JS" : "no-JS"}`, () => {
+      test.use({ viewport: { width, height: 900 }, javaScriptEnabled: js });
+      test("native theme and site renderer geometry", async ({ page }) => {
+        await page.goto(themeURL);
+        await serviceBindings(page, theme);
+        await page.locator("#theme-disclosure summary").focus();
         await page.keyboard.press("Enter");
         await expect(page.locator("#theme-disclosure details")).toHaveAttribute("open", "");
-        await page.locator("#theme-disclosure input").check();
-        await expect(page.locator("#theme-disclosure input")).toBeChecked();
-        const links = page.locator("#theme-listnav a");
-        await links.first().focus();
-        if (javaScriptEnabled) {
-          await page.keyboard.press("ArrowDown");
-          await expect(links.nth(1)).toBeFocused();
-          await page.keyboard.press("k");
-          await expect(links.first()).toBeFocused();
-          await page.locator("#theme-copy button").click();
-          await expect(page.locator("#theme-copy dc-copy")).toHaveAttribute("copied", "");
-          await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe("http://127.0.0.1:4174/__design/theme/");
-        } else {
-          await page.keyboard.press("Tab");
-          await expect(links.nth(1)).toBeFocused();
-          await expect(page.locator("#theme-copy button")).toHaveCount(0);
+        await page.locator("#theme-native input[type=checkbox]").check();
+        await page.getByRole("radio", { name: "Second option" }).check();
+        await page.locator("#theme-text").fill("Edited");
+        await page.getByRole("button", { name: "Reset native controls" }).click();
+        await expect(page.locator("#theme-text")).toHaveValue("Native baseline");
+        await expect(page.locator("#theme-native input[type=checkbox]")).not.toBeChecked();
+        if (!js) {
+          await expect(page.locator("dc-command-palette button, dc-help button, dc-prompt input, dc-copy button, dc-image-toggle button")).toHaveCount(0);
+          await expect(page.locator("#theme-clock dc-clock")).toHaveText("");
         }
-        await links.first().focus();
-        await page.keyboard.press("Tab");
-        await expect(links.nth(1)).toBeFocused();
-        await expect(links.nth(1)).toHaveCSS("outline-style", "solid");
-        // Colour is a recorded deviation; this test does not bless pink as normative.
-        await expect(page.locator("#theme-copy a")).toHaveAttribute("href", "/__design/theme/");
-        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
-        if (javaScriptEnabled && width !== 320) await page.screenshot({ path: info.outputPath("theme.png"), fullPage: true });
-      });
-
-      test("site production renderers and composition links", async ({ page }, info) => {
-        test.skip(info.project.name !== "chromium-desktop", "bounded Chromium matrix sets exact widths");
-        const failures: string[] = [];
-        page.on("pageerror", error => failures.push(error.message));
-        page.on("response", response => { if (response.status() >= 400) failures.push(response.url()); });
+        await noPageOverflow(page, width);
         await page.goto("/__design/site");
-        await expect(page.locator("h1")).toHaveCount(1);
-        await expect(page.locator("[data-design-reference] .dc-prose")).toHaveCSS("padding", "0px");
-        const badge = page.locator("#site-type-badge a");
-        await expect(badge).toHaveAttribute("href", "/library/types/article");
-        await badge.focus();
-        await expect(badge).toBeFocused();
-        await expect(page.locator(".dc-figure img").first()).toBeVisible();
-        await expect.poll(() => page.locator(".dc-figure img").first().evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-        await expect(page.locator(".dc-code")).toContainText("Native content remains readable");
-        const table = page.locator(".dc-prose-table");
-        await expect(table).toHaveAttribute("role", "region");
-        await table.focus();
-        await expect(table).toBeFocused();
-        await expect(page.locator("th[scope=col]")).toHaveCount(2);
-        for (const url of ["/", "/library/all", "/library/bluredu-new-teachers"]) {
-          await expect(page.locator(`#site-composition a[href="${url}"]`)).toBeVisible();
+        await serviceBindings(page, site);
+        await expect(page.locator("#site-type-unlinked span")).toHaveText("ARTICLE");
+        await expect(page.locator(".dc-gallery figure")).toHaveCount(2);
+        await expect(page.locator(".dc-figure--wide, .dc-figure--full")).toHaveCount(2);
+        await expect(page.locator("math")).toHaveCount(2);
+        await expect(page.locator(".as-parallel-source[lang=en]")).toHaveCount(2);
+        await expect(page.locator(".as-parallel-translation[lang=ru]")).toHaveCount(2);
+        await expect(page.locator(".dc-verse").last()).toContainText("Первая строка");
+        for (const region of await page.locator(".dc-prose-table").all()) {
+          await expect(region).toHaveAttribute("tabindex", "0");
+          await expect(region).toHaveAttribute("role", "region");
+          await region.focus(); await expect(region).toBeFocused();
         }
-        if (javaScriptEnabled) {
-          const toggle = page.locator("dc-image-toggle button");
-          await toggle.click();
-          await expect(page.locator("dc-image-toggle")).toHaveAttribute("showing", "original");
-        } else {
-          await expect(page.locator("dc-image-toggle button")).toHaveCount(0);
+        await expect(page.locator(".footnote-ref")).toHaveCount(1);
+        await expect(page.locator(".footnote-backref")).toHaveCount(1);
+        await page.locator(".footnote-ref").click();
+        await expect(page).toHaveURL(/#fn:/);
+        await page.locator(".footnote-backref").click();
+        await expect(page).toHaveURL(/#fnref:/);
+        for (const cls of [".highlight", ".dc-prose-table", ".dc-math"]) {
+          const overflow = await page.locator(cls).last().evaluate(el => getComputedStyle(el).overflowX);
+          expect(["auto", "scroll"], cls).toContain(overflow);
         }
-        expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
-        expect(failures).toEqual([]);
-        if (javaScriptEnabled && width !== 320) await page.screenshot({ path: info.outputPath("site.png"), fullPage: true });
+        if (!js) await expect(page.locator("dc-image-toggle button")).toHaveCount(0);
+        await noPageOverflow(page, width);
       });
     });
   }
-}
+});
+
+test.describe("theme.behavior", () => {
+  for (const width of [390, 1440]) test.describe(`${width}`, () => {
+    test.use({ viewport: { width, height: 900 }, timezoneId: "UTC" });
+    test("keyboard, native focus, nine registered components", async ({ page, context }, info) => {
+      await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+      await page.clock.install({ time: new Date("2026-10-12T12:00:00Z") });
+      await page.goto(themeURL);
+      await expect.poll(() => page.evaluate(() => ["copy","listnav","clock","command-palette","help","prompt","keynav","image-toggle","modes"].every(name => !!customElements.get("dc-" + name)))).toBe(true);
+      const links = page.locator("#theme-listnav a");
+      await links.first().focus(); await page.keyboard.press("ArrowDown"); await expect(links.nth(1)).toBeFocused();
+      await page.keyboard.press("k"); await expect(links.first()).toBeFocused();
+      await page.keyboard.press("Tab"); await expect(links.nth(1)).toBeFocused();
+      await expect(links.nth(1)).toHaveCSS("outline-style", "solid");
+      // 4B-K3 records pink vs normative green; visible focus does not bless its color.
+      await page.locator("#theme-copy button").click();
+      await expect(page.locator("#theme-copy dc-copy")).toHaveAttribute("copied", "");
+      await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(themeURL);
+      await page.locator("#theme-text").focus(); await page.keyboard.type("/? :");
+      await expect(page.locator("dialog[open]")).toHaveCount(0);
+      const palette = page.locator("#theme-palette"); const search = palette.locator("input");
+      await palette.locator("button").click(); await search.fill("post");
+      await expect(palette.locator('[aria-selected="true"]')).toHaveCount(1);
+      const selected = await palette.locator('[aria-selected="true"]').getAttribute("href");
+      await search.press("ArrowDown"); await expect(palette.locator('[aria-selected="true"]')).toHaveCount(1);
+      expect(await palette.locator('[aria-selected="true"]').getAttribute("href")).not.toBe(selected);
+      await search.press("Escape"); await expect(palette.locator("dialog")).not.toHaveAttribute("open", "");
+      await expect(palette.locator("button")).toBeFocused();
+      await links.first().focus(); await page.keyboard.press("?");
+      await expect(page.locator("#theme-help dialog")).toHaveAttribute("open", "");
+      await page.keyboard.press("Escape"); await expect(links.first()).toBeFocused();
+      await expect(page).toHaveURL(/\/__design\/theme\/?$/); // modal dismissal must not also navigate parent
+      const prompt = page.locator("#theme-prompt input");
+      if (width === 1440) {
+        // Separate command entry from a previous dialog's asynchronous focus
+        // restoration; each production component retains its own context.
+        await page.goto(themeURL); await expect(prompt).toBeAttached();
+        await page.locator(".dc-nav a").first().focus(); await page.keyboard.press(":");
+        await expect(prompt).toBeVisible();
+        await prompt.fill("he"); await prompt.press("Tab");
+        await expect(prompt).toHaveValue("help "); await prompt.press("Escape"); await expect(prompt).toBeHidden();
+      } // 4B-F2 preserves the narrow invocation failure in its own scenario.
+      await expect(page).toHaveURL(/\/__design\/theme\/?$/);
+      const image = page.locator("#theme-image"); await image.locator("button").click();
+      await expect(image).toHaveAttribute("showing", "original"); await image.locator("button").click();
+      await expect(image).toHaveAttribute("showing", "processed");
+      const modes = page.locator("#theme-modes"); await modes.locator('[data-mode="table"]').click();
+      await expect(modes.locator('[data-mode-panel="table"]')).toBeVisible();
+      await expect(page).toHaveURL(/\/__design\/theme\/table\/$/);
+      await page.goBack(); await expect(modes.locator('[data-mode-panel="list"]')).toBeVisible();
+      await modes.locator('[data-mode="table"]').click(); await page.reload();
+      await expect(page.locator('#theme-modes [data-mode-panel="table"]')).toBeVisible();
+      await page.goto(themeURL);
+      const clock = page.locator("#theme-clock dc-clock");
+      if (width === 1440) { await expect(clock).toBeVisible(); await expect(clock).toHaveText(/2026-10-12T12:00:\d{2}\+00:00/); }
+      else { await expect(clock).toBeHidden(); await expect(clock).toHaveText(""); }
+      if (width === 1440) await page.locator("#theme-native").screenshot({ path: info.outputPath("native-controls.png") });
+      await page.locator(".dc-nav a").first().focus(); await page.keyboard.press("Escape");
+      await expect(page).toHaveURL("http://127.0.0.1:4174/");
+    });
+  });
+});
+
+test.describe("production.geometry", () => {
+  for (const width of widths) test.describe(`${width}`, () => {
+    test.use({ viewport: { width, height: 900 } });
+    test("real Home Library rows and TOC composition", async ({ page }) => {
+      for (const url of ["/", "/library", "/library/all", "/library/bluredu-new-teachers"]) {
+        await page.goto(url); await expect(page.locator("h1")).toHaveCount(1); await noPageOverflow(page, width);
+        if (url === "/library" || url === "/library/all") {
+          const density = url === "/library" ? "rich" : "dense";
+          expect(await page.locator(`.dc-material--${density}`).count()).toBeGreaterThan(0);
+          const title = page.locator(`.dc-material--${density} .dc-material__title`).filter({ hasText: "Мы поступили" });
+          await expect(title).toBeVisible(); await expect(title).not.toHaveCSS("text-overflow", "ellipsis");
+          // W0017 is retained: this proves current rows/wrapping, not row/type-link conformance.
+          expect(await page.locator(".dc-material__marker").count()).toBeGreaterThan(0);
+        }
+        if (url.includes("bluredu")) {
+          const toc = page.locator(".dc-toc");
+          await expect(toc.locator(".dc-toc__rail")).toBeVisible();
+          if (width <= 1024) await expect(toc.locator("summary")).toBeVisible();
+        }
+      }
+    });
+  });
+});
+
+test.describe("production.reading", () => {
+  for (const width of [320, 1440]) for (const js of [true, false]) test.describe(`${width} ${js ? "JS" : "no-JS"}`, () => {
+    test.use({ viewport: { width, height: 900 }, javaScriptEnabled: js });
+    test("real poetry long prose audio translation and native mode URLs", async ({ page }) => {
+      for (const item of site.composition.filter((x: {url: string}) => !["/", "/library", "/library/all", "/library/bluredu-new-teachers"].includes(x.url))) {
+        await page.goto(item.url); await expect(page.locator("h1")).toHaveCount(1); await noPageOverflow(page, width);
+        const example = site.examples.find((x: {url: string}) => x.url === item.url);
+        expect(await page.locator(example.selector).count(), example.id).toBeGreaterThan(0);
+        if (item.url.endsWith("/table")) await expect(page.locator('dc-modes [data-mode-panel="table"]')).toBeVisible();
+        if (!js) await expect(page.locator("dc-command-palette button, dc-help button, as-external-media button")).toHaveCount(0);
+      }
+      await page.goto("http://127.0.0.1:4174/__design/theme/table/");
+      await expect(page.locator('#theme-modes [data-mode-panel="table"]')).toBeVisible();
+      if (!js) { await page.locator('#theme-modes [data-mode="list"]').click(); await expect(page).toHaveURL(/\/__design\/theme\/?$/); }
+    });
+  });
+});
+
+test.describe("site.behavior", () => {
+  for (const width of [390, 1440]) test.describe(`${width}`, () => {
+    test.use({ viewport: { width, height: 900 } });
+    test("real modes image action links and native media keys", async ({ page }) => {
+      await page.goto("/__design/site");
+      await page.locator("#site-type-badge a").focus(); await expect(page.locator("#site-type-badge a")).toBeFocused();
+      const image = page.locator("dc-image-toggle").first(); await image.locator("button").click();
+      await expect(image).toHaveAttribute("showing", "original");
+      await page.goto("/library/all");
+      if (width === 1440) {
+        await page.locator('dc-modes [data-mode="table"]').click();
+        await expect(page).toHaveURL(/\/library\/table$/); await expect(page.locator('dc-modes [data-mode-panel="table"]')).toBeVisible();
+        await page.goBack(); await expect(page.locator('dc-modes [data-mode-panel="list"]')).toBeVisible();
+      } else {
+        // Current phone CSS hides the switch; direct native URLs are covered above.
+        await expect(page.locator('dc-modes [data-mode="table"]')).toBeHidden();
+      }
+      await page.goto("/library/regular-visitor"); const audio = page.locator("audio").first();
+      await audio.focus(); await page.keyboard.press("ArrowRight"); await page.keyboard.press("Space");
+      await expect(page).toHaveURL(/\/library\/regular-visitor$/); await expect(page.locator("dialog[open]")).toHaveCount(0);
+    });
+  });
+});
+
+test.describe("theme.degraded", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  test("loading and zero matches from controlled local index", async ({ page }) => {
+    let release!: () => void; const gate = new Promise<void>(resolve => { release = resolve; });
+    await page.route("**/search-index.json", async route => { await gate; await route.fulfill({ json: { entries: [] } }); });
+    await page.goto(themeURL); await page.locator("#theme-palette button").click();
+    await page.locator("#theme-palette input").fill("absent"); await expect(page.locator("#theme-palette [role=status]")).toHaveText("…");
+    release(); await expect(page.locator("#theme-palette [role=status]")).toHaveText(/nothing|match/i);
+    await page.keyboard.press("Escape"); await expect(page.locator("#theme-palette button")).toBeFocused();
+  });
+  test("failed index and refused clipboard keep native navigation", async ({ page }) => {
+    await page.addInitScript(() => Object.defineProperty(navigator, "clipboard", { value: { writeText: async () => { throw new Error("denied"); } } }));
+    await page.route("**/search-index.json", route => route.abort());
+    await page.goto(themeURL); await page.locator("#theme-copy button").click();
+    await expect(page.locator("#theme-copy a")).toHaveAttribute("href", "/__design/theme/");
+    await expect(page.locator("#theme-copy dc-copy")).not.toHaveAttribute("copied", "");
+    await page.locator("#theme-palette button").click(); await expect(page.locator("#theme-palette [role=status]")).toHaveText("index unavailable");
+  });
+});
+
+test.describe("site.degraded", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  test("failed original decode keeps processed image", async ({ page }) => {
+    await page.addInitScript(() => Object.defineProperty(navigator, "connection", { value: { saveData: true } }));
+    await page.goto("/__design/site"); const host = page.locator("dc-image-toggle").first(); const original = await host.getAttribute("data-original");
+    await page.route(url => url.pathname === new URL(original!, "http://127.0.0.1:4173").pathname, route => route.abort());
+    await host.locator("button").click(); await expect(host).not.toHaveAttribute("showing", "original");
+    await expect(host.locator("figure img").first()).toBeVisible();
+  });
+  test("Home snapshot survives blocked optional enhancement and refresh", async ({ page }) => {
+    await page.route("**/*as-dev*.js", route => route.abort()); await page.goto("/");
+    const bars = page.locator("[data-dev-bars]"); const snapshot = await bars.textContent(); expect(snapshot!.length).toBeGreaterThan(0);
+    await page.unroute("**/*as-dev*.js"); await page.reload();
+    await expect(bars).toHaveText(snapshot!); await expect(page.locator("as-dev")).not.toHaveAttribute("data-live", "");
+  });
+  test("external media before activation and blocked embed preserve outbound link", async ({ page }) => {
+    let attempts = 0; await page.route("https://www.youtube-nocookie.com/**", route => { attempts++; return route.abort(); });
+    await page.goto("/library/itchatter-parni-hakatonschiki"); const host = page.locator("as-external-media").first();
+    await expect(host.locator("iframe")).toHaveCount(0); expect(attempts).toBe(0);
+    await host.locator("button").click(); await expect(host.locator("iframe")).toHaveCount(1);
+    await expect(host.locator("a").first()).toBeVisible(); await expect.poll(() => attempts).toBeGreaterThan(0);
+  });
+});
+
+test.describe("reference.media", () => {
+  test("reduced motion retains modal behavior and focus return", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 900 }); await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(themeURL); const caller = page.locator("#theme-copy a"); await caller.focus(); await page.keyboard.press("?");
+    await expect(page.locator("#theme-help dialog")).toHaveAttribute("open", "");
+    await page.keyboard.press("Escape"); await expect(caller).toBeFocused();
+    expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
+  });
+  test("forced colors retains focus and local renderer regions", async ({ page }, info) => {
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.emulateMedia({ forcedColors: "active" });
+    await page.goto(themeURL); await page.locator("#theme-native button").focus(); await expect(page.locator("#theme-native button")).toHaveCSS("outline-style", "solid");
+    await expect(page.locator("#theme-typography")).toBeVisible();
+    await page.goto("/__design/site"); const table = page.locator(".dc-prose-table").last(); await table.focus(); await expect(table).toBeFocused();
+    await table.screenshot({ path: info.outputPath("forced-colors-table.png") }); await noPageOverflow(page, 1440);
+  });
+  test("print leaves content captions and external link evidence", async ({ page }, info) => {
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.emulateMedia({ media: "print" });
+    await page.goto(themeURL); await expect(page.locator("#theme-typography")).toBeVisible(); await expect(page.locator("blockquote").first()).toBeVisible();
+    await page.goto("/__design/site");
+    await expect(page.locator("h1")).toBeVisible(); await expect(page.locator(".dc-header")).toBeHidden();
+    await expect(page.locator("dc-image-toggle button").first()).toBeHidden();
+    await expect(page.locator(".dc-figure__source").first()).toContainText("Production material");
+    await page.locator(".dc-prose-table").first().screenshot({ path: info.outputPath("print-table.png") });
+    await page.goto("/library/itchatter-parni-hakatonschiki"); await expect(page.locator(".as-external-media__print").first()).toBeVisible();
+    await expect(page.locator("iframe")).toHaveCount(0);
+  });
+});
+
+test.describe("theme.code-geometry", () => {
+  for (const width of widths) for (const js of [true, false]) test.describe(`${width} ${js ? "JS" : "no-JS"}`, () => {
+    test.use({ viewport: { width, height: 900 }, javaScriptEnabled: js });
+    test("4B-F1 generic code normative overflow expectation", async ({ page }, info) => {
+      await page.goto("http://127.0.0.1:4174/__design/theme/code");
+      await expect(page.locator("#theme-block-code")).toBeVisible();
+      const extent = await page.evaluate(() => ({ viewport: innerWidth, page: document.documentElement.scrollWidth }));
+      expect(extent.viewport).toBe(width);
+      await info.attach("4B-F1-geometry", { body: JSON.stringify(extent), contentType: "application/json" });
+      // Normative assertion remains unchanged; expected failures explicitly retain
+      // the production defect. An unexpected pass forces finding re-inspection.
+      test.fail(width <= 390, "4B-F1: generic theme code has no local overflow containment");
+      expect(extent.page, "canonical no-page-overflow expectation").toBeLessThanOrEqual(width + 1);
+    });
+  });
+});
+
+test.describe("theme.prompt-narrow", () => {
+  test.use({ viewport: { width: 390, height: 900 } });
+  test("4B-F2 prompt invocation must expose a usable input", async ({ page }, info) => {
+    await page.goto(themeURL); await page.locator("#theme-native button").focus(); await page.keyboard.press(":");
+    await expect(page.locator("#theme-prompt")).toHaveAttribute("open", "");
+    await info.attach("4B-F2-state", { body: JSON.stringify(await page.locator("#theme-prompt").evaluate(el => ({ open: el.hasAttribute("open"), display: getComputedStyle(el).display }))), contentType: "application/json" });
+    test.fail(true, "4B-F2: phone CSS hides even the invoked production prompt");
+    await expect(page.locator("#theme-prompt input")).toBeVisible();
+  });
+});
+
+test.describe("site.media-guard", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+  for (const key of ["/", "?"]) test(`W0021 ${key} must remain with native audio`, async ({ page }, info) => {
+    await page.goto("/library/regular-visitor"); await page.locator("audio").first().focus();
+    expect(await page.evaluate(() => document.activeElement?.tagName)).toBe("AUDIO");
+    await page.keyboard.press(key);
+    const opened = await page.locator("dialog[open]").count();
+    await info.attach("W0021-media-state", { body: JSON.stringify({ key, opened }), contentType: "application/json" });
+    test.fail(true, "4B-K6 / W0021: existing global media guard is missing");
+    expect(opened, "canonical media-focus guard").toBe(0);
+  });
+});

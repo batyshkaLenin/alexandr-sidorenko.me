@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Primary 4A source-binding and output-isolation check.
+"""Primary reference source-binding and output-isolation check.
 
 YAML is parsed by the existing locked Playwright dependency's YAML parser;
 Node and the installed project dependencies are required, with no new package.
@@ -23,6 +23,11 @@ ROOT = Path(__file__).resolve().parent.parent
 THEME = ROOT / 'themes/declassified'
 MARKERS = (b'__design', b'__preview', b'data-design-example', b'data-design-reference')
 TARGETS = {'site': '__design/site/index.html', 'theme': '__design/theme/index.html'}
+VIEWPORTS = [320, 390, 768, 1024, 1440]
+
+
+def reference_manifest(owner):
+    return json.loads((owner / ('data/design-reference.json' if owner == ROOT else 'exampleSite/data/design-states.json')).read_text())
 
 
 class Document(HTMLParser):
@@ -100,15 +105,43 @@ process.stdout.write(JSON.stringify(yaml.parse(fs.readFileSync(0, 'utf8'), { uni
 
 def source_bindings():
     seen = set()
+    catalog = (ROOT/'.ai/v2/docs/references/design-system-catalog.md').read_text()
+    states = set(re.findall(r'`(STATE-[A-Z-]+)` · status: `implemented`', catalog))
     for owner, manifest in [(ROOT, ROOT/'data/design-reference.json'), (THEME, THEME/'exampleSite/data/design-states.json')]:
         data = json.loads(manifest.read_text())
         assert data['schema'] == 'design-reference/v1'
+        assert data['viewports'] == VIEWPORTS, 'noncanonical viewport set'
+        assert data['service_outputs'] and len(data['service_outputs']) == len(set(data['service_outputs']))
+        assert all(name.startswith('__design/') and name.endswith('/index.html') for name in data['service_outputs']), 'non-service reference output'
+        finding_ids = {finding['id'] for finding in data['findings']}
+        assert len(finding_ids) == len(data['findings']), 'duplicate finding ID'
+        for finding in data['findings']:
+            assert finding['classification'] in {'implementation defect', 'reference defect', 'intentional deviation / decision required'}
+            assert finding['severity'] in {'BLOCKER', 'MAJOR', 'MINOR'}
+            assert isinstance(finding['blocks_4c'], bool)
+            assert all(finding.get(key) for key in ('expected', 'observed', 'disposition'))
+        assert len(data['scenarios']) == len(set(data['scenarios'])), 'duplicate scenario'
+        assert set(data['scenarios']) <= data['scenario_matrix'].keys(), 'missing scenario coverage'
+        for scenario in data['scenario_matrix'].values():
+            assert scenario['viewports'] and set(scenario['viewports']) <= set(VIEWPORTS)
+            assert scenario['js'] and set(scenario['js']) <= {'on', 'off'}
+            assert scenario['media'] and set(scenario['media']) <= {'screen', 'print', 'reduced-motion', 'forced-colors'}
         for example in data['examples']:
             assert example['id'] not in seen, 'duplicate manifest example ID'
             seen.add(example['id'])
             for key in ('rule', 'source', 'invocation', 'state', 'coverage', 'conformance'):
                 assert example.get(key), f'{example["id"]}: missing {key}'
             assert 'known_deviation' in example
+            assert example['viewports'] and set(example['viewports']) <= set(VIEWPORTS), f'{example["id"]}: invalid viewport'
+            assert example['states'] and set(example['states']) <= states, f'{example["id"]}: unknown/unimplemented state'
+            assert example['js'] and set(example['js']) == {'on', 'off'}, f'{example["id"]}: missing JS/no-JS evidence'
+            assert example['media'] and set(example['media']) <= {'screen','print','reduced-motion','forced-colors'}
+            assert example['checks'] and set(example['checks']) <= set(data['scenarios']), f'{example["id"]}: unbound scenario'
+            assert example['selector'] and example['url'].startswith('/') and '/id/' not in example['url']
+            assert example['conformance'] in {'covered-conformant','covered-known-deviation'}
+            assert set(example['finding_ids']) <= finding_ids, f'{example["id"]}: unknown finding'
+            if example['conformance'] == 'covered-known-deviation':
+                assert example['known_deviation'] and example['finding_ids'], 'unexplained conformance deviation'
             for key in ('source', 'invocation'):
                 path = (owner/example[key]).resolve()
                 assert path.is_relative_to(owner) and path.is_file(), f'broken {key}: {path}'
@@ -118,6 +151,8 @@ def source_bindings():
             headings = re.findall(r'^#+\s+(.+)$', text, re.M)
             slugs = [re.sub(r'[^\w -]', '', h.lower()).replace(' ', '-') for h in headings]
             assert anchor in headings or anchor in slugs, f'broken canonical rule: {example["rule"]}'
+        for exclusion in data['coverage_exclusions']:
+            assert exclusion['classification'] in {'not-applicable','deferred'} and exclusion['reason']
     wrapper = (ROOT/'layouts/design-reference/page.html').read_text()
     assert 'partial "library/type-badge.html" (dict "page" $material "linked" true)' in wrapper
     assert 'site.GetPage "/library/bluredu-new-teachers"' in wrapper
@@ -144,9 +179,17 @@ def source_bindings():
     for base in (ROOT/'assets', THEME/'exampleSite/assets'):
         assert not [p for p in base.rglob('*') if p.is_file() and ('reference' in p.name or '__design' in str(p))], 'reference primitive asset introduced'
     for base in (ROOT/'content/__preview', THEME/'exampleSite/content'):
-        fixture_paths = list(base.rglob('*.md')) if base.name == '__preview' else [base/'__design-theme.md']
+        fixture_paths = list(base.rglob('*.md')) if base.name == '__preview' else list(base.glob('__design-*.md'))
+        outputs = set()
         for path in fixture_paths:
-            fixture_frontmatter(path)
+            fields = fixture_frontmatter(path)
+            if fields['build']['render'] != 'never':
+                prefix = '/__design/site' if base.name == '__preview' else '/__design/theme'
+                url = fields['url'].rstrip('/')
+                assert url == prefix or url.startswith(prefix + '/'), 'fixture public URL escaped service namespace'
+                outputs.add(fields['url'].strip('/') + '/index.html')
+        owner = ROOT if base.name == '__preview' else THEME
+        assert outputs == set(reference_manifest(owner)['service_outputs']), 'fixture/output manifest mismatch'
     return len(seen)
 
 
@@ -173,8 +216,15 @@ def check(root, control=None):
     for enabled, disabled in [('site','preview'), ('theme','theme-disabled')]:
         target = TARGETS[enabled]
         assert (root/enabled/target).is_file(), f'missing opt-in target: {target}'
-        isolated(root/enabled, [target])
-        parity(root/disabled, root/enabled, [target])
+        owner = ROOT if enabled == 'site' else THEME
+        outputs = reference_manifest(owner)['service_outputs']
+        assert all((root/enabled/name).is_file() for name in outputs), 'declared service context missing'
+        isolated(root/enabled, outputs)
+        parity(root/disabled, root/enabled, outputs)
+        for example in reference_manifest(owner)['examples']:
+            assert (root/enabled/example['url'].strip('/')/'index.html').is_file(), f'{example["id"]}: example URL does not resolve'
+    for composition in reference_manifest(ROOT)['composition']:
+        assert (ROOT/composition['source']).is_file() and (root/'site'/composition['url'].strip('/')/'index.html').is_file(), 'stale production composition'
     if control:
         for before, after in [('control-preview','preview'),('control-production','production'),('theme-control','theme-disabled')]:
             parity(control/before, root/after)

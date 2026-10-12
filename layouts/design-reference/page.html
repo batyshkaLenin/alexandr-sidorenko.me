@@ -8,15 +8,17 @@
       {{ $material := site.GetPage "/library/bluredu-new-teachers" }}
       {{ if not $material }}{{ errorf "design reference: production article missing" }}{{ end }}
       {{ partial "library/type-badge.html" (dict "page" $material "linked" true) }}
+      <p id="site-type-unlinked">Unlinked: {{ partial "library/type-badge.html" (dict "page" $material "linked" false) }}</p>
     </section>
     {{ .Content }}
     <section id="site-composition">
       <h2>Production composition</h2>
       <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/library/all">Library All</a></li>
-        <li><a href="/library/bluredu-new-teachers">Настоящая статья с оглавлением</a></li>
+        {{ range (index hugo.Data "design-reference").composition }}
+        <li><a href="{{ .url }}">{{ .label }}</a></li>
+        {{ end }}
       </ul>
+      <p>MaterialRow rich/dense и metadata проверяются на настоящих Home и Library. W0017 остаётся известным отклонением, а текущая структура row/type-link не является нормативным примером. Reader использует реальные материалы с их существующей идентичностью.</p>
     </section>
   </div>
 </section>

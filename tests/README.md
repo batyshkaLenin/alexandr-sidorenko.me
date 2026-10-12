@@ -311,7 +311,7 @@ totals and per-HTML-page size). Not part of `validate.sh`.
 
 The reference is executable evidence, subordinate to `.ai/v2/docs` canonical
 contracts. It is not an editorial publication or a second design system. The
-minimal 4A set is in `data/design-reference.json` and the theme's
+representative 4B set is in `data/design-reference.json` and the theme's
 `exampleSite/data/design-states.json`. Conformance remains pending independent
 inspection; known production deviations are not approved baselines.
 
@@ -343,8 +343,8 @@ is needed. Existing fingerprinted assets are reused without reference CSS/JS.
 `check-design-reference.py --build-root DIR --self-test` is the primary checker.
 It binds manifest entries to source and rules, validates fixture constraints and
 rendered HTML, invokes the theme check, and compares *all* ordinary output bytes
-between enabled/disabled builds. The only allowed additions are the two service
-HTML files in their separate build roots. Its negative case injects a reference
+between enabled/disabled builds. The only allowed additions are one site service HTML file and three theme
+service HTML files (main, native table context, isolated generic code context). Its negative case injects a reference
 artifact into a disposable production copy and requires the ordinary CLI to fail.
 `--control-root DIR` additionally compares `control-preview`,
 `control-production` and `theme-control` pre-change outputs built with the same
@@ -357,11 +357,68 @@ use actual Home, Library All and a TOC article. There is no fake reader: the
 production reader heading requires material identity. W0017 (MaterialRow/type
 link), W0001 (zero-response section), and primary/green versus accent/pink focus
 remain explicit deviations; 4A does not repair them. DR-2026-001/002 are out of
-scope. Coverage beyond the minimal set belongs to 4B.
+scope. The 4B matrix below expands coverage without repairing these production deviations.
 
-The Chromium matrix covers 1440/390/320 with JS on/off, native details, checkbox,
-Tab/local navigation, clipboard, image enhancement, renderer content, focus and
-page overflow. Four screenshots are inspection evidence, not golden snapshots.
+The Chromium matrix covers all five canonical widths for geometry, representative
+390/1440 interactions and 320/1440 reading with JS on/off, plus selected media modes.
+Region screenshots are temporary inspection evidence, not golden snapshots.
 These implementation checks and any later bounded inspection create no canonical
 Review/QA receipts. W0025 remains in Implementation until full Phase-4 acceptance
 is implemented and the 4C lifecycle gates are satisfied.
+
+### Slice 4B representative coverage plan (W0025, attempt 1)
+
+This matrix is implementation evidence below the canonical catalog, not a new
+design authority. It was derived before adding the examples. The viewport set
+is exactly 320, 390, 768, 1024, 1440; behavioral scenarios use 390 and 1440.
+Manifest `states` bind the implemented `STATE-*` vocabulary; descriptive `state`
+text explains native/component-specific transitions without inventing catalog IDs.
+
+| Canonical rule/state | Production entrypoint / reference context | Coverage / evidence | Conformance boundary |
+|---|---|---|---|
+| DS-LAYOUTS, idle/long-title/no-JS | Theme generic page, native links/inputs/disclosure, UI/prose typography | Five widths, JS on/off, local geometry and Tab | Focus color remains a known deviation |
+| No-JS baseline, focus-visible | dc-copy, dc-listnav | 390/1440 clipboard and local keys; no-JS links; refused clipboard | Behavior covered; focus color not blessed |
+| DS-STATES selected/loading/error/zero-matches | Existing exampleSite dc-command-palette / dc-help / dc-prompt | 390/1440 open/select/close/focus return/completion; intercepted local index | Enhancement-only hosts absent without JS |
+| JS component lifecycle, idle/current | dc-modes / dc-image-toggle / dc-clock / dc-keynav | Existing theme contexts; real Library list/table history; frozen clock; blocked original | No duplicate global shortcut hosts or new APIs |
+| Semantic HTML, wide-code/table/math | Markdown headings/links/quote, plain/rich code, footnotes, table, MathML | Site service content; five widths JS on/off; focusable local scrolling | Production render hooks only |
+| DS-COMPONENTS figure/gallery | Existing figure/gallery pipeline, caption/credit, default/wide/full, dither/original | Site service content; five widths; original failure; selected print | Existing published image resources, no new media assets |
+| Semantic content | parallel / verse shortcodes | Site service content and real translation/poem pages; narrow/wide | No copied renderer markup |
+| DS-COMPONENTS MaterialRow rich/dense/long-title/metadata | Real /library, /library/all and Home | Five-width representative compositions; real row APIs and counts/order | W0017 remains a production defect; rows are not embedded in identity-free service pages |
+| DS-LAYOUTS reader/TOC/poetry/track | Real TOC article, long fiction, short/long poem, track and translation URLs | Five-width shell/TOC geometry; 320/1440 no-JS reading; native audio keys | W0001 and reader identity limitation remain explicit |
+| No-JS / enhancement-unavailable | Home activity/dev snapshot and existing external-media facade | Block optional script/refresh/embed; local interception, no live provider requests | Existing snapshots and outbound links remain usable |
+| Reduced-motion / forced-colors / print | Affected focus, overlays, renderer scroll regions and media | Selected 390/1440 scenarios; temporary region screenshots | No full-page prose golden baselines |
+
+The manifests distinguish `covered-conformant`, `covered-known-deviation`,
+`not-applicable`, and `deferred`. Conformant means only the declared bounded
+implementation checks; formal conformance/owner acceptance belongs to 4C.
+Visited color is not asserted because browser privacy prevents honest observation.
+There is no STATE-DISABLED; no generic disabled placeholder is added. Native
+video has only a draft asset fixture, so published track audio and existing
+user-activated external media represent media here without new output assets.
+Specified table sorting, bibliography and unpublished track/poem variants are
+deferred, not invented defects. Theme has no site type-badge or audio-renderer API.
+
+
+The implemented manifests bind 14 theme examples (4 in 4A) and 25 site examples
+(4 in 4A), including 11 real production compositions. The browser suite contains
+44 scenarios: 37 ordinary assertions and seven explicit expected failures. The
+latter preserve canonical expectations rather than asserting incorrect production
+behavior as a success. An unexpected pass requires re-inspection of the finding.
+
+| Finding | Classification | Evidence / disposition |
+|---|---|---|
+| 4B-F1 | implementation defect, MAJOR | Generic theme fenced code expands 320/390 pages to 543px. Reproduced on an ordinary generic-post in a disposable baseline theme build. Four JS/no-JS expected failures retain the no-page-overflow assertion; isolated reference context prevents distorting other examples. No CSS fix. |
+| 4B-F2 | implementation defect, MAJOR | At 390, `:` opens dc-prompt logically but production CSS hides even `[open]`; input is unusable. One expected failure retains the prompt usability assertion. Narrow prompt branch stops at evidence; no replacement interaction/design decision. |
+| 4B-K6 / W0021 | implementation defect, MAJOR | Real native track audio has focus, yet `/` opens palette and `?` opens help. Two expected failures retain the media-focus guard assertion. Existing W lifecycle unchanged. |
+
+These findings require disposition before 4C; coverage implementation does not
+approve the production behavior. W0017, W0001, focus color, reader identity and
+W0020 future keyboard alignment remain explicitly linked in manifests, with no
+production repair or new design choice. Phone Library mode-switch is hidden by
+existing CSS; native list/table URLs remain usable and are tested independently.
+Prompt completion is verified at 1440; its unusable 390 path is the recorded finding.
+
+All screenshots/attachments remain in disposable test outputs. Native-control,
+forced-colors table and print table regions are useful geometry/state evidence,
+but no retained visual baseline is introduced: frozen fonts/data alone do not make
+browser/platform rendering a canonical golden. Full-page prose is not snapshotted.
