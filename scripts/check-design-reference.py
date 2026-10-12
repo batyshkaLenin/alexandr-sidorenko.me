@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Primary 4A source-binding and output-isolation check (stdlib only).
+"""Primary 4A source-binding and output-isolation check.
+
+YAML is parsed by the existing locked Playwright dependency's YAML parser;
+Node and the installed project dependencies are required, with no new package.
 
 Compare reference vs disabled builds in --build-root produced by
 build-design-reference.py. Optional --control-root also proves byte parity with
@@ -55,6 +58,46 @@ def parity(control, candidate, added=()):
     assert not changed, f'ordinary output changed: {candidate}: {changed}'
 
 
+def fixture_frontmatter(path):
+    lines = path.read_text().splitlines(keepends=True)
+    assert lines and lines[0].strip() == '---', f'frontmatter required: {path}'
+    end = next((i for i, line in enumerate(lines[1:], 1) if line.strip() == '---'), None)
+    assert end is not None, f'unclosed frontmatter: {path}'
+    parser = '''
+const { yaml } = require('playwright-core/lib/utilsBundle');
+const fs = require('node:fs');
+process.stdout.write(JSON.stringify(yaml.parse(fs.readFileSync(0, 'utf8'), { uniqueKeys: true, merge: true })));
+'''
+    result = subprocess.run(['node', '-e', parser], input=''.join(lines[1:end]), cwd=ROOT, capture_output=True, text=True)
+    assert result.returncode == 0, f'FIXTURE_YAML: {path}: {result.stderr.strip()}'
+    data = json.loads(result.stdout)
+    # These are the existing reference fixture fields, not a general Hugo policy.
+    allowed = {
+        '': {'title', 'type', 'url', 'outputs', 'params', 'build', 'sitemap'},
+        'params': {'design_reference'},
+        'build': {'render', 'list', 'publishresources'},
+        'sitemap': {'disable'},
+    }
+
+    def mapping(value, context):
+        assert isinstance(value, dict), f'FIXTURE_FIELDS: {path}: {context or "frontmatter"} must be a mapping'
+        assert all(isinstance(key, str) for key in value), f'FIXTURE_FIELDS: {path}: non-string key'
+        normalized = {key.lower(): item for key, item in value.items()}
+        assert len(normalized) == len(value), f'FIXTURE_FIELDS: {path}: duplicate normalized key'
+        unknown = normalized.keys() - allowed[context]
+        assert not unknown, f'FIXTURE_FIELDS: {path}: {context or "frontmatter"}: editorial/unknown fields: {sorted(unknown)}'
+        return normalized
+
+    data = mapping(data, '')
+    for context in ('params', 'build', 'sitemap'):
+        if context in data:
+            data[context] = mapping(data[context], context)
+    build = data.get('build', {})
+    assert build.get('list') == 'never' and build.get('publishresources') is False, f'FIXTURE_FIELDS: {path}: list/resource isolation missing'
+    assert not re.search(r'<(?:script|style|figure|table|pre|img)\b', ''.join(lines[end+1:])), 'fixture copied renderer markup'
+    return data
+
+
 def source_bindings():
     seen = set()
     for owner, manifest in [(ROOT, ROOT/'data/design-reference.json'), (THEME, THEME/'exampleSite/data/design-states.json')]:
@@ -100,16 +143,10 @@ def source_bindings():
     # No separate primitive CSS/JS; normal component assets remain production-owned.
     for base in (ROOT/'assets', THEME/'exampleSite/assets'):
         assert not [p for p in base.rglob('*') if p.is_file() and ('reference' in p.name or '__design' in str(p))], 'reference primitive asset introduced'
-    allowed = {'title','type','url','outputs','params','design_reference','build','render','list','publishResources','sitemap','disable'}
     for base in (ROOT/'content/__preview', THEME/'exampleSite/content'):
         fixture_paths = list(base.rglob('*.md')) if base.name == '__preview' else [base/'__design-theme.md']
         for path in fixture_paths:
-            parts = path.read_text().split('---', 2)
-            assert len(parts) == 3 and not parts[0].strip(), f'frontmatter required: {path}'
-            keys = set(re.findall(r'^\s*(\w+):', parts[1], re.M))
-            assert keys <= allowed, f'fixture editorial/unknown fields: {path}: {keys-allowed}'
-            assert 'list: never' in parts[1] and 'publishResources: false' in parts[1]
-            assert not re.search(r'<(?:script|style|figure|table|pre|img)\b', parts[2]), 'fixture copied renderer markup'
+            fixture_frontmatter(path)
     return len(seen)
 
 
@@ -156,6 +193,28 @@ def check(root, control=None):
 
 
 def self_test(root):
+    subprocess.run([sys.executable, str(THEME/'tests/check-design-reference.py'), '--enabled', str(root/'theme'), '--disabled', str(root/'theme-disabled'), '--self-test'], check=True)
+    original = (ROOT/'content/__preview/design/index.md').read_text()
+    uuid = '019521e9-29d9-7420-917d-378626158bb8'
+    cases = [('clean', original, True),
+             ('quoted-title', original.replace('title:', '"title":', 1), True)]
+    for key in ('id', '"id"', "'id'"):
+        cases.append((key, original.replace('title:', f'{key}: {uuid}\ntitle:', 1), False))
+    for key in ('aliases', 'tags', 'topics', 'relations', 'authors', 'guid'):
+        cases.append((key, original.replace('title:', f'"{key}": [fixture]\ntitle:', 1), False))
+    cases.append(('params.id', original.replace('params:\n', f'params:\n  "id": {uuid}\n', 1), False))
+    with tempfile.TemporaryDirectory(prefix='reference-frontmatter-') as tmp:
+        path = Path(tmp)/'fixture.md'
+        for name, text, passes in cases:
+            path.write_text(text)
+            try:
+                fixture_frontmatter(path)
+            except AssertionError as error:
+                assert not passes and 'FIXTURE_FIELDS:' in str(error), f'{name}: unrelated failure: {error}'
+                print(f'PASS: fixture regression {name} (rejected)')
+            else:
+                assert passes, f'{name}: forbidden fixture accepted'
+                print(f'PASS: fixture regression {name} (accepted)')
     with tempfile.TemporaryDirectory(prefix='design-reference-leak-') as tmp:
         copy = Path(tmp)/'build'
         # Copy the checked outputs, not caches or repository source.
