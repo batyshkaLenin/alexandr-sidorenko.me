@@ -136,7 +136,7 @@ activityDevShape:
 activitySourceAt:
   other: "Per {{ .Source }} as of {{ .At }}"
 activityRevision:
-  other: "snapshot {{ . }}"
+  other: "snapshot {{ .Revision }}"
 relationsHeading:
   other: "Связи"
 relationsBacklinks:

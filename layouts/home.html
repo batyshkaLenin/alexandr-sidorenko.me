@@ -175,7 +175,7 @@
       <p class="as-activity__value">
         <a href="{{ printf "%s/commit/%s" $projectRepo $full }}" target="_blank" rel="noopener"
            lang="en"
-           aria-label="{{ i18n "activityRevision" $short }}"
+           aria-label="{{ i18n "activityRevision" (dict "Revision" $short) }}"
            title="built {{ $builtAt.Format "02.01.2006 15:04 UTC" }}">{{ $short }}</a>
       </p>
       <p class="as-activity__meta" data-activity-freshness lang="en">built <time datetime="{{ $builtAt.Format "2006-01-02T15:04:05Z07:00" }}">{{ $builtAt.Format "02.01.2006 15:04 UTC" }}</time></p>

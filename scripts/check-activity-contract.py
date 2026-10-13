@@ -12,13 +12,19 @@ in the importer.
 On Home there is no neofetch pane: GitHub already lives in socials, the
 deployed commit lives in activity/site, and `# since:` / `main@` stay off
 the page. Recent shows primary RSS.
+
+--self-test builds ordinary Home with representative revision SHA inputs;
+--hugo selects the pinned Extended binary for that disposable regression.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import re
+import subprocess
 import sys
+import tempfile
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -36,6 +42,7 @@ class HomeFacts(HTMLParser):
         self.modules: list[str] = []
         self.external_scripts: list[str] = []
         self.site_href: str | None = None
+        self.site_label: str | None = None
         self.site_text = ""
         self.rss_hrefs: list[str] = []
         self._activity_depth = 0
@@ -71,6 +78,7 @@ class HomeFacts(HTMLParser):
                 self._site_text = []
             elif tag == "a" and self._site_value_depth:
                 self.site_href = attributes.get("href") or ""
+                self.site_label = attributes.get("aria-label")
 
         if tag == "a" and "dc-badge" in classes:
             self._badge_text = []
@@ -96,11 +104,56 @@ class HomeFacts(HTMLParser):
             self._badge_text.append(data)
 
 
+def self_test_revision(hugo: str) -> int:
+    """Exercise the real Home/i18n contract, including numeric-looking hex."""
+    root = Path(__file__).resolve().parent.parent
+    pinned = (root / ".tool-versions").read_text().split("hugo ")[1].split()[0]
+    version = subprocess.check_output([hugo, "version"], text=True).strip()
+    if f"v{pinned}-" not in version or "+extended" not in version:
+        print(f"FAIL: expected Hugo Extended {pinned}, got {version}", file=sys.stderr)
+        return 1
+    revisions = [
+        "14710e5857ca15cdab4004d2c6a9e057e36c2f3f",
+        "8b0adcaa9b8c73026f402fe22828c5555f552720",
+        *[prefix + "0" * (40 - len(prefix)) for prefix in ("deadbee", "abcdef0", "1234567")],
+    ]
+    with tempfile.TemporaryDirectory(prefix="home-revision-") as temporary:
+        work = Path(temporary)
+        for revision in revisions:
+            short = revision[:7]
+            if not SHORT_HASH.fullmatch(short):
+                raise AssertionError(f"invalid regression short SHA: {short}")
+            destination = work / short
+            env = dict(os.environ, HUGO_BUILD_COMMIT=revision, HUGO_RESOURCEDIR=str(work / "resources"))
+            result = subprocess.run(
+                [hugo, "--environment", "preview", "--clock", "2026-10-13T00:00:00Z",
+                 "--destination", str(destination), "--cacheDir", str(work / "cache"),
+                 "--noBuildLock", "--minify", "--panicOnWarning"],
+                cwd=root, env=env, capture_output=True, text=True,
+            )
+            if result.returncode:
+                print(f"FAIL: Home revision {revision}\n{result.stdout}{result.stderr}", file=sys.stderr)
+                return 1
+            facts = HomeFacts()
+            facts.feed((destination / "index.html").read_text(encoding="utf-8"))
+            expected = (short, f"{SOURCE_REPO}/commit/{revision}", f"snapshot {short}")
+            observed = (facts.site_text, facts.site_href, facts.site_label)
+            if observed != expected:
+                print(f"FAIL: revision {revision}: {observed!r}, expected {expected!r}", file=sys.stderr)
+                return 1
+            print(f"PASS: Home revision {short} is textual revision data")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--public-dir", default="public")
     parser.add_argument("--expect-modules", default="music,dev,site")
+    parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--hugo", default=str(Path.home() / ".local/hugo/hugo"))
     args = parser.parse_args()
+    if args.self_test:
+        return self_test_revision(args.hugo)
 
     public = Path(args.public_dir).resolve()
     home = public / "index.html"
@@ -146,6 +199,8 @@ def main() -> int:
             errors.append(f"site revision href is {facts.site_href!r}, expected a commit URL")
         if not SHORT_HASH.match(facts.site_text):
             errors.append(f"site revision text is {facts.site_text!r}, expected a 7-character hash")
+        if facts.site_label != f"snapshot {facts.site_text}":
+            errors.append(f"site revision aria-label is {facts.site_label!r}, expected textual snapshot label")
 
     if "/feed.xml" not in facts.rss_hrefs:
         errors.append(f"Home Recent has no primary RSS badge, found {facts.rss_hrefs!r}")
