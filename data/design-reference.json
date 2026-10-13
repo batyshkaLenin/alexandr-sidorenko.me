@@ -532,14 +532,14 @@
       "disposition": "Existing W0001 remains open; not fixed or blessed in 4B"
     },
     {
-      "work": null,
+      "work": "W0028",
       "expected": "Focus uses --dc-primary (green)",
       "observed": "Production focus outline uses --dc-accent (pink); unchanged",
       "id": "4B-K3",
       "classification": "implementation defect",
       "severity": "MINOR",
       "blocks_4c": false,
-      "disposition": "4C owner/design disposition pending in DR-2026-003 (GATE-DESIGN). Canonical primary/green remains required; current accent/pink is a production implementation defect, not conformant. Implementation completion waits for the owner answer; no focus fix or intentional-design acceptance in W0025."
+      "disposition": "Owner DR-2026-003 Option A (2026-10-13): CARRY FORWARD as explicit production nonconformance owned by W0028. Canonical primary/green #39ff88 remains normative; current accent/pink #ff2f6e is an implementation defect, not conformant. No canonical contract change or production fix in W0025. Nonblocking for W0025 and Phase 4 completion. This effective site disposition supersedes initial theme focus ownership/disposition metadata; final owner visual/design acceptance is still downstream."
     },
     {
       "work": null,
@@ -607,14 +607,14 @@
       "disposition": "Existing W0001 remains open; not fixed or blessed in 4B"
     },
     {
-      "work": null,
+      "work": "W0028",
       "expected": "Focus uses --dc-primary (green)",
       "observed": "Production focus outline uses --dc-accent (pink); unchanged",
       "id": "4B-K3",
       "classification": "implementation defect",
       "severity": "MINOR",
       "blocks_4c": false,
-      "disposition": "4C owner/design disposition pending in DR-2026-003 (GATE-DESIGN). Canonical primary/green remains required; current accent/pink is a production implementation defect, not conformant. Implementation completion waits for the owner answer; no focus fix or intentional-design acceptance in W0025."
+      "disposition": "Owner DR-2026-003 Option A (2026-10-13): CARRY FORWARD as explicit production nonconformance owned by W0028. Canonical primary/green #39ff88 remains normative; current accent/pink #ff2f6e is an implementation defect, not conformant. No canonical contract change or production fix in W0025. Nonblocking for W0025 and Phase 4 completion. This effective site disposition supersedes initial theme focus ownership/disposition metadata; final owner visual/design acceptance is still downstream."
     },
     {
       "work": null,
