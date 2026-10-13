@@ -268,9 +268,9 @@
       "media": ["screen"],
       "checks": ["production.geometry", "site.degraded", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
-      "conformance": "covered-conformant",
-      "known_deviation": null,
-      "finding_ids": []
+      "conformance": "covered-known-deviation",
+      "known_deviation": "4B-K1 / W0017: real composition contains current MaterialRow row/type-link deviation; rendering/geometry PASS does not approve the production discrepancy.",
+      "finding_ids": ["4B-K1"]
     },
     {
       "id": "site-row-rich",
@@ -322,9 +322,9 @@
       "media": ["screen"],
       "checks": ["production.reading", "site.behavior", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
-      "conformance": "covered-conformant",
-      "known_deviation": null,
-      "finding_ids": []
+      "conformance": "covered-known-deviation",
+      "known_deviation": "4B-K1 / W0017: real composition contains current MaterialRow row/type-link deviation; rendering/geometry PASS does not approve the production discrepancy.",
+      "finding_ids": ["4B-K1"]
     },
     {
       "id": "site-toc",
@@ -358,9 +358,9 @@
       "media": ["screen"],
       "checks": ["production.reading", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
-      "conformance": "covered-conformant",
-      "known_deviation": null,
-      "finding_ids": []
+      "conformance": "covered-known-deviation",
+      "known_deviation": "4B-K2 / W0001: real publication contains a zero-response section; rendering/geometry PASS does not approve the production discrepancy.",
+      "finding_ids": ["4B-K2"]
     },
     {
       "id": "site-poem-short",
@@ -394,9 +394,9 @@
       "media": ["screen"],
       "checks": ["production.reading", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
-      "conformance": "covered-conformant",
-      "known_deviation": null,
-      "finding_ids": []
+      "conformance": "covered-known-deviation",
+      "known_deviation": "4B-K2 / W0001: real publication contains a zero-response section; rendering/geometry PASS does not approve the production discrepancy.",
+      "finding_ids": ["4B-K2"]
     },
     {
       "id": "site-track",
@@ -413,8 +413,8 @@
       "checks": ["production.reading", "site.behavior", "site.media-guard", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
       "conformance": "covered-known-deviation",
-      "known_deviation": "4B-K6 / W0021: / ? still intercept native audio focus",
-      "finding_ids": ["4B-K6"]
+      "known_deviation": "4B-K6 / W0021: / ? still intercept native audio focus; 4B-K2 / W0001: real publication contains a zero-response section; rendering/geometry PASS does not approve the production discrepancy.",
+      "finding_ids": ["4B-K6", "4B-K2"]
     },
     {
       "id": "site-translation",
@@ -430,9 +430,9 @@
       "media": ["screen"],
       "checks": ["production.reading", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
-      "conformance": "covered-conformant",
-      "known_deviation": null,
-      "finding_ids": []
+      "conformance": "covered-known-deviation",
+      "known_deviation": "4B-K2 / W0001: real publication contains a zero-response section; rendering/geometry PASS does not approve the production discrepancy.",
+      "finding_ids": ["4B-K2"]
     },
     {
       "id": "site-external",
@@ -448,9 +448,9 @@
       "media": ["screen"],
       "checks": ["production.reading", "site.degraded", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
-      "conformance": "covered-conformant",
-      "known_deviation": null,
-      "finding_ids": []
+      "conformance": "covered-known-deviation",
+      "known_deviation": "4B-K2 / W0001: real publication contains a zero-response section; rendering/geometry PASS does not approve the production discrepancy.",
+      "finding_ids": ["4B-K2"]
     }
   ],
   "composition": [
@@ -539,7 +539,7 @@
       "classification": "implementation defect",
       "severity": "MINOR",
       "blocks_4c": false,
-      "disposition": "Explicit conformance disposition required in 4C; no approval here"
+      "disposition": "4C owner/design disposition pending in DR-2026-003 (GATE-DESIGN). Canonical primary/green remains required; current accent/pink is a production implementation defect, not conformant. Implementation completion waits for the owner answer; no focus fix or intentional-design acceptance in W0025."
     },
     {
       "work": null,
@@ -614,7 +614,7 @@
       "classification": "implementation defect",
       "severity": "MINOR",
       "blocks_4c": false,
-      "disposition": "Explicit conformance disposition required in 4C; no approval here"
+      "disposition": "4C owner/design disposition pending in DR-2026-003 (GATE-DESIGN). Canonical primary/green remains required; current accent/pink is a production implementation defect, not conformant. Implementation completion waits for the owner answer; no focus fix or intentional-design acceptance in W0025."
     },
     {
       "work": null,
