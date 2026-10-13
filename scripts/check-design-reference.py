@@ -3,6 +3,8 @@
 
 YAML is parsed by the existing locked Playwright dependency's YAML parser;
 Node and the installed project dependencies are required, with no new package.
+Rendered CSS-selector resolution is enforced by the reference.bindings browser
+matrix; this static checker alone does not establish selector conformance.
 
 Compare reference vs disabled builds in --build-root produced by
 build-design-reference.py. Optional --control-root also proves byte parity with
@@ -18,12 +20,15 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
 THEME = ROOT / 'themes/declassified'
 MARKERS = (b'__design', b'__preview', b'data-design-example', b'data-design-reference')
 TARGETS = {'site': '__design/site/index.html', 'theme': '__design/theme/index.html'}
 VIEWPORTS = [320, 390, 768, 1024, 1440]
+MATERIAL_IDENTITY = re.compile(r'/id/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b', re.I)
+PUBLICATION_TYPES = {'Article', 'BlogPosting', 'CreativeWork'}
 
 
 def reference_manifest(owner):
@@ -137,7 +142,14 @@ def source_bindings():
             assert example['js'] and set(example['js']) == {'on', 'off'}, f'{example["id"]}: missing JS/no-JS evidence'
             assert example['media'] and set(example['media']) <= {'screen','print','reduced-motion','forced-colors'}
             assert example['checks'] and set(example['checks']) <= set(data['scenarios']), f'{example["id"]}: unbound scenario'
-            assert example['selector'] and example['url'].startswith('/') and '/id/' not in example['url']
+            # DOM/CSS resolution is authoritative in reference.bindings, on
+            # every declared URL. Optional selectorless entries are explicit.
+            required = example.get('selector_required', True)
+            assert isinstance(required, bool), f'{example["id"]}: invalid selector_required'
+            selector = example.get('selector')
+            assert (not required and selector is None) or (isinstance(selector, str) and selector.strip()), f'BINDING_RESOLUTION: {example["id"]}: missing selector'
+            assert isinstance(example.get('selector_unique', False), bool), f'{example["id"]}: invalid selector_unique'
+            assert example['url'].startswith('/') and '/id/' not in example['url']
             assert example['conformance'] in {'covered-conformant','covered-known-deviation'}
             assert set(example['finding_ids']) <= finding_ids, f'{example["id"]}: unknown finding'
             if example['conformance'] == 'covered-known-deviation':
@@ -201,11 +213,17 @@ def service_page(path):
     assert sum(t == 'h1' for t, _ in doc.nodes) == 1
     assert doc.has('meta', name='robots', content='noindex,nofollow')
     for tag, attrs in doc.nodes:
-        assert attrs.get('type') != 'application/ld+json', 'publication schema on service page'
-        assert not set(attrs.get('rel', '').split()) & {'canonical','webmention','author','me','alternate','authorization_endpoint','token_endpoint'}, 'discovery metadata on service page'
-        assert not set(attrs.get('class', '').split()) & {'h-entry','h-card','u-uid','p-author'}, 'editorial identity on service page'
-        assert not attrs.get('property', '').startswith('og:'), 'publication OG metadata'
-    assert '/id/' not in text
+        assert attrs.get('type', '').strip().lower() != 'application/ld+json', 'SERVICE_ISOLATION: publication schema on service page'
+        assert not set(attrs.get('rel', '').lower().split()) & {'canonical','webmention','author','me','alternate','authorization_endpoint','token_endpoint'}, 'SERVICE_ISOLATION: discovery metadata on service page'
+        assert not set(attrs.get('class', '').split()) & {'h-entry','h-card','u-uid','p-author'}, 'SERVICE_ISOLATION: editorial identity on service page'
+        assert not attrs.get('property', '').lower().startswith('og:'), 'SERVICE_ISOLATION: publication OG metadata'
+        assert not (tag == 'meta' and attrs.get('name', '').lower() == 'author'), 'SERVICE_ISOLATION: editorial author on service page'
+        # HTMLParser decodes attribute entities before these structural checks.
+        assert not any('/id/' in attrs.get(key, '') for key in ('href', 'src', 'itemid', 'value')), 'SERVICE_ISOLATION: material identity URI on service page'
+        assert not any(MATERIAL_IDENTITY.search(value) for value in attrs.values() if value), 'SERVICE_ISOLATION: material identity URI on service page'
+        for itemtype in attrs.get('itemtype', '').split():
+            schema = urlsplit(itemtype)
+            assert not (schema.hostname == 'schema.org' and schema.path.rstrip('/').removeprefix('/') in PUBLICATION_TYPES), 'SERVICE_ISOLATION: publication microdata on service page'
     return doc
 
 
@@ -239,11 +257,42 @@ def check(root, control=None):
         assert doc.has('a', href=url), f'composition link absent: {url}'
         assert (root/'site'/url.strip('/')/'index.html').is_file(), f'real composition page missing: {url}'
     subprocess.run([sys.executable, str(THEME/'tests/check-design-reference.py'), '--enabled', str(root/'theme'), '--disabled', str(root/'theme-disabled')], check=True)
-    print(f'PASS: {count} manifest bindings; production/preview artifacts, editorial counts/order, feeds/sitemap/search/taxonomies/relations/identity/redirects/llms/navigation unchanged')
+    print(f'PASS: {count} manifest source bindings; production/preview artifacts, editorial counts/order, feeds/sitemap/search/taxonomies/relations/identity/redirects/llms/navigation unchanged')
 
 
 def self_test(root):
     subprocess.run([sys.executable, str(THEME/'tests/check-design-reference.py'), '--enabled', str(root/'theme'), '--disabled', str(root/'theme-disabled'), '--self-test'], check=True)
+    service = (root/'site'/TARGETS['site']).read_text()
+    identity = '/id/019521e9-29d9-7420-917d-378626158bb8'
+    metadata_cases = [
+        ('clean', '', True),
+        ('publication-json-ld', '<script type="application/ld+json">{"@type":"Article"}</script>', False),
+        ('webmention', '<link rel="webmention" href="/mention">', False),
+        ('material-uri', f'<meta name="DC.identifier" content="{identity}">', False),
+        ('encoded-material-uri', f'<meta name="DC.identifier" content="{identity.replace("/", "&#47;")}">', False),
+        ('article-microdata', '<article itemscope itemtype="https://schema.org/Article"></article>', False),
+        ('blogposting-microdata', '<div itemscope itemtype="https://schema.org/BlogPosting"></div>', False),
+        ('creativework-microdata', '<div itemscope itemtype="https://schema.org/CreativeWork"></div>', False),
+        ('harmless-thing', '<div itemscope itemtype="https://schema.org/Thing"></div>', True),
+        ('ordinary-json', '<script type="application/json">{"example":"native disclosure"}</script>', True),
+        ('description', '<meta name="description" content="Design reference">', True),
+        ('publication-type-list', '<div itemtype="https://schema.org/Thing http://schema.org/Article"></div>', False),
+        ('unrelated-vocabulary', '<div itemtype="https://example.org/Article"></div>', True),
+        ('harmless-webpage', '<div itemtype="https://schema.org/WebPage"></div>', True),
+        ('harmless-id-label', '<meta name="description" content="The /id/ namespace">', True),
+    ]
+    with tempfile.TemporaryDirectory(prefix='site-reference-metadata-') as tmp:
+        copy = Path(tmp)/'build'
+        for name in ('preview','production','site','theme','theme-disabled'):
+            shutil.copytree(root/name, copy/name)
+        page = copy/'site'/TARGETS['site']
+        for name, markup, passes in metadata_cases:
+            page.write_text(service.replace('</body>', markup + '</body>', 1))
+            result = subprocess.run([sys.executable, __file__, '--build-root', str(copy)], text=True, capture_output=True)
+            assert (result.returncode == 0) == passes, f'{name}: unexpected service isolation result: {result.stderr}'
+            if not passes:
+                assert 'SERVICE_ISOLATION:' in result.stderr, f'{name}: unrelated failure: {result.stderr}'
+            print(f'PASS: site metadata regression {name} ({"accepted" if passes else "rejected"})')
     original = (ROOT/'content/__preview/design/index.md').read_text()
     uuid = '019521e9-29d9-7420-917d-378626158bb8'
     cases = [('clean', original, True),

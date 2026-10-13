@@ -20,12 +20,76 @@ async function noPageOverflow(page: Page, width: number) {
 }
 
 async function serviceBindings(page: Page, manifest: typeof site) {
-  for (const example of manifest.examples.filter((x: { url: string }) => x.url.replace(/\/$/, "") === manifest.route.replace(/\/$/, ""))) {
-    await expect(page.locator(example.selector), example.id).toHaveCount(1);
-  }
+  await contextBindings(page, manifest, manifest.examples.filter((x: { url: string }) => x.url.replace(/\/$/, "") === manifest.route.replace(/\/$/, "")));
   await expect(page.locator("h1")).toHaveCount(1);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex,nofollow");
 }
+
+// Service examples identify one element; composition selectors may identify
+// several rows. A manifest can explicitly narrow cardinality or omit a selector.
+async function contextBindings(page: Page, manifest: typeof site, examples: typeof site.examples) {
+  for (const example of examples) {
+    const selector = example.selector;
+    if (selector == null && example.selector_required === false) continue;
+    const prefix = `BINDING_RESOLUTION: ${example.id} ${example.url} ${String(selector)}`;
+    if (typeof selector !== "string" || !selector.trim()) throw new Error(`${prefix}: missing selector`);
+    const result = await page.evaluate((value: string) => {
+      try { return { count: document.querySelectorAll(value).length, error: "" }; }
+      catch (error) { return { count: 0, error: String(error) }; }
+    }, selector);
+    if (result.error) throw new Error(`${prefix}: invalid CSS selector: ${result.error}`);
+    const output = example.url.replace(/^\//, "").replace(/\/$/, "") + "/index.html";
+    const unique = example.selector_unique ?? manifest.service_outputs.includes(output);
+    if (result.count === 0 || (unique && result.count !== 1)) {
+      throw new Error(`${prefix}: expected ${unique ? "exactly one" : "at least one"} match, got ${result.count}`);
+    }
+  }
+}
+
+test.describe("reference.bindings", () => {
+  for (const width of [390, 1440]) for (const js of [true, false]) test.describe(`${width} ${js ? "JS" : "no-JS"}`, () => {
+    test.use({ viewport: { width, height: 900 }, javaScriptEnabled: js });
+    test("all manifest selectors resolve in their declared contexts", async ({ page }) => {
+      for (const [manifest, origin] of [[site, "http://127.0.0.1:4173"], [theme, "http://127.0.0.1:4174"]] as const) {
+        const urls = new Set<string>(manifest.examples.map((example: { url: string }) => example.url));
+        for (const url of urls) {
+          await page.goto(origin + url);
+          await contextBindings(page, manifest, manifest.examples.filter((example: { url: string }) => example.url === url));
+        }
+      }
+    });
+  });
+  test("disposable binding copies reject selector drift and enforce declared cardinality", async ({ page }) => {
+    for (const [manifest, origin, id] of [
+      [site, "http://127.0.0.1:4173", "site-type-badge"],
+      [site, "http://127.0.0.1:4173", "site-row-rich"],
+      [site, "http://127.0.0.1:4173", "site-home"],
+      [theme, "http://127.0.0.1:4174", "theme-block-code"],
+    ] as const) {
+      const example = structuredClone(manifest.examples.find((entry: { id: string }) => entry.id === id));
+      await page.goto(origin + example.url);
+      example.selector = "#I4B_ABSENT";
+      await expect(contextBindings(page, manifest, [example])).rejects.toThrow(`BINDING_RESOLUTION: ${id}`);
+    }
+    await page.goto("http://127.0.0.1:4173/__design/site");
+    const unique = structuredClone(site.examples[0]);
+    unique.selector = "[data-i4b-unique]";
+    unique.selector_unique = true;
+    await page.evaluate(() => {
+      const element = document.createElement("span"); element.setAttribute("data-i4b-unique", ""); document.body.append(element);
+    });
+    await contextBindings(page, site, [unique]);
+    await page.evaluate(() => document.body.append(document.querySelector("[data-i4b-unique]")!.cloneNode(true)));
+    await expect(contextBindings(page, site, [unique])).rejects.toThrow(/BINDING_RESOLUTION:.*expected exactly one match, got 2/);
+    const optional = structuredClone(site.examples[0]);
+    optional.selector_required = false; delete optional.selector;
+    await contextBindings(page, site, [optional]);
+    optional.selector = null;
+    await contextBindings(page, site, [optional]);
+    optional.selector = "#I4B_ABSENT";
+    await expect(contextBindings(page, site, [optional])).rejects.toThrow("BINDING_RESOLUTION:");
+  });
+});
 
 test.describe("reference.geometry", () => {
   for (const width of widths) for (const js of [true, false]) {
