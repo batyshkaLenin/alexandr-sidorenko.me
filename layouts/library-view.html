@@ -56,10 +56,11 @@ Density/grouping varies; rows come from MaterialRow.
         {{ range $gi, $typeGroup := $materials.GroupByParam "type" }}
         {{ $type := .Key }}
         {{ $group := .Pages }}
+        {{ $typePage := site.GetPage (printf "/types/%s" $type) }}
         {{- /* Group heading links to that type's page (and its feeds). */ -}}
         <h2 class="dc-library__group">
           <a href="{{ partial "canonical-url.html" (printf "/library/types/%s" $type | relLangURL) }}">
-            {{ partial "library/type-badge.html" (dict "page" (index $group 0) "plural" true) }}
+            {{ $typePage.Title }}
           </a>
           <span class="dc-library__count">{{ len $group }}</span>
         </h2>
