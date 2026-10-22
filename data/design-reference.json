@@ -269,7 +269,7 @@
       "checks": ["production.geometry", "site.degraded", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
       "conformance": "covered-known-deviation",
-      "known_deviation": "4B-K1 / W0017: real composition contains current MaterialRow row/type-link deviation; rendering/geometry PASS does not approve the production discrepancy.",
+      "known_deviation": "4B-K1 / W0017: row-sized native material link and separate type target implemented in attempt 1; independent Review/QA pending, no conformance approval yet.",
       "finding_ids": ["4B-K1"]
     },
     {
@@ -287,7 +287,7 @@
       "checks": ["production.geometry", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
       "conformance": "covered-known-deviation",
-      "known_deviation": "Existing W0017 row/type-link deviation; no conformance approval",
+      "known_deviation": "W0017 attempt 1 implements row/type targets; independent Review/QA pending, no conformance approval yet",
       "finding_ids": ["4B-K1"]
     },
     {
@@ -305,7 +305,7 @@
       "checks": ["production.geometry", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
       "conformance": "covered-known-deviation",
-      "known_deviation": "Existing W0017 row/type-link deviation; no conformance approval",
+      "known_deviation": "W0017 attempt 1 implements row/type targets; independent Review/QA pending, no conformance approval yet",
       "finding_ids": ["4B-K1"]
     },
     {
@@ -323,7 +323,7 @@
       "checks": ["production.reading", "site.behavior", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
       "conformance": "covered-known-deviation",
-      "known_deviation": "4B-K1 / W0017: real composition contains current MaterialRow row/type-link deviation; rendering/geometry PASS does not approve the production discrepancy.",
+      "known_deviation": "4B-K1 / W0017: row-sized native material link and separate type target implemented in attempt 1; independent Review/QA pending, no conformance approval yet.",
       "finding_ids": ["4B-K1"]
     },
     {
@@ -514,12 +514,12 @@
     {
       "work": "W0017",
       "expected": "MaterialRow has a row-sized material link and a separate sibling type link",
-      "observed": "Production row/type-link structure remains unresolved; linked badge alone does not prove MaterialRow conformance",
+      "observed": "W0017 attempt 1 implements a row-sized native material link with an independent sibling type target; acceptance remains pending independent Review/QA",
       "id": "4B-K1",
       "classification": "implementation defect",
       "severity": "MAJOR",
       "blocks_4c": false,
-      "disposition": "Existing W0017 remains open; not fixed or blessed in 4B"
+      "disposition": "W0017 implementation verification complete; independent Review/QA pending. Historical 4B did not fix or approve this deviation"
     },
     {
       "work": "W0001",
@@ -589,12 +589,12 @@
     {
       "work": "W0017",
       "expected": "MaterialRow has a row-sized material link and a separate sibling type link",
-      "observed": "Production row/type-link structure remains unresolved; linked badge alone does not prove MaterialRow conformance",
+      "observed": "W0017 attempt 1 implements a row-sized native material link with an independent sibling type target; acceptance remains pending independent Review/QA",
       "id": "4B-K1",
       "classification": "implementation defect",
       "severity": "MAJOR",
       "blocks_4c": false,
-      "disposition": "Existing W0017 remains open; not fixed or blessed in 4B"
+      "disposition": "W0017 implementation verification complete; independent Review/QA pending. Historical 4B did not fix or approve this deviation"
     },
     {
       "work": "W0001",

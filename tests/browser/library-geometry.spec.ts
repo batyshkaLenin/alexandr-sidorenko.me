@@ -165,6 +165,102 @@ const wideViewports = [
   { width: 1440, height: 900 },
 ] as const;
 
+// Hit-test the effective native targets, including the type cut-out in the
+// title link's row surface. Bounding boxes alone cannot verify that cut-out.
+for (const javaScriptEnabled of [true, false]) {
+  test.describe(`MaterialRow targets (JS ${javaScriptEnabled ? "on" : "off"})`, () => {
+    test.use({ javaScriptEnabled });
+    for (const viewport of [...phoneViewports, { width: 1440, height: 900 }]) {
+      test(`row/type targets at ${viewport.width}px`, async ({ page }, testInfo) => {
+        await page.setViewportSize(viewport);
+        for (const url of ["/", "/library", "/library/all", "/library/types"]) {
+          await page.goto(url);
+          await page.evaluate(() => document.fonts.ready);
+          const rows = page.locator(".dc-material:visible");
+          expect(await rows.count()).toBeGreaterThan(0);
+          const order = await rows.locator(".u-url.p-name").evaluateAll((links) => links.map((a) => a.getAttribute("href")));
+          // Include every row so wrapped and minimal-metadata titles are covered.
+          for (const row of await rows.all()) {
+            await row.evaluate((el) => el.scrollIntoView({ block: "center" }));
+            const result = await row.evaluate((li) => {
+              const title = li.querySelector<HTMLAnchorElement>("a.u-url.p-name")!;
+              const type = li.querySelector<HTMLAnchorElement>("a.dc-list__type");
+              const date = li.querySelector("time")!;
+              const box = li.getBoundingClientRect();
+              const target = (x: number, y: number) => document.elementFromPoint(x, y)?.closest("a")?.getAttribute("href");
+              const sample = (el: Element) => {
+                const b = el.getBoundingClientRect();
+                return target(b.left + b.width / 2, b.top + b.height / 2);
+              };
+              const typeBox = type?.getBoundingClientRect();
+              const coarse = matchMedia("(pointer: coarse)").matches;
+              return {
+                href: title.getAttribute("href"), typeHref: type?.getAttribute("href"),
+                dateTarget: sample(date),
+                freeTarget: target(box.right - 2, box.top + 2),
+                typeTarget: type ? sample(type) : null,
+                typeCorners: typeBox ? [
+                  target(typeBox.left + 1, typeBox.top + 1),
+                  target(typeBox.right - 1, typeBox.bottom - 1),
+                ] : [],
+                typeWidth: typeBox?.width, typeHeight: typeBox?.height,
+                rowHeight: box.height, coarse,
+                titleColor: getComputedStyle(title).color,
+                accent: getComputedStyle(document.documentElement).getPropertyValue("--dc-accent").trim(),
+                typeDecoration: type && getComputedStyle(type).textDecorationLine,
+                titleWhiteSpace: getComputedStyle(title).whiteSpace,
+                titleCount: li.querySelectorAll("a.u-url.p-name").length,
+                nested: li.querySelectorAll("a a").length,
+                interactiveLi: li.hasAttribute("role") || li.hasAttribute("tabindex") || li.hasAttribute("onclick"),
+                dateLink: !!date.closest("a"),
+              };
+            });
+            expect(result.titleCount).toBe(1);
+            expect(result.nested).toBe(0);
+            expect(result.interactiveLi).toBe(false);
+            expect(result.dateLink).toBe(false);
+            expect(result.dateTarget, `${url}: date for ${result.href}`).toBe(result.href);
+            expect(result.freeTarget).toBe(result.href);
+            expect(result.rowHeight).toBeGreaterThanOrEqual(result.coarse ? 44 : 24);
+            expect(tone(result.titleColor)).toBe(tone(result.accent));
+            if (viewport.width <= 390) expect(result.titleWhiteSpace).toBe("normal");
+            if (url === "/library/types") {
+              expect(result.typeHref).toBeUndefined();
+            } else {
+              expect(result.typeHref).toMatch(/^\/library\/types\/[^/]+$/);
+              expect(result.typeTarget).toBe(result.typeHref);
+              expect(result.typeCorners).toEqual([result.typeHref, result.typeHref]);
+              expect(result.typeWidth).toBeGreaterThanOrEqual(result.coarse ? 44 : 24);
+              expect(result.typeHeight).toBeGreaterThanOrEqual(result.coarse ? 44 : 24);
+              expect(result.typeDecoration).toContain("underline");
+            }
+          }
+          expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+          // Native pointer/touch navigation, then return to the original order.
+          const row = rows.first();
+          await row.evaluate((el) => el.scrollIntoView({ block: "center" }));
+          const href = await row.locator(".u-url.p-name").getAttribute("href");
+          const dateBox = (await row.locator("time").boundingBox())!;
+          const x = dateBox.x + dateBox.width / 2;
+          const y = dateBox.y + dateBox.height / 2;
+          if (testInfo.project.name === "chromium-mobile") await page.touchscreen.tap(x, y);
+          else await page.mouse.click(x, y);
+          await expect(page).toHaveURL(new RegExp(`${href}$`));
+          await page.goBack();
+          await page.waitForLoadState();
+          expect(await rows.locator(".u-url.p-name").evaluateAll((links) => links.map((a) => a.getAttribute("href")))).toEqual(order);
+          if (url !== "/library/types") {
+            const type = rows.first().locator("a.dc-list__type");
+            const typeHref = await type.getAttribute("href");
+            await type.click();
+            await expect(page).toHaveURL(new RegExp(`${typeHref}$`));
+          }
+        }
+      });
+    }
+  });
+}
+
 test.describe("library geometry", () => {
   for (const viewport of phoneViewports) {
     test(`ViewsNav is a one-line scroller at ${viewport.width}px`, async ({

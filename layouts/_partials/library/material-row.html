@@ -55,7 +55,7 @@ Markers from capabilities + data/glyphs.yaml (max three).
     {{- end }}
     {{- if $showType }}
     <span class="dc-material__sep dc-material__sep--type" aria-hidden="true">·</span>
-    {{ partial "library/type-badge.html" (dict "page" $page) }}
+    {{ partial "library/type-badge.html" (dict "page" $page "linked" true) }}
     {{- end }}
     <span class="dc-material__sep dc-material__sep--date" aria-hidden="true">·</span>
     {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-material__date dt-published") }}
@@ -66,7 +66,7 @@ Markers from capabilities + data/glyphs.yaml (max three).
   </h{{ $level }}>
   <p class="dc-material__meta">
     {{- if $showType }}
-    {{ partial "library/type-badge.html" (dict "page" $page) }}
+    {{ partial "library/type-badge.html" (dict "page" $page "linked" true) }}
     <span class="dc-material__sep" aria-hidden="true">·</span>
     {{- end }}
     {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-material__date dt-published") }}

@@ -2284,6 +2284,8 @@ as-viewsnav {
 }
 
 .dc-material {
+  position: relative;
+  isolation: isolate;
   padding: 12px 0;
   border-bottom: 1px solid var(--dc-border);
 }
@@ -2300,8 +2302,50 @@ as-viewsnav {
 }
 
 .dc-material__title a {
-  color: var(--dc-text);
+  position: static;
+  color: var(--dc-accent);
   text-decoration: none;
+}
+
+/* The native title link owns the row. The sibling type anchor above this
+   surface cuts out its own effective target; metadata adds no action. */
+.dc-material__title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.dc-material__title a:focus-visible {
+  position: static;
+}
+
+/* The theme's list caret assumes a positioned anchor. Keep native focus on
+   the title instead of positioning its row surface relative to the text. */
+.dc-material__title a:focus-visible::before {
+  content: none;
+}
+
+.dc-material a.dc-list__type {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  min-width: 24px;
+  min-height: 24px;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+@media (pointer: coarse) {
+  .dc-material {
+    min-height: 44px;
+  }
+
+  .dc-material a.dc-list__type {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
 .dc-material__title a:hover,

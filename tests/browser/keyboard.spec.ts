@@ -1,5 +1,57 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 
+for (const javaScriptEnabled of [true, false]) {
+  test.describe(`MaterialRow native links (JS ${javaScriptEnabled ? "on" : "off"})`, () => {
+    test.use({ javaScriptEnabled });
+    test("title/type Tab stops, Enter, modified click and context-menu URL", async ({ page, context }, testInfo) => {
+      test.skip(testInfo.project.name === "chromium-mobile", "Native keyboard and new-tab checks run on desktop.");
+      for (const url of ["/", "/library", "/library/all", "/library/types"]) {
+        await page.goto(url);
+        const rows = page.locator(".dc-material:visible");
+        const row = rows.first();
+        const title = row.locator("a.u-url.p-name");
+        const links = row.locator("a[href]");
+        await expect(links).toHaveCount(url === "/library/types" ? 1 : 2);
+        await focusByTabFromPrevious(page, title);
+        for (const link of await links.all()) {
+          await expect(link).toBeFocused();
+          await expect.poll(() => link.evaluate((el) => el.matches(":focus-visible"))).toBe(true);
+          await page.keyboard.press("Tab");
+        }
+        // Types may insert a collection heading link before the next row.
+        expect(await row.evaluate((el) => el.contains(document.activeElement))).toBe(false);
+        for (const link of await links.all()) {
+          await link.focus();
+          const href = await link.getAttribute("href");
+          await page.keyboard.press("Enter");
+          await expect(page).toHaveURL(new RegExp(`${href}$`));
+          await page.goto(url);
+        }
+        // Modified click must use the chosen native anchor and leave this tab.
+        for (const link of await links.all()) {
+          const href = await link.getAttribute("href");
+          const popupPromise = context.waitForEvent("page");
+          await link.click({ modifiers: ["ControlOrMeta"] });
+          const popup = await popupPromise;
+          await popup.waitForLoadState();
+          await expect(popup).toHaveURL(new RegExp(`${href}$`));
+          await popup.close();
+          await expect(page).toHaveURL(new RegExp(`${url === "/" ? "/" : url}$`));
+          // Observe the native contextmenu target without cancelling its default.
+          await link.scrollIntoViewIfNeeded();
+          const contextHref = await link.evaluate((el) => {
+            const box = el.getBoundingClientRect();
+            return document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)?.closest("a")?.getAttribute("href");
+          });
+          expect(contextHref).toBe(href);
+          await link.click({ button: "right" });
+          await expect(page).toHaveURL(new RegExp(`${url}$`));
+        }
+      }
+    });
+  });
+}
+
 async function focusByTabFromPrevious(page: Page, target: Locator) {
   await target.evaluate((el) => {
     const focusables = Array.from(
