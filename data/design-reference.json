@@ -566,10 +566,10 @@
       "classification": "implementation defect",
       "severity": "MAJOR",
       "expected": "INV-LAYOUT-ISOLATION: no horizontal page overflow; code scrolling local",
-      "observed": "Generic theme Markdown pre/code expands 320/390 page to 543px; unchanged production CSS",
+      "observed": "W0026 adds local generic pre scrolling; page containment and code reachability are verified at 320/390/768/1024/1440 with JS on/off, pending independent Review/QA",
       "work": "W0026",
       "blocks_4c": false,
-      "disposition": "Owner CARRY FORWARD: explicit production nonconformance owned by W0026, outside W0025 production-fix scope; does not block 4C or Phase 4 completion. This site conformance disposition supersedes initial theme finding ownership/blocking metadata; the production behavior is not conformant."
+      "disposition": "W0026 implements INV-LAYOUT-ISOLATION in production Theme CSS. Independent Review/QA pending; original W0025 carry-forward remains historical evidence."
     },
     {
       "id": "4B-F2",
@@ -641,10 +641,10 @@
       "classification": "implementation defect",
       "severity": "MAJOR",
       "expected": "INV-LAYOUT-ISOLATION: no horizontal page overflow; code scrolling local",
-      "observed": "Generic theme Markdown pre/code expands 320/390 page to 543px; unchanged production CSS",
+      "observed": "W0026 adds local generic pre scrolling; page containment and code reachability are verified at 320/390/768/1024/1440 with JS on/off, pending independent Review/QA",
       "work": "W0026",
       "blocks_4c": false,
-      "disposition": "Owner CARRY FORWARD: explicit production nonconformance owned by W0026, outside W0025 production-fix scope; does not block 4C or Phase 4 completion. This site conformance disposition supersedes initial theme finding ownership/blocking metadata; the production behavior is not conformant."
+      "disposition": "W0026 implements INV-LAYOUT-ISOLATION in production Theme CSS. Independent Review/QA pending; original W0025 carry-forward remains historical evidence."
     },
     {
       "id": "4B-F2",

@@ -347,16 +347,47 @@ test.describe("reference.media", () => {
 test.describe("theme.code-geometry", () => {
   for (const width of widths) for (const js of [true, false]) test.describe(`${width} ${js ? "JS" : "no-JS"}`, () => {
     test.use({ viewport: { width, height: 900 }, javaScriptEnabled: js });
-    test("4B-F1 generic code normative overflow expectation", async ({ page }, info) => {
-      await page.goto("http://127.0.0.1:4174/__design/theme/code");
-      await expect(page.locator("#theme-block-code")).toBeVisible();
-      const extent = await page.evaluate(() => ({ viewport: innerWidth, page: document.documentElement.scrollWidth }));
-      expect(extent.viewport).toBe(width);
-      await info.attach("4B-F1-geometry", { body: JSON.stringify(extent), contentType: "application/json" });
-      // Normative assertion remains unchanged; expected failures explicitly retain
-      // the production defect. An unexpected pass forces finding re-inspection.
-      test.fail(width <= 390, "4B-F1: generic theme code has no local overflow containment");
-      expect(extent.page, "canonical no-page-overflow expectation").toBeLessThanOrEqual(width + 1);
+    test("W0026 generic code stays local in reference and ordinary pages", async ({ page }, info) => {
+      for (const path of ["/__design/theme/code", "/posts/generic-post"]) {
+        await page.goto("http://127.0.0.1:4174" + path);
+        const code = page.locator(".dc-prose > pre").first();
+        await expect(code).toBeVisible();
+        const original = await code.textContent();
+        expect(original).toContain("Generic theme code, without site renderer chrome.");
+        if (path === "/posts/generic-post") {
+          expect(original).toContain("  whitespace and the end of a wide line remain readable:");
+          expect(original).toContain(" END");
+        }
+        const extent = await code.evaluate(el => {
+          const pre = el as HTMLElement;
+          const box = pre.getBoundingClientRect();
+          const panel = pre.closest(".dc-panel")!.getBoundingClientRect();
+          const before = pre.scrollLeft;
+          pre.scrollLeft = pre.scrollWidth;
+          return {
+            viewport: innerWidth, page: document.documentElement.scrollWidth,
+            left: box.left, right: box.right, panelLeft: panel.left, panelRight: panel.right,
+            client: pre.clientWidth, scroll: pre.scrollWidth, before, after: pre.scrollLeft,
+            overflow: getComputedStyle(pre).overflowX, whitespace: getComputedStyle(pre).whiteSpace,
+          };
+        });
+        await info.attach("W0026-" + path.split("/").pop(), { body: JSON.stringify(extent), contentType: "application/json" });
+        expect(extent.viewport).toBe(width);
+        expect(extent.page, "code must not widen the document").toBeLessThanOrEqual(width + 1);
+        expect(extent.left).toBeGreaterThanOrEqual(0);
+        expect(extent.right).toBeLessThanOrEqual(width + 1);
+        expect(extent.panelLeft).toBeGreaterThanOrEqual(0);
+        expect(extent.panelRight).toBeLessThanOrEqual(width + 1);
+        expect(extent.overflow).toBe("auto");
+        expect(extent.whitespace).toBe("pre");
+        if (width <= 390 || path === "/posts/generic-post") {
+          expect(extent.scroll).toBeGreaterThan(extent.client);
+          expect(extent.after).toBeGreaterThan(extent.before);
+          expect(extent.after).toBeGreaterThanOrEqual(extent.scroll - extent.client - 1);
+        }
+        expect(await code.textContent()).toBe(original);
+        await noPageOverflow(page, width);
+      }
     });
   });
 });
