@@ -183,7 +183,7 @@ test.describe("theme.behavior", () => {
         await expect(prompt).toBeVisible();
         await prompt.fill("he"); await prompt.press("Tab");
         await expect(prompt).toHaveValue("help "); await prompt.press("Escape"); await expect(prompt).toBeHidden();
-      } // 4B-F2 preserves the narrow invocation failure in its own scenario.
+      } // Narrow invocation is covered by the dedicated W0027 matrix.
       await expect(page).toHaveURL(/\/__design\/theme\/?$/);
       const image = page.locator("#theme-image"); await image.locator("button").click();
       await expect(image).toHaveAttribute("showing", "original"); await image.locator("button").click();
@@ -392,14 +392,22 @@ test.describe("theme.code-geometry", () => {
   });
 });
 
-test.describe("theme.prompt-narrow", () => {
-  test.use({ viewport: { width: 390, height: 900 } });
+for (const width of [320, 390]) test.describe(`theme.prompt-narrow ${width}`, () => {
+  test.use({ viewport: { width, height: 900 } });
   test("4B-F2 prompt invocation must expose a usable input", async ({ page }, info) => {
-    await page.goto(themeURL); await page.locator("#theme-native button").focus(); await page.keyboard.press(":");
-    await expect(page.locator("#theme-prompt")).toHaveAttribute("open", "");
-    await info.attach("4B-F2-state", { body: JSON.stringify(await page.locator("#theme-prompt").evaluate(el => ({ open: el.hasAttribute("open"), display: getComputedStyle(el).display }))), contentType: "application/json" });
-    test.fail(true, "4B-F2: phone CSS hides even the invoked production prompt");
-    await expect(page.locator("#theme-prompt input")).toBeVisible();
+    for (const path of [themeURL, "http://127.0.0.1:4174/posts/generic-post"]) {
+      await page.goto(path);
+      const url = page.url();
+      const host = page.locator("dc-prompt"); const input = host.locator("input");
+      await page.locator(".dc-nav a").first().focus(); await page.keyboard.press(":");
+      await expect(input).toBeVisible(); await expect(input).toBeFocused();
+      await input.fill("he"); await input.press("Tab"); await expect(input).toHaveValue("help ");
+      const box = await input.boundingBox(); expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
+      await noPageOverflow(page, width);
+      await info.attach("W0027-prompt", { body: await page.screenshot(), contentType: "image/png" });
+      await input.press("Escape"); await expect(input).toBeHidden(); await expect(page).toHaveURL(url);
+    }
   });
 });
 

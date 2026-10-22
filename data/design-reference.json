@@ -576,10 +576,10 @@
       "classification": "implementation defect",
       "severity": "MAJOR",
       "expected": "Keyboard prompt entry exposes the command input for focus/editing",
-      "observed": "At 390, : sets dc-prompt[open] but production CSS keeps it display:none",
+      "observed": "W0027 restores visible, focused prompt entry and completion at 320/390; resting compact shell and no-JS baseline are preserved",
       "work": "W0027",
       "blocks_4c": false,
-      "disposition": "Owner CARRY FORWARD: explicit production nonconformance owned by W0027, outside W0025 production-fix scope; does not block 4C or Phase 4 completion. This site conformance disposition supersedes initial theme finding ownership/blocking metadata; the production behavior is not conformant."
+      "disposition": "W0027 implements the production correction in Theme CSS and Site identity overrides. Independent acceptance is recorded by W0027 Review/QA receipts; the original W0025 carry-forward remains historical evidence. No Prompt contract change."
     }
   ],
   "viewports": [320, 390, 768, 1024, 1440],
@@ -651,10 +651,10 @@
       "classification": "implementation defect",
       "severity": "MAJOR",
       "expected": "Keyboard prompt entry exposes the command input for focus/editing",
-      "observed": "At 390, : sets dc-prompt[open] but production CSS keeps it display:none",
+      "observed": "W0027 restores visible, focused prompt entry and completion at 320/390; resting compact shell and no-JS baseline are preserved",
       "work": "W0027",
       "blocks_4c": false,
-      "disposition": "Owner CARRY FORWARD: explicit production nonconformance owned by W0027, outside W0025 production-fix scope; does not block 4C or Phase 4 completion. This site conformance disposition supersedes initial theme finding ownership/blocking metadata; the production behavior is not conformant."
+      "disposition": "W0027 implements the production correction in Theme CSS and Site identity overrides. Independent acceptance is recorded by W0027 Review/QA receipts; the original W0025 carry-forward remains historical evidence. No Prompt contract change."
     }
   ],
   "coverage_exclusions": [

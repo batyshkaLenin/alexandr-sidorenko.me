@@ -245,8 +245,7 @@
   white-space: nowrap;
 }
 
-/* Compact shell (theme, width <= 740px): the site identity and its prompt
-   leave the row. */
+/* Compact shell: keep the context quiet until the prompt is invoked. */
 @media (width <= 740px), (height <= 30rem) and (orientation: landscape) {
   .dc-identity,
   dc-prompt[open] .dc-identity {
@@ -254,6 +253,16 @@
   }
 
   as-prompt {
+    display: none;
+  }
+
+  as-prompt:has(dc-prompt[open]) {
+    display: block;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  dc-prompt[open] .dc-identity__sep {
     display: none;
   }
 }
