@@ -103,7 +103,7 @@ into loose strings. */ -}}
 {{- $shortcuts = $shortcuts | append (slice "[↑↓] [j k]" (i18n "helpList") "dc-listnav") -}}
 {{- $shortcuts = $shortcuts | append (slice "[Enter]" (i18n "helpOpen") "dc-listnav") -}}
 {{- $shortcuts = $shortcuts | append (slice "[:]" (i18n "helpPrompt") "dc-prompt") -}}
-{{- $shortcuts = $shortcuts | append (slice "[Esc]" (i18n "helpBack")) -}}
+{{- $shortcuts = $shortcuts | append (slice "[Esc]" (i18n "helpCloseOverlay")) -}}
 {{ partial "declassified/component.html" "dc-help" -}}
 {{- /* The command line's vocabulary lives here, next to the keys: both are
 things the reader can type, and the sheet is where they are explained. */ -}}

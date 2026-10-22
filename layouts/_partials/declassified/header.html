@@ -5,8 +5,8 @@
   </div>
   {{ with .Site.Menus.main }}
   {{ partial "declassified/component.html" "dc-keynav" }}
-  {{- /* Esc → parent; URL via canonical-url.html. */ -}}
-  <dc-keynav{{ with $.Parent }} parent-url="{{ partial "canonical-url.html" .RelPermalink }}"{{ end }}>
+  {{- /* Menu links and browser controls own document navigation. */ -}}
+  <dc-keynav>
   <nav class="dc-nav" aria-labelledby="dc-nav-label">
     <span id="dc-nav-label" class="dc-visually-hidden" lang="{{ partial "doc-lang.html" $ }}">{{ $.Site.Title }}</span>
     <ul class="dc-nav__list">

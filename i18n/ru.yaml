@@ -75,8 +75,8 @@ helpOpen:
   other: "open"
 helpSearch:
   other: "search"
-helpBack:
-  other: "back"
+helpCloseOverlay:
+  other: "close overlay"
 helpSelf:
   other: "this help"
 commandLabel:

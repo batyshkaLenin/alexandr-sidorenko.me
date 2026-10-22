@@ -199,8 +199,9 @@ test.describe("theme.behavior", () => {
       if (width === 1440) { await expect(clock).toBeVisible(); await expect(clock).toHaveText(/2026-10-12T12:00:\d{2}\+00:00/); }
       else { await expect(clock).toBeHidden(); await expect(clock).toHaveText(""); }
       if (width === 1440) await page.locator("#theme-native").screenshot({ path: info.outputPath("native-controls.png") });
+      const beforeEscape = page.url();
       await page.locator(".dc-nav a").first().focus(); await page.keyboard.press("Escape");
-      await expect(page).toHaveURL("http://127.0.0.1:4174/");
+      await expect(page).toHaveURL(beforeEscape);
     });
   });
 });

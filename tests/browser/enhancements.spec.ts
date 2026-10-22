@@ -354,6 +354,8 @@ test.describe("enhancements", () => {
     await expect(helpMeanings.filter({ hasText: /^search$/ })).toHaveCount(1);
     await expect(helpMeanings.filter({ hasText: /^list$/ })).toHaveCount(1);
     await expect(helpMeanings.filter({ hasText: /^apps$/ })).toHaveCount(0);
+    await expect(helpMeanings.filter({ hasText: /^close overlay$/ })).toHaveCount(1);
+    await expect(helpMeanings.filter({ hasText: /^back$/ })).toHaveCount(0);
     await expect(helpKeys.filter({ hasText: /\[[123o]\]/ })).toHaveCount(0);
     await page.keyboard.press("Escape");
     await expect(page.locator("dialog.dc-help[open]")).toHaveCount(0);
