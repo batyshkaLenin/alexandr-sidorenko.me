@@ -1559,6 +1559,12 @@ a.dc-list__type:focus-visible {
   text-decoration: underline;
 }
 
+/* Colophon links remain recognizable without hover or colour. */
+.dc-fiction__colophon a.dc-list__type,
+.dc-poem__colophon a.dc-list__type {
+  text-decoration: underline;
+}
+
 /* Type colour is secondary; label is primary. */
 .dc-type--knowledge {
   color: var(--dc-type-knowledge);

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 const LIBRARY = "/library";
 const SKVER = "/library/skver";
@@ -19,6 +20,96 @@ async function paneBox(page: import("@playwright/test").Page, selector: string):
 }
 
 test.describe("publication workspace", () => {
+  for (const width of [390, 1440]) {
+    for (const [slug, family, type] of [
+      ["svidetel-v-bagazhnike", "fiction", "fiction"],
+      ["trafaret", "poem", "poem"],
+    ]) {
+      test(`colophon ${family} type link stays distinguishable at ${width}px`, async ({ page }, testInfo) => {
+        await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+        await page.goto(`/library/${slug}`);
+        const colophon = page.locator(`.dc-${family}__colophon`);
+        const link = colophon.locator("a.dc-list__type");
+        await link.scrollIntoViewIfNeeded();
+        await page.mouse.move(0, 0);
+        await expect(link).not.toBeFocused();
+        await expect(link).toHaveAttribute("href", new RegExp(`/library/types/${type}/?$`));
+        await expect(link).toHaveAttribute("lang", "en");
+        await expect(link).toHaveText(type.toUpperCase());
+        await expect(link).toHaveCSS("text-decoration-line", "underline");
+        // Resolve the inherited tokens before comparing computed values.
+        const tokens = await link.evaluate((el) => {
+          const probe = document.createElement("span");
+          probe.style.color = getComputedStyle(el).getPropertyValue("--dc-type-literary");
+          probe.style.fontSize = getComputedStyle(el).getPropertyValue("--dc-fs-meta");
+          el.append(probe);
+          const { color, fontSize } = getComputedStyle(probe);
+          probe.remove();
+          return { color, fontSize };
+        });
+        await expect(link).toHaveCSS("color", tokens.color);
+        await expect(link).toHaveCSS("font-size", tokens.fontSize);
+        const audits = await new AxeBuilder({ page })
+          .withRules(["link-in-text-block", "color-contrast"])
+          .include(`.dc-${family}__colophon`)
+          .analyze();
+        expect(audits.violations, JSON.stringify(audits.violations)).toEqual([]);
+        const grayscale = testInfo.outputPath("colophon-grayscale.png");
+        await colophon.screenshot({ path: grayscale, style: "html { filter: grayscale(1); }" });
+        await testInfo.attach(`colophon-${family}-${width}-grayscale`, { path: grayscale, contentType: "image/png" });
+        await link.focus();
+        await page.keyboard.press("Shift+Tab");
+        await page.keyboard.press("Tab");
+        await expect(link).toBeFocused();
+        expect(await link.evaluate((el) => el.matches(":focus-visible"))).toBe(true);
+        expect(await link.evaluate((el) => getComputedStyle(el).outlineStyle)).not.toBe("none");
+        const focus = testInfo.outputPath("colophon-focus.png");
+        await colophon.screenshot({ path: focus });
+        await testInfo.attach(`colophon-${family}-${width}-focus`, { path: focus, contentType: "image/png" });
+        await page.keyboard.press("Enter");
+        await expect(page).toHaveURL(new RegExp(`/library/types/${type}/?$`));
+      });
+    }
+  }
+
+  test("colophon fix preserves non-link type labels and representative accessibility", async ({ page }) => {
+    for (const path of [
+      "/", "/library", "/library/all", "/library/svidetel-v-bagazhnike", "/library/trafaret",
+      "/library/cool-kids-of-death-hej-chlopcze", "/library/regular-visitor",
+      "/library/bluredu-new-teachers", "/library/itchatter-hakatony", "/library/philosophy-of-freedom",
+    ]) {
+      await page.goto(path);
+      const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+      const serious = results.violations.filter((v) => ["serious", "critical"].includes(v.impact || ""));
+      expect(serious, `${path}: ${JSON.stringify(serious)}`).toEqual([]);
+      if (path === "/library/all") {
+        const labels = page.locator("span.dc-list__type");
+        expect(await labels.count()).toBeGreaterThan(0);
+        for (const label of await labels.all()) {
+          await expect(label).not.toHaveAttribute("tabindex");
+          await expect(label).toHaveCSS("text-decoration-line", "none");
+          expect(await label.evaluate((el) => el.closest("a, button"))).toBeNull();
+        }
+      }
+    }
+  });
+
+  test("colophon type links retain their affordance without JavaScript", async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+    try {
+      const page = await context.newPage();
+      for (const [slug, family] of [["svidetel-v-bagazhnike", "fiction"], ["trafaret", "poem"]]) {
+        await page.goto(`/library/${slug}`);
+        const link = page.locator(`.dc-${family}__colophon a.dc-list__type`);
+        await expect(link).toHaveCSS("text-decoration-line", "underline");
+        await link.click();
+        await expect(page).toHaveURL(new RegExp(`/library/types/${family}/?$`));
+      }
+    } finally {
+      await context.close();
+    }
+  });
+
   test("Library and publication panes share 1440 and 1100 geometry", async ({
     page,
   }, testInfo) => {
