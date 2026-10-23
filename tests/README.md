@@ -355,8 +355,10 @@ production entrypoint → implement → run relevant checks. Synthetic site fixt
 use real type-badge and Markdown figure/code/table rendering; composition links
 use actual Home, Library All and a TOC article. There is no fake reader: the
 production reader heading requires material identity. W0017 (MaterialRow/type
-link), W0001 (zero-response section), and primary/green versus accent/pink focus
-remain explicit deviations; 4A does not repair them. DR-2026-001/002 are out of
+link) and primary/green versus accent/pink focus remain explicit deviations;
+4A does not repair them. W0001 now omits the responses section when no approved
+responses exist; `check-webmention-contract.py` enforces that absence.
+DR-2026-001/002 are out of
 scope. The 4B matrix below expands coverage without repairing these production deviations.
 
 The Chromium matrix covers all five canonical widths for geometry, representative

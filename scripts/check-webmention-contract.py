@@ -455,6 +455,11 @@ def check_rendering(
             continue
         parser = SectionParser()
         parser.feed(page.read_text(encoding="utf-8"))
+        check(
+            errors,
+            parser.sections == 0,
+            f"{page}: responses block is not omitted without an approved mention",
+        )
         if parser.responses:
             errors.append(
                 f"{page}: shows {len(parser.responses)} response(s) without an approved mention"

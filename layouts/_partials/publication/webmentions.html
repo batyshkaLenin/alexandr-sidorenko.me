@@ -2,6 +2,7 @@
 `responses/` from data/webmentions.json (moderated offline). Replies / mentions /
 reactions shown separately; many reactions collapse to a count. No avatars.
 Invite to reply via Webmention + permalink; no comment form.
+Omit the entire block when this material has no approved responses.
 */ -}}
 {{- $permalink := partial "canonical-url.html" .Permalink -}}
 {{- $materialID := .Params.id -}}
@@ -11,6 +12,7 @@ Invite to reply via Webmention + permalink; no comment form.
     {{- $mentions = $mentions | append . -}}
   {{- end -}}
 {{- end -}}
+{{- if $mentions -}}
 {{- $replies := where $mentions "type" "eq" "reply" -}}
 {{- $links := where $mentions "type" "eq" "mention" -}}
 {{- $reactions := where $mentions "type" "in" (slice "like" "repost" "bookmark") -}}
@@ -20,7 +22,6 @@ Invite to reply via Webmention + permalink; no comment form.
   {{ partial "declassified/panel-label.html" "responses/" }}
   <h2 class="dc-visually-hidden" id="responses-heading">{{ i18n "responsesHeading" }}</h2>
 
-  {{- if $mentions }}
   <p class="dc-responses__summary">
     {{- $counts := slice -}}
     {{- with $replies }}{{ $counts = $counts | append (i18n "responsesReplies" (len .)) }}{{ end -}}
@@ -28,7 +29,6 @@ Invite to reply via Webmention + permalink; no comment form.
     {{- with $reactions }}{{ $counts = $counts | append (i18n "responsesReactions" (len .)) }}{{ end -}}
     {{ delimit $counts " · " }}
   </p>
-  {{- end }}
 
   {{- with $replies }}
   <h3 class="dc-responses__group">{{ i18n "responsesGroupReplies" }}</h3>
@@ -104,3 +104,4 @@ Invite to reply via Webmention + permalink; no comment form.
     </p>
   </div>
 </section>
+{{- end -}}
