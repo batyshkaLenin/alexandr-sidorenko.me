@@ -2884,6 +2884,8 @@ as-viewsnav {
 }
 
 .dc-toc ul {
+  display: grid;
+  row-gap: 8px;
   margin: 0;
   padding: 0 0 0 12px;
   list-style: none;
@@ -2891,10 +2893,16 @@ as-viewsnav {
 }
 
 .dc-toc li {
-  margin: 4px 0;
+  margin: 0;
+}
+
+.dc-toc li > ul {
+  margin-block-start: 8px;
 }
 
 .dc-toc a {
+  display: block;
+  line-height: var(--dc-lh-ui);
   color: var(--dc-muted);
   text-decoration: none;
 }
@@ -3019,10 +3027,23 @@ as-viewsnav {
     margin: 0 0 8px;
   }
 
+  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__tree {
+    /* Reserve room for the page header, toc label and status bar before sticky. */
+    max-block-size: min(60dvh, calc(100dvh - 12rem));
+    overflow: auto;
+    /* Leave room for the link focus outline inside the scrollport. */
+    padding: 6px;
+    margin: -6px;
+  }
+
   .dc-panel--detail > .dc-article__head > .dc-toc ul {
     padding: 0 10px 0 0;
     border-inline-start: 0;
     border-inline-end: 1px solid var(--dc-border);
+  }
+
+  .dc-panel--detail > .dc-article__head > .dc-toc ul ul {
+    padding-inline-start: 12px;
   }
 }
 
