@@ -413,13 +413,21 @@ for (const width of [320, 390]) test.describe(`theme.prompt-narrow ${width}`, ()
 
 test.describe("site.media-guard", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
-  for (const key of ["/", "?"]) test(`W0021 ${key} must remain with native audio`, async ({ page }, info) => {
+  for (const key of [":", "/", "?"]) test(`W0021 ${key} must remain with native audio`, async ({ page }, info) => {
     await page.goto("/library/regular-visitor"); await page.locator("audio").first().focus();
     expect(await page.evaluate(() => document.activeElement?.tagName)).toBe("AUDIO");
+    await page.evaluate((key) => {
+      window["__trackKey"] = null;
+      document.addEventListener("keydown", (event) => {
+        if (event.key === key) window["__trackKey"] = event;
+      }, true);
+    }, key);
     await page.keyboard.press(key);
     const opened = await page.locator("dialog[open]").count();
-    await info.attach("W0021-media-state", { body: JSON.stringify({ key, opened }), contentType: "application/json" });
-    test.fail(true, "4B-K6 / W0021: existing global media guard is missing");
+    const prevented = await page.evaluate(() => window["__trackKey"]?.defaultPrevented);
+    await info.attach("W0021-media-state", { body: JSON.stringify({ key, opened, prevented }), contentType: "application/json" });
+    expect(prevented).toBe(false);
     expect(opened, "canonical media-focus guard").toBe(0);
+    await expect(page.locator("audio").first()).toBeFocused();
   });
 });

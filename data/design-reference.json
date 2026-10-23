@@ -413,8 +413,8 @@
       "checks": ["production.reading", "site.behavior", "site.media-guard", "reference.bindings"],
       "coverage": ["geometry", "js", "no-js"],
       "conformance": "covered-known-deviation",
-      "known_deviation": "4B-K6 / W0021: / ? still intercept native audio focus; 4B-K2 / W0001: real publication contains a zero-response section; rendering/geometry PASS does not approve the production discrepancy.",
-      "finding_ids": ["4B-K6", "4B-K2"]
+      "known_deviation": "4B-K2 / W0001: real publication contains a zero-response section; rendering/geometry PASS does not approve the production discrepancy.",
+      "finding_ids": ["4B-K2"]
     },
     {
       "id": "site-translation",
@@ -556,10 +556,10 @@
       "classification": "implementation defect",
       "severity": "MAJOR",
       "expected": "Document / and ? must not activate while native media has focus",
-      "observed": "On real track audio, / opens palette and ? opens help; independently reproduced at 1440",
+      "observed": "Before W0021: on real track audio, / opened palette and ? opened help; independently reproduced at 1440",
       "work": "W0021",
       "blocks_4c": false,
-      "disposition": "Owner retains known production nonconformance under W0021; not a W0025 blocker. No production guard fix, closure or publication approval is implied."
+      "disposition": "W0021 implements local native-media guards for : / ?; browser regressions cover audio/video without activation or preventDefault. This record preserves the original finding; lifecycle acceptance is recorded separately."
     },
     {
       "id": "4B-F1",
@@ -631,10 +631,10 @@
       "classification": "implementation defect",
       "severity": "MAJOR",
       "expected": "Document / and ? must not activate while native media has focus",
-      "observed": "On real track audio, / opens palette and ? opens help; independently reproduced at 1440",
+      "observed": "Before W0021: on real track audio, / opened palette and ? opened help; independently reproduced at 1440",
       "work": "W0021",
       "blocks_4c": false,
-      "disposition": "Owner retains known production nonconformance under W0021; not a W0025 blocker. No production guard fix, closure or publication approval is implied."
+      "disposition": "W0021 implements local native-media guards for : / ?; browser regressions cover audio/video without activation or preventDefault. This record preserves the original finding; lifecycle acceptance is recorded separately."
     },
     {
       "id": "4B-F1",

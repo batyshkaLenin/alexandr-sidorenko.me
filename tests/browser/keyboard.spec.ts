@@ -1,5 +1,84 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 
+test.describe("native media shortcut guards", () => {
+  for (const [tag, url] of [["audio", "/"], ["video", "/"], ["audio", "/library/regular-visitor"]]) {
+    for (const key of [":", "/", "?"]) {
+      test(`${key} stays with native ${tag} controls on ${url}`, async ({ page }, info) => {
+        await page.goto(url);
+        if (url === "/") await expect(page.locator("dc-prompt")).toHaveAttribute("ready", "");
+        await expect(page.locator("dc-help .dc-help__trigger")).toHaveCount(1);
+        // Home mounts all three handlers; publications intentionally omit Prompt.
+        if (url === "/") await page.evaluate((tag) => {
+          const media = document.createElement(tag) as HTMLMediaElement;
+          media.id = "native-media-fixture";
+          media.controls = true;
+          media.tabIndex = 0;
+          media.setAttribute("aria-label", `Native ${tag} keyboard fixture`);
+          document.querySelector("main")!.prepend(media);
+        }, tag);
+        const media = page.locator(url === "/" ? "#native-media-fixture" : tag).first();
+        await expect(media).toHaveJSProperty("controls", true);
+        await page.evaluate((key) => {
+          window["__mediaKeyEvents"] = [];
+          document.addEventListener("keydown", (event) => {
+            if (event.key === key) window["__mediaKeyEvents"].push(event);
+          }, true);
+        }, key);
+        await media.focus();
+        await expect(media).toBeFocused();
+        await page.keyboard.press(key);
+        const events = await page.evaluate(() => window["__mediaKeyEvents"].map((event: KeyboardEvent) => ({
+          key: event.key,
+          target: (event.target as Element)?.tagName,
+          trusted: event.isTrusted,
+          prevented: event.defaultPrevented,
+        })));
+        await info.attach("native-media-key", { body: JSON.stringify(events), contentType: "application/json" });
+        expect(events).toEqual([{ key, target: tag.toUpperCase(), trusted: true, prevented: false }]);
+        await expect(page.locator("dialog[open], dc-prompt[open]")).toHaveCount(0);
+        await expect(media).toBeFocused();
+      });
+    }
+  }
+
+  for (const key of [":", "/", "?"]) {
+    test(`${key} keeps ordinary activation and existing context guards`, async ({ page }) => {
+      for (const context of ["body", "link", "input", "textarea", "select", "editable", "dialog", "Control", "Meta", "Alt"]) {
+        await page.goto("/");
+        await expect(page.locator("dc-prompt")).toHaveAttribute("ready", "");
+        await expect(page.locator("dc-help .dc-help__trigger")).toHaveCount(1);
+        if (context === "link") {
+          const link = page.locator("main a[href]:visible").first();
+          await link.focus();
+          await expect(link).toBeFocused();
+        }
+        if (["input", "textarea", "select", "editable", "dialog"].includes(context)) {
+          await page.evaluate((context) => {
+            const el = document.createElement(context === "editable" ? "div" : context);
+            if (context === "editable") el.contentEditable = "true";
+            if (context === "dialog") el.tabIndex = -1;
+            document.querySelector("main")!.prepend(el);
+            if (el instanceof HTMLDialogElement) el.showModal();
+            el.focus();
+          }, context);
+        }
+        await page.keyboard.press(["Control", "Meta", "Alt"].includes(context) ? `${context}+${key}` : key);
+        const shell = page.locator("dc-help dialog[open], dc-command-palette dialog[open], dc-prompt[open]");
+        const active = context === "body" || context === "link";
+        await expect(shell, context).toHaveCount(active ? 1 : 0);
+        if (active) {
+          const selector = key === ":" ? "dc-prompt[open]" : key === "/" ? "dc-command-palette dialog[open]" : "dc-help dialog[open]";
+          await expect(page.locator(selector), context).toBeVisible();
+          const url = page.url();
+          await page.keyboard.press("Escape");
+          await expect(shell).toHaveCount(0);
+          await expect(page).toHaveURL(url);
+        }
+      }
+    });
+  }
+});
+
 for (const javaScriptEnabled of [true, false]) {
   test.describe(`MaterialRow native links (JS ${javaScriptEnabled ? "on" : "off"})`, () => {
     test.use({ javaScriptEnabled });
