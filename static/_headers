@@ -65,6 +65,12 @@
 /logo512.png
   Cache-Control: public, max-age=86400
 
+/logo96.png
+  Cache-Control: public, max-age=86400
+
+/logo512-maskable.png
+  Cache-Control: public, max-age=86400
+
 /site.webmanifest
   Cache-Control: public, max-age=86400
 
