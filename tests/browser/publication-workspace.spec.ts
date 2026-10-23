@@ -6,6 +6,98 @@ const SKVER = "/library/skver";
 const ARTICLE = "/library/bluredu-new-teachers";
 const NOTE = "/library/cool-kids-of-death-a-moze-tak";
 
+const DATE_CASES = [
+  ["bluredu-new-teachers", "article", ".dc-publication__meta"],
+  ["svidetel-v-bagazhnike", "fiction", ".dc-fiction__colophon"],
+  ["trafaret", "poem", ".dc-poem__colophon"],
+  ["regular-visitor", "track", ".dc-track__meta"],
+  ["cool-kids-of-death-a-moze-tak", "note", ".dc-publication__meta"],
+  ["philosophy-of-freedom", "paper", ".dc-publication__meta"],
+  ["itchatter-hakatony", "talk", ".dc-publication__meta"],
+];
+
+for (const javaScriptEnabled of [true, false]) {
+  test.describe(`publication date metadata (JS ${javaScriptEnabled ? "on" : "off"})`, () => {
+    test.use({ javaScriptEnabled });
+    for (const width of [390, 1100, 1440]) {
+      test(`date has no navigation or Tab stop at ${width}px`, async ({ page }, info) => {
+        await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+        for (const [slug, type, selector] of DATE_CASES) {
+          await page.goto(`/library/${slug}`);
+          const line = page.locator(selector).first();
+          const date = line.locator("time.dt-published");
+          await expect(date).toBeVisible();
+          const text = await date.textContent();
+          const datetime = await date.getAttribute("datetime");
+          expect(text).toMatch(/^\d{2}\.\d{2}\.\d{4}$/);
+          expect(datetime).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/);
+          expect(await date.evaluate((el) => !!el.closest("a, button, [tabindex]"))).toBe(false);
+          await expect(line.locator("a.u-url")).toHaveCount(0);
+          await expect(line.locator("a[href]")).toHaveCount(1);
+
+          const canonical = await page.locator("link[rel='canonical']").getAttribute("href");
+          const entryUrl = page.locator("article.h-entry .u-url").first();
+          expect(await entryUrl.evaluate((el) => el.tagName)).toBe("DATA");
+          await expect(entryUrl).toHaveAttribute("value", canonical!);
+          await expect(entryUrl).toBeHidden();
+          const title = page.locator("h1");
+          const sizes = await Promise.all([date, title].map((node) => node.evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize))));
+          expect(sizes[0]).toBeLessThan(sizes[1]);
+          // Measure the opaque date colours in both modes. Axe's recursive
+          // frame analysis needs page scripts, so run it in JS-on cases only.
+          const contrast = await date.evaluate((el) => {
+            const channels = (color: string) => color.match(/[\d.]+/g)!.map(Number);
+            const foreground = channels(getComputedStyle(el).color);
+            let background: number[] | undefined;
+            for (let node: Element | null = el; node; node = node.parentElement) {
+              const style = getComputedStyle(node);
+              const candidate = channels(style.backgroundColor);
+              if (style.backgroundImage !== "none" || (candidate[3] !== undefined && ![0, 1].includes(candidate[3]))) {
+                throw new Error("Date contrast measurement needs a solid opaque surface");
+              }
+              if (candidate.length === 3 || candidate[3] === 1) { background = candidate; break; }
+            }
+            if (!background || (foreground[3] !== undefined && foreground[3] !== 1)) throw new Error("Missing opaque date colours");
+            const luminance = (rgb: number[]) => rgb.slice(0, 3).map((value) => {
+              const s = value / 255;
+              return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+            }).reduce((sum, value, i) => sum + value * [0.2126, 0.7152, 0.0722][i], 0);
+            const values = [luminance(foreground), luminance(background)].sort((a, b) => a - b);
+            return { foreground, background, ratio: (values[1] + 0.05) / (values[0] + 0.05) };
+          });
+          expect(contrast.ratio, `${type}: ${JSON.stringify(contrast)}`).toBeGreaterThanOrEqual(4.5);
+          await info.attach(`date-${type}-contrast`, { body: JSON.stringify(contrast), contentType: "application/json" });
+          if (javaScriptEnabled) {
+            const axe = await new AxeBuilder({ page }).withRules(["color-contrast"]).include(selector).analyze();
+            expect(axe.violations, `${type}: ${JSON.stringify(axe.violations)}`).toEqual([]);
+          }
+
+          await line.evaluate((el) => el.scrollIntoView({ block: "center" }));
+          const screen = info.outputPath(`date-${type}.png`);
+          await line.screenshot({ path: screen });
+          await info.attach(`date-${type}-${width}`, { path: screen, contentType: "image/png" });
+          const typeLink = line.locator("a.dc-list__type");
+          await expect(typeLink).toHaveAttribute("lang", "en");
+          await expect(typeLink).toHaveAttribute("href", new RegExp(`/library/types/${type}/?$`));
+          await typeLink.focus();
+          await page.keyboard.press("Tab");
+          expect(await line.evaluate((el) => el.contains(document.activeElement))).toBe(false);
+
+          await page.emulateMedia({ media: "print" });
+          await expect(date).toBeVisible();
+          await expect(date).toHaveText(text!);
+          await expect(date).toHaveAttribute("datetime", datetime!);
+          await expect(entryUrl).toHaveAttribute("value", canonical!);
+          await page.emulateMedia({ media: "screen" });
+          await typeLink.focus();
+          await page.keyboard.press("Enter");
+          await expect(page).toHaveURL(new RegExp(`/library/types/${type}/?$`));
+        }
+      });
+    }
+  });
+}
+
 type Box = { x: number; w: number; y: number; h: number };
 
 async function paneBox(page: import("@playwright/test").Page, selector: string): Promise<Box> {
