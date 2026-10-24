@@ -1632,6 +1632,9 @@ a.dc-list__type:focus-visible {
   flex-basis: auto;
   flex-shrink: 1;
   min-width: 0;
+  /* Flex has no text strut: reserve the reader's full line box per row,
+     including rows created by wrapping, while keeping the painted token. */
+  margin-block: calc((1lh - var(--dc-redaction-height)) / 2);
 }
 
 /* One accessible replacement; the same text becomes visible when printed. */

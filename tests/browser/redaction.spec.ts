@@ -16,6 +16,35 @@ test.beforeAll(() => {
 test.afterAll(() => { if (ownDirectory) rmSync(ownDirectory, { recursive: true, force: true }); });
 const csp = readFileSync('static/_headers', 'utf8').match(/^\s+Content-Security-Policy:\s*(.+)$/m)![1];
 
+async function separatedBlockLines(page: import('@playwright/test').Page) {
+  const metrics = await page.locator('.dc-redaction--block').evaluateAll(blocks => blocks.map(block => ({
+    lineHeight: parseFloat(getComputedStyle(block).lineHeight),
+    rows: [...block.querySelectorAll('.as-redaction__row')].map(row => ({
+      height: row.getBoundingClientRect().height,
+      words: [...row.querySelectorAll('.as-redaction__word')].map(word => {
+        const box = word.getBoundingClientRect();
+        return { top: box.top, bottom: box.bottom };
+      }),
+    })),
+  })));
+  for (const block of metrics) {
+    let previousBottom = -Infinity;
+    for (const row of block.rows) {
+      expect(row.height).toBeGreaterThanOrEqual(block.lineHeight - 1);
+      expect(Math.min(...row.words.map(word => word.top))).toBeGreaterThan(previousBottom + 1);
+      const physicalLines: { top: number; bottom: number }[] = [];
+      for (const word of row.words) {
+        if (!physicalLines.some(line => Math.abs(line.top - word.top) < 1)) physicalLines.push(word);
+      }
+      for (let i = 1; i < physicalLines.length; i++) {
+        expect(physicalLines[i].top).toBeGreaterThan(physicalLines[i-1].bottom + 1);
+        expect(physicalLines[i].top - physicalLines[i-1].top).toBeCloseTo(block.lineHeight, 0);
+      }
+      previousBottom = Math.max(...row.words.map(word => word.bottom));
+    }
+  }
+}
+
 for (const width of [390, 1440]) for (const js of [true, false]) {
   test.describe(`redaction ${width} ${js ? 'JS' : 'no-JS'}`, () => {
     test.use({ viewport: { width, height: 900 }, javaScriptEnabled: js });
@@ -61,6 +90,7 @@ for (const width of [390, 1440]) for (const js of [true, false]) {
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
         const metric = await page.locator('#long').evaluate(el => ({ h: el.getBoundingClientRect().height, lh: parseFloat(getComputedStyle(el).lineHeight) }));
         expect(Math.abs(metric.h / metric.lh - Math.round(metric.h / metric.lh))).toBeLessThan(.05);
+        await separatedBlockLines(page);
       }
       expect(violations).toEqual([]);
       await page.goto('/library/skver');
@@ -85,12 +115,14 @@ for (const width of [390, 1440]) for (const js of [true, false]) {
         await expect(root.locator('.as-redaction__word').first()).toHaveCSS('outline-style', 'solid');
       }
       await expect(page.locator('[data-redaction="test-block"] .as-redaction__paragraph')).toHaveCount(2);
+      await separatedBlockLines(page);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
       await page.emulateMedia({ media: 'screen', forcedColors: 'active' });
       const word = page.locator('.as-redaction__word').first();
       await expect(word).toHaveCSS('background-image', 'none');
       await expect(word).toHaveCSS('forced-color-adjust', 'none');
       expect(await word.evaluate(el => getComputedStyle(el).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)');
+      await separatedBlockLines(page);
       const before = await word.evaluate(el => getComputedStyle(el).backgroundColor);
       await word.hover();
       await expect(word).toHaveCSS('background-color', before);
