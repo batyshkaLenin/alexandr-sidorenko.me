@@ -1554,9 +1554,17 @@ a.dc-list__type {
   text-decoration: none;
 }
 
-a.dc-list__type:hover,
-a.dc-list__type:focus-visible {
+a.dc-list__type:hover {
+  color: var(--dc-accent-hover);
+  background: var(--dc-border);
+  outline: 1px solid var(--dc-accent-hover);
+  outline-offset: 0;
   text-decoration: underline;
+}
+
+a.dc-list__type:focus-visible {
+  outline: 2px solid var(--dc-primary);
+  outline-offset: 2px;
 }
 
 /* Colophon links remain recognizable without hover or colour. */
@@ -2093,10 +2101,19 @@ html:has(.dc-panel--detail) {
 }
 
 .dc-library > .dc-panel {
-  /* Cancel theme auto margins on .dc-panel--doc in this grid. */
+  /* One content inset and one vertical rhythm for every Library view. */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   width: 100%;
   max-width: 100%;
   margin-inline: 0;
+}
+
+/* The document panel owns the inset; nested bodies do not add another one. */
+.dc-library > .dc-panel > :is(.dc-panel__body, .dc-section-head, .dc-section-meta) {
+  padding: 0;
+  margin: 0;
 }
 
 /* Floating command notch; type/topic line stays one row. */
@@ -2184,9 +2201,11 @@ as-viewsnav {
   display: flex;
   align-items: baseline;
   gap: 8px;
-  margin: 22px 0 8px;
-  font-size: var(--dc-fs-ui);
-  font-weight: 400;
+  margin: 28px 0 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--dc-border);
+  font-size: var(--dc-fs-ui-strong);
+  font-weight: 700;
 }
 
 .dc-library__count {
@@ -2195,7 +2214,14 @@ as-viewsnav {
 }
 
 /* Group heading badge: no underline. */
+.dc-library__group:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
 .dc-library__group a {
+  color: var(--dc-primary);
   text-decoration: none;
 }
 
@@ -2745,10 +2771,25 @@ as-viewsnav {
   text-decoration: none;
 }
 
-/* Phone: hide index table view. */
-@media (width <= 640px) {
-  .dc-mode-switch {
-    display: none;
+.dc-mode-switch a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.dc-mode-switch a > span {
+  visibility: hidden;
+}
+
+.dc-mode-switch [aria-current="true"] > span {
+  visibility: visible;
+}
+
+@media (pointer: coarse) {
+  .dc-mode-switch a {
+    min-height: 44px;
   }
 }
 

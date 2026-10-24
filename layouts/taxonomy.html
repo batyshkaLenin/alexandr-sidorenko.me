@@ -12,7 +12,7 @@
       <ul class="dc-list">
         {{ range .Pages }}
         <li class="dc-list__item">
-          <h2 class="dc-list__title"><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a></h2>
+          <h2 class="dc-list__title"><a href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .Title }}</a> <span class="dc-library__count">{{ len (where .RegularPages "Section" "library" | uniq) }}</span></h2>
         </li>
         {{ else }}
         <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>

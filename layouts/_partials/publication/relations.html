@@ -85,7 +85,7 @@ Separate from webmentions. Types from data/relation_types.yaml. Omit if empty.
       {{- range . }}
       <li class="dc-relations__item">
         <a href="{{ .href }}">{{ .text }}</a>
-        <span class="dc-relations__rel">{{ .rel }}</span>
+        <span class="dc-relations__rel">({{ .rel }})</span>
       </li>
       {{- end }}
     </ul>

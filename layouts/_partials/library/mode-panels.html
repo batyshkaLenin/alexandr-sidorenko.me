@@ -10,8 +10,8 @@ Call: materials, mode ("list" | "table")
 {{ partial "declassified/component.html" "dc-modes" }}
 <dc-modes>
   <p class="dc-mode-switch" lang="en">
-    <a href="{{ $listURL }}" data-mode="list"{{ if eq $mode "list" }} aria-current="true"{{ end }}>[list]</a>
-    <a href="{{ $tableURL }}" data-mode="table"{{ if eq $mode "table" }} aria-current="true"{{ end }}>[table]</a>
+    <a href="{{ $listURL }}" data-mode="list"{{ if eq $mode "list" }} aria-current="true"{{ end }}><span aria-hidden="true">[</span>list<span aria-hidden="true">]</span></a>
+    <a href="{{ $tableURL }}" data-mode="table"{{ if eq $mode "table" }} aria-current="true"{{ end }}><span aria-hidden="true">[</span>table<span aria-hidden="true">]</span></a>
   </p>
 
   <div data-mode-panel="list"{{ if ne $mode "list" }} hidden{{ end }}>

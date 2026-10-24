@@ -462,7 +462,7 @@ test.describe("library geometry", () => {
     });
   }
 
-  test("listnav caret does not cover a Timeline marker", async ({ page }, testInfo) => {
+  test("listnav focus uses an outline without a decorative caret", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "chromium-mobile", "Caret clearance once is enough.");
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/library/timeline");
@@ -496,8 +496,8 @@ test.describe("library geometry", () => {
       };
     });
 
-    expect(clearance.content).toContain(">");
-    expect(clearance.caretLeft).toBeGreaterThanOrEqual(clearance.markerRight + 2);
+    expect(clearance.content).toBe("none");
+    await expect(title).toHaveCSS("outline-style", "solid");
     await testInfo.attach("timeline-caret-focus.png", {
       body: await page.locator(".dc-timeline__item").last().screenshot(),
       contentType: "image/png",
@@ -569,4 +569,65 @@ test.describe("library geometry no-js", () => {
     await page.locator(".dc-library__views a", { hasText: "recent" }).click();
     await expect(page).toHaveURL(/\/library$/);
   });
+});
+
+for (const viewport of [{width:1440,height:900},{width:1024,height:768},{width:375,height:812}]) {
+  test(`corrective layout and stable controls ${viewport.width}px`, async ({page}, testInfo) => {
+    test.skip(testInfo.project.name === 'chromium-mobile', 'Explicit viewport matrix.');
+    await page.setViewportSize(viewport);
+    let menu: number[] | undefined;
+    for (const url of ['/', '/library', '/', '/library/all']) {
+      await page.goto(url);
+      await page.evaluate(() => document.fonts.ready);
+      const positions = await page.locator('.dc-nav__link').evaluateAll(links => links.map(link => {
+        const node = Array.from(link.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent?.trim())!;
+        const range = document.createRange(); range.selectNodeContents(node); return range.getBoundingClientRect().x;
+      }));
+      if (menu) positions.forEach((x,i) => expect(Math.abs(x-menu![i])).toBeLessThan(1));
+      menu=positions;
+    }
+    const modes=page.locator('.dc-mode-switch a');
+    const before=await modes.evaluateAll(els=>els.map(el=>el.getBoundingClientRect().toJSON()));
+    await modes.nth(1).click();
+    await expect(modes.nth(1)).toHaveAttribute('aria-current','true');
+    const after=await modes.evaluateAll(els=>els.map(el=>el.getBoundingClientRect().toJSON()));
+    after.forEach((box,i)=>{expect(box.x).toBe(before[i].x);expect(box.width).toBe(before[i].width);});
+    await modes.first().click();
+    for (const url of ['/library','/library/all','/library/timeline','/library/music','/library/types','/library/topics']) {
+      await page.goto(url);
+      const aligned=await page.locator('.dc-library > .dc-panel').evaluate(panel=>{
+        const heading=panel.querySelector('h1')!.getBoundingClientRect();
+        const body=panel.querySelector(':scope > .dc-panel__body:last-child')!.getBoundingClientRect();
+        return Math.abs(heading.x-body.x);
+      });
+      expect(aligned,url).toBeLessThan(1);
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),url).toBe(true);
+    }
+  });
+}
+
+test('Topics counts match their public material lists; backlink labels are metadata', async ({page})=>{
+  await page.goto('/library/topics');
+  const topics=await page.locator('.dc-list__item').evaluateAll(items=>items.map(item=>({href:item.querySelector('a')!.getAttribute('href')!,count:Number(item.querySelector('.dc-library__count')!.textContent)})));
+  expect(topics.length).toBeGreaterThan(0);
+  for(const topic of topics){await page.goto(topic.href);expect(await page.locator('.dc-material').count()).toBe(topic.count);}
+  await page.goto('/library/itchatter-hakatony');
+  const labels=page.locator('.dc-relations__rel');
+  expect(await labels.count()).toBeGreaterThan(0);
+  for(const label of await labels.all()) await expect(label).toHaveText(/^\(.+\)$/);
+});
+
+test('type hover owns its feedback without moving the row or title',async({page})=>{
+  for(const url of ['/','/library','/library/all']){
+    await page.goto(url);
+    const type=page.locator('.dc-material a.dc-list__type').first();
+    const title=type.locator('xpath=ancestor::li').locator('.dc-material__title a');
+    const before=await type.boundingBox();
+    await type.hover();
+    await expect(type).toHaveCSS('outline-style','solid');
+    await expect(title).toHaveCSS('text-decoration-line','none');
+    expect(await type.boundingBox()).toEqual(before);
+    await type.focus();
+    await expect(type).toHaveCSS('outline-width','2px');
+  }
 });

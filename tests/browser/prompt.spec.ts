@@ -76,3 +76,25 @@ for (const width of [320, 390, 1440]) test.describe(`W0027 no-JS ${width}`, () =
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
   });
 });
+
+for (const viewport of [{width:1440,height:900},{width:1024,height:768},{width:375,height:812}]) {
+  test(`prompt visible field is its input hit area ${viewport.width}`, async ({page})=>{
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+    await page.keyboard.press(':');
+    const field=page.locator('.dc-prompt__field');const input=field.locator('input');
+    const box=(await field.boundingBox())!;
+    await page.mouse.click(box.x+box.width-4,box.y+box.height/2);
+    await expect(input).toBeFocused();
+    await input.fill('home');
+    await page.keyboard.press('End'); await page.keyboard.type(' ');
+    await expect(input).toHaveValue('home ');
+    await input.press('Escape');
+    if (await page.locator('.dc-help__trigger').isVisible()) await page.locator('.dc-help__trigger').click();
+    else { await page.locator('.dc-nav__link').first().focus(); await page.keyboard.press('?'); }
+    await expect(page.locator('dc-help dialog')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await page.locator('.dc-palette__trigger').click();
+    await expect(page.locator('dc-command-palette dialog')).toBeVisible();
+  });
+}

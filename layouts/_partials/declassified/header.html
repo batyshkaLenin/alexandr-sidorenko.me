@@ -19,9 +19,9 @@
         >
         {{- /* Brackets mark the current section; decoration only, so the
                accessible name stays the section name. */ -}}
-        {{- if $.IsMenuCurrent "main" $item }}<span class="dc-nav__bracket" aria-hidden="true">[ </span>{{ end -}}
+        <span class="dc-nav__bracket" aria-hidden="true">[ </span>
         {{ $item.Name }}
-        {{- if $.IsMenuCurrent "main" $item }}<span class="dc-nav__bracket" aria-hidden="true"> ]</span>{{ end -}}
+        <span class="dc-nav__bracket" aria-hidden="true"> ]</span>
         </a>
       </li>
       {{ end }}

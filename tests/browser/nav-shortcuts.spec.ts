@@ -49,7 +49,8 @@ test.describe("nav shortcuts and current marker", () => {
       const otherLink = page.locator(".dc-nav__link:not([aria-current])");
       await expect(otherLink).toHaveCount(1);
       await expect(otherLink).toHaveAccessibleName(other);
-      await expect(otherLink.locator(".dc-nav__bracket")).toHaveCount(0);
+      await expect(otherLink.locator(".dc-nav__bracket")).toHaveCount(2);
+      for (const bracket of await otherLink.locator(".dc-nav__bracket").all()) await expect(bracket).toBeHidden();
       const currentColor = await currentLink.evaluate((el) => getComputedStyle(el).color);
       expect(await brackets.first().evaluate((el) => getComputedStyle(el).color)).toBe(currentColor);
       expect(await otherLink.evaluate((el) => getComputedStyle(el).color)).not.toBe(currentColor);
