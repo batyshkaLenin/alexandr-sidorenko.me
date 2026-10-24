@@ -1585,64 +1585,83 @@ a.dc-list__type:focus-visible {
   margin-bottom: 4px;
 }
 
-/* Redaction: drawn surface; pixel grid; non-interactive. */
-.dc-redaction {
-  /* Inline so segments can wrap mid-run. */
-  display: inline;
-}
-
-.dc-redaction__surface,
-.dc-redaction__line {
+/* Geometry-only redaction. Width buckets are public coarse shapes, not text. */
+.as-redaction__word {
   display: inline-block;
   height: var(--dc-redaction-height);
-  min-width: var(--dc-redaction-min-width);
   border-radius: var(--dc-redaction-radius);
   vertical-align: baseline;
-  /* Shorter than line box so line-height stays put. */
   margin-bottom: -0.06em;
+  max-width: 100%;
   background-color: var(--dc-redaction-surface);
-  /* Vertical stripe pattern so wrapped segments join without seams. */
-  background-image:
-    repeating-linear-gradient(
-      90deg,
-      var(--dc-redaction-pattern) 0,
-      var(--dc-redaction-pattern) 1px,
-      transparent 1px,
-      transparent var(--dc-redaction-grid)
-    );
+  background-image: repeating-linear-gradient(90deg,
+    var(--dc-redaction-pattern) 0,
+    var(--dc-redaction-pattern) 1px,
+    transparent 1px,
+    transparent var(--dc-redaction-grid));
 }
 
-/* Line redaction: approximate length, not full measure. */
-.dc-redaction--line .dc-redaction__surface {
-  height: 0.8em;
+.as-redaction-w2 { width: 2ch; flex-grow: 2; }
+.as-redaction-w4 { width: 4ch; flex-grow: 4; }
+.as-redaction-w6 { width: 6ch; flex-grow: 6; }
+.as-redaction-w8 { width: 8ch; flex-grow: 8; }
+.as-redaction-w12 { width: 12ch; flex-grow: 12; }
+.as-redaction-r10 { width: 10%; }
+.as-redaction-r20 { width: 20%; }
+.as-redaction-r30 { width: 30%; }
+.as-redaction-r40 { width: 40%; }
+.as-redaction-r50 { width: 50%; }
+.as-redaction-r60 { width: 60%; }
+.as-redaction-r70 { width: 70%; }
+.as-redaction-r80 { width: 80%; }
+.as-redaction-r90 { width: 90%; }
+.as-redaction-r100 { width: 100%; }
+
+.dc-redaction--line .as-redaction__word { height: 0.8em; }
+.dc-redaction--block.as-redaction { display: block; margin: 0.4em 0; }
+.dc-redaction--block .as-redaction__paragraph { display: block; }
+.dc-redaction--block .as-redaction__paragraph + .as-redaction__paragraph { margin-top: 1em; }
+.dc-redaction--block .as-redaction__row {
+  display: flex;
+  align-items: baseline;
+  column-gap: 0.3em;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.dc-redaction--block .as-redaction__word {
+  flex-basis: auto;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
-/* Block redaction: preserve line count/lengths via %. */
-.dc-redaction--block {
-  display: block;
-  margin: 0.4em 0;
+/* One accessible replacement; the same text becomes visible when printed. */
+.as-redaction__replacement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.dc-redaction--block .dc-redaction__line {
-  display: block;
-  height: 0.9em;
-  margin-bottom: 0.35em;
-}
-
-/* Print: light fill + rule (not solid black). */
 @media print {
-  .dc-redaction__surface,
-  .dc-redaction__line {
+  .as-redaction__word {
     background-image: none;
     background-color: #d9d9d9;
     outline: 1px solid #555;
   }
+  .as-redaction__replacement {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
 }
 
-/* Forced colors: system fill keeps covered area visible. */
 @media (forced-colors: active) {
-  .dc-redaction__surface,
-  .dc-redaction__line {
+  .as-redaction__word {
     background-image: none;
     forced-color-adjust: none;
     background-color: CanvasText;

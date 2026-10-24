@@ -1,56 +1,64 @@
-{{- /*
-Redaction shortcode. Original text is not in the page/feeds — only in Git history.
-
-Parameters (no original text):
-  id, len, rule, geometry (inline|line|block), lines?, mode (preserve|normalized)
-
-CSS draws the surface; accessible replacement text ships for feeds/a11y.
-preserve ≈ fragment width; normalized = fixed sizes that hide length.
+{{- /* Geometry only. Never pass originals, encodings or exact lengths.
+words: buckets 2/4/6/8/12 separated by spaces, ; for rows, | for paragraphs.
+block lines: comma-separated row percentages (10..100, step 10).
 */ -}}
 {{- $id := .Get "id" -}}
 {{- $rule := .Get "rule" -}}
 {{- $geometry := default "inline" (.Get "geometry") -}}
-{{- $mode := default "preserve" (.Get "mode") -}}
-{{- if or (not $id) (not $rule) -}}
-  {{- errorf "%s: shortcode redacted requires id and rule" .Position -}}
+{{- $words := default "" (.Get "words") -}}
+{{- $valid := true -}}
+{{- if or (not $id) (not $rule) (not (findRE `^[a-z0-9]+(-[a-z0-9]+)*$` $id)) (not (in (slice "П1" "П2" "П3" "П4" "П5" "П6") $rule)) -}}
+  {{- $valid = false -}}
+  {{- errorf "%s: redacted requires a stable id and rule П1..П6" .Position -}}
+{{- end -}}
+{{- range $key, $_ := .Params -}}
+  {{- if not (in (slice "id" "rule" "geometry" "words" "lines") $key) -}}
+    {{- $valid = false -}}
+  {{- errorf "%s: redacted accepts geometry only; unsupported parameter" $.Position -}}
+  {{- end -}}
 {{- end -}}
 {{- if not (in (slice "inline" "line" "block") $geometry) -}}
-  {{- errorf "%s: shortcode redacted has unknown geometry %q (inline, line, block)" .Position $geometry -}}
+  {{- $valid = false -}}
+  {{- errorf "%s: redacted geometry must be inline, line or block" .Position -}}
 {{- end -}}
-{{- if not (in (slice "preserve" "normalized") $mode) -}}
-  {{- errorf "%s: shortcode redacted has unknown mode %q (preserve, normalized)" .Position $mode -}}
+{{- $rowPattern := `(2|4|6|8|12)( (2|4|6|8|12))*` -}}
+{{- if not (findRE (printf `^%s([;|]%s)*$` $rowPattern $rowPattern) $words) -}}
+  {{- $valid = false -}}
+  {{- errorf "%s: redacted words must contain only buckets 2/4/6/8/12, spaces, ; and |" .Position -}}
 {{- end -}}
-
-{{- if eq $geometry "block" -}}
-  {{- $lines := split (default "1,0.8,0.9" (.Get "lines")) "," -}}
-  <span class="dc-redaction dc-redaction--block" data-redaction="{{ $id }}" data-redaction-rule="{{ $rule }}">
-  {{- range $lines -}}
-    {{- $share := float (strings.TrimSpace .) -}}
-    <span class="dc-redaction__line" aria-hidden="true" style="width: {{ mul $share 100 }}%"></span>
+{{- if and (ne $geometry "block") (findRE `[;|]` $words) -}}
+  {{- $valid = false -}}
+  {{- errorf "%s: multiple redacted rows require geometry block" .Position -}}
+{{- end -}}
+{{- $rows := split (replace $words "|" ";") ";" -}}
+{{- $shares := slice -}}
+{{- with .Get "lines" -}}
+  {{- if or (ne $geometry "block") (not (findRE `^(10|20|30|40|50|60|70|80|90|100)(,(10|20|30|40|50|60|70|80|90|100))*$` .)) -}}
+    {{- $valid = false -}}
+  {{- errorf "%s: redacted lines requires block percentages 10..100 in steps of 10" $.Position -}}
   {{- end -}}
-    <span class="dc-visually-hidden">[вымаран фрагмент текста]</span>
+  {{- $shares = split . "," -}}
+  {{- if ne (len $shares) (len $rows) -}}
+    {{- $valid = false -}}
+  {{- errorf "%s: redacted lines must match the number of rows" $.Position -}}
+  {{- end -}}
+{{- end -}}
+{{- $rowIndex := 0 -}}
+{{- if $valid -}}
+<span class="dc-redaction dc-redaction--{{ $geometry }} as-redaction" data-redaction="{{ $id }}" data-redaction-rule="{{ $rule }}"><span class="as-redaction__shape" aria-hidden="true">
+{{- range $paragraph := split $words "|" -}}
+  <span class="as-redaction__paragraph">
+  {{- range $row := split $paragraph ";" -}}
+    {{- $share := "100" -}}
+    {{- if lt $rowIndex (len $shares) }}{{ $share = index $shares $rowIndex }}{{ end -}}
+    <span class="as-redaction__row as-redaction-r{{ $share }}">
+    {{- range $i, $word := split $row " " -}}
+      {{- if $i }}{{ " " }}{{ end -}}<span class="as-redaction__word as-redaction-w{{ $word }}"></span>
+    {{- end -}}
+    </span>
+    {{- $rowIndex = add $rowIndex 1 -}}
+  {{- end -}}
   </span>
-{{- else -}}
-  {{- $len := int (.Get "len") -}}
-  {{- if and (eq $mode "preserve") (lt $len 1) -}}
-    {{- errorf "%s: shortcode redacted needs len >= 1, got %q" .Position (.Get "len") -}}
-  {{- end -}}
-  {{- /* 0.5em per character is the measured average of this serif at its
-  reading size; the point is the rhythm of the line, not pixel fidelity. */ -}}
-  {{- $width := mul $len 0.5 -}}
-  {{- if eq $mode "normalized" -}}
-    {{- $width = cond (lt $len 12) 4.0 (cond (lt $len 30) 9.0 16.0) -}}
-  {{- end -}}
-  {{- $segment := 4.0 -}}
-  {{- $count := int (math.Ceil (div $width $segment)) -}}
-  {{- $label := cond (eq $geometry "line") "[вымарана строка]" "[вымарано]" -}}
-  <span class="dc-redaction dc-redaction--{{ $geometry }}" data-redaction="{{ $id }}" data-redaction-rule="{{ $rule }}">
-  {{- range $i := seq $count -}}
-    {{- $last := eq $i $count -}}
-    {{- $w := cond $last (sub $width (mul (sub $count 1) $segment)) $segment -}}
-    <span class="dc-redaction__surface" aria-hidden="true" style="width: {{ $w }}em"></span>
-    {{- if not $last }}<wbr>{{ end -}}
-  {{- end -}}
-    <span class="dc-visually-hidden">{{ $label }}</span>
-  </span>
+{{- end -}}
+</span><span class="as-redaction__replacement">[вымарано]</span></span>
 {{- end -}}

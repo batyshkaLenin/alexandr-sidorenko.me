@@ -302,14 +302,13 @@ is folded into the entry describing the finished behaviour rather than listed as
   of publications and not a second feed: bodies stay in HTML, RSS and JSON
   Feed. The URL contract check reads the file too, so the map cannot become
   the one place that publishes an address in the wrong form.
-- Redaction. A publication can black out a fragment that carries a legal risk:
-  the text is replaced by U+2588 blocks in the page and in both feeds. It is
-  not hidden behind a control and not present in the markup — it is gone from
-  the published source. A screen reader announces one word, «вымарано»,
-  instead of a run of blocks. Three fragments are redacted so far; every
-  decision, including the ones to leave a fragment alone, is recorded in
-  `data/redactions.yaml` with its ground, its date and the edition of the
-  rules it was made under.
+- Redaction uses separate geometric word markers with open spaces and
+  approximate widths, preserving line and paragraph structure without
+  publishing the original text. Widths come from external CSS under the
+  existing CSP. Screen readers receive one replacement per fragment;
+  printing shows one «[вымарано]» label and keeps the geometric structure.
+  Forced-colors uses system colours. Editorial decisions remain recorded in
+  `data/redactions.yaml`.
 
 - Window labels speak one resource vocabulary: `about.md`, `library/`,
   `activity/`. The command line still names actions and views.

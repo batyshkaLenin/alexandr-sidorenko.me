@@ -448,3 +448,23 @@ All screenshots/attachments remain in disposable test outputs. Native-control,
 forced-colors table and print table regions are useful geometry/state evidence,
 but no retained visual baseline is introduced: frozen fonts/data alone do not make
 browser/platform rendering a canonical golden. Full-page prose is not snapshotted.
+
+## Redaction (W0009)
+
+`site.redaction-contract` checks real HTML/feed fragments and builds disposable
+Hugo fixtures against the production shortcode. It rejects bodies, originals
+in parameters, legacy exact-length inputs, unknown keys, invalid word buckets
+and row percentages. Only geometry is stored: `words="2 6 4"`, with `;` for
+block rows and `|` for paragraphs; optional `lines="100,80"` assigns row widths.
+No original or encoded text belongs in these parameters.
+
+`browser.redaction` runs the same fixtures with the real built stylesheet and
+unchanged CSP header, plus `/library/skver`. The Chromium matrix covers 390 and
+1440 px, JS/no-JS, 200% font size, screen, print and forced-colors. It verifies
+open word gaps, row/paragraph structure, punctuation, line-height, no page
+overflow, one accessible replacement and one visible print label per fragment.
+Synthetic fixtures stay outside the repository and deployment output.
+
+Run both through the Harness registry. The browser spec builds its own
+disposable fixture through the static checker; it also runs in the ordinary
+browser suite against that suite's built public directory.
