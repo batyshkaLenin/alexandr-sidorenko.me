@@ -24,7 +24,8 @@ class AsSearchTarget extends HTMLElement {
 
     // Expand only the navigation range. Source match, snippet and marks stay
     // untouched. Segment boundaries come from the browser's Unicode breaker.
-    const segments = [...new Intl.Segmenter("ru", { granularity: "word" }).segment(text)];
+    const breaker = new Intl.Segmenter("ru", { granularity: "word" });
+    const segments = [...breaker.segment(text)];
     const first = segments.find((part) => part.index <= start && part.index + part.segment.length > start);
     const last = segments.find((part) => part.index < end && part.index + part.segment.length >= end);
     if (!first || !last) return;
@@ -50,13 +51,30 @@ class AsSearchTarget extends HTMLElement {
       if ((prefix && collator.compare(prefix, "") === 0)
         || (suffix && collator.compare(suffix, "") === 0)) return;
       const confirmed = ranges.filter(([a, b]) =>
-        (!prefix || collator.compare(text.slice(0, a).trimEnd().match(/\S+$/u)?.[0] || "", prefix) === 0)
-        && (!suffix || collator.compare(text.slice(b).trimStart().match(/^\S+/u)?.[0] || "", suffix) === 0));
+        (!prefix || AsSearchTarget.contextMatches(text.slice(0, a).trimEnd().match(/\S+$/u)?.[0] || "", prefix, true, collator))
+        && (!suffix || AsSearchTarget.contextMatches(text.slice(b).trimStart().match(/^\S+/u)?.[0] || "", suffix, false, collator)));
       if (confirmed.length !== 1 || confirmed[0][0] !== navStart) return;
       directive = (prefix ? `${AsSearchTarget.encode(prefix)}-,` : "")
         + AsSearchTarget.encode(target) + (suffix ? `,-${AsSearchTarget.encode(suffix)}` : "");
     }
     detail.url = `${detail.entry.url}#:~:text=${directive}`;
+  }
+
+  static contextMatches(token, expected, prefix, collator) {
+    // Native prefix/suffix match only their OUTER word boundary. Thus "tail."
+    // can be a suffix context in "tail...", and "(red" a prefix in "((red".
+    // Word-break details differ between engines. All code-point boundaries
+    // conservatively include every possible native context match.
+    let edge = 0;
+    let examined = 0;
+    for (const point of token) {
+      const candidate = prefix ? token.slice(edge) : token.slice(0, edge + point.length);
+      if (collator.compare(candidate, expected) === 0) return true;
+      edge += point.length;
+      // Unknown matches must count as possible, never prove uniqueness.
+      if (++examined === 64 && edge < token.length) return true;
+    }
+    return false;
   }
 
   static ranges(text, exact, segments, collator) {

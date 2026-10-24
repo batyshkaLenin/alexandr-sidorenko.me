@@ -260,6 +260,10 @@ for (const item of [
   { text: "red ae here red æ here", query: "æ", target: "æ", fragment: false },
   { text: "red o here red ø here", query: "ø", target: "ø", fragment: false },
   { text: "red l here red ł here", query: "ł", target: "ł", fragment: false },
+  { text: "red oe tail... red œ tail.", query: "œ", target: "œ", fragment: false },
+  { text: "((red oe tail (red œ tail", query: "œ", target: "œ", fragment: false },
+  { text: "red oe tail.foobar red œ tail.", query: "œ", target: "œ", fragment: false },
+  { text: "red oe (tail) red œ (tail", query: "œ", target: "œ", fragment: false },
 ]) {
   test(`search native context or collation fallback: ${item.query} / ${item.text}`, async ({ page }) => {
     await installSearchFixture(page, item.text);
