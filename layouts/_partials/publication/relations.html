@@ -36,16 +36,26 @@ Separate from webmentions. Types from data/relation_types.yaml. Omit if empty.
 
 {{- $backlinkItems := slice -}}
 {{- if $ownID -}}
-  {{- range $key, $meta := $types -}}
-    {{- range $library -}}
-      {{- $source := . -}}
-      {{- if ne $source.Params.id $ownID -}}
-        {{- range $source.Params.relations -}}
-          {{- if and (eq .rel $key) (eq .id $ownID) -}}
-            {{- $backlinkItems = $backlinkItems | append (dict "href" (partial "canonical-url.html" $source.RelPermalink) "text" $source.Title "rel" $meta.label) -}}
+  {{- $backlinksByType := dict -}}
+  {{- range $library -}}
+    {{- $source := . -}}
+    {{- if ne $source.Params.id $ownID -}}
+      {{- range $source.Params.relations -}}
+        {{- if eq .id $ownID -}}
+          {{- $key := default "" .rel -}}
+          {{- with index $types $key -}}
+            {{- $items := default (slice) (index $backlinksByType $key) -}}
+            {{- $items = $items | append (dict "href" (partial "canonical-url.html" $source.RelPermalink) "text" $source.Title "rel" .label) -}}
+            {{- $backlinksByType = merge $backlinksByType (dict $key $items) -}}
           {{- end -}}
         {{- end -}}
       {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- /* Keep the existing type → source → relation order when flattening. */ -}}
+  {{- range $key, $_ := $types -}}
+    {{- range index $backlinksByType $key -}}
+      {{- $backlinkItems = $backlinkItems | append . -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
