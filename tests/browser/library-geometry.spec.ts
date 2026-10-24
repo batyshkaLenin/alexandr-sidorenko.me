@@ -622,6 +622,7 @@ test('type hover owns its feedback without moving the row or title',async({page}
     await page.goto(url);
     const type=page.locator('.dc-material a.dc-list__type').first();
     const title=type.locator('xpath=ancestor::li').locator('.dc-material__title a');
+    await type.scrollIntoViewIfNeeded();
     const before=await type.boundingBox();
     await type.hover();
     await expect(type).toHaveCSS('outline-style','solid');
