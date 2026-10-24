@@ -1,6 +1,6 @@
 {
   // Cloudflare Workers project name (becomes <name>.<subdomain>.workers.dev for preview)
-  "name": "alexandr-sidorenko-me",
+  "name": "preview",
   "compatibility_date": "2026-08-06",
   // T1: PR / Workers Builds entry — build.sh (T29) then validate.sh (T30).
   // Dashboard build_command should stay empty so this repo file is the only
