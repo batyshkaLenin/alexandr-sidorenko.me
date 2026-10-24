@@ -383,3 +383,24 @@ test.describe("enhancements", () => {
     await expect(readBar.locator("[data-statusbar-state]")).toHaveText("ARTICLE");
   });
 });
+
+for(const viewport of [{width:1440,height:900},{width:375,height:812}]) test(`primary media duration agrees across views ${viewport.width}`,async({page})=>{
+  await page.setViewportSize(viewport);
+  const media=[['regular-visitor','02:18'],['itchatter-hakatony','39:21'],['itchatter-parni-hakatonschiki','29:13']];
+  for(const url of ['/library','/library/all','/library/table','/library/timeline','/library/music','/library/types']){
+    await page.goto(url);
+    for(const [slug,duration] of media){
+      if(url.endsWith('music') && slug!=='regular-visitor') continue;
+      const link=page.locator(`main a[href='/library/${slug}']:visible`).first();
+      const row=link.locator('xpath=ancestor::*[self::li or self::tr][1]');
+      await expect(row.locator('[data-duration-kind="media"]')).toHaveText(duration);
+      await expect(row).not.toContainText('1 minute');
+    }
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  }
+  for(const [slug,duration] of media){
+    await page.goto('/library/'+slug);
+    if(slug==='regular-visitor') await expect(page.locator('.dc-track__file')).toContainText(duration);
+    else await expect(page.locator('.dc-publication__meta [data-duration-kind="media"]')).toHaveText(duration);
+  }
+});

@@ -22,6 +22,7 @@ import argparse
 import hashlib
 import json
 import re
+import runpy
 import sys
 from pathlib import Path
 
@@ -49,6 +50,35 @@ def main() -> int:
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     errors: list[str] = []
+
+    # External duration is editorial metadata, tied to the exact primary URL.
+    # It never substitutes for measured local audio or a browser media clock.
+    external_path = root / "data" / "media.json"
+    try:
+        external = json.loads(external_path.read_text(encoding="utf-8")) if external_path.exists() else {}
+        if not isinstance(external, dict):
+            raise ValueError("registry must be an object")
+    except (ValueError, OSError) as error:
+        errors.append(f"media.json: {error}")
+        external = {}
+    relations = runpy.run_path(str(Path(__file__).with_name("check-relations-contract.py")))["relations"]
+    primary_urls = {
+        relation["url"]
+        for content in (root / "content" / "library").glob("*.md")
+        for relation in relations(content)
+        if relation.get("rel") == "external-source" and relation.get("url")
+    }
+    for url, entry in external.items():
+        if not isinstance(entry, dict):
+            errors.append(f"{url}: duration entry должен быть объектом")
+            continue
+        seconds = entry.get("duration_seconds")
+        if type(seconds) is not int or seconds <= 0:
+            errors.append(f"{url}: duration_seconds должен быть положительным целым")
+        if any(not isinstance(entry.get(key), str) or not entry[key].strip() for key in ("source", "verification")):
+            errors.append(f"{url}: нужны source и verification длительности")
+        if url not in primary_urls:
+            errors.append(f"{url}: нет соответствующего источника публикации")
 
     for key, entry in manifest.items():
         source = static / key.lstrip("/")

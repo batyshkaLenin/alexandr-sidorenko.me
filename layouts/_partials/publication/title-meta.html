@@ -15,6 +15,10 @@ Visual line follows COMP-DOCUMENT-HEADER / Rev3 §11.2:
   {{ with $page.Params.type }}{{ partial "library/type-badge.html" (dict "page" $page "linked" true) }} · {{ end }}
   <data class="u-url" value="{{ partial "canonical-url.html" $page.Permalink }}" hidden></data>
   {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-list__date dt-published") }}
+  {{- $duration := partial "publication/duration.html" $page -}}
+  {{- if and (eq $duration.kind "media") $duration.label }}
+  · <span lang="en" data-duration-kind="media" title="Media duration">{{ $duration.label }}</span>
+  {{- end }}
   {{- if $created }}
     {{- with $page.Params.created }}
       {{- $createdTime := . | time.AsTime }}

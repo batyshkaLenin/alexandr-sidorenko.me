@@ -1,0 +1,39 @@
+{{- /* Consumption time: primary recordings and reading are separate values.
+     A recording attached to a text does not replace the text's reading time.
+     A primary recording with unknown duration must not fall back to reading. */ -}}
+{{- $page := . -}}
+{{- $kind := "reading" -}}
+{{- $seconds := 0 -}}
+{{- $source := "text" -}}
+{{- $label := "" -}}
+{{- if and (eq $page.Params.type "track") $page.Params.audio -}}
+  {{- $kind = "media" -}}
+  {{- $source = "audio" -}}
+  {{- if eq (len $page.Params.audio) 1 -}}
+    {{- with index hugo.Data.audio (index $page.Params.audio 0).src -}}
+      {{- $seconds = int .duration_seconds -}}
+    {{- end -}}
+  {{- end -}}
+{{- else if eq $page.Params.type "talk" -}}
+  {{- range $page.Params.relations -}}
+    {{- if and (eq .rel "external-source") .url (eq $kind "reading") -}}
+      {{- $kind = "media" -}}
+      {{- $source = .url -}}
+      {{- with index hugo.Data.media .url -}}
+        {{- $seconds = int .duration_seconds -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if eq $kind "reading" -}}
+  {{- $minutes := math.Max 1 $page.ReadingTime | int -}}
+  {{- $label = partial "en-count.html" (dict "n" $minutes "one" "minute" "many" "minutes") | strings.TrimSpace -}}
+{{- else if gt $seconds 0 -}}
+  {{- $minutes := div $seconds 60 -}}
+  {{- if ge $seconds 3600 -}}
+    {{- $label = printf "%d:%02d:%02d" (div $seconds 3600) (mod $minutes 60) (mod $seconds 60) -}}
+  {{- else -}}
+    {{- $label = printf "%02d:%02d" $minutes (mod $seconds 60) -}}
+  {{- end -}}
+{{- end -}}
+{{- return (dict "kind" $kind "seconds" $seconds "source" $source "label" $label) -}}

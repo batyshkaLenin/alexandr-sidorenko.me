@@ -8,7 +8,6 @@ Material size string: minutes, poem lines, or track duration when recorded.
   {{- $lines = add $lines 1 -}}
   <span lang="en">{{- partial "en-count.html" (dict "n" $lines "one" "line" "many" "lines") -}}</span>
 {{- else -}}
-  {{- $minutes := $page.ReadingTime -}}
-  {{- if lt $minutes 1 }}{{ $minutes = 1 }}{{ end -}}
-  <span lang="en">{{- partial "en-count.html" (dict "n" $minutes "one" "minute" "many" "minutes") -}}</span>
+  {{- $duration := partial "publication/duration.html" $page -}}
+  {{- with $duration.label }}<span lang="en" data-duration-kind="{{ $duration.kind }}">{{ . }}</span>{{ end -}}
 {{- end -}}
