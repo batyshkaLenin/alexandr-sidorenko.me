@@ -167,6 +167,30 @@ It also fails when an internal HTML navigational `href`/`src` does not resolve
 inside `public/`, when `robots.txt` is missing a User-agent stanza, and when a
 `noindex` page (e.g. `/library/table`) appears in `sitemap.xml` or `llms.txt`.
 
+## Web app manifest and installation UI
+
+`static/site.webmanifest` intentionally omits `screenshots`: W0024 records the
+decision not to promise or implement extended installation UI (Richer Install
+UI). Window Controls Overlay is outside scope. The current contract is
+[`INV-ARCH-INSTALLATION-UI`](../.ai/v2/docs/architecture/delivery-and-security.md#inv-arch-installation-ui).
+Icons and identity have their own work item, W0023.
+
+On a fresh preview build, run `site.url-contract`, `site.headers-contract`,
+`site.image-metadata` and `site.budgets` through the Harness review runner. The
+URL check resolves internal manifest addresses, including icons and shortcuts;
+the other checks cover headers, image derivatives and artifact budgets. They
+do not replace Chromium manifest acceptance or validate every manifest field.
+
+For Chromium acceptance, serve the build on localhost and record the browser
+version, `Page.getAppManifest` diagnostics and `Page.getInstallabilityErrors`.
+Confirm the manifest link loads, parsed metadata matches the source, local
+icons decode at their declared sizes/MIME types, and shortcuts resolve. Confirm
+`screenshots` is absent and `display_override` does not request
+`window-controls-overlay`. DevTools warnings about richer installation UI being
+unavailable on desktop/mobile without screenshots are expected under W0024;
+report other diagnostics separately. A warning-free manifest parser is not
+proof of a complete device installation or offline support.
+
 ## Semantic manifest
 
 `tests/fixtures/semantic-manifest.json` is the single representative
