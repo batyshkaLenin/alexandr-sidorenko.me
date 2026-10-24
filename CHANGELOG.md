@@ -16,6 +16,9 @@ is folded into the entry describing the finished behaviour rather than listed as
 
 ### Changed
 
+- Search preserves original Unicode substrings in snippets and marks; body
+  navigation uses unambiguous word-bounded Text Fragments where supported,
+  including matches inside words, with canonical links as the fallback.
 - Search and the command-line prompt mark the chosen candidate as widget
   selection (`aria-selected` / `aria-activedescendant`), not as the current page;
   `aria-current="page"` stays on navigation only.

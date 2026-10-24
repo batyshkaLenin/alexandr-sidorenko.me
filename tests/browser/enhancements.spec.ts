@@ -117,7 +117,7 @@ test.describe("enhancements", () => {
               kind: "text",
               topics: [],
               summary: "",
-              text: `${"а".repeat(40)}same${"б".repeat(40)} разрыв ${"а".repeat(40)}same${"б".repeat(40)}`,
+              text: Array(3).fill(`${"а".repeat(40)}same${"б".repeat(40)}`).join(" разрыв "),
             },
             {
               title: "Контекст различает",
@@ -137,10 +137,11 @@ test.describe("enhancements", () => {
     await page.goto("/");
     await page.keyboard.press("/");
     const input = page.locator("dc-command-palette .dc-palette__input");
+    const fragments = await page.evaluate(() => "fragmentDirective" in document);
 
     await input.fill("unique-needle");
     await expect(page.locator(".dc-palette__link", { hasText: "Только в тексте" }))
-      .toHaveAttribute("href", "/library/body-result#:~:text=unique%2Dneedle");
+      .toHaveAttribute("href", fragments ? "/library/body-result#:~:text=unique%2Dneedle" : "/library/body-result");
 
     await input.fill("needle");
     await expect(page.locator(".dc-palette__link", { hasText: "Needle в заголовке" }))
@@ -150,7 +151,9 @@ test.describe("enhancements", () => {
     await expect(page.locator(".dc-palette__link", { hasText: "Неоднозначное" }))
       .toHaveAttribute("href", "/library/ambiguous-result");
     await expect(page.locator(".dc-palette__link", { hasText: "Контекст различает" }))
-      .toHaveAttribute("href", /\/library\/context-result#:~:text=.+same/);
+      // The nearest single-token contexts are identical. Longer flattened
+      // contexts may cross HTML blocks, so keep the conservative fallback.
+      .toHaveAttribute("href", "/library/context-result");
   });
 
   test("search selection uses listbox semantics, not aria-current", async ({ page }, testInfo) => {

@@ -1,7 +1,4 @@
-/**
- * Refine body search results with conservative, ephemeral Text Fragments.
- * The index keeps canonical URLs; ambiguous body matches keep them too.
- */
+/** Browser navigation hints are distinct from the palette's source match. */
 "use strict";
 
 class AsSearchTarget extends HTMLElement {
@@ -17,44 +14,74 @@ class AsSearchTarget extends HTMLElement {
 
   resolve(event) {
     const detail = event.detail;
-    if (!detail || !detail.entry || !detail.match || detail.match.kind !== "body") return;
+    if (!detail?.entry || detail.match?.kind !== "body"
+      || !("fragmentDirective" in document) || typeof Intl.Segmenter !== "function") return;
 
     const text = detail.entry.text || "";
-    const { exact, prefix = "", suffix = "" } = detail.match;
-    if (!exact) return;
+    const { start, end, exact } = detail.match;
+    if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end <= start
+      || text.slice(start, end) !== exact || typeof text.isWellFormed !== "function" || !text.isWellFormed()) return;
 
-    const ranges = AsSearchTarget.ranges(text, exact);
-    let directive = "";
+    // Expand only the navigation range. Source match, snippet and marks stay
+    // untouched. Segment boundaries come from the browser's Unicode breaker.
+    const segments = [...new Intl.Segmenter("ru", { granularity: "word" }).segment(text)];
+    const first = segments.find((part) => part.index <= start && part.index + part.segment.length > start);
+    const last = segments.find((part) => part.index < end && part.index + part.segment.length >= end);
+    if (!first || !last) return;
+    const navStart = first.index;
+    const navEnd = last.index + last.segment.length;
+    const target = text.slice(navStart, navEnd);
+    if (!target.trim()) return;
+
+    const collator = new Intl.Collator("ru", { usage: "search", sensitivity: "base" });
+    if (collator.compare(target, "") === 0) return;
+    const ranges = AsSearchTarget.ranges(text, target, segments, collator);
+    if (!ranges || !ranges.some(([a, b]) => a === navStart && b === navEnd)) return;
+    let directive;
     if (ranges.length === 1) {
-      directive = AsSearchTarget.encode(exact);
-    } else if (ranges.length > 1 && (prefix || suffix)) {
-      const confirmed = ranges.filter(([start, end]) =>
-        text.slice(0, start).endsWith(prefix) && text.slice(end).startsWith(suffix));
-      if (confirmed.length === 1) {
-        const exactTerm = AsSearchTarget.encode(exact);
-        if (prefix && suffix) {
-          directive = `${AsSearchTarget.encode(prefix)}-,${exactTerm},-${AsSearchTarget.encode(suffix)}`;
-        } else if (prefix) {
-          directive = `${AsSearchTarget.encode(prefix)}-,${exactTerm}`;
-        } else {
-          directive = `${exactTerm},-${AsSearchTarget.encode(suffix)}`;
-        }
-      }
+      directive = AsSearchTarget.encode(target);
+    } else {
+      // Neighbouring tokens, never arbitrary slices inside words/surrogates.
+      const before = text.slice(0, navStart).trimEnd();
+      const after = text.slice(navEnd).trimStart();
+      const prefix = before.match(/\S+$/u)?.[0] || "";
+      const suffix = after.match(/^\S+/u)?.[0] || "";
+      if (!prefix && !suffix) return;
+      if ((prefix && collator.compare(prefix, "") === 0)
+        || (suffix && collator.compare(suffix, "") === 0)) return;
+      const confirmed = ranges.filter(([a, b]) =>
+        (!prefix || collator.compare(text.slice(0, a).trimEnd().match(/\S+$/u)?.[0] || "", prefix) === 0)
+        && (!suffix || collator.compare(text.slice(b).trimStart().match(/^\S+/u)?.[0] || "", suffix) === 0));
+      if (confirmed.length !== 1 || confirmed[0][0] !== navStart) return;
+      directive = (prefix ? `${AsSearchTarget.encode(prefix)}-,` : "")
+        + AsSearchTarget.encode(target) + (suffix ? `,-${AsSearchTarget.encode(suffix)}` : "");
     }
-
-    if (directive) detail.url = `${detail.entry.url}#:~:text=${directive}`;
+    detail.url = `${detail.entry.url}#:~:text=${directive}`;
   }
 
-  static ranges(text, exact) {
-    const haystack = text.toLocaleLowerCase();
-    const needle = exact.toLocaleLowerCase();
+  static ranges(text, exact, segments, collator) {
+    // Enumerate original spans: primary collation also equates ligatures such
+    // as œ/oe, which lowercase + accent stripping cannot represent safely.
+    // Search terms have no whitespace; their expanded targets remain within
+    // one token. Include punctuation boundaries within each token as well.
+    const boundaries = new Set([text.length, ...segments.map((part) => part.index)]);
     const ranges = [];
-    let cursor = 0;
-    while (needle && cursor <= haystack.length - needle.length) {
-      const start = haystack.indexOf(needle, cursor);
-      if (start === -1) break;
-      ranges.push([start, start + needle.length]);
-      cursor = start + 1;
+    for (const token of text.matchAll(/\S+/gu)) {
+      const start = token.index;
+      const end = start + token[0].length;
+      const points = [start];
+      for (let at = start + 1; at < end; at++) if (boundaries.has(at)) points.push(at);
+      points.push(end);
+      // A pathological token must not make a query quadratic or be silently
+      // skipped in the ambiguity check. Fall back for the entire target.
+      if (points.length > 64) return null;
+      for (let i = 0; i < points.length - 1; i++) {
+        for (let j = i + 1; j < points.length; j++) {
+          if (collator.compare(text.slice(points[i], points[j]), exact) === 0) {
+            ranges.push([points[i], points[j]]);
+          }
+        }
+      }
     }
     return ranges;
   }
