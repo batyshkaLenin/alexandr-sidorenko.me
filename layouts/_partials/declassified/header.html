@@ -1,4 +1,6 @@
 {{- /* Header: menu hrefs via canonical-url.html (no trailing slash). */ -}}
+{{- $pageURL := partial "canonical-url.html" .RelPermalink -}}
+{{- $inLibrary := or (eq $pageURL "/library") (strings.HasPrefix $pageURL "/library/") -}}
 <header class="dc-header" lang="en">
   <div class="dc-topbar">
     {{ partial "declassified/hooks/header-extra.html" . }}
@@ -15,7 +17,7 @@
         <a
           class="dc-nav__link"
           href="{{ partial "canonical-url.html" $item.URL }}"
-          {{ if $.IsMenuCurrent "main" $item }}aria-current="page"{{ end }}
+          {{ if or ($.IsMenuCurrent "main" $item) (and $inLibrary (eq (partial "canonical-url.html" $item.URL) "/library")) }}aria-current="page"{{ end }}
         >
         {{- /* Brackets decorate every navigation link, so the
                accessible name stays the section name. */ -}}

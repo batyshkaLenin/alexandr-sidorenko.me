@@ -860,3 +860,25 @@ for (const javaScriptEnabled of [true, false]) {
     });
   });
 }
+
+for (const javaScriptEnabled of [true, false]) {
+  test.describe(`W0079 application navigation JS ${javaScriptEnabled}`, () => {
+    test.use({ javaScriptEnabled });
+    test('Library remains current across views, facets and publications', async ({ page }) => {
+      const routes = [
+        '/', '/library', '/library/table', '/library/timeline', '/library/music',
+        '/library/types', '/library/topics', '/library/types/note',
+        '/library/topics/музыка', '/library/regular-visitor',
+      ];
+      for (const route of routes) {
+        await page.goto(route);
+        const current = page.locator('.dc-nav__list a[aria-current="page"]');
+        await expect(current, route).toHaveCount(1);
+        await expect(current, route).toHaveAttribute('href', route === '/' ? '/' : '/library');
+        if (['/library', '/library/table', '/library/timeline', '/library/music', '/library/types', '/library/topics'].includes(route)) {
+          await expect(page.locator('.dc-library__views a[aria-current="page"]'), route).toHaveCount(1);
+        }
+      }
+    });
+  });
+}
