@@ -1,5 +1,8 @@
 import { test, expect, type Page, type Route } from "@playwright/test";
-import { readFileSync } from "node:fs";
+import { readFileSync, cpSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { execFileSync } from "node:child_process";
 
 const controlScript = /\/js\/dc-(?:clock|command-palette|help)\.min\./;
 
@@ -848,5 +851,43 @@ test('audio controls reflow at 200% browser font size', async ({ page, context }
       await play.focus();
       await expect(play).toHaveCSS('outline-width', '2px');
     }
+  }
+});
+
+test('multi-recording tracks retain each file duration while aggregate time stays unknown', async ({ page }, info) => {
+  test.skip(info.project.name !== 'chromium-desktop', 'Server-rendered fixture shape runs once.');
+  const root = mkdtempSync(join(tmpdir(), 'track-multiple-audio-'));
+  try {
+    const content = join(root, 'content');
+    const output = join(root, 'public');
+    cpSync('content', content, { recursive: true });
+    const track = join(content, 'library', 'regular-visitor.md');
+    const original = readFileSync(track, 'utf8');
+    // Two valid entries reuse a real recording; source metadata and MP3 bytes
+    // stay unchanged. The model permits a list of recordings on one track.
+    const entry = original.match(/^audio:\n((?:[ \t].*\n)+)/m)![1];
+    writeFileSync(track, original.replace('audio:\n' + entry, 'audio:\n' + entry + entry));
+    execFileSync('hugo', ['build', '--environment', 'preview', '--panicOnWarning',
+      '--contentDir', content, '--destination', output, '--cacheDir', join(root, 'cache')],
+      { stdio: 'pipe' });
+    await page.route('**/library/regular-visitor', route => route.fulfill({
+      contentType: 'text/html; charset=utf-8',
+      body: readFileSync(join(output, 'library', 'regular-visitor', 'index.html')),
+    }));
+    await page.goto('/library/regular-visitor');
+    await expect(page.locator('dc-audio')).toHaveCount(2);
+    await expect(page.locator('.dc-track__file [data-duration-kind="media"]'))
+      .toHaveText(['3 minutes', '3 minutes']);
+    await page.route('**/library/table', route => route.fulfill({
+      contentType: 'text/html; charset=utf-8',
+      body: readFileSync(join(output, 'library', 'table', 'index.html')),
+    }));
+    await page.goto('/library/table');
+    const row = page.locator('tr').filter({ has: page.locator('a[href="/library/regular-visitor"]') });
+    await expect(row).toHaveCount(1);
+    await expect(row.locator('[data-duration-kind]')).toHaveCount(0);
+    await expect(row).not.toContainText('1 minute');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 });
