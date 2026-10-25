@@ -1,5 +1,62 @@
 import { expect, test } from "@playwright/test";
 
+test("prompt and search field identities survive multiple instances and reconnects", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("dc-prompt input")).toHaveCount(1);
+  await expect(page.locator("dc-command-palette input")).toHaveCount(1);
+  const identities = await page.evaluate(() => {
+    const originals = [document.querySelector("dc-prompt")!, document.querySelector("dc-command-palette")!];
+    const hosts = [...originals];
+    // Build fresh hosts, rather than cloning the already enhanced DOM and IDs.
+    for (const source of originals) {
+      const host = document.createElement(source.localName);
+      for (const { name, value } of source.attributes) {
+        if (name !== "ready") host.setAttribute(name, value);
+      }
+      const command = source.querySelector("[data-prompt-command]");
+      if (command) host.append(command.cloneNode(true));
+      document.body.append(host);
+      hosts.push(host);
+    }
+    const snapshot = () => hosts.map(host => {
+      const input = host.querySelector("input")!;
+      const controls = input.getAttribute("aria-controls")!;
+      return {
+        id: input.id,
+        label: input.getAttribute("aria-label"),
+        role: input.getAttribute("role"),
+        autocomplete: input.autocomplete,
+        name: input.getAttribute("name"),
+        form: input.form,
+        controls,
+        ownsList: host.contains(document.getElementById(controls)),
+        listRole: document.getElementById(controls)?.getAttribute("role"),
+      };
+    });
+    const before = snapshot();
+    for (const host of hosts) {
+      host.remove();
+      document.body.append(host);
+    }
+    const after = snapshot();
+    const allIds = Array.from(document.querySelectorAll("[id]"), el => el.id);
+    return { before, after, duplicates: allIds.filter((id, index) => allIds.indexOf(id) !== index) };
+  });
+  expect(identities.after).toEqual(identities.before);
+  expect(identities.duplicates).toEqual([]);
+  expect(new Set(identities.after.map(field => field.id)).size).toBe(4);
+  for (const [index, field] of identities.after.entries()) {
+    expect(field.id).not.toBe("");
+    expect(field.label).toBe(index % 2 === 0 ? "Command line" : "Search the site");
+    expect(field.role).toBe("combobox");
+    expect(field.autocomplete).toBe("off");
+    expect(field.name).toBeNull();
+    expect(field.form).toBeNull();
+    expect(field.ownsList).toBe(true);
+    expect(field.listRole).toBe("listbox");
+  }
+});
+
 for (const [width, height] of [[320, 900], [390, 900], [740, 900], [741, 900], [768, 900], [1440, 900], [900, 400]]) {
   test.describe(`W0027 prompt ${width}x${height}`, () => {
     test.use({ viewport: { width, height } });
