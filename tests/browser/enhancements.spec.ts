@@ -522,8 +522,23 @@ test.describe('touch audio',()=>{
   test('touch targets and playback fit the publication column',async({page})=>{
     await page.goto('/library/regular-visitor');const host=page.locator('dc-audio');
     for(const control of await host.locator('button,input').all())expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    const geometry=async()=>host.evaluate(el=>({
+      row:el.querySelector('.dc-audio-player__main')!.getBoundingClientRect().toJSON(),
+      seek:el.querySelector('.dc-audio-player__seek')!.getBoundingClientRect().toJSON(),
+      buttons:Array.from(el.querySelectorAll('button'),button=>({
+        width:button.getBoundingClientRect().width,height:button.getBoundingClientRect().height,font:getComputedStyle(button).fontSize,
+      })),
+    }));
+    const initial=await geometry();
+    expect(initial.seek.width).toBeCloseTo(initial.row.width,0);
+    expect(initial.seek.y).toBeGreaterThan(initial.row.y+initial.buttons[0].height);
+    expect(initial.buttons[0]).toEqual(initial.buttons[1]);
     await host.getByRole('button',{name:'Play audio',exact:true}).tap();
     await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeGreaterThan(0.1);
+    await expect(host.getByRole('status')).toHaveText('Playing');
+    await host.getByRole('button',{name:'Mute audio',exact:true}).tap();
+    expect((await geometry()).buttons).toEqual(initial.buttons);
+    await host.getByRole('button',{name:'Unmute audio',exact:true}).tap();
     await host.getByRole('slider',{name:'Seek audio'}).tap();
     await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeGreaterThan(20);
     await host.getByRole('button',{name:'Pause audio',exact:true}).tap();
@@ -541,7 +556,7 @@ test('current transport plays, exposes native seekability and replays',async({pa
   if(canSeek) await expect(host.getByRole('slider',{name:'Seek audio'})).toBeEnabled();
   else {
     await expect(host.getByRole('slider',{name:'Seek audio'})).toBeDisabled();
-    await expect(host.getByRole('status')).toContainText('seek unavailable');
+    await expect(host.getByRole('status')).toHaveText('Playing');
   }
   await host.locator('audio').evaluate((a:HTMLAudioElement)=>{a.playbackRate=16;});
   await expect(host.getByRole('status')).toContainText('Ended',{timeout:15000});
@@ -595,7 +610,7 @@ test('custom seeking preserves native HTML5 source capability', async ({ context
     expect(Math.abs(nativeTime - customTime)).toBeLessThan(.1);
   } else {
     await expect(slider).toBeDisabled();
-    await expect(enhanced.locator('dc-audio').getByRole('status')).toContainText('seek unavailable');
+    await expect(enhanced.locator('dc-audio').getByRole('status')).toHaveText('Paused');
     const beforeKey = await nativeAudio.evaluate((a: HTMLAudioElement) => a.currentTime);
     await nativeAudio.focus();
     await native.keyboard.press('ArrowRight');
