@@ -171,39 +171,36 @@ test('W0062 catalog aliases and retained music command', async ({ page }) => {
 });
 
 for (const width of [320, 390, 740, 741, 1440]) {
-  test(`W0087 native entry and immediate reopening at ${width}px`, async ({ page }, info) => {
+  test(`W0088 no entry button and immediate reopening at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     for (const route of ['/', '/library', '/library/table', '/library/timeline', '/library/music', '/library/types', '/library/topics']) {
       await page.goto(route);
       const prompt = page.locator('dc-prompt');
-      const trigger = prompt.getByRole('button', { name: 'Command line', exact: true });
+      await expect(prompt).toHaveAttribute('ready', '');
+      await expect(page.locator('.dc-prompt__trigger')).toHaveCount(0);
       const input = prompt.locator('input');
-      const printed = (await prompt.locator('[data-prompt-command]').textContent())!.trim();
-      await expect(trigger, route).toBeVisible();
-      const box = (await trigger.boundingBox())!;
-      expect(box.width).toBeGreaterThanOrEqual(info.project.name === 'chromium-mobile' ? 44 : 24);
-      expect(box.height).toBeGreaterThanOrEqual(info.project.name === 'chromium-mobile' ? 44 : 24);
-      if (info.project.name === 'chromium-mobile') await trigger.tap();
-      else await trigger.click();
+      const command = prompt.locator('[data-prompt-command]');
+      const printed = (await command.textContent())!.trim();
+      if (width > 740) await command.click();
+      else {
+        await expect(prompt).toBeHidden();
+        await page.keyboard.press(':');
+      }
       await expect(input).toBeFocused();
       await expect(input).toHaveValue(printed);
       await page.keyboard.type('lib');
       await expect(input).toHaveValue('lib');
-      await input.press('Escape');
-      await expect(trigger).toBeFocused();
-      await trigger.press('Enter');
-      await expect(input).toBeFocused();
-      // No navigation, explicit refocus or delay between close and reopen.
+      // No refocus, navigation or waiting between close and invocation.
       await input.press('Escape');
       await page.keyboard.press(':');
       await expect(input).toBeFocused();
       await expect(input).toHaveValue(printed);
-      await input.press('Escape');
-      await trigger.press('Space');
-      await expect(input).toBeFocused();
       const nav = page.locator('.dc-nav a').first();
       await nav.focus();
       await expect(input).toBeHidden();
+      await expect(nav).toBeFocused();
+      await page.keyboard.press(':');
+      await input.press('Escape');
       await expect(nav).toBeFocused();
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), route).toBeLessThanOrEqual(1);
     }
@@ -214,7 +211,7 @@ for (const width of [320, 390, 740, 741, 1440]) {
   });
 }
 
-test('W0087 reconnect retains one trigger and keyboard invocation', async ({ page }) => {
+test('W0088 reconnect retains keyboard invocation without a trigger', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('dc-prompt')).toHaveAttribute('ready', '');
   await page.locator('dc-prompt').evaluate(host => {
@@ -222,7 +219,7 @@ test('W0087 reconnect retains one trigger and keyboard invocation', async ({ pag
     host.remove();
     parent.append(host);
   });
-  await expect(page.locator('dc-prompt .dc-prompt__trigger')).toHaveCount(1);
+  await expect(page.locator('dc-prompt .dc-prompt__trigger')).toHaveCount(0);
   const nav = page.locator('.dc-nav a').first();
   await nav.focus();
   await page.keyboard.press(':');

@@ -544,8 +544,9 @@ and publication metadata; the audio player retains exact seconds.
 computed `data-capabilities` on material rows, including positive/negative
 parser fixtures. Production geometry reference cases use this same policy.
 
-Console entry (W0087): `browser.prompt` covers the native `:` trigger on Home
-and Library views at320/390/740/741/1440px, real click/tap, Enter/Space,
-command replacement, immediate Escape→colon reopening and reconnect. Reader
-commands remain static; no-JS has neither prompt input nor a dead trigger.
-Blur preserves the newly focused control; Escape restores the invocation focus.
+Console entry (W0088): no separate `:` button is rendered. `browser.prompt`
+checks printed-line click on wide screens, the colon shortcut at320/390/740/
+741/1440px, command replacement, immediate Escape→colon reopening and reconnect.
+Compact resting prompts stay hidden. Reader commands remain static; no-JS has
+no input or trigger. Blur preserves outside focus; Escape restores a visible
+opener/printed command or clears hidden input focus.
