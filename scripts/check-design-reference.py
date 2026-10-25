@@ -253,7 +253,7 @@ def check(root, control=None):
     assert doc.has('th', scope='col', **{'class':'dc-prose-table__cell dc-prose-table__cell--left'})
     assert any(t=='div' and a.get('role')=='region' and a.get('tabindex')=='0' for t,a in doc.nodes)
     assert any(t=='img' and a.get('alt') and a.get('srcset') for t,a in doc.nodes), 'responsive image pipeline missing'
-    for url in ('/', '/library/all', '/library/bluredu-new-teachers'):
+    for url in ('/', '/library', '/library/bluredu-new-teachers'):
         assert doc.has('a', href=url), f'composition link absent: {url}'
         assert (root/'site'/url.strip('/')/'index.html').is_file(), f'real composition page missing: {url}'
     subprocess.run([sys.executable, str(THEME/'tests/check-design-reference.py'), '--enabled', str(root/'theme'), '--disabled', str(root/'theme-disabled')], check=True)

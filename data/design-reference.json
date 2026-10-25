@@ -277,7 +277,7 @@
       "rule": "v2:docs/references/design-system-catalog.md#DS-COMPONENTS",
       "source": "layouts/_partials/library/material-row.html",
       "invocation": "layouts/section.html",
-      "state": "Library Recent — rich rows",
+      "state": "Library catalog — annotated rows",
       "selector": ".dc-material--rich",
       "url": "/library",
       "states": ["STATE-LONG-TITLE", "STATE-MINIMAL-METADATA"],
@@ -294,10 +294,10 @@
       "id": "site-row-dense",
       "rule": "v2:docs/references/design-system-catalog.md#DS-COMPONENTS",
       "source": "layouts/_partials/library/material-row.html",
-      "invocation": "layouts/library-view.html",
-      "state": "Library All — dense rows",
+      "invocation": "layouts/library-type.html",
+      "state": "Type list — dense rows",
       "selector": ".dc-material--dense",
-      "url": "/library/all",
+      "url": "/library/types/article",
       "states": ["STATE-LONG-TITLE", "STATE-MINIMAL-METADATA"],
       "viewports": [320, 390, 768, 1024, 1440],
       "js": ["on", "off"],
@@ -462,12 +462,12 @@
     {
       "url": "/library",
       "source": "layouts/section.html",
-      "label": "Library Recent — rich rows"
+      "label": "Library catalog — annotated rows"
     },
     {
-      "url": "/library/all",
-      "source": "layouts/library-view.html",
-      "label": "Library All — dense rows"
+      "url": "/library/types/article",
+      "source": "layouts/library-type.html",
+      "label": "Type list — dense rows"
     },
     {
       "url": "/library/table",

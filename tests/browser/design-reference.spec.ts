@@ -210,9 +210,9 @@ test.describe("production.geometry", () => {
   for (const width of widths) test.describe(`${width}`, () => {
     test.use({ viewport: { width, height: 900 } });
     test("real Home Library rows and TOC composition", async ({ page }) => {
-      for (const url of ["/", "/library", "/library/all", "/library/bluredu-new-teachers"]) {
+      for (const url of ["/", "/library", "/library/types/article", "/library/bluredu-new-teachers"]) {
         await page.goto(url); await expect(page.locator("h1")).toHaveCount(1); await noPageOverflow(page, width);
-        if (url === "/library" || url === "/library/all") {
+        if (url === "/library" || url === "/library/types/article") {
           const density = url === "/library" ? "rich" : "dense";
           expect(await page.locator(`.dc-material--${density}`).count()).toBeGreaterThan(0);
           const title = page.locator(`.dc-material--${density} .dc-material__title`).filter({ hasText: "Мы поступили" });
@@ -234,7 +234,7 @@ test.describe("production.reading", () => {
   for (const width of [320, 1440]) for (const js of [true, false]) test.describe(`${width} ${js ? "JS" : "no-JS"}`, () => {
     test.use({ viewport: { width, height: 900 }, javaScriptEnabled: js });
     test("real poetry long prose audio translation and native mode URLs", async ({ page }) => {
-      for (const item of site.composition.filter((x: {url: string}) => !["/", "/library", "/library/all", "/library/bluredu-new-teachers"].includes(x.url))) {
+      for (const item of site.composition.filter((x: {url: string}) => !["/", "/library", "/library/types/article", "/library/bluredu-new-teachers"].includes(x.url))) {
         await page.goto(item.url); await expect(page.locator("h1")).toHaveCount(1); await noPageOverflow(page, width);
         const example = site.examples.find((x: {url: string}) => x.url === item.url);
         expect(await page.locator(example.selector).count(), example.id).toBeGreaterThan(0);
@@ -256,15 +256,11 @@ test.describe("site.behavior", () => {
       await page.locator("#site-type-badge a").focus(); await expect(page.locator("#site-type-badge a")).toBeFocused();
       const image = page.locator("dc-image-toggle").first(); await image.locator("button").click();
       await expect(image).toHaveAttribute("showing", "original");
-      await page.goto("/library/all");
-      if (width === 1440) {
-        await page.locator('dc-modes [data-mode="table"]').click();
-        await expect(page).toHaveURL(/\/library\/table$/); await expect(page.locator('dc-modes [data-mode-panel="table"]')).toBeVisible();
-        await page.goBack(); await expect(page.locator('dc-modes [data-mode-panel="list"]')).toBeVisible();
-      } else {
-        // Current phone CSS hides the switch; direct native URLs are covered above.
-        await expect(page.locator('dc-modes [data-mode="table"]')).toBeHidden();
-      }
+      await page.goto("/library");
+      await expect(page.locator('dc-modes [data-mode="table"]')).toBeVisible();
+      await page.locator('dc-modes [data-mode="table"]').click();
+      await expect(page).toHaveURL(/\/library\/table$/); await expect(page.locator('dc-modes [data-mode-panel="table"]')).toBeVisible();
+      await page.goBack(); await expect(page.locator('dc-modes [data-mode-panel="list"]')).toBeVisible();
       await page.goto("/library/regular-visitor"); const audio = page.locator("audio").first();
       await audio.focus(); await page.keyboard.press("ArrowRight"); await page.keyboard.press("Space");
       await expect(page).toHaveURL(/\/library\/regular-visitor$/); await expect(page.locator("dialog[open]")).toHaveCount(0);
