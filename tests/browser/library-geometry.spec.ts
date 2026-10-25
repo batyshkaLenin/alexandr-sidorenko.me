@@ -784,6 +784,8 @@ for (const javaScriptEnabled of [true, false]) {
         const materials = entries.filter((entry: { kind: string }) => ['text', 'audio'].includes(entry.kind));
         const rows = page.locator('[data-mode-panel="list"] .dc-material');
         await expect(rows).toHaveCount(materials.length);
+        const tableURLs = await page.locator('[data-mode-panel="table"] tbody tr td:first-child a').evaluateAll((links) => links.map((a) => a.getAttribute('href')));
+        expect(tableURLs).toEqual(materials.map((entry: { url: string }) => entry.url));
         for (const row of await rows.all()) {
           const href = await row.locator('.u-url.p-name').getAttribute('href');
           const entry = materials.find((item: { url: string }) => item.url === href);

@@ -93,6 +93,7 @@ class UrlHtmlParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.urls: list[tuple[str, str]] = []
+        self.entry_urls: list[str] = []
         self.canonical: str | None = None
         self.robots: str | None = None
         self.og_url: str | None = None
@@ -122,6 +123,8 @@ class UrlHtmlParser(HTMLParser):
                     self.og_url = value
         if tag == "link" and "canonical" in rel:
             self.canonical = attributes.get("href")
+        if tag == "a" and "u-url" in classes and attributes.get("href"):
+            self.entry_urls.append(attributes["href"])
         # First u-url only: byline.html renders a nested p-author h-card with
         # its own u-url (the author's homepage), not the entry's location.
         # Machine-only values use <data class="u-url" value>, visible ones <a href>.
@@ -318,6 +321,14 @@ def main() -> int:
             check(errors, rules.index(expected) < rules.index("/*/ /:splat 301"), "catalog redirect must precede slash rule")
     check(errors, not (public_dir / "library/all/index.html").exists(), "retired All document still built")
     search = json.loads((public_dir / "search-index.json").read_text())
+    # Catalog and native Table embed List for the same complete material corpus.
+    expected_entries = [urlsplit(entry["url"]).path for entry in search["entries"] if entry["kind"] in {"text", "audio"}]
+    for route in ("library/index.html", "library/table/index.html"):
+        catalog = parsed_pages.get(public_dir / route)
+        check(errors, catalog is not None, f"missing catalog document {route}")
+        if catalog is not None:
+            entries = [urlsplit(url).path for url in catalog.entry_urls if urlsplit(url).path.startswith("/library/")]
+            check(errors, entries == expected_entries, f"{route}: catalog membership/order differs from search material corpus")
     check(errors, not any(urlsplit(entry["url"]).path == "/library/all" for entry in search["entries"]), "retired All still searchable")
     check(errors, f"{SITE_ORIGIN}/library/all" not in llms_urls, "retired All advertised in llms.txt")
 

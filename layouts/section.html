@@ -2,6 +2,8 @@
 Section override: h-feed/h-entry MF2; summaries via publication/summary.txt.
 */ -}}
 {{ define "main" }}
+{{ $materials := .RegularPages }}
+{{ if eq . (site.GetPage "/library") }}{{ $materials = where site.RegularPages "Section" "library" }}{{ end }}
 {{- /* Library: full annotated catalog with native List/Table URLs. */ -}}
 <div class="dc-library">
   {{ partial "library/views-nav.html" . }}
@@ -18,7 +20,7 @@ Section override: h-feed/h-entry MF2; summaries via publication/summary.txt.
     <div class="dc-panel__body">
       {{ partial "declassified/component.html" "dc-listnav" }}
       <dc-listnav>
-      {{ partial "library/mode-panels.html" (dict "materials" .RegularPages "mode" "list") }}
+      {{ partial "library/mode-panels.html" (dict "materials" $materials "mode" "list") }}
       </dc-listnav>
     </div>
   </section>
