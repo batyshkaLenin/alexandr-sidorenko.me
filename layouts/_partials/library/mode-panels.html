@@ -9,7 +9,7 @@ Call: materials, mode ("list" | "table")
 {{- $tableURL := partial "canonical-url.html" ("/library/table" | relLangURL) -}}
 {{ partial "declassified/component.html" "dc-modes" }}
 <dc-modes>
-  <p class="dc-mode-switch" lang="en">
+  <p class="dc-mode-switch as-library-secondary" lang="en">
     <a href="{{ $listURL }}" data-mode="list"{{ if eq $mode "list" }} aria-current="true"{{ end }}><span aria-hidden="true">[</span>list<span aria-hidden="true">]</span></a>
     <a href="{{ $tableURL }}" data-mode="table"{{ if eq $mode "table" }} aria-current="true"{{ end }}><span aria-hidden="true">[</span>table<span aria-hidden="true">]</span></a>
   </p>

@@ -4,7 +4,7 @@
   {{ partial "library/views-nav.html" . }}
   <section class="dc-panel dc-panel--primary dc-panel--doc">
     <h1 class="dc-section-title">{{ .Title }}</h1>
-    <p class="dc-section-meta">
+    <p class="dc-section-meta as-library-secondary">
       <span lang="en">{{ partial "en-count.html" (dict "n" (len .Pages) "one" "material" "many" "materials") }}</span>
       {{ partial "publication/feed-links.html" . }}
     </p>

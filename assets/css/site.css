@@ -2088,6 +2088,8 @@ html:has(.dc-panel--detail) {
 }
 
 .dc-library {
+  --as-library-gap: 12px;
+  --as-library-secondary-height: 1.5rem;
   display: grid;
   grid-template-columns: var(--dc-rail-track) minmax(0, 1fr);
   gap: var(--dc-rail-gap);
@@ -2104,7 +2106,7 @@ html:has(.dc-panel--detail) {
   /* One content inset and one vertical rhythm for every Library view. */
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--as-library-gap);
   width: 100%;
   max-width: 100%;
   margin-inline: 0;
@@ -2114,6 +2116,32 @@ html:has(.dc-panel--detail) {
 .dc-library > .dc-panel > :is(.dc-panel__body, .dc-section-head, .dc-section-meta) {
   padding: 0;
   margin: 0;
+}
+
+/* Optional secondary row: feeds, counts or modes. Views without one go
+   straight from the heading to their body; no empty toolbar is reserved. */
+.dc-library .as-library-secondary {
+  min-block-size: var(--as-library-secondary-height);
+  align-items: center;
+}
+
+.dc-library .as-library-secondary a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--as-library-secondary-height);
+  box-sizing: border-box;
+}
+
+/* Modes stay inside their existing enhancement host; their content follows
+   the same interval as the panel's direct children. */
+.dc-library .dc-mode-switch {
+  margin-block-end: var(--as-library-gap);
+}
+
+@media (pointer: coarse) {
+  .dc-library {
+    --as-library-secondary-height: 2.75rem;
+  }
 }
 
 /* Floating command notch; type/topic line stays one row. */
@@ -2708,6 +2736,16 @@ as-viewsnav {
   margin-top: 2px;
   font-size: var(--dc-fs-meta);
   color: var(--dc-faint);
+}
+
+@media (max-width: 640px) {
+  .dc-timeline {
+    /* Five monospaced date characters at the metadata size. Resolve via the
+       font token so the year heading and axis use the same rail width. */
+    --dc-timeline-date: calc(var(--dc-fs-meta) * 3);
+    --dc-timeline-gap: 0.5rem;
+    --dc-timeline-caret: 0px;
+  }
 }
 
 /* Index mode: TITLE | TYPE | DATE | SIZE. */

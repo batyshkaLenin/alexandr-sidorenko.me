@@ -632,3 +632,136 @@ test('type hover owns its feedback without moving the row or title',async({page}
     await expect(type).toHaveCSS('outline-width','2px');
   }
 });
+
+const libraryCompositionViews = [
+  { path: "/library", secondary: true },
+  { path: "/library/all", secondary: true },
+  { path: "/library/table", secondary: true },
+  { path: "/library/topics", secondary: true },
+  { path: "/library/types/article", secondary: true },
+  { path: "/library/topics/философия", secondary: true },
+  { path: "/library/music", secondary: false },
+  { path: "/library/timeline", secondary: false },
+  { path: "/library/types", secondary: false },
+];
+
+for (const javaScriptEnabled of [true, false]) {
+  test.describe(`Library composition (JS ${javaScriptEnabled ? "on" : "off"})`, () => {
+    test.use({ javaScriptEnabled });
+
+    for (const width of [375, 1024, 1440]) {
+      test(`optional secondary row has a consistent rhythm at ${width}px`, async ({ page }, testInfo) => {
+        await page.setViewportSize({ width, height: 900 });
+        const matrix = [];
+        for (const view of libraryCompositionViews) {
+          await page.goto(view.path);
+          await page.evaluate(() => document.fonts.ready);
+          const geometry = await page.locator(".dc-library > .dc-panel").evaluate((panel) => {
+            const heading = panel.querySelector("h1")!.getBoundingClientRect();
+            const secondary = panel.querySelector(".as-library-secondary");
+            const row = secondary?.getBoundingClientRect();
+            const body = panel.querySelector(":scope > .dc-panel__body:last-child")!;
+            // The modes control belongs to dc-modes; measure the visible panel
+            // rather than its outer body (which also contains the control).
+            const content = body.querySelector("[data-mode-panel]:not([hidden])") || body;
+            const contentBox = content.getBoundingClientRect();
+            return {
+              heading: heading.toJSON(),
+              row: row?.toJSON(),
+              content: contentBox.toJSON(),
+              coarse: matchMedia("(pointer: coarse)").matches,
+              secondaryCount: panel.querySelectorAll(".as-library-secondary").length,
+              secondaryText: secondary?.textContent?.trim(),
+              targets: Array.from(secondary?.querySelectorAll("a") || [], (link) => link.getBoundingClientRect().height),
+              overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+            };
+          });
+          matrix.push({ path: view.path, ...geometry });
+          expect(geometry.overflow, view.path).toBeLessThanOrEqual(1);
+          expect(geometry.content.x, view.path).toBeCloseTo(geometry.heading.x, 0);
+          expect(geometry.secondaryCount, view.path).toBe(view.secondary ? 1 : 0);
+          if (view.secondary) {
+            expect(geometry.secondaryText, view.path).toBeTruthy();
+            expect(geometry.row!.x, view.path).toBeCloseTo(geometry.heading.x, 0);
+            expect(geometry.row!.y - geometry.heading.bottom, view.path).toBeCloseTo(12, 0);
+            expect(geometry.content.y - geometry.row!.bottom, view.path).toBeCloseTo(12, 0);
+            expect(geometry.row!.height, view.path).toBeCloseTo(geometry.coarse ? 44 : 24, 0);
+            for (const height of geometry.targets) expect(height).toBeGreaterThanOrEqual(geometry.coarse ? 44 : 24);
+            const link = page.locator(".as-library-secondary a").first();
+            if (await link.count()) {
+              const before = await link.boundingBox();
+              if (!geometry.coarse) await link.hover();
+              await link.focus();
+              await expect(link).toBeFocused();
+              expect(await link.boundingBox()).toEqual(before);
+            }
+          } else {
+            expect(geometry.content.y - geometry.heading.bottom, view.path).toBeCloseTo(12, 0);
+          }
+        }
+        await testInfo.attach(`library-composition-${width}.json`, {
+          body: JSON.stringify(matrix, null, 2), contentType: "application/json",
+        });
+      });
+    }
+
+    test("list/table keep history, native links and the skip target", async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 812 });
+      await page.goto("/library/all");
+      const modes = page.locator(".dc-mode-switch a");
+      await modes.nth(1).click();
+      await expect(page).toHaveURL(/\/library\/table$/);
+      await expect(modes.nth(1)).toHaveAttribute("aria-current", "true");
+      await expect(page.locator("#list-start")).toHaveCount(1);
+      await expect(page.locator("#list-start")).toBeVisible();
+      await page.goBack();
+      await expect(page).toHaveURL(/\/library\/all$/);
+      await expect(modes.first()).toHaveAttribute("aria-current", "true");
+      const skip = page.locator('a[href="#list-start"]');
+      await skip.focus();
+      await skip.press("Enter");
+      await expect(page.locator("#list-start")).toBeInViewport();
+    });
+
+    test("compact Timeline gives titles room and preserves dates, years and axis at 200% text", async ({ page, context }) => {
+      const client = await context.newCDPSession(page);
+      await client.send("Page.enable");
+      for (const fontSize of [16, 32]) {
+        await client.send("Page.setFontSizes" as never, { fontSizes: { standard: fontSize, fixed: fontSize } } as never);
+        // At 200% text the existing topbar overflows at 768px in the base
+        // revision too; this task changes the narrow Timeline, not the shell.
+        for (const width of fontSize === 16 ? [320, 375, 640, 768, 1440] : [320, 375, 640, 1440]) {
+          await page.setViewportSize({ width, height: 900 });
+          await page.goto("/library/timeline");
+          await page.evaluate(() => document.fonts.ready);
+          const geometry = await page.evaluate(() => {
+            const timeline = document.querySelector(".dc-timeline")!.getBoundingClientRect();
+            const rows = Array.from(document.querySelectorAll(".dc-timeline__item"), (item) => {
+              const date = item.querySelector("time")!.getBoundingClientRect();
+              const marker = item.querySelector(".dc-timeline__marker")!.getBoundingClientRect();
+              const title = item.querySelector(".dc-timeline__title")!.getBoundingClientRect();
+              return { date: date.toJSON(), marker: marker.toJSON(), title: title.toJSON() };
+            });
+            const years = Array.from(document.querySelectorAll(".dc-timeline__year"), (year) => {
+              const range = document.createRange(); range.selectNodeContents(year);
+              return range.getBoundingClientRect().x;
+            });
+            return { width: timeline.width, rows, years, overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+          });
+          expect(geometry.overflow, `${width}px / ${fontSize}px`).toBeLessThanOrEqual(1);
+          expect(geometry.years.length).toBeGreaterThan(1);
+          for (const row of geometry.rows) {
+            expect(row.date.right).toBeLessThan(row.marker.x);
+            expect(row.marker.right).toBeLessThan(row.title.x);
+            expect(row.title.width).toBeGreaterThan(0);
+            if (fontSize === 16 && width <= 640) expect(row.title.width / geometry.width).toBeGreaterThan(0.7);
+          }
+          if (fontSize === 16 && width <= 640) {
+            for (const yearX of geometry.years) expect(yearX).toBeCloseTo(geometry.rows[0].title.x, 0);
+          }
+          expect((await timelineAlignment(page)).maxDelta).toBeLessThanOrEqual(1);
+        }
+      }
+    });
+  });
+}
