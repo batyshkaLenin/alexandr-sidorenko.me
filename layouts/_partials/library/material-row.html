@@ -13,42 +13,22 @@ MaterialRow — one material in a list.
 `anchor` true on the page's first row: its link is #list-start (Skip to list).
 `modeAnchor` true on a mode panel's first row: <dc-modes> moves #list-start
 into whichever panel is shown.
-Markers from capabilities + data/glyphs.yaml (max three).
+Capabilities remain machine-readable; visual capability badges are omitted.
 */ -}}
 {{- $page := .page -}}
-{{- $duration := partial "publication/duration.html" $page -}}
 {{- $density := default "rich" .density -}}
 {{- $level := default 2 .level -}}
 {{- $dense := eq $density "dense" -}}
 {{- $showType := true -}}
 {{- if isset . "showType" -}}{{- $showType = .showType -}}{{- end -}}
 {{- $capabilities := partialCached "publication/capabilities.html" $page $page.RelPermalink -}}
-{{- $markers := slice -}}
-{{- $shown := 0 -}}
-{{- range $capabilities -}}
-  {{- $glyph := index (index hugo.Data.glyphs "capabilities") . -}}
-  {{- if and $glyph (lt $shown 3) -}}
-    {{- $shown = add $shown 1 -}}
-    {{- $markers = $markers | append $glyph -}}
-  {{- end -}}
-{{- end -}}
-<li class="dc-material dc-material--{{ $density }} h-entry">
+<li class="dc-material dc-material--{{ $density }} h-entry" data-capabilities="{{ delimit $capabilities " " }}">
 {{- if $dense }}
   <div class="dc-material__row">
     <div class="dc-material__primary">
       <h{{ $level }} class="dc-material__title">
         <a class="u-url p-name"{{ if .anchor }} id="list-start"{{ end }}{{ if .modeAnchor }} data-mode-anchor="list-start"{{ end }} href="{{ partial "canonical-url.html" $page.RelPermalink }}">{{ $page.Title }}</a>
       </h{{ $level }}>
-      {{- if or $markers (and (eq $duration.kind "media") $duration.label) }}
-      <span class="dc-material__markers">
-        {{- range $markers }}
-        <span class="dc-material__marker" title="{{ index . "meaning" }}"><span aria-hidden="true">{{ index . "glyph" }}</span><span class="dc-visually-hidden">{{ index . "text" }}</span></span>
-        {{- end }}
-        {{- if and (eq $duration.kind "media") $duration.label }}
-        <span class="dc-material__marker" lang="en" data-duration-kind="media" title="Media duration">{{ $duration.label }}</span>
-        {{- end }}
-      </span>
-      {{- end }}
     </div>
     <span class="dc-material__break" aria-hidden="true"></span>
     {{- if .excerpt }}
@@ -75,16 +55,6 @@ Markers from capabilities + data/glyphs.yaml (max three).
     <span class="dc-material__sep" aria-hidden="true">·</span>
     {{- end }}
     {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-material__date dt-published") }}
-    {{- if and (eq $duration.kind "media") $duration.label }}
-    <span class="dc-material__sep" aria-hidden="true">·</span>
-    <small lang="en" data-duration-kind="media" title="Media duration">{{ $duration.label }}</small>
-    {{- end }}
-    {{- range $markers }}
-    <span class="dc-material__marker" title="{{ index . "meaning" }}"><span aria-hidden="true">{{ index . "glyph" }}</span><span class="dc-visually-hidden">{{ index . "text" }}</span></span>
-    {{- end }}
-    {{- range $page.GetTerms "tags" }}
-    <a class="p-category" rel="tag" href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .LinkTitle }}</a>
-    {{- end }}
   </p>
 {{- end }}
   {{- range $page.Params.authors }}
@@ -98,6 +68,13 @@ Markers from capabilities + data/glyphs.yaml (max three).
   {{- if eq $density "rich" }}
   {{- with strings.TrimSpace (partial "publication/summary.txt" $page) }}
   <p class="dc-material__excerpt p-summary">{{ . | htmlUnescape }}</p>
+  {{- end }}
+  {{- with $page.GetTerms "tags" }}
+  <p class="as-material-topics">
+    {{- range . }}
+    <a class="p-category" rel="tag" href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .LinkTitle }}</a>
+    {{- end }}
+  </p>
   {{- end }}
   {{- end }}
 </li>

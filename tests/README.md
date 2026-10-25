@@ -534,3 +534,12 @@ In-place mode changes preserve the original document h1/head (including
 canonical/robots/schema), as before; panels, URL, prompt, mode current state,
 Back/Forward and the visible skip target follow the selected mode. Refresh
 loads that mode's server document. Browser cases assert both arrival paths.
+
+Library metadata (W0081): `browser.library-geometry` checks the visible text gap
+between type and date, topics after real previews, native type/topic targets,
+capability data and the absence of List durations with JS on/off. The media
+metadata cases in `browser.enhancements` expect whole minutes in Table/Timeline
+and publication metadata; the audio player retains exact seconds.
+`site.capability-markers` rejects visual badges globally and missing/invalid
+computed `data-capabilities` on material rows, including positive/negative
+parser fixtures. Production geometry reference cases use this same policy.

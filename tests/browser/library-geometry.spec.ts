@@ -882,3 +882,54 @@ for (const javaScriptEnabled of [true, false]) {
     });
   });
 }
+
+for (const javaScriptEnabled of [true, false]) {
+  test.describe(`W0081 list metadata JS ${javaScriptEnabled}`, () => {
+    test.use({ javaScriptEnabled });
+    for (const width of [375, 1440]) {
+      test(`topics follow previews and type/date text spacing stays constant at ${width}px`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto('/library');
+        await page.evaluate(() => document.fonts.ready);
+        const rows = page.locator('[data-mode-panel="list"] .dc-material');
+        expect(await rows.count()).toBeGreaterThan(0);
+        const gaps = [];
+        for (const row of await rows.all()) {
+          await expect(row.locator('[data-duration-kind]')).toHaveCount(0);
+          await expect(row).toHaveAttribute('data-capabilities');
+          const geometry = await row.evaluate((el) => {
+            const type = el.querySelector('.dc-list__type')!;
+            const date = el.querySelector('time')!;
+            const text = document.createRange();
+            text.selectNodeContents(type);
+            const summary = el.querySelector('.p-summary');
+            const topics = el.querySelector('.as-material-topics');
+            const preceding = summary || el.querySelector('.dc-material__meta')!;
+            return {
+              type: type.textContent,
+              gap: date.getBoundingClientRect().left - text.getBoundingClientRect().right,
+              sameLine: Math.abs(date.getBoundingClientRect().top - type.getBoundingClientRect().top) < 20,
+              topicsAfter: !topics || !!(preceding.compareDocumentPosition(topics) & Node.DOCUMENT_POSITION_FOLLOWING),
+              topicsBelow: !topics || topics.getBoundingClientRect().top >= preceding.getBoundingClientRect().bottom - 1,
+              emptySummary: summary && !summary.textContent?.trim(),
+            };
+          });
+          expect(geometry.sameLine, geometry.type!).toBe(true);
+          expect(geometry.topicsAfter).toBe(true);
+          expect(geometry.topicsBelow).toBe(true);
+          expect(geometry.emptySummary).toBeFalsy();
+          gaps.push(geometry);
+        }
+        expect(new Set(gaps.map(row => row.type)).size).toBeGreaterThan(2);
+        for (const row of gaps) {
+          expect(row.gap, row.type!).toBeGreaterThan(0);
+          expect(row.gap, row.type!).toBeCloseTo(gaps[0].gap, 0);
+        }
+        const track = rows.filter({ has: page.locator('a[href="/library/regular-visitor"]') });
+        await expect(track).toHaveAttribute('data-capabilities', /\baudio\b/);
+        await expect(page.locator('.dc-material__marker')).toHaveCount(0);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+      });
+    }
+  });
+}

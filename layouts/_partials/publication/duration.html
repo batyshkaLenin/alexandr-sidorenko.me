@@ -29,11 +29,7 @@
   {{- $minutes := math.Max 1 $page.ReadingTime | int -}}
   {{- $label = partial "en-count.html" (dict "n" $minutes "one" "minute" "many" "minutes") | strings.TrimSpace -}}
 {{- else if gt $seconds 0 -}}
-  {{- $minutes := div $seconds 60 -}}
-  {{- if ge $seconds 3600 -}}
-    {{- $label = printf "%d:%02d:%02d" (div $seconds 3600) (mod $minutes 60) (mod $seconds 60) -}}
-  {{- else -}}
-    {{- $label = printf "%02d:%02d" $minutes (mod $seconds 60) -}}
-  {{- end -}}
+  {{- $minutes := math.Ceil (div (float $seconds) 60) | int -}}
+  {{- $label = partial "en-count.html" (dict "n" $minutes "one" "minute" "many" "minutes") | strings.TrimSpace -}}
 {{- end -}}
 {{- return (dict "kind" $kind "seconds" $seconds "source" $source "label" $label) -}}

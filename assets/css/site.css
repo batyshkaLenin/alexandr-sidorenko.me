@@ -2308,6 +2308,19 @@ as-viewsnav {
   color: var(--dc-faint);
 }
 
+/* Keep the text-to-date gap stable inside differently sized link targets. */
+.dc-material__meta a.dc-list__type {
+  justify-content: flex-end;
+}
+
+.as-material-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0 0;
+  font-size: var(--dc-fs-meta);
+}
+
 /* Dense: one line TITLE → TYPE → DATE. */
 .dc-material--dense .dc-material__row {
   display: flex;
@@ -2338,23 +2351,12 @@ as-viewsnav {
   order: 3;
 }
 
-.dc-material--dense .dc-material__markers {
-  display: inline-flex;
-  flex-wrap: nowrap;
-  gap: 8px;
-  order: 4;
-}
-
 .dc-material--dense .dc-material__break {
   display: none;
 }
 
 .dc-material__sep {
   color: var(--dc-border);
-}
-
-.dc-material__marker {
-  color: var(--dc-muted);
 }
 
 .dc-material__excerpt {
@@ -2434,7 +2436,6 @@ as-viewsnav {
   }
 
   .dc-material--dense .dc-material__title,
-  .dc-material--dense .dc-material__markers,
   .dc-material--dense .dc-material__break,
   .dc-material--dense .dc-material__sep--type,
   .dc-material--dense .dc-list__type,
@@ -2462,15 +2463,6 @@ as-viewsnav {
     display: inline;
     padding: 0;
     min-height: 0;
-  }
-
-  .dc-material--dense .dc-material__markers {
-    display: inline-flex;
-    flex: none;
-    max-width: 100%;
-    min-width: 0;
-    overflow: hidden;
-    vertical-align: baseline;
   }
 
   .dc-material--dense .dc-material__break {

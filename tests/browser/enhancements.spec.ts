@@ -385,26 +385,45 @@ test.describe("enhancements", () => {
   });
 });
 
-for(const viewport of [{width:1440,height:900},{width:375,height:812}]) test(`primary media duration agrees across views ${viewport.width}`,async({page})=>{
-  await page.setViewportSize(viewport);
-  const media=[['regular-visitor','02:18'],['itchatter-hakatony','39:21'],['itchatter-parni-hakatonschiki','29:13']];
-  for(const url of ['/library','/library/all','/library/table','/library/timeline','/library/music','/library/types']){
-    await page.goto(url);
-    for(const [slug,duration] of media){
-      if(url.endsWith('music') && slug!=='regular-visitor') continue;
-      const link=page.locator(`main a[href='/library/${slug}']:visible`).first();
-      const row=link.locator('xpath=ancestor::*[self::li or self::tr][1]');
-      await expect(row.locator('[data-duration-kind="media"]')).toHaveText(duration);
-      await expect(row).not.toContainText('1 minute');
+for (const viewport of [{ width: 1440, height: 900 }, { width: 375, height: 812 }]) {
+  test(`primary media metadata uses whole minutes ${viewport.width}`, async ({ page }) => {
+    await rangedAudio(page);
+    await page.setViewportSize(viewport);
+    const media = [
+      ['regular-visitor', '3 minutes'],
+      ['itchatter-hakatony', '40 minutes'],
+      ['itchatter-parni-hakatonschiki', '30 minutes'],
+    ];
+    for (const url of ['/library', '/library/all', '/library/table', '/library/timeline', '/library/music', '/library/types']) {
+      await page.goto(url);
+      for (const [slug, duration] of media) {
+        if (url.endsWith('music') && slug !== 'regular-visitor') continue;
+        const link = page.locator(`main a[href='/library/${slug}']:visible`).first();
+        const row = link.locator('xpath=ancestor::*[self::li or self::tr][1]');
+        if (url.endsWith('/table') || url.endsWith('/timeline')) {
+          await expect(row.locator('[data-duration-kind="media"]')).toHaveText(duration);
+        } else {
+          await expect(row.locator('[data-duration-kind]')).toHaveCount(0);
+        }
+      }
+      await expect(page.locator('.dc-material__marker')).toHaveCount(0);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
-    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  }
-  for(const [slug,duration] of media){
-    await page.goto('/library/'+slug);
-    if(slug==='regular-visitor') await expect(page.locator('.dc-track__file')).toContainText(duration);
-    else await expect(page.locator('.dc-publication__meta [data-duration-kind="media"]')).toHaveText(duration);
-  }
-});
+    for (const [slug, duration] of media) {
+      await page.goto('/library/' + slug);
+      const metadata = slug === 'regular-visitor'
+        ? page.locator('.dc-track__file [data-duration-kind="media"]')
+        : page.locator('.dc-publication__meta [data-duration-kind="media"]');
+      await expect(metadata).toHaveText(duration);
+      if (slug === 'regular-visitor') {
+        const audio = page.locator('dc-audio audio');
+        await audio.evaluate((el: HTMLAudioElement) => { el.preload = 'metadata'; el.load(); });
+        await expect.poll(() => audio.evaluate((el: HTMLAudioElement) => el.duration)).toBeCloseTo(138, 0);
+        await expect(page.locator('.dc-audio-player__time > :last-child')).toHaveText('02:18');
+      }
+    }
+  });
+}
 
 // The repository's Python static server ignores Range, as does the current
 // deployed MP3 endpoint. Real bytes + a Range-capable transport fixture exercise

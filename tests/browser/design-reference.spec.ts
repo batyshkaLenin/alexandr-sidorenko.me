@@ -218,7 +218,8 @@ test.describe("production.geometry", () => {
           const title = page.locator(`.dc-material--${density} .dc-material__title`).filter({ hasText: "Мы поступили" });
           await expect(title).toBeVisible(); await expect(title).not.toHaveCSS("text-overflow", "ellipsis");
           // W0017 is retained: this proves current rows/wrapping, not row/type-link conformance.
-          expect(await page.locator(".dc-material__marker").count()).toBeGreaterThan(0);
+          await expect(page.locator(".dc-material__marker")).toHaveCount(0);
+          expect(await page.locator(".dc-material[data-capabilities]").count()).toBeGreaterThan(0);
         }
         if (url.includes("bluredu")) {
           const toc = page.locator(".dc-toc");

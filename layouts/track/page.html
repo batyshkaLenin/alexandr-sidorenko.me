@@ -31,8 +31,8 @@ No cover slot; file meta at the end.
     {{- /* The extension, not the MIME subtype: a reader knows what MP3 is,
     "MPEG" only looks like a mistake. */ -}}
     {{- /* Duration in text — player uses preload=none until asked. */ -}}
-    {{- $meta := index hugo.Data.audio .src -}}
-    <span class="dc-track__file">{{ upper (strings.TrimPrefix "." (path.Ext .src)) }} · {{ $meta.duration }} · {{ lang.FormatNumber 1 (div (float $file.Size) 1048576) }} MB</span>
+    {{- $duration := partial "publication/duration.html" $ -}}
+    <span class="dc-track__file">{{ upper (strings.TrimPrefix "." (path.Ext .src)) }}{{ with $duration.label }} · <span lang="en" data-duration-kind="media">{{ . }}</span>{{ end }} · {{ lang.FormatNumber 1 (div (float $file.Size) 1048576) }} MB</span>
     {{ end }}
     <span class="dc-track__published">{{ partial "publication/date.html" (dict "date" .Date "form" "long" "class" "dt-published") }}</span>
     {{ with .Params.type }} · {{ partial "library/type-badge.html" (dict "page" $ "linked" true) }}{{ end }}
