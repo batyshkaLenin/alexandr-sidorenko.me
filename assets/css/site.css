@@ -2888,14 +2888,14 @@ as-viewsnav {
 .dc-panel--detail > .dc-track__meta,
 .dc-panel--detail > .dc-paper__abstract,
 .dc-panel--detail > .dc-paper__keywords,
-.dc-panel--detail > .dc-article__head > .dc-title,
-.dc-panel--detail > .dc-article__head > .dc-publication__meta,
-.dc-panel--detail > .dc-article__head > .dc-article__lead {
+.dc-panel--detail > .as-reader__head > .dc-title,
+.dc-panel--detail > .as-reader__head > .dc-publication__meta,
+.dc-panel--detail > .as-reader__head > .dc-article__lead {
   max-width: var(--dc-measure);
   margin-inline: auto;
 }
 
-.dc-panel--detail > .dc-article__head > .dc-toc {
+.dc-panel--detail > .as-reader__head > .dc-toc {
   max-width: var(--dc-measure);
   margin-inline: auto;
   margin-block: 12px 18px;
@@ -2910,7 +2910,7 @@ as-viewsnav {
   overflow: visible;
 }
 
-.dc-article--with-toc {
+.as-reader--with-toc {
   display: block;
   /* Keep the pane as the abspos containing block for .dc-panel__label at
      every width. Collapsing the TOC with `position: static` on this class
@@ -3057,7 +3057,7 @@ as-viewsnav {
    * the article stays relative so the pane label does not leave the pane.
    */
 
-  .dc-panel--detail > .dc-article__head > .dc-toc {
+  .dc-panel--detail > .as-reader__head > .dc-toc {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -3070,7 +3070,7 @@ as-viewsnav {
     pointer-events: none;
   }
 
-  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__rail {
+  .dc-panel--detail > .as-reader__head > .dc-toc .dc-toc__rail {
     position: sticky;
     top: 24px;
     box-sizing: border-box;
@@ -3079,17 +3079,17 @@ as-viewsnav {
     pointer-events: auto;
   }
 
-  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__disclosure {
+  .dc-panel--detail > .as-reader__head > .dc-toc .dc-toc__disclosure {
     display: contents;
   }
 
-  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__summary {
+  .dc-panel--detail > .as-reader__head > .dc-toc .dc-toc__summary {
     pointer-events: none;
     cursor: default;
     margin: 0 0 8px;
   }
 
-  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__tree {
+  .dc-panel--detail > .as-reader__head > .dc-toc .dc-toc__tree {
     /* Reserve room for the page header, toc label and status bar before sticky. */
     max-block-size: min(60dvh, calc(100dvh - 12rem));
     overflow: auto;
@@ -3098,19 +3098,19 @@ as-viewsnav {
     margin: -6px;
   }
 
-  .dc-panel--detail > .dc-article__head > .dc-toc ul {
+  .dc-panel--detail > .as-reader__head > .dc-toc ul {
     padding: 0 10px 0 0;
     border-inline-start: 0;
     border-inline-end: 1px solid var(--dc-border);
   }
 
-  .dc-panel--detail > .dc-article__head > .dc-toc ul ul {
+  .dc-panel--detail > .as-reader__head > .dc-toc ul ul {
     padding-inline-start: 12px;
   }
 }
 
 @media (width <= 1100px) {
-  .dc-panel--detail > .dc-article__head > .dc-toc {
+  .dc-panel--detail > .as-reader__head > .dc-toc {
     position: static;
     top: auto;
     bottom: auto;
@@ -3123,7 +3123,7 @@ as-viewsnav {
     pointer-events: auto;
   }
 
-  .dc-panel--detail > .dc-article__head > .dc-toc .dc-toc__rail {
+  .dc-panel--detail > .as-reader__head > .dc-toc .dc-toc__rail {
     position: static;
     width: auto;
     margin-inline-start: 0;
@@ -3459,8 +3459,8 @@ as-viewsnav {
   }
 
   .dc-main:has(> .dc-panel--detail),
-  .dc-article--with-toc,
-  .dc-article__head,
+  .as-reader--with-toc,
+  .as-reader__head,
   .dc-article__body,
   .dc-article__tail {
     display: block;

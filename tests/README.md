@@ -317,6 +317,21 @@ score is printed as a diagnostic only. Reports land in
 
 ## Browser suite (T31)
 
+`browser.article-toc` covers the shared Article/Fiction/Paper TOC (W0071),
+including the real eleven-section fiction page, native Cyrillic anchors and
+history, JS on/off, and 320/390/768/1100/1101/1440 px reading geometry.
+Its workers call `check-a11y-contract.py --toc-fixtures <temporary-directory>`:
+25 disposable pages use the real site templates, partials, heading hook and
+configuration. They cover 0–3 headings, nested h3, h4 exclusion, Paper chrome,
+Unicode/repeated/explicit anchors, excluded types, collection/custom layouts,
+and an empty Hugo TOC. Duplicate explicit IDs and a broken target are negative
+checker cases; IDs are never rewritten to make the check pass. Fixture output
+is temporary and cannot enter the normal build or deployment.
+
+The static a11y check also validates any emitted Contents landmark: at least
+three unique links, each pointing to an existing h2/h3 ID. Eligibility counts
+Hugo Markdown fragments, not template headings, reading time or a new flag.
+
 Pinned Playwright Chromium (`package.json` + lockfile). Specs under
 `tests/browser/` cover JS-off, keyboard/focus, enhancement widgets, and runtime
 axe. Home runs on desktop + mobile; track/article fixtures stay

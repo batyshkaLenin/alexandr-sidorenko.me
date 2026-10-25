@@ -2,9 +2,13 @@
 Paper: title, optional abstract/keywords, body. No shell chrome inside the work.
 */ -}}
 {{ define "main" }}
-<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-paper">
+{{- $toc := partial "publication/toc.html" . -}}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-paper{{ if $toc }} as-reader--with-toc{{ end }}">
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
-  {{ partial "publication/title-block.html" (dict "page" .) }}
+  <div class="as-reader__head">
+    {{ partial "publication/title-block.html" (dict "page" .) }}
+    {{ $toc }}
+  </div>
   {{ partial "publication/audio-block.html" . }}
   {{ with .Params.abstract }}
   <section class="dc-paper__abstract" aria-labelledby="dc-abstract-title">

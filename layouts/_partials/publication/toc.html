@@ -1,0 +1,23 @@
+{{- /* One optional TOC for ordinary prose. Count Markdown h2/h3 fragments,
+not template chrome (for example a Paper abstract) or time spent reading. */ -}}
+{{- $headings := 0 -}}
+{{- range .Fragments.HeadingsMap -}}
+  {{- if or (eq .Level 2) (eq .Level 3) -}}
+    {{- $headings = add $headings 1 -}}
+  {{- end -}}
+{{- end -}}
+{{- if and (in (slice "article" "fiction" "paper") .Type) (ge $headings 3) -}}
+  {{- $tree := .TableOfContents | replaceRE `<nav id="TableOfContents">` "" | replaceRE `</nav>` "" -}}
+  {{- if findRE `<a href="#` $tree -}}
+<nav class="dc-toc" id="TableOfContents" lang="en" aria-label="Contents">
+  <div class="dc-toc__rail">
+    <details class="dc-toc__disclosure">
+      <summary class="dc-toc__summary">toc/</summary>
+    </details>
+    <div class="dc-toc__tree" lang="{{ partial "doc-lang.html" . }}">
+      {{ $tree | safeHTML }}
+    </div>
+  </div>
+</nav>
+  {{- end -}}
+{{- end -}}

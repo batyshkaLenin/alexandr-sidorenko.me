@@ -3,9 +3,13 @@ Fiction: quiet title block (dates in the footer), no lead.
 Art-directed pieces use a custom layout.
 */ -}}
 {{ define "main" }}
-<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-fiction">
+{{- $toc := partial "publication/toc.html" . -}}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-fiction{{ if $toc }} as-reader--with-toc{{ end }}">
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
-  {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
+  <div class="as-reader__head">
+    {{ partial "publication/title-block.html" (dict "page" . "meta" false) }}
+    {{ $toc }}
+  </div>
   {{ partial "publication/audio-block.html" . }}
   <div class="dc-prose e-content dc-fiction__body">
     {{ .Content }}

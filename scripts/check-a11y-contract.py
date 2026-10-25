@@ -25,9 +25,16 @@ browser, which the keyboard pass in the task does.
 from __future__ import annotations
 
 import argparse
+import json
+import os
+import shutil
+import subprocess
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote
+
+ROOT = Path(__file__).resolve().parents[1]
 
 FOCUSABLE = {"a", "button", "input", "select", "textarea", "details", "iframe"}
 VOID = {"img", "input", "br", "hr", "meta", "link", "source", "track", "wbr", "area", "base", "col", "embed", "param"}
@@ -39,6 +46,8 @@ class PageParser(HTMLParser):
         self.errors: list[str] = []
         self.headings: list[int] = []
         self.ids: set[str] = set()
+        self.heading_ids: dict[str, int] = {}
+        self.tocs: list[dict] = []
         self.first_link: dict | None = None
         self.skip_target: str | None = None
         self.lang: str | None = None
@@ -59,6 +68,8 @@ class PageParser(HTMLParser):
             self.ids.add(ident)
         if tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
             self.headings.append(int(tag[1]))
+            if attributes.get("id"):
+                self.heading_ids[attributes["id"]] = int(tag[1])
         if tag == "img" and "alt" not in attributes:
             self.errors.append(f"<img src={attributes.get('src', '?')!r}> has no alt attribute")
 
@@ -67,6 +78,14 @@ class PageParser(HTMLParser):
             self.errors.append(f"<{tag} tabindex={tabindex}> reorders the whole document's tab sequence")
 
         classes = attributes.get("class", "").split()
+        if tag == "nav" and "dc-toc" in classes:
+            attributes["__toc__"] = str(len(self.tocs))
+            self.tocs.append({"attrs": attributes, "links": []})
+        if tag == "a":
+            for _, parent in reversed(self._open):
+                if "__toc__" in parent:
+                    self.tocs[int(parent["__toc__"])]["links"].append(attributes.get("href", ""))
+                    break
         focusable = tag in FOCUSABLE and attributes.get("tabindex") != "-1"
         if tag == "a" and not attributes.get("href"):
             focusable = False
@@ -160,13 +179,125 @@ def check_page(path: Path, url: str) -> list[str]:
     elif parser.skip_target.startswith("#") and parser.skip_target[1:] not in parser.ids:
         errors.append(f"skip link points at {parser.skip_target}, which is not on the page")
 
+    if len(parser.tocs) > 1:
+        errors.append("multiple Contents landmarks")
+    for toc in parser.tocs:
+        if toc["attrs"].get("id") != "TableOfContents" or toc["attrs"].get("aria-label") != "Contents":
+            errors.append("TOC must be the named TableOfContents landmark")
+        if len(toc["links"]) < 3:
+            errors.append("TOC requires at least three section links")
+        if len(set(toc["links"])) != len(toc["links"]):
+            errors.append("TOC has repeated targets")
+        for href in toc["links"]:
+            target = unquote(href[1:]) if href.startswith("#") else ""
+            if parser.heading_ids.get(target) not in (2, 3):
+                errors.append(f"TOC target {href!r} is not an existing h2/h3 heading")
+
     return [f"{url}: {error}" for error in errors]
+
+
+def toc_fixtures(directory: Path) -> dict:
+    """Render real site templates in a disposable site, never into public/."""
+    site = directory / "site"
+    site.mkdir(parents=True)
+    for folder in ("layouts", "data", "i18n", "config"):
+        shutil.copytree(ROOT / folder, site / folder)
+    for folder in ("assets", "static", "themes"):
+        (site / folder).symlink_to(ROOT / folder, target_is_directory=True)
+    shutil.copyfile(ROOT / "hugo.toml", site / "hugo.toml")
+    content = site / "content/library"
+    content.mkdir(parents=True)
+    shutil.copyfile(ROOT / "content/library/_index.md", content / "_index.md")
+    (site / "fixture.toml").write_text(
+        'baseURL = "https://fixture.invalid/"\nenableGitInfo = false\n'
+        'disableKinds = ["home", "section", "taxonomy", "term", "sitemap", "rss"]\n'
+    )
+    three = "## Первый раздел\n\nТекст.\n\n## Второй раздел\n\nТекст.\n\n## Третий раздел\n\nТекст.\n"
+    cases = []
+
+    def add(name, kind, body, expected, extra="", error=None, works=False):
+        slug = "w0071-fixture-" + name
+        ident = f"01a00000-0000-7000-8000-{len(cases):012x}"
+        (content / f"{slug}.md").write_text(
+            f'---\ntitle: "Fixture {name}"\ntype: "{kind}"\n'
+            f'id: "{ident}"\nauthors: ["batyshkaLenin"]\ndate: 2026-01-01\n{extra}---\n\n{body}'
+        )
+        cases.append({"slug": slug, "type": kind, "toc": expected, "error": error, "works": works})
+
+    for kind in ("article", "fiction", "paper"):
+        for count in range(4):
+            body = "\n\n".join(f"## Раздел {n}\n\nТекст." for n in range(count))
+            add(f"{kind}-{count}", kind, body, 3 if count == 3 else 0)
+    add("paper-chrome", "paper", "## Один\n\nТекст.\n\n## Два\n\nТекст.", 0,
+        'abstract: "Аннотация не является разделом текста."\nkeywords: ["пример"]\n')
+    add("paper-abstract", "paper", three, 3,
+        'abstract: "Аннотация не является разделом текста."\nkeywords: ["пример"]\n')
+    add("paper-nested", "paper", "## Один\n\nТекст.\n\n### Два\n\nТекст.\n\n### Три\n\nТекст.", 3)
+    add("deep", "article", "## Один\n\nТекст.\n\n### Два\n\nТекст.\n\n#### Три\n\nТекст.", 0)
+    add("unicode", "fiction", "## Повтор\n\nТекст.\n\n## Повтор\n\nТекст.\n\n### Ёж и чай\n\nТекст.\n\n## Явный {#stable-section}\n\nТекст.", 4)
+    add("collision", "fiction", "## Один {#same}\n\nТекст.\n\n## Два {#same}\n\nТекст.\n\n## Три\n\nТекст.", 0,
+        error='duplicate id="same"')
+    for kind in ("note", "poem", "track", "talk"):
+        extra = ('relations:\n  - rel: external-source\n    url: "https://youtu.be/sXq_ZKYl554"\n'
+                 if kind == "talk" else "")
+        add(kind, kind, three, 0, extra)
+    add("collection", "poetry-collection", three, 0, works=True)
+    add("custom", "fiction", three, 0, 'layout: "art-poem"\n')
+    add("empty", "article", three, 0)
+
+    def build(destination, extra=None):
+        config = "hugo.toml,fixture.toml" + ("," + extra if extra else "")
+        run = subprocess.run(
+            [os.environ.get("HUGO", "hugo"), "--source", str(site), "--config", config,
+             "--environment", "preview", "--destination", str(destination), "--panicOnWarning", "--noBuildLock"],
+            capture_output=True, text=True,
+        )
+        if run.returncode:
+            raise AssertionError(run.stdout + run.stderr)
+
+    public = site / "public"
+    build(public)
+    # A real empty Hugo TOC despite three h2 fragments: no phantom shell.
+    (site / "empty.toml").write_text('[markup.tableOfContents]\nstartLevel = 4\nendLevel = 6\n')
+    empty = site / "empty-public"
+    build(empty, "empty.toml")
+    slug = "w0071-fixture-empty"
+    shutil.copyfile(empty / f"library/{slug}/index.html", public / f"library/{slug}/index.html")
+    for case in cases:
+        path = public / f"library/{case['slug']}/index.html"
+        errors = check_page(path, case["slug"])
+        if case["error"]:
+            assert any(case["error"] in error for error in errors), (case, errors)
+            continue
+        assert not errors, (case, errors)
+        parsed = PageParser()
+        parsed.feed(path.read_text())
+        assert len(parsed.tocs) == bool(case["toc"]), case
+        if case["toc"]:
+            assert len(parsed.tocs[0]["links"]) == case["toc"], case
+        if case["works"]:
+            assert 'aria-label="Works in this collection"' in path.read_text(), case
+    # Prove the target check itself rejects a broken rendered link.
+    good = public / "library/w0071-fixture-article-3/index.html"
+    bad = site / "broken-target.html"
+    bad.write_text(good.read_text().replace('href="#раздел-0"', 'href="#missing"', 1))
+    assert any("TOC target '#missing'" in error for error in check_page(bad, "negative-target"))
+    return {"public": str(public), "cases": cases}
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--public-dir", default="public")
+    parser.add_argument("--toc-fixtures", type=Path, help="build and check disposable TOC boundary fixtures")
     args = parser.parse_args()
+
+    if args.toc_fixtures:
+        try:
+            print(json.dumps(toc_fixtures(args.toc_fixtures), ensure_ascii=False))
+        except (AssertionError, OSError) as error:
+            print(f"FAIL: TOC fixtures: {error}", file=sys.stderr)
+            return 1
+        return 0
 
     public = Path(args.public_dir)
     if not public.is_dir():

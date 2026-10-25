@@ -3,32 +3,13 @@ Article: optional lead, body, TOC (column on wide, <details> on narrow).
 TOC only when there are three or more headings.
 */ -}}
 {{ define "main" }}
-{{- $headings := len (findRE `<h[23]` .Content) -}}
-{{- $toc := ge $headings 3 -}}
-<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-article{{ if $toc }} dc-article--with-toc{{ end }}">
+{{- $toc := partial "publication/toc.html" . -}}
+<article class="dc-panel dc-panel--primary dc-panel--detail h-entry dc-article{{ if $toc }} dc-article--with-toc as-reader--with-toc{{ end }}">
   {{ partial "declassified/panel-label.html" (printf "%s.md" .File.BaseFileName) }}
-  <div class="dc-article__head">
+  <div class="dc-article__head as-reader__head">
     {{ partial "publication/title-heading.html" (dict "page" .) }}
     {{ partial "publication/title-meta.html" (dict "page" .) }}
-    {{ if $toc }}
-    {{- /* Document order: title → type/date → toc → body. COMP-DOCUMENT-HEADER
-         owns metadata and excludes TOC; wide CSS only pulls this node into the
-         Library rail track. Unwrap Hugo's <nav id="TableOfContents"> so the id
-         exists once. lang="en" is the chrome (aria-label, toc/); headings stay
-         the document language. */ -}}
-    {{- $docLang := partial "doc-lang.html" . -}}
-    {{- $tocTree := .TableOfContents | replaceRE `<nav id="TableOfContents">` "" | replaceRE `</nav>` "" | safeHTML -}}
-    <nav class="dc-toc" id="TableOfContents" lang="en" aria-label="Contents">
-      <div class="dc-toc__rail">
-        <details class="dc-toc__disclosure">
-          <summary class="dc-toc__summary">toc/</summary>
-        </details>
-        <div class="dc-toc__tree" lang="{{ $docLang }}">
-        {{ $tocTree }}
-        </div>
-      </div>
-    </nav>
-    {{ end }}
+    {{ $toc }}
     {{ with .Params.lead }}<p class="dc-article__lead">{{ . }}</p>{{ end }}
     {{ partial "publication/audio-block.html" . }}
   </div>
