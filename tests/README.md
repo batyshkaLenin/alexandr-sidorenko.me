@@ -543,3 +543,9 @@ and publication metadata; the audio player retains exact seconds.
 `site.capability-markers` rejects visual badges globally and missing/invalid
 computed `data-capabilities` on material rows, including positive/negative
 parser fixtures. Production geometry reference cases use this same policy.
+
+Console entry (W0087): `browser.prompt` covers the native `:` trigger on Home
+and Library views at320/390/740/741/1440px, real click/tap, Enter/Space,
+command replacement, immediate Escape→colon reopening and reconnect. Reader
+commands remain static; no-JS has neither prompt input nor a dead trigger.
+Blur preserves the newly focused control; Escape restores the invocation focus.

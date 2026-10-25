@@ -253,7 +253,7 @@
   }
 
   as-prompt {
-    display: none;
+    display: block;
   }
 
   as-prompt:has(dc-prompt[open]) {
