@@ -8,7 +8,6 @@ Addresses go through canonical-url.html.
 {{- $entry := slice
   (dict "get" "" "label" "Главная")
   (dict "get" "/library" "label" "")
-  (dict "get" "/views/all" "label" "")
   (dict "get" "/views/timeline" "label" "")
   (dict "get" "/views/types" "label" "")
   (dict "get" "/tags" "label" "")

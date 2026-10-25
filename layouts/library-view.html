@@ -1,5 +1,5 @@
 {{- /*
-Library view page. Recent is /library; other views have their own URLs.
+Library view pages. The annotated catalog lives at /library.
 Density/grouping varies; rows come from MaterialRow.
 */ -}}
 {{ define "main" }}
@@ -13,7 +13,7 @@ Density/grouping varies; rows come from MaterialRow.
       {{ partial "declassified/component.html" "dc-listnav" }}
       <dc-listnav>
       {{ if eq .Params.view "music" }}
-        {{- /* Music: local track list only. */ -}}
+        {{- /* Tracks: local compositions only; independent of the Music topic. */ -}}
         {{ $tracks := where $materials "Params.type" "track" }}
         <ul class="dc-material-list dc-music-list h-feed">
           {{ range $i, $row := $tracks.ByDate.Reverse }}
@@ -71,7 +71,7 @@ Density/grouping varies; rows come from MaterialRow.
         </ul>
         {{ end }}
       {{ else }}
-        {{- /* All: list/table modes both in markup; <dc-modes> swaps them. */ -}}
+        {{- /* Catalog: list/table modes both in markup; <dc-modes> swaps them. */ -}}
         {{ partial "library/mode-panels.html" (dict "materials" $materials "mode" "list") }}
       {{ end }}
       </dc-listnav>

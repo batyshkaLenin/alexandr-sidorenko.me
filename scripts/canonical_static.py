@@ -61,6 +61,17 @@ class CanonicalHandler(SimpleHTTPRequestHandler):
             return None
 
         path = urlsplit(self.path).path
+        # Exact local rules only; wildcard slash normalization remains below.
+        redirects = Path(self.directory) / "_redirects"
+        if redirects.is_file():
+            for line in redirects.read_text(encoding="utf-8").splitlines():
+                fields = line.split()
+                if len(fields) == 3 and fields[0] == path and fields[1].startswith("/") and fields[2] in {"301", "302", "303", "307", "308"}:
+                    self.send_response(int(fields[2]))
+                    self.send_header("Location", fields[1])
+                    self.send_header("Content-Length", "0")
+                    self.end_headers()
+                    return None
         if path != "/" and path.endswith("/"):
             target = path.rstrip("/")
             self.send_response(301)

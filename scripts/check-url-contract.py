@@ -33,7 +33,6 @@ PUBLICATION_SECTIONS = ("library",)
 LLMS_ENTRY_POINTS = (
     f"{SITE_ORIGIN}/",
     f"{SITE_ORIGIN}/library",
-    f"{SITE_ORIGIN}/library/all",
     f"{SITE_ORIGIN}/library/timeline",
     f"{SITE_ORIGIN}/library/types",
     f"{SITE_ORIGIN}/library/topics",
@@ -310,6 +309,18 @@ def main() -> int:
             if len(parts) >= 3 and parts[0] == "library" and parts[1] in {"types", "topics"}:
                 check(errors, False, f"llms.txt: facet page {url!r} is not advertised")
 
+    # One catalog: compatibility rules must precede wildcard slash handling.
+    rules = (public_dir / "_redirects").read_text().splitlines()
+    for source in ("/library/all", "/library/all/"):
+        expected = f"{source} /library 301"
+        check(errors, expected in rules, f"missing direct catalog redirect: {expected}")
+        if expected in rules and "/*/ /:splat 301" in rules:
+            check(errors, rules.index(expected) < rules.index("/*/ /:splat 301"), "catalog redirect must precede slash rule")
+    check(errors, not (public_dir / "library/all/index.html").exists(), "retired All document still built")
+    search = json.loads((public_dir / "search-index.json").read_text())
+    check(errors, not any(urlsplit(entry["url"]).path == "/library/all" for entry in search["entries"]), "retired All still searchable")
+    check(errors, f"{SITE_ORIGIN}/library/all" not in llms_urls, "retired All advertised in llms.txt")
+
     robots_path = public_dir / "robots.txt"
     check(errors, robots_path.is_file(), "missing robots.txt")
     if robots_path.is_file():
@@ -332,6 +343,8 @@ def main() -> int:
             sitemap_locs.add(loc)
             checked_urls += 1
             check(errors, not has_trailing_slash(loc), f"sitemap.xml: <loc> {loc!r} has a trailing slash")
+
+    check(errors, f"{SITE_ORIGIN}/library/all" not in sitemap_locs, "retired All in sitemap")
 
     rss_items: dict[str, set[str]] = {}
     for feed_path in sorted(public_dir.rglob("feed.xml")):

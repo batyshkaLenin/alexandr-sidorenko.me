@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 
-const LIST_PAGES = ["/", "/library", "/library/all", "/library/table", "/library/timeline", "/library/music", "/library/types"];
+const LIST_PAGES = ["/", "/library", "/library/table", "/library/timeline", "/library/music", "/library/types"];
 const NO_LIST_PAGES = ["/library/topics", "/library/skver"];
 
 async function tabUntil(page: Page, text: string, limit = 20) {
@@ -58,7 +58,7 @@ test.describe("keyboard bootstrap", () => {
   });
 
   test("Skip to list follows an in-place list/table switch", async ({ page }) => {
-    await page.goto("/library/all");
+    await page.goto("/library");
     const skipAndEnter = async () => {
       await page.locator("a.dc-skip-link[href='#main']").focus();
       await page.keyboard.press("Tab");
@@ -101,9 +101,9 @@ test.describe("keyboard bootstrap", () => {
     expect(fit).toBe(true);
   });
 
-  test("native ViewsNav path reaches Music from a fresh page", async ({ page }) => {
+  test("native ViewsNav path reaches Tracks from a fresh page", async ({ page }) => {
     await page.goto("/library");
-    await tabUntil(page, "music");
+    await tabUntil(page, "tracks");
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/library\/music$/);
   });

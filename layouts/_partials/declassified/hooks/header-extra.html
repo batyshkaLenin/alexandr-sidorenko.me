@@ -26,18 +26,17 @@ On publications: quiet command only — Library is already in the nav. <dc-clock
   {{- $command = printf "library --%s" .Params.view -}}
 {{- else if eq .Section "library" -}}
   {{- /* Path stays `~` — `library` is the command, not a path segment. */ -}}
-  {{- $command = "library --recent" -}}
+  {{- $command = "library" -}}
 {{- else -}}
   {{- $path = printf "~/%s" .Section -}}
 {{- end -}}
-{{- /* <as-prompt> updates the command when All/table mode swaps without reload. */ -}}
+{{- /* <as-prompt> updates the command when catalog/table mode swaps without reload. */ -}}
 {{- $modePrompts := "" -}}
-{{- if and $isLibraryView (in (slice "all" "table") .Params.view) -}}
-  {{- $modePrompts = dict "list" "library --all" "table" "library --table" | jsonify -}}
+{{- if or (and (eq .Kind "section") (eq .Section "library")) (eq .Params.view "table") -}}
+  {{- $modePrompts = dict "list" "library" "table" "library --table" | jsonify -}}
 {{- end }}
 {{- /* Prompt vocabulary is site-owned; component only completes and dispatches. */ -}}
 {{- $urlLibrary := partial "canonical-url.html" ("/library" | relLangURL) -}}
-{{- $urlAll := partial "canonical-url.html" ("/library/all" | relLangURL) -}}
 {{- $urlTable := partial "canonical-url.html" ("/library/table" | relLangURL) -}}
 {{- $urlTimeline := partial "canonical-url.html" ("/library/timeline" | relLangURL) -}}
 {{- $urlMusic := partial "canonical-url.html" ("/library/music" | relLangURL) -}}
@@ -45,7 +44,7 @@ On publications: quiet command only — Library is already in the nav. <dc-clock
 {{- $urlTopics := partial "canonical-url.html" ("/library/topics" | relLangURL) -}}
 {{- $libraryFlags := dict
   "recent" (dict "url" $urlLibrary "hint" (i18n "commandLibraryRecent"))
-  "all" (dict "url" $urlAll "hint" (i18n "commandLibraryAll"))
+  "all" (dict "url" $urlLibrary "hint" (i18n "commandLibraryAll"))
   "table" (dict "url" $urlTable "hint" (i18n "commandLibraryTable"))
   "timeline" (dict "url" $urlTimeline "hint" (i18n "commandLibraryTimeline"))
   "music" (dict "url" $urlMusic "hint" (i18n "commandLibraryMusic"))
@@ -108,6 +107,7 @@ into loose strings. */ -}}
 {{- /* The command line's vocabulary lives here, next to the keys: both are
 things the reader can type, and the sheet is where they are explained. */ -}}
 {{- $cli := slice (slice "home" (i18n "commandHome")) -}}
+{{- $cli = $cli | append (slice "library" (i18n "commandLibrary")) -}}
 {{- $cli = $cli | append (slice "library --recent" (i18n "commandLibraryRecent")) -}}
 {{- $cli = $cli | append (slice "library --all" (i18n "commandLibraryAll")) -}}
 {{- $cli = $cli | append (slice "library --table" (i18n "commandLibraryTable")) -}}

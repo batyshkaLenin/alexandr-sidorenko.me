@@ -1,5 +1,5 @@
 ---
-title: "Музыка"
+title: "Треки"
 description: "Треки Александра Сидоренко: список произведений с текстами."
 url: "/library/music"
 layout: "library-view"

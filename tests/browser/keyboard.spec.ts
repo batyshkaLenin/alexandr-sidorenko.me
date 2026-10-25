@@ -84,7 +84,7 @@ for (const javaScriptEnabled of [true, false]) {
     test.use({ javaScriptEnabled });
     test("title/type Tab stops, Enter, modified click and context-menu URL", async ({ page, context }, testInfo) => {
       test.skip(testInfo.project.name === "chromium-mobile", "Native keyboard and new-tab checks run on desktop.");
-      for (const url of ["/", "/library", "/library/all", "/library/types"]) {
+      for (const url of ["/", "/library", "/library/types"]) {
         await page.goto(url);
         const rows = page.locator(".dc-material:visible");
         const row = rows.first();

@@ -42,7 +42,7 @@ test.describe("font scaling", () => {
       await client.send("Page.enable");
       await client.send("Page.setFontSizes" as never, { fontSizes: { standard: 32, fixed: 32 } } as never);
       await page.setViewportSize(viewport);
-      for (const path of ["/", "/library", "/library/all", "/library/timeline", "/library/topics", "/library/types", "/library/types/fiction", "/library/skver", "/library/bluredu-new-teachers"]) {
+      for (const path of ["/", "/library", "/library/table", "/library/timeline", "/library/topics", "/library/types", "/library/types/fiction", "/library/skver", "/library/bluredu-new-teachers"]) {
         await page.goto(path);
         await page.evaluate(() => document.fonts.ready.then(() => undefined));
         const measured = await page.evaluate(() => ({

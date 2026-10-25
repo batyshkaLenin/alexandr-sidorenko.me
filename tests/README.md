@@ -377,7 +377,7 @@ clock/Hugo/data/build-commit. Neither checker rewrites sources or baselines.
 Agent workflow: read canonical rule → inspect its matching example → inspect the
 production entrypoint → implement → run relevant checks. Synthetic site fixtures
 use real type-badge and Markdown figure/code/table rendering; composition links
-use actual Home, Library All and a TOC article. There is no fake reader: the
+use actual Home, Library catalog and a TOC article. There is no fake reader: the
 production reader heading requires material identity. W0017 (MaterialRow/type
 link) and primary/green versus accent/pink focus remain explicit deviations;
 4A does not repair them. W0001 now omits the responses section when no approved
@@ -409,7 +409,7 @@ text explains native/component-specific transitions without inventing catalog ID
 | Semantic HTML, wide-code/table/math | Markdown headings/links/quote, plain/rich code, footnotes, table, MathML | Site service content; five widths JS on/off; focusable local scrolling | Production render hooks only |
 | DS-COMPONENTS figure/gallery | Existing figure/gallery pipeline, caption/credit, default/wide/full, dither/original | Site service content; five widths; original failure; selected print | Existing published image resources, no new media assets |
 | Semantic content | parallel / verse shortcodes | Site service content and real translation/poem pages; narrow/wide | No copied renderer markup |
-| DS-COMPONENTS MaterialRow rich/dense/long-title/metadata | Real /library, /library/all and Home | Five-width representative compositions; real row APIs and counts/order | W0017 remains a production defect; rows are not embedded in identity-free service pages |
+| DS-COMPONENTS MaterialRow rich/dense/long-title/metadata | Real /library, type lists and Home | Five-width representative compositions; real row APIs and counts/order | W0017 remains a production defect; rows are not embedded in identity-free service pages |
 | DS-LAYOUTS reader/TOC/poetry/track | Real TOC article, long fiction, short/long poem, track and translation URLs | Five-width shell/TOC geometry; 320/1440 no-JS reading; native audio keys | W0001 and reader identity limitation remain explicit |
 | No-JS / enhancement-unavailable | Home activity/dev snapshot and existing external-media facade | Block optional script/refresh/embed; local interception, no live provider requests | Existing snapshots and outbound links remain usable |
 | Reduced-motion / forced-colors / print | Affected focus, overlays, renderer scroll regions and media | Selected 390/1440 scenarios; temporary region screenshots | No full-page prose golden baselines |
@@ -468,3 +468,18 @@ Synthetic fixtures stay outside the repository and deployment output.
 Run both through the Harness registry. The browser spec builds its own
 disposable fixture through the static checker; it also runs in the ordinary
 browser suite against that suite's built public directory.
+
+W0062: `/library` is the full annotated catalog; List/Table share membership.
+`/library/all` and `/library/all/` are exact HTTP 301 compatibility redirects
+in generated `_redirects`, ahead of slash normalization. The local static
+handler reads exact rules for browser parity; this does not verify deployment.
+`library`, `--all`, and compatibility `--recent` open the catalog; `--music`
+continues to open the Tracks page at the unchanged `/library/music` address.
+List previews use real Description only and omit empty values; topics are
+independent native links. Poetry descriptions retain the author's wording;
+we do not parse RawContent/shortcodes or synthesize missing excerpts.
+Native Table remains self-canonical, noindex and absent from the sitemap.
+In-place mode changes preserve the original document h1/head (including
+canonical/robots/schema), as before; panels, URL, prompt, mode current state,
+Back/Forward and the visible skip target follow the selected mode. Refresh
+loads that mode's server document. Browser cases assert both arrival paths.

@@ -166,7 +166,7 @@ test.describe("publication workspace", () => {
 
   test("colophon fix preserves non-link type labels and representative accessibility", async ({ page }) => {
     for (const path of [
-      "/", "/library", "/library/all", "/library/svidetel-v-bagazhnike", "/library/trafaret",
+      "/", "/library", "/library/table", "/library/svidetel-v-bagazhnike", "/library/trafaret",
       "/library/cool-kids-of-death-hej-chlopcze", "/library/regular-visitor",
       "/library/bluredu-new-teachers", "/library/itchatter-hakatony", "/library/philosophy-of-freedom",
     ]) {
@@ -174,7 +174,7 @@ test.describe("publication workspace", () => {
       const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
       const serious = results.violations.filter((v) => ["serious", "critical"].includes(v.impact || ""));
       expect(serious, `${path}: ${JSON.stringify(serious)}`).toEqual([]);
-      if (path === "/library/all") {
+      if (path === "/library/table") {
         const labels = page.locator("span.dc-list__type");
         expect(await labels.count()).toBeGreaterThan(0);
         for (const label of await labels.all()) {

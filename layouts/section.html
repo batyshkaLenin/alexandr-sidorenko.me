@@ -2,7 +2,7 @@
 Section override: h-feed/h-entry MF2; summaries via publication/summary.txt.
 */ -}}
 {{ define "main" }}
-{{- /* Library Recent: rich MaterialRow list. */ -}}
+{{- /* Library: full annotated catalog with native List/Table URLs. */ -}}
 <div class="dc-library">
   {{ partial "library/views-nav.html" . }}
   <section class="dc-panel dc-panel--primary dc-panel--doc">
@@ -12,20 +12,13 @@ Section override: h-feed/h-entry MF2; summaries via publication/summary.txt.
     {{/* Feed paths come from .OutputFormats, never written out by hand, so the
          section's own feeds stay correct if an output format is renamed. */}}
     <h1 class="dc-section-title">{{ .Title }}</h1>
-    <p class="dc-section-feeds dc-section-meta as-library-secondary">{{ partial "publication/feed-links.html" . }}</p>
     {{ with .Content }}
     <div class="dc-panel__body dc-prose">{{ . }}</div>
     {{ end }}
     <div class="dc-panel__body">
       {{ partial "declassified/component.html" "dc-listnav" }}
       <dc-listnav>
-      <ul class="dc-material-list h-feed">
-        {{ range $i, $row := .Pages.ByDate.Reverse }}
-        {{ partial "library/material-row.html" (dict "page" $row "density" "rich" "anchor" (eq $i 0)) }}
-        {{ else }}
-        <li class="dc-list__empty" lang="en">{{ i18n "nothingHereYet" }}</li>
-        {{ end }}
-      </ul>
+      {{ partial "library/mode-panels.html" (dict "materials" .RegularPages "mode" "list") }}
       </dc-listnav>
     </div>
   </section>

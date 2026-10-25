@@ -12,5 +12,9 @@ Drafts are omitted (not in RegularPages).
 /id/{{ . }} {{ partial "canonical-url.html" $material.RelPermalink }} 303
 {{ end -}}
 {{ end }}
+# Library catalog compatibility: both forms go directly to the canonical catalog.
+/library/all /library 301
+/library/all/ /library 301
+
 # Trailing-slash → canonical (permanent; html_handling alone is temporary 307).
 /*/ /:splat 301

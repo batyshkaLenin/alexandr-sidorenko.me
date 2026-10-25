@@ -2240,7 +2240,7 @@ as-viewsnav {
     display: flex;
     flex-wrap: nowrap;
     align-items: stretch;
-    gap: 0 20px;
+    gap: 0 16px;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     white-space: nowrap;
@@ -2293,7 +2293,7 @@ as-viewsnav {
   .dc-library__views-list {
     flex: none;
     flex-direction: row;
-    gap: 16px;
+    gap: 8px;
     margin-bottom: 0;
   }
 
@@ -2306,7 +2306,7 @@ as-viewsnav {
     border-top: none;
     border-inline-start: 1px solid var(--dc-border);
     padding-top: 0;
-    padding-inline-start: 20px;
+    padding-inline-start: 16px;
   }
 }
 
@@ -2368,8 +2368,8 @@ as-viewsnav {
   text-decoration: none;
 }
 
-/* The native title link owns the row. The sibling type anchor above this
-   surface cuts out its own effective target; metadata adds no action. */
+/* The native title link owns the row. The sibling metadata anchors above this
+   surface cut out their own effective targets. */
 .dc-material__title a::after {
   content: "";
   position: absolute;
@@ -2387,7 +2387,7 @@ as-viewsnav {
   content: none;
 }
 
-.dc-material a.dc-list__type {
+.dc-material a:not(.u-url) {
   position: relative;
   z-index: 2;
   display: inline-flex;
@@ -2403,7 +2403,7 @@ as-viewsnav {
     min-height: 44px;
   }
 
-  .dc-material a.dc-list__type {
+  .dc-material a:not(.u-url) {
     min-width: 44px;
     min-height: 44px;
   }

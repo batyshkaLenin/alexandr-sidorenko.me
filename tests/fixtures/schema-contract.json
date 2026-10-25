@@ -329,26 +329,6 @@
       }
     },
     {
-      "html": "library/all/index.html",
-      "blocks": [
-        "BreadcrumbList"
-      ],
-      "breadcrumb": [
-        [
-          "Александр Сидоренко",
-          "https://alexandr-sidorenko.me/"
-        ],
-        [
-          "Библиотека",
-          "https://alexandr-sidorenko.me/library"
-        ],
-        [
-          "Все материалы",
-          "https://alexandr-sidorenko.me/library/all"
-        ]
-      ]
-    },
-    {
       "html": "library/types/index.html",
       "blocks": [
         "BreadcrumbList"
@@ -423,7 +403,7 @@
           "https://alexandr-sidorenko.me/library"
         ],
         [
-          "Музыка",
+          "Треки",
           "https://alexandr-sidorenko.me/library/music"
         ]
       ]

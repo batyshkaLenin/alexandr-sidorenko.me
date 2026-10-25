@@ -82,6 +82,9 @@ Markers from capabilities + data/glyphs.yaml (max three).
     {{- range $markers }}
     <span class="dc-material__marker" title="{{ index . "meaning" }}"><span aria-hidden="true">{{ index . "glyph" }}</span><span class="dc-visually-hidden">{{ index . "text" }}</span></span>
     {{- end }}
+    {{- range $page.GetTerms "tags" }}
+    <a class="p-category" rel="tag" href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .LinkTitle }}</a>
+    {{- end }}
   </p>
 {{- end }}
   {{- range $page.Params.authors }}
@@ -93,6 +96,8 @@ Markers from capabilities + data/glyphs.yaml (max three).
     {{- end }}
   {{- end }}
   {{- if eq $density "rich" }}
-  <p class="dc-material__excerpt p-summary">{{ partial "publication/summary.txt" $page }}</p>
+  {{- with strings.TrimSpace (partial "publication/summary.txt" $page) }}
+  <p class="dc-material__excerpt p-summary">{{ . | htmlUnescape }}</p>
+  {{- end }}
   {{- end }}
 </li>

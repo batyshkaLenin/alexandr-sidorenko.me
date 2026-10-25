@@ -4,16 +4,13 @@ Types and Topics sit in the secondary list.
 */ -}}
 {{- $isTopic := in (slice "term" "taxonomy") .Kind -}}
 {{- $isType := ne (default "" .Params.material_type) "" -}}
-{{- $current := cond (eq .Kind "section") "recent" (cond $isTopic "topics" (cond $isType "types" (default "" .Params.view))) -}}
+{{- $current := cond (eq .Kind "section") "all" (cond $isTopic "topics" (cond $isType "types" (cond (eq .Params.view "table") "all" (default "" .Params.view)))) -}}
 {{ partial "declassified/component.html" "as-viewsnav" }}
 <as-viewsnav>
 <nav class="dc-library__views" lang="en" aria-label="Library views">
   <ul class="dc-library__views-list">
-    <li{{ if eq $current "recent" }} class="dc-library__view--current"{{ end }}>
-      <a href="{{ partial "canonical-url.html" ("/library" | relLangURL) }}"{{ if eq $current "recent" }} aria-current="page"{{ end }}>recent</a>
-    </li>
     <li{{ if eq $current "all" }} class="dc-library__view--current"{{ end }}>
-      <a href="{{ partial "canonical-url.html" ("/library/all" | relLangURL) }}"{{ if eq $current "all" }} aria-current="page"{{ end }}>all</a>
+      <a href="{{ partial "canonical-url.html" ("/library" | relLangURL) }}"{{ if eq $current "all" }} aria-current="page"{{ end }}>all</a>
     </li>
     <li{{ if eq $current "timeline" }} class="dc-library__view--current"{{ end }}>
       <a href="{{ partial "canonical-url.html" ("/library/timeline" | relLangURL) }}"{{ if eq $current "timeline" }} aria-current="page"{{ end }}>timeline</a>
@@ -21,7 +18,7 @@ Types and Topics sit in the secondary list.
   </ul>
   <ul class="dc-library__views-list dc-library__views-list--secondary">
     <li{{ if eq $current "music" }} class="dc-library__view--current"{{ end }}>
-      <a href="{{ partial "canonical-url.html" ("/library/music" | relLangURL) }}"{{ if eq $current "music" }} aria-current="page"{{ end }}>music</a>
+      <a href="{{ partial "canonical-url.html" ("/library/music" | relLangURL) }}"{{ if eq $current "music" }} aria-current="page"{{ end }}>tracks</a>
     </li>
     <li{{ if eq $current "types" }} class="dc-library__view--current"{{ end }}>
       <a href="{{ partial "canonical-url.html" ("/library/types" | relLangURL) }}"{{ if eq $current "types" }} aria-current="page"{{ end }}>types</a>

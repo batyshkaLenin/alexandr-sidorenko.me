@@ -72,7 +72,7 @@ async function viewsGeometry(page: Page): Promise<ViewsGeometry> {
 async function waitViewsReady(page: Page) {
   await expect.poll(async () => {
     const geometry = await viewsGeometry(page);
-    return geometry.ready && geometry.labels.length === 6;
+    return geometry.ready && geometry.labels.length === 5;
   }).toBe(true);
 }
 
@@ -173,7 +173,7 @@ for (const javaScriptEnabled of [true, false]) {
     for (const viewport of [...phoneViewports, { width: 1440, height: 900 }]) {
       test(`row/type targets at ${viewport.width}px`, async ({ page }, testInfo) => {
         await page.setViewportSize(viewport);
-        for (const url of ["/", "/library", "/library/all", "/library/types"]) {
+        for (const url of ["/", "/library", "/library/types"]) {
           await page.goto(url);
           await page.evaluate(() => document.fonts.ready);
           const rows = page.locator(".dc-material:visible");
@@ -343,7 +343,7 @@ test.describe("library geometry", () => {
       expect(geometry.overflowing).toBe(false);
       expect(geometry.fadeStart).toBe(0);
       expect(geometry.fadeEnd).toBe(0);
-      expect(geometry.labels.some((label) => label.current && label.text === "recent")).toBe(true);
+      expect(geometry.labels.some((label) => label.current && label.text === "all")).toBe(true);
     });
   }
 
@@ -356,7 +356,7 @@ test.describe("library geometry", () => {
     await waitViewsReady(page);
     await expectCurrentViewUsesAccent(page);
 
-    await page.goto("/library/all");
+    await page.goto("/library");
     await waitViewsReady(page);
     const modeCurrent = page.locator(".dc-mode-switch [aria-current='true']");
     await expect(modeCurrent).toBeVisible();
@@ -383,7 +383,7 @@ test.describe("library geometry", () => {
     await waitViewsReady(page);
     const recent = await viewsGeometry(page);
     expectOneRow(recent);
-    await page.goto("/library/all");
+    await page.goto("/library/timeline");
     await waitViewsReady(page);
     const all = await viewsGeometry(page);
     expectOneRow(all);
@@ -566,7 +566,7 @@ test.describe("library geometry no-js", () => {
 
     const alignment = await timelineAlignment(page);
     expect(alignment.maxDelta).toBeLessThanOrEqual(1);
-    await page.locator(".dc-library__views a", { hasText: "recent" }).click();
+    await page.locator(".dc-library__views a", { hasText: "all" }).click();
     await expect(page).toHaveURL(/\/library$/);
   });
 });
@@ -576,7 +576,7 @@ for (const viewport of [{width:1440,height:900},{width:1024,height:768},{width:3
     test.skip(testInfo.project.name === 'chromium-mobile', 'Explicit viewport matrix.');
     await page.setViewportSize(viewport);
     let menu: number[] | undefined;
-    for (const url of ['/', '/library', '/', '/library/all']) {
+    for (const url of ['/', '/library', '/', '/library']) {
       await page.goto(url);
       await page.evaluate(() => document.fonts.ready);
       const positions = await page.locator('.dc-nav__link').evaluateAll(links => links.map(link => {
@@ -586,14 +586,14 @@ for (const viewport of [{width:1440,height:900},{width:1024,height:768},{width:3
       if (menu) positions.forEach((x,i) => expect(Math.abs(x-menu![i])).toBeLessThan(1));
       menu=positions;
     }
-    const modes=page.locator('.dc-mode-switch a');
+    const modes=page.locator('.dc-mode-switch a[data-mode]');
     const before=await modes.evaluateAll(els=>els.map(el=>el.getBoundingClientRect().toJSON()));
     await modes.nth(1).click();
     await expect(modes.nth(1)).toHaveAttribute('aria-current','true');
     const after=await modes.evaluateAll(els=>els.map(el=>el.getBoundingClientRect().toJSON()));
     after.forEach((box,i)=>{expect(box.x).toBe(before[i].x);expect(box.width).toBe(before[i].width);});
     await modes.first().click();
-    for (const url of ['/library','/library/all','/library/timeline','/library/music','/library/types','/library/topics']) {
+    for (const url of ['/library','/library/table','/library/timeline','/library/music','/library/types','/library/topics']) {
       await page.goto(url);
       const aligned=await page.locator('.dc-library > .dc-panel').evaluate(panel=>{
         const heading=panel.querySelector('h1')!.getBoundingClientRect();
@@ -618,7 +618,7 @@ test('Topics counts match their public material lists; backlink labels are metad
 });
 
 test('type hover owns its feedback without moving the row or title',async({page})=>{
-  for(const url of ['/','/library','/library/all']){
+  for(const url of ['/','/library']){
     await page.goto(url);
     const type=page.locator('.dc-material a.dc-list__type').first();
     const title=type.locator('xpath=ancestor::li').locator('.dc-material__title a');
@@ -635,7 +635,6 @@ test('type hover owns its feedback without moving the row or title',async({page}
 
 const libraryCompositionViews = [
   { path: "/library", secondary: true },
-  { path: "/library/all", secondary: true },
   { path: "/library/table", secondary: true },
   { path: "/library/topics", secondary: true },
   { path: "/library/types/article", secondary: true },
@@ -707,15 +706,15 @@ for (const javaScriptEnabled of [true, false]) {
 
     test("list/table keep history, native links and the skip target", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 812 });
-      await page.goto("/library/all");
-      const modes = page.locator(".dc-mode-switch a");
+      await page.goto("/library");
+      const modes = page.locator(".dc-mode-switch a[data-mode]");
       await modes.nth(1).click();
       await expect(page).toHaveURL(/\/library\/table$/);
       await expect(modes.nth(1)).toHaveAttribute("aria-current", "true");
       await expect(page.locator("#list-start")).toHaveCount(1);
       await expect(page.locator("#list-start")).toBeVisible();
       await page.goBack();
-      await expect(page).toHaveURL(/\/library\/all$/);
+      await expect(page).toHaveURL(/\/library$/);
       await expect(modes.first()).toHaveAttribute("aria-current", "true");
       const skip = page.locator('a[href="#list-start"]');
       await skip.focus();
@@ -761,6 +760,100 @@ for (const javaScriptEnabled of [true, false]) {
           }
           expect((await timelineAlignment(page)).maxDelta).toBeLessThanOrEqual(1);
         }
+      }
+    });
+  });
+}
+
+for (const javaScriptEnabled of [true, false]) {
+  test.describe(`W0062 catalog JS ${javaScriptEnabled}`, () => {
+    test.use({ javaScriptEnabled });
+    for (const width of [375, 1440]) {
+      test(`catalog previews, topic targets and native compatibility at ${width}px`, async ({ page, request }, testInfo) => {
+        await page.setViewportSize({ width, height: 900 });
+        for (const path of ['/library/all', '/library/all/']) {
+          const response = await request.get(path, { maxRedirects: 0 });
+          expect(response.status()).toBe(301);
+          expect(response.headers().location).toBe('/library');
+          await page.goto(path);
+          await expect(page).toHaveURL(/\/library$/);
+        }
+        const entries = (await (await request.get('/search-index.json')).json()).entries;
+        expect(entries.some((entry: { url: string }) => entry.url === '/library/all')).toBe(false);
+        expect(entries.find((entry: { url: string }) => entry.url === '/library/music').title).toBe('Треки');
+        const materials = entries.filter((entry: { kind: string }) => ['text', 'audio'].includes(entry.kind));
+        const rows = page.locator('[data-mode-panel="list"] .dc-material');
+        await expect(rows).toHaveCount(materials.length);
+        for (const row of await rows.all()) {
+          const href = await row.locator('.u-url.p-name').getAttribute('href');
+          const entry = materials.find((item: { url: string }) => item.url === href);
+          const summary = row.locator('.p-summary');
+          if (entry.summary) {
+            const text = await page.evaluate((value) => { const el = document.createElement('textarea'); el.innerHTML = value; return el.value; }, entry.summary);
+            await expect(summary).toHaveText(text);
+          }
+          else await expect(summary).toHaveCount(0);
+          expect(await row.locator('a a').count()).toBe(0);
+        }
+        const topic = page.locator('[data-mode-panel="list"] a[rel="tag"]').first();
+        await topic.scrollIntoViewIfNeeded();
+        const href = await topic.getAttribute('href');
+        const box = (await topic.boundingBox())!;
+        expect(box.height).toBeGreaterThanOrEqual(testInfo.project.name === 'chromium-mobile' ? 44 : 24);
+        const hit = await topic.evaluate((el) => {
+          const b = el.getBoundingClientRect();
+          return document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2)?.closest('a')?.getAttribute('href');
+        });
+        expect(hit).toBe(href);
+        await topic.focus();
+        expect(await topic.evaluate((el) => getComputedStyle(el).outlineStyle)).not.toBe('none');
+        await topic.press('Enter');
+        expect(decodeURI(new URL(page.url()).pathname)).toBe(decodeURI(href!));
+        await page.goto('/library');
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+        await testInfo.attach(`catalog-${width}-js-${javaScriptEnabled}`, { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' });
+        await page.goto('/library/music');
+        await expect(page.locator('h1')).toHaveText('Треки');
+        await expect(page.locator('.dc-library__views [aria-current="page"]')).toHaveText('tracks');
+        await expect(page.locator('.dc-material .u-url')).toHaveCount(1);
+      });
+    }
+    test('direct and in-place mode arrival preserve explicit document metadata policy', async ({ page }) => {
+      for (const initial of ['/library', '/library/table']) {
+        await page.goto(initial);
+        const snapshot = () => page.evaluate(() => ({
+          title: document.title, h1: document.querySelector('h1')?.textContent,
+          canonical: document.querySelector('link[rel="canonical"]')?.getAttribute('href'),
+          robots: document.querySelector('meta[name="robots"]')?.getAttribute('content'),
+          og: document.querySelector('meta[property="og:url"]')?.getAttribute('content'),
+          schema: Array.from(document.querySelectorAll('script[type="application/ld+json"]'), (el) => el.textContent),
+        }));
+        const direct = await snapshot();
+        expect(direct.canonical).toBe(`https://alexandr-sidorenko.me${initial}`);
+        expect(direct.og).toBe(direct.canonical);
+        expect(direct.h1).toBe(initial.endsWith('table') ? 'Таблица' : 'Библиотека');
+        expect(direct.robots).toBe(initial.endsWith('table') ? 'noindex' : undefined);
+        const target = initial.endsWith('table') ? 'list' : 'table';
+        const targetURL = target === 'list' ? '/library' : '/library/table';
+        await page.locator(`a[data-mode="${target}"]`).click();
+        await expect(page).toHaveURL(new RegExp(`${targetURL}$`));
+        await expect(page.locator(`a[data-mode="${target}"]`)).toHaveAttribute('aria-current', 'true');
+        await expect(page.locator('#list-start')).toHaveCount(1);
+        await expect(page.locator('#list-start')).toBeVisible();
+        await expect(page.locator('[data-mode-panel="table"] .p-summary')).toHaveCount(0);
+        await expect(page.locator('.dc-library__views [aria-current="page"]')).toHaveText('all');
+        if (javaScriptEnabled) {
+          expect(await snapshot()).toEqual(direct);
+          await expect(page.locator('[data-prompt-command]')).toHaveText(target === 'list' ? 'library' : 'library --table');
+        } else {
+          expect((await snapshot()).canonical).toBe(`https://alexandr-sidorenko.me${targetURL}`);
+        }
+        await page.goBack();
+        await expect(page).toHaveURL(new RegExp(`${initial}$`));
+        await page.goForward();
+        await expect(page).toHaveURL(new RegExp(`${targetURL}$`));
+        await page.reload();
+        expect((await snapshot()).canonical).toBe(`https://alexandr-sidorenko.me${targetURL}`);
       }
     });
   });

@@ -8,7 +8,7 @@ const VIEWPORTS = [
   { width: 1440, height: 900 },
 ] as const;
 
-const PAGES = ["/", "/library", "/library/all", "/library/bluredu-new-teachers"];
+const PAGES = ["/", "/library", "/library/table", "/library/bluredu-new-teachers"];
 
 type PanelReport = { label: string; outside: string[]; slack: number };
 

@@ -120,7 +120,7 @@ from this page. Hover/focus prefetch for everything else is handled by
   {{- end -}}
 {{- else if and (eq .Kind "section") (eq .Section "library") -}}
   {{- /* Library hub: the reader picks a view. */ -}}
-  {{- range (slice "/library/all" "/library/topics" "/library/types" "/library/music" "/library/timeline") -}}
+  {{- range (slice "/library/topics" "/library/types" "/library/music" "/library/timeline") -}}
     {{- $prefetch = $prefetch | append (partial "canonical-url.html" (. | relLangURL)) -}}
   {{- end -}}
 {{- end -}}

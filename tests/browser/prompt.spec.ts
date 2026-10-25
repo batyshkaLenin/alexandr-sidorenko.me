@@ -4,7 +4,7 @@ for (const [width, height] of [[320, 900], [390, 900], [740, 900], [741, 900], [
   test.describe(`W0027 prompt ${width}x${height}`, () => {
     test.use({ viewport: { width, height } });
 
-    for (const path of ["/", "/library/all"]) {
+    for (const path of ["/", "/library"]) {
       test(`${path} invocation, editing, completion and local dismissal`, async ({ page, context }) => {
         await context.route(url => !["127.0.0.1", "localhost"].includes(url.hostname), route => route.abort());
         await page.route("**/search-index.json", route => route.fulfill({
@@ -66,7 +66,7 @@ for (const [width, height] of [[320, 900], [390, 900], [740, 900], [741, 900], [
 for (const width of [320, 390, 1440]) test.describe(`W0027 no-JS ${width}`, () => {
   test.use({ viewport: { width, height: 900 }, javaScriptEnabled: false });
   test("content and navigation stay usable without a prompt input", async ({ page }) => {
-    await page.goto("/library/all");
+    await page.goto("/library");
     await expect(page.locator("main")).toBeVisible();
     await expect(page.locator("dc-prompt input")).toHaveCount(0);
     const home = page.locator('.dc-nav a[href="/"]');
@@ -98,3 +98,17 @@ for (const viewport of [{width:1440,height:900},{width:1024,height:768},{width:3
     await expect(page.locator('dc-command-palette dialog')).toBeVisible();
   });
 }
+
+test('W0062 catalog aliases and retained music command', async ({ page }) => {
+  for (const command of ['library', 'library --all', 'library --recent', 'library --music']) {
+    await page.goto('/');
+    const commands = JSON.parse((await page.locator('dc-prompt').getAttribute('data-commands'))!);
+    expect(commands.library.flags.recent.hint).toContain('compatibility');
+    expect(commands.library.flags.all.url).toBe('/library');
+    await page.keyboard.press(':');
+    const input = page.locator('dc-prompt input');
+    await input.fill(command);
+    await input.press('Enter');
+    await expect(page).toHaveURL(command.endsWith('--music') ? /\/library\/music$/ : /\/library$/);
+  }
+});
