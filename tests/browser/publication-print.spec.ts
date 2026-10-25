@@ -3,12 +3,31 @@ import { test, expect } from "@playwright/test";
 const ARTICLE = "/library/bluredu-new-teachers";
 const PAPER = "/library/philosophy-of-freedom";
 const SONG = "/library/cool-kids-of-death-hej-chlopcze";
+const PRINT_CSS = /\/css\/print\.min\.[0-9a-f]{64}\.css$/;
 
 function rgb(color: string): string {
   return color.replace(/\s+/g, " ");
 }
 
 test.describe("publication print", () => {
+  test("separate print CSS has fingerprint and SRI; base stays free of print rules", async ({ page }) => {
+    await page.goto(ARTICLE);
+    const print = page.locator('link[rel="stylesheet"][media="print"]');
+    await expect(print).toHaveCount(1);
+    const href = await print.getAttribute("href");
+    expect(href).toMatch(PRINT_CSS);
+    await expect(print).toHaveAttribute("integrity", /^sha256-/);
+    const baseLink = page.locator('link[rel="stylesheet"]:not([media="print"])');
+    await expect(baseLink).toHaveCount(1);
+    await expect(baseLink).toHaveAttribute("integrity", /^sha256-/);
+    const response = await page.request.get((await baseLink.getAttribute("href"))!);
+    expect(response.ok()).toBeTruthy();
+    expect(await response.text()).not.toMatch(/@media\s*print\b/);
+    const printResponse = await page.request.get(href!);
+    expect(printResponse.ok()).toBeTruthy();
+    expect(await printResponse.text()).toMatch(/@media\s*print\b/);
+  });
+
   test("article print drops chrome, uses original photo, black type", async ({
     page,
   }, testInfo) => {
@@ -79,6 +98,30 @@ test.describe("publication print", () => {
 
 test.describe("publication print without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
+
+  test("delayed print CSS allows screen content to paint and later styles print without JS", async ({ page }) => {
+    let release!: () => void;
+    const held = new Promise<void>(resolve => { release = resolve; });
+    const requested = page.waitForRequest(request => PRINT_CSS.test(new URL(request.url()).pathname));
+    await page.route(PRINT_CSS, async route => {
+      await held;
+      await route.continue();
+    });
+    try {
+      await page.goto("/", { waitUntil: "domcontentloaded" });
+      await requested;
+      await expect(page.locator("h1.dc-hero-name")).toBeVisible();
+      await expect.poll(() => page.evaluate(() => performance.getEntriesByName("first-contentful-paint").length)).toBeGreaterThan(0);
+      await expect(page.locator(".dc-header")).toBeVisible();
+      release();
+      await expect.poll(() => page.locator('link[media="print"]').evaluate((link: HTMLLinkElement) => !!link.sheet)).toBe(true);
+      await page.emulateMedia({ media: "print" });
+      await expect(page.locator(".dc-header")).toBeHidden();
+      await expect(page.locator("h1.dc-hero-name")).toBeVisible();
+    } finally {
+      release();
+    }
+  });
 
   test("article original photo and song translation colours hold without JS", async ({
     page,

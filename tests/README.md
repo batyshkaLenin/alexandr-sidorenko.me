@@ -343,6 +343,14 @@ desktop-representative. Does not replace `check-a11y-contract.py`.
 
 ## Artifact budgets (T31)
 
+CSS delivery uses one base bundle and a separate fingerprinted, SRI-protected
+`media="print"` bundle. Base remains applicable in print; theme print rules keep
+their cascade layer and precede site print overrides. `publication-print.spec.ts`
+checks the split and holds the print response while no-JS screen content paints,
+then releases it and verifies native print styling. CSS unit/isolation checkers
+read all four Site/Theme source stylesheets. The CSS budget still counts every
+built CSS file, including print; the split does not change the ceiling.
+
 `scripts/check-budgets.py` holds filesystem ceilings from S15/T69 (CSS/JS/image
 totals and per-HTML-page size). Not part of `validate.sh`.
 

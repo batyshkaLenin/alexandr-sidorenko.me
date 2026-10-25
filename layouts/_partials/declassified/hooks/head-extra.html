@@ -3,7 +3,7 @@
 {{- else -}}
 {{- /*
 Site head-extra: description, canonical, feeds, icons, OG/Twitter, webmention,
-JSON-LD, one stylesheet bundling theme and site CSS
+JSON-LD, separate base and print bundles with theme styles before site overrides
 (params.declassified.css.link = false). 404 gets noindex and skips identity tags.
 */ -}}
 {{- /* Fonts ship from this origin via site.css — no third-party font links. */ -}}
@@ -39,6 +39,9 @@ JSON-LD, one stylesheet bundling theme and site CSS
 {{ end }}
 {{ with slice (resources.Get "css/declassified.css") (partialCached "site-css.html" .Site) | resources.Concat "css/site.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
+{{ end }}
+{{ with slice (resources.Get "css/declassified-print.css") (resources.Get "css/print.css") | resources.Concat "css/print.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" media="print">
 {{ end }}
 {{- /* Optional per-page art stylesheet: assets/css/art/<name>.css */ -}}
 {{ with .Params.art }}

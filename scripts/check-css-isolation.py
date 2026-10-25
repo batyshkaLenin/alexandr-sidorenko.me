@@ -16,7 +16,11 @@ import re
 import sys
 from pathlib import Path
 
-SOURCES = ("assets/css/site.css", "themes/declassified/assets/css/declassified.css")
+SOURCES = (
+    "assets/css/site.css", "assets/css/print.css",
+    "themes/declassified/assets/css/declassified.css",
+    "themes/declassified/assets/css/declassified-print.css",
+)
 
 ALIGN = {"align-items", "align-self", "align-content", "place-items", "place-self", "place-content"}
 FULL_HEIGHT = {"height", "min-height", "block-size", "min-block-size"}

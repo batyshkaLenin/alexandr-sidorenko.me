@@ -5,3 +5,6 @@
 {{ with slice (resources.Get "css/declassified.css") (partialCached "site-css.html" .Site) | resources.Concat "css/site.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
 {{ end }}
+{{ with slice (resources.Get "css/declassified-print.css") (resources.Get "css/print.css") | resources.Concat "css/print.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" media="print">
+{{ end }}

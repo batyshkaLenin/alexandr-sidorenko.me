@@ -17,7 +17,9 @@ from pathlib import Path
 
 SOURCES = (
     "assets/css/site.css",
+    "assets/css/print.css",
     "themes/declassified/assets/css/declassified.css",
+    "themes/declassified/assets/css/declassified-print.css",
     *(f"assets/css/art/{path.name}" for path in sorted(Path(__file__).resolve().parents[1].glob("assets/css/art/*.css"))),
 )
 

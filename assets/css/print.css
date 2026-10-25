@@ -1,0 +1,217 @@
+/* Print-only site overrides, loaded after the theme print rules. */
+@media print {
+  .dc-adjacent {
+    display: none;
+  }
+}
+
+@media print {
+  .dc-heading-anchor {
+    display: none;
+  }
+}
+
+@media print {
+  /* Print: black code; diff keeps +/- and gutter rule. */
+  .dc-prose .dc-code,
+  .dc-prose .highlight,
+  .dc-prose .dc-code__file,
+  .dc-prose .dc-code__meta,
+  .dc-prose .dc-code__caption,
+  .dc-prose .dc-code .lntable td:first-child {
+    border-color: #000;
+    color: #000;
+  }
+
+  /* Attribute selector outweighs token rules. */
+  .dc-prose .chroma span[class] {
+    color: #000;
+  }
+
+  /* Print: wrap long lines; drop number column (wrap desyncs). */
+  .dc-prose .highlight,
+  .dc-code .lntable td:last-child pre {
+    overflow: visible;
+  }
+
+  .dc-code .lntable td:first-child {
+    display: none;
+  }
+
+  .dc-prose .highlight pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .dc-prose .chroma .gd,
+  .dc-prose .chroma .gi {
+    background: none;
+    box-shadow: none;
+  }
+
+  .dc-prose .chroma .line:has(.gd),
+  .dc-prose .chroma .line:has(.gi) {
+    background: none;
+    border-inline-start-color: #000;
+  }
+
+  .dc-prose .chroma .line:has(.gd) {
+    border-inline-start-style: dashed;
+  }
+}
+
+@media print {
+  /* Print: hide player UI; fallback line names the file. */
+  .dc-audio audio,
+  .dc-audio__label,
+  .dc-section-feeds {
+    display: none;
+  }
+
+  .dc-audio__print {
+    display: block;
+  }
+}
+
+@media print {
+  /* Print: poster + address instead of empty video box. */
+  .dc-video {
+    display: none;
+  }
+
+  .dc-video__still {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .dc-video__print {
+    display: block;
+    width: 100%;
+    font-size: var(--dc-fs-meta);
+  }
+}
+
+@media print {
+  .as-redaction__word {
+    background-image: none;
+    background-color: #d9d9d9;
+    outline: 1px solid #555;
+  }
+  .as-redaction__replacement {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+}
+
+@media print {
+  /* Print: allow wide formula to overflow rather than clip. */
+  .dc-math {
+    overflow: visible;
+  }
+}
+
+@media print {
+  /* Print: table at full page width, no scroll box. */
+  .dc-prose-table {
+    overflow: visible;
+  }
+
+  .dc-prose-table table {
+    font-size: 0.8em;
+  }
+
+  .dc-prose-table__cell {
+    border-bottom-color: #999;
+  }
+
+  .dc-prose-table thead .dc-prose-table__cell {
+    border-bottom-color: #000;
+  }
+}
+
+@media print {
+  .dc-statusbar {
+    display: none;
+  }
+}
+
+@media print {
+  /* Publication as a paper document: no site chrome, no grid/sticky, no green. */
+  .dc-toc,
+  .dc-aftermatter,
+  .dc-responses,
+  .dc-relations,
+  .tags,
+  .dc-adjacent,
+  .dc-heading-anchor,
+  .dc-statusbar,
+  .dc-figure__toggle,
+  .dc-portrait-original,
+  .dc-image-original,
+  .dc-image-toggle__overlay,
+  .as-external-media__load,
+  .as-external-media__frame,
+  .as-external-media__actions,
+  .dc-figure figcaption:not(:has(.dc-figure__caption, .dc-figure__source)) {
+    display: none !important;
+  }
+
+  body:has(.dc-statusbar) {
+    padding-bottom: 0;
+  }
+
+  .dc-main:has(> .dc-panel--detail),
+  .as-reader--with-toc,
+  .as-reader__head,
+  .dc-article__body,
+  .dc-article__tail {
+    display: block;
+    position: static;
+    inset: auto;
+    width: auto;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    grid-template-columns: none;
+  }
+
+  .dc-title,
+  .dc-prose,
+  .dc-prose .as-parallel-source {
+    color: #000;
+  }
+
+  .dc-prose .as-parallel-translation,
+  .dc-publication__meta,
+  .dc-figure figcaption {
+    color: #555;
+  }
+
+  .as-parallel-pair {
+    break-inside: avoid;
+  }
+
+  .as-external-media {
+    border-color: #999;
+    background: transparent;
+    color: #000;
+    break-inside: avoid;
+  }
+
+  .as-external-media__eyebrow,
+  .as-external-media__print {
+    color: #555;
+  }
+
+  .as-external-media__print {
+    display: block;
+    margin-block-start: 8px;
+  }
+}
