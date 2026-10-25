@@ -98,6 +98,34 @@ python3 scripts/check-budgets.py --self-test
 # axe: tests/fixtures/browser-violations/missing-alt.html (asserted red in suite)
 ```
 
+## Scrollbar layout regression (W0077)
+
+After building a preview, run:
+
+```sh
+hugo build --gc --minify --panicOnWarning --environment preview --destination tmp/scrollbar-public
+PUBLIC_DIR=tmp/scrollbar-public npx playwright test tests/browser/scrollbar-layout.spec.ts --project=chromium-desktop --project=firefox-desktop --workers=2
+```
+
+The spec launches Chromium with native scrollbars enabled and explicitly selects
+classic/overlay modes. Firefox runs **headed**: Playwright's headless Firefox
+installs a UA `scrollbar-width: none !important` sheet, so it cannot demonstrate
+native scrollbar geometry. Firefox's `ui.useOverlayScrollbars` and GTK overlay
+preference select its modes. Linux needs a display; use an existing Xvfb display
+on CI. The navigation test checks actual reserved width in each mode, rather
+than trusting flags or assuming a 15px/17px scrollbar.
+
+The standard QA profile registers this spec as `browser.scrollbar-layout`
+(Chromium desktop; its explicit phone width matrix runs there too). The command
+above adds Firefox native modes.
+
+Coverage includes overflowing and fitting pages, clicks and history, Reader/404,
+shell and container breakpoints, short Home's internal scrolling, dialogs,
+prompt, no-JS and print. Compare real element rectangles: on some engines a
+reserved gutter on a fitting page is not reflected by `innerWidth - clientWidth`.
+Native macOS Always/automatic settings and iOS still require device acceptance;
+desktop browser preferences do not prove behavior on those operating systems.
+
 ## Config and content schema (T29)
 
 `check-config-contract.py` pins `baseURL` / theme / locale / `github_repo`,

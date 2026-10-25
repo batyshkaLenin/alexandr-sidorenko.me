@@ -427,8 +427,12 @@ test.describe("home shell", () => {
       const imgCs = img ? getComputedStyle(img) : null;
       const orig = document.querySelector(".dc-portrait-original")?.getBoundingClientRect();
       const cols = getComputedStyle(document.querySelector(".dc-home")!).gridTemplateColumns;
+      const main = document.querySelector(".dc-main")!;
+      const mainStyle = getComputedStyle(main);
       return {
         cols: cols === "none" ? 0 : cols.split(" ").filter(Boolean).length,
+        contentWidth: main.clientWidth - parseFloat(mainStyle.paddingLeft) - parseFloat(mainStyle.paddingRight),
+        rootFont: parseFloat(getComputedStyle(document.documentElement).fontSize),
         overflow: document.documentElement.scrollWidth - window.innerWidth,
         overflowY: document.documentElement.scrollHeight - window.innerHeight,
         avatar: panel("avatar.jpg"),
@@ -587,7 +591,13 @@ test.describe("home shell", () => {
       expect(geo.library!.y).toBeGreaterThanOrEqual(
         Math.max(geo.avatar!.y + geo.avatar!.h, geo.about!.y + geo.about!.h) - 1,
       );
-      expect(geo.library!.w).toBeGreaterThan(geo.about!.w);
+      // Home recomposes at 60rem of available content, including native gutter.
+      if (geo.contentWidth >= 60 * geo.rootFont) {
+        expect(geo.library!.w).toBeGreaterThan(geo.about!.w);
+      } else {
+        expect(geo.library!.w).toBeGreaterThan(geo.activity!.w);
+        expect(geo.activity!.x).toBeGreaterThanOrEqual(geo.library!.x + geo.library!.w - 1);
+      }
       expect(Math.abs(geo.library!.x - geo.avatar!.x)).toBeLessThan(8);
       for (const pane of [geo.avatar, geo.about, geo.library, geo.activity]) {
         expect(pane!.y).toBeGreaterThanOrEqual(-1);
@@ -704,7 +714,7 @@ test.describe("home shell", () => {
       await expect(page.locator(".dc-portrait-quote")).toHaveCount(0);
       await expect(page.locator(".dc-portrait-original")).toBeVisible();
 
-      if (viewport.width >= 1024) {
+      if (geo.contentWidth >= 60 * geo.rootFont) {
         const activityAligned = await page.evaluate(() => {
           const mods = Array.from(document.querySelectorAll(".as-activity__module"))
             .map((el) => el.getBoundingClientRect());
@@ -734,6 +744,14 @@ test.describe("home shell", () => {
         expect(chrome.utility.borderTop).not.toBe("0px");
         expect(chrome.activity.borderTop).not.toBe("0px");
         expect(chrome.utility.labelBottom).not.toBe("0px");
+      } else {
+        const mods = await activityModuleLayout(page);
+        expect(mods.length).toBeGreaterThanOrEqual(2);
+        expect(mods[1].y).toBeGreaterThan(mods[0].y + 8);
+        for (const mod of mods) {
+          expect(mod.borderLeft).toBeLessThan(1);
+          expect(mod.paddingLeft).toBeLessThan(4);
+        }
       }
 
       await page.locator("dc-image-toggle .dc-image-toggle__button").click();

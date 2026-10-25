@@ -1959,13 +1959,15 @@ body:has(.dc-statusbar) {
   }
 }
 
-/* Library layout: rail → content → phone stack. */
-/* Stable pane width: scrollbar-gutter / overlay scrollbars. */
-html:has(.dc-library),
-html:has(.dc-panel--detail) {
-  scrollbar-gutter: stable;
+/* One viewport width for every screen layout, including Home's locked body.
+   Overlay scrollbars reserve nothing; nested scrollers keep their own policy. */
+@media screen {
+  html {
+    scrollbar-gutter: stable;
+  }
 }
 
+/* Library layout: rail → content → phone stack. */
 .dc-library {
   display: grid;
   grid-template-columns: var(--dc-rail-track) minmax(0, 1fr);
