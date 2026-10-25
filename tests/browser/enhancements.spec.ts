@@ -437,6 +437,49 @@ test.describe('terminal audio player',()=>{
     expect(actual.volume).toEqual(['□□□□□□□□□□','■■■■■□□□□□','■■■■■■■■■■','■■■■■□□□□□']);
   });
 
+  test('progress keeps a complete background under fractional foreground cells',async({page},info)=>{
+    await page.goto('/library/regular-visitor');await page.evaluate(()=>document.fonts.ready);
+    const host=page.locator('dc-audio'),audio=host.locator('audio'),cells=host.locator('.dc-audio-timeline .dc-audio-glyphs > span');
+    await expect(host.getByRole('slider',{name:'Seek audio'})).toBeEnabled();
+    await expect.poll(()=>cells.count()).toBeGreaterThan(1);
+    const count=await cells.count();
+    await cells.first().evaluate(el=>el.setAttribute('data-stable-cell','yes'));
+    for(const ratio of [0,(4.5+.025)/count,1]){
+      await audio.evaluate((a:HTMLAudioElement,value)=>{a.currentTime=a.duration*value;},ratio);
+      await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.seeking)).toBe(false);
+      if(ratio===1){
+        if(!await audio.evaluate((a:HTMLAudioElement)=>a.ended))await host.getByRole('button',{name:'Play audio',exact:true}).click();
+        await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.ended)).toBe(true);
+      }
+      const read=()=>cells.evaluateAll(nodes=>nodes.map(cell=>({base:cell.firstElementChild!.textContent,fill:cell.lastElementChild!.textContent})));
+      if(ratio===0)await expect.poll(async()=>(await read()).every(x=>x.fill==='')).toBe(true);
+      else if(ratio===1)await expect.poll(async()=>(await read()).every(x=>x.fill==='█')).toBe(true);
+      else await expect.poll(async()=>(await read()).some(x=>/[▏▎▍▌▋▊▉]/.test(x.fill!))).toBe(true);
+      expect((await read()).every(x=>x.base==='░')).toBe(true);
+      expect(await cells.first().getAttribute('data-stable-cell')).toBe('yes');
+      const boxes=await cells.evaluateAll(nodes=>nodes.map(cell=>{
+        const b=cell.firstElementChild!.getBoundingClientRect(),f=cell.lastElementChild!.getBoundingClientRect();
+        return [b.x-f.x,b.y-f.y,b.width-f.width,b.height-f.height];
+      }));
+      expect(boxes.flat().every(delta=>Math.abs(delta)<.05)).toBe(true);
+      await host.screenshot({path:info.outputPath(`progress-layers-${ratio===0?'zero':ratio===1?'full':'fractional'}.png`)});
+    }
+  });
+
+  test('desktop control centres align and times have no hanging separator',async({page})=>{
+    for(const width of [768,1024,1440]){
+      await page.setViewportSize({width,height:900});await page.goto('/library/regular-visitor');
+      await expect(page.locator('dc-audio')).toHaveAttribute('enhanced','');
+      const geometry=await page.locator('dc-audio').evaluate(el=>({
+        wide:el.clientWidth>=36*parseFloat(getComputedStyle(document.documentElement).fontSize),
+        centres:Array.from(el.querySelectorAll('button,input,.dc-audio-player__volume-label'),node=>{const r=node.getBoundingClientRect();return r.y+r.height/2;}),
+        time:el.querySelector('.dc-audio-player__time')!.textContent,
+      }));
+      expect(geometry.time).not.toContain('/');
+      if(geometry.wide)expect(Math.max(...geometry.centres)-Math.min(...geometry.centres)).toBeLessThan(.1);
+    }
+  });
+
   test('transparent native ranges handle pointer, drag, keyboard and muted volume',async({page})=>{
     await page.goto('/library/regular-visitor');
     const host=page.locator('dc-audio'),audio=host.locator('audio');
@@ -482,7 +525,7 @@ test.describe('terminal audio player',()=>{
     const counts:number[]=[];
     for(const width of [280,320,375,390,430,640,768,1024,1440]){
       await page.setViewportSize({width,height:900});
-      await expect.poll(()=>host.locator('.dc-audio-glyphs').first().locator('span').count()).toBeGreaterThan(1);
+      await expect.poll(()=>host.locator('.dc-audio-glyphs').first().locator(':scope > span').count()).toBeGreaterThan(1);
       const geometry=await host.evaluate(el=>({
         width:el.querySelector('input')!.clientWidth,
         count:el.querySelector('.dc-audio-glyphs')!.children.length,
@@ -491,7 +534,7 @@ test.describe('terminal audio player',()=>{
         cells:Array.from(el.querySelectorAll('.dc-audio-glyphs'),x=>({hidden:x.getAttribute('aria-hidden'),events:getComputedStyle(x).pointerEvents})),
       }));
       // ResizeObserver updates after layout; compare the measured width/count once settled.
-      await expect.poll(()=>host.locator('.dc-audio-glyphs').first().locator('span').count()).toBe(Math.floor(geometry.width/geometry.advance));
+      await expect.poll(()=>host.locator('.dc-audio-glyphs').first().locator(':scope > span').count()).toBe(Math.floor(geometry.width/geometry.advance));
       counts.push(geometry.count);
       expect(geometry.overflow).toBeLessThanOrEqual(1);
       expect(geometry.cells.every(x=>x.hidden==='true'&&x.events==='none')).toBe(true);
@@ -545,7 +588,7 @@ test.describe('terminal audio player',()=>{
     await expect(host).toHaveAttribute('enhanced','');
     await expect(audio).toHaveAttribute('preload','auto');
     await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.duration)).toBeCloseTo(138,0);
-    await expect(host.locator('.dc-audio-player__time')).toHaveText('00:00 / 02:18');
+    await expect(host.locator('.dc-audio-player__time')).toHaveText('00:00 02:18');
     await expect(host.getByRole('status')).toHaveText('Ready');
     expect(await audio.evaluate((a:HTMLAudioElement)=>a.paused)).toBe(true);
     expect(await audio.evaluate((a:HTMLAudioElement)=>a.currentTime)).toBe(0);
@@ -594,7 +637,7 @@ test.describe('terminal audio player',()=>{
     await expect(host).toHaveAttribute('enhanced','');
     await host.getByRole('button',{name:'Play audio',exact:true}).click();
     await expect(host.getByRole('status')).toHaveText(/Loading…|Buffering/);
-    await expect(host.locator('.dc-audio-player__time')).toHaveText('00:00 / --:--');
+    await expect(host.locator('.dc-audio-player__time')).toHaveText('00:00 --:--');
     release();
     await expect(host.getByRole('status')).toHaveText('Audio unavailable');
     await expect(host.getByRole('link',{name:'Download audio'})).toHaveAttribute('href',/\.mp3$/);
@@ -650,7 +693,7 @@ test.describe('touch audio',()=>{
     const initial=await geometry();
     expect(initial.seek.width).toBeCloseTo(initial.row.width,0);
     expect(initial.seek.y).toBeGreaterThan((await host.locator('button').first().boundingBox())!.y+initial.buttons[0].height);
-    expect(initial.buttons[0]).toEqual(initial.buttons[1]);
+    expect(initial.buttons[0].width).toBe(initial.buttons[0].height);
     await host.getByRole('button',{name:'Play audio',exact:true}).tap();
     await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeGreaterThan(0.1);
     await expect(host.getByRole('status')).toHaveText('Playing');
