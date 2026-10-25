@@ -2774,24 +2774,6 @@ as-viewsnav {
   color: var(--dc-faint);
 }
 
-.dc-mode-switch [aria-current="true"] {
-  color: var(--dc-accent);
-  text-decoration: none;
-}
-
-.dc-mode-switch a {
-  font-weight: 400;
-  text-decoration: none;
-}
-
-.dc-mode-switch a > span {
-  visibility: hidden;
-}
-
-.dc-mode-switch [aria-current="true"] > span {
-  visibility: visible;
-}
-
 @media (forced-colors: active) {
   .dc-timeline__axis {
     background: GrayText;

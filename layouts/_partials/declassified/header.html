@@ -17,11 +17,9 @@
           href="{{ partial "canonical-url.html" $item.URL }}"
           {{ if $.IsMenuCurrent "main" $item }}aria-current="page"{{ end }}
         >
-        {{- /* Brackets mark the current section; decoration only, so the
+        {{- /* Brackets decorate every navigation link, so the
                accessible name stays the section name. */ -}}
-        <span class="dc-nav__bracket" aria-hidden="true">[ </span>
-        {{ $item.Name }}
-        <span class="dc-nav__bracket" aria-hidden="true"> ]</span>
+        <span class="dc-nav__bracket" aria-hidden="true">[</span><span>{{ $item.Name }}</span><span class="dc-nav__bracket" aria-hidden="true">]</span>
         </a>
       </li>
       {{ end }}

@@ -36,27 +36,6 @@ test.describe("nav shortcuts and current marker", () => {
     }
   });
 
-  test("the current section is marked by aria-hidden brackets, named by its text", async ({ page }) => {
-    for (const [path, current, other] of [["/", "home", "library"], ["/library", "library", "home"]]) {
-      await page.goto(path);
-      const currentLink = page.locator(".dc-nav__link[aria-current='page']");
-      await expect(currentLink).toHaveCount(1);
-      await expect(currentLink).toHaveAccessibleName(current);
-      await expect(currentLink).toHaveText(`[ ${current} ]`);
-      const brackets = currentLink.locator(".dc-nav__bracket");
-      await expect(brackets).toHaveCount(2);
-      for (const bracket of await brackets.all()) await expect(bracket).toHaveAttribute("aria-hidden", "true");
-      const otherLink = page.locator(".dc-nav__link:not([aria-current])");
-      await expect(otherLink).toHaveCount(1);
-      await expect(otherLink).toHaveAccessibleName(other);
-      await expect(otherLink.locator(".dc-nav__bracket")).toHaveCount(2);
-      for (const bracket of await otherLink.locator(".dc-nav__bracket").all()) await expect(bracket).toBeHidden();
-      const currentColor = await currentLink.evaluate((el) => getComputedStyle(el).color);
-      expect(await brackets.first().evaluate((el) => getComputedStyle(el).color)).toBe(currentColor);
-      expect(await otherLink.evaluate((el) => getComputedStyle(el).color)).not.toBe(currentColor);
-    }
-  });
-
   test("the command, search and help keys work; page Esc never navigates", async ({ page }) => {
     await page.goto("/library");
     await page.keyboard.press("/");
@@ -169,11 +148,14 @@ test.describe("nav shortcuts and current marker", () => {
 test.describe("nav current marker without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
-  test("brackets are part of the markup, not an enhancement", async ({ page }) => {
-    await page.goto("/library");
-    const currentLink = page.locator(".dc-nav__link[aria-current='page']");
-    await expect(currentLink).toHaveText("[ library ]");
-    await expect(currentLink.locator(".dc-nav__bracket").first()).toBeVisible();
+  test("brackets and current names are server-rendered in both navigation pairs", async ({ page }) => {
+    await expectBracketedNavigation(page);
+    await page.goto("/");
+    await page.getByRole("link", { name: "library", exact: true }).first().click();
+    await expect(page).toHaveURL(/\/library$/);
+    await page.locator('.dc-mode-switch a[data-mode="table"]').click();
+    await expect(page).toHaveURL(/\/library\/table$/);
+    await expect(page.locator('.dc-mode-switch [aria-current="true"]')).toHaveAccessibleName("table");
   });
 
   test("Esc leaves the document in place and ordinary links still navigate", async ({ page }) => {
@@ -183,4 +165,102 @@ test.describe("nav current marker without JavaScript", () => {
     await page.getByRole("link", { name: "library", exact: true }).first().click();
     await expect(page).toHaveURL(/\/library$/);
   });
+});
+
+test("every navigation link has compact brackets and a name-only current underline", async ({ page }) => {
+  await expectBracketedNavigation(page);
+});
+
+async function expectBracketedNavigation(page: Page) {
+  for (const [path, current] of [["/", "home"], ["/library", "library"], ["/library/table", null]]) {
+    await page.goto(path);
+    const links = page.locator('.dc-nav__link');
+    for (const link of await links.all()) {
+      const label = link.locator('span:not([aria-hidden])');
+      const name = await label.textContent();
+      await expect(link).toHaveAccessibleName(name!);
+      expect(await link.evaluate(el => el.textContent!.trim())).toBe(`[${name}]`);
+      const brackets = link.locator('[aria-hidden="true"]');
+      await expect(brackets).toHaveCount(2);
+      for (const bracket of await brackets.all()) await expect(bracket).toBeVisible();
+      await expect(link).toHaveCSS("text-decoration-line", "none");
+      await expect(label).toHaveCSS("text-decoration-line", await link.getAttribute("aria-current") ? "underline" : "none");
+      const gaps = await link.evaluate(el => {
+        const spans = Array.from(el.children, child => child.getBoundingClientRect());
+        return [spans[1].left - spans[0].right, spans[2].left - spans[1].right];
+      });
+      for (const gap of gaps) expect(Math.abs(gap)).toBeLessThan(0.5);
+    }
+    const currentSection = page.locator('.dc-nav__link[aria-current="page"]');
+    if (current) await expect(currentSection).toHaveAccessibleName(current);
+    else await expect(currentSection).toHaveCount(0); // Exact-page semantics stay unchanged on child documents.
+    if (path !== "/") await expect(page.locator('.dc-mode-switch [aria-current="true"]')).toHaveAccessibleName(path.endsWith("table") ? "table" : "list");
+  }
+}
+
+for (const forcedColors of ["none", "active"] as const) {
+  test(`navigation states preserve the label cue and geometry (forced colors ${forcedColors})`, async ({ page }) => {
+    await page.emulateMedia({ forcedColors });
+    await page.goto("/library");
+    await page.mouse.move(0, 0);
+    const links = page.locator('.dc-nav__link');
+    await page.evaluate(() => document.fonts.ready);
+    for (const link of await links.all()) {
+      await page.mouse.move(0, 0);
+      const label = link.locator('span:not([aria-hidden])');
+      const current = !!await link.getAttribute("aria-current");
+      const underline = current ? "underline" : "none";
+      if (forcedColors === "none") await expect(link).toHaveCSS("color", current ? "rgb(255, 47, 110)" : "rgb(143, 168, 154)");
+      const before = await link.boundingBox();
+      await link.hover();
+      if (forcedColors === "none") await expect(link).toHaveCSS("color", "rgb(255, 111, 158)");
+      await expect(label).toHaveCSS("text-decoration-line", underline);
+      await page.keyboard.press("Tab");
+      await link.focus();
+      await expect(link).toHaveCSS("outline-style", "solid");
+      await expect(link).toHaveCSS("outline-width", "2px");
+      await expect(link).toHaveCSS("outline-offset", "2px");
+      if (forcedColors === "none") await expect(link).toHaveCSS("outline-color", "rgb(57, 255, 136)");
+      await expect(label).toHaveCSS("text-decoration-line", underline);
+      await link.evaluate(el => el.addEventListener("click", event => event.preventDefault(), { once: true }));
+      await link.hover();
+      await page.mouse.down();
+      expect(await link.evaluate(el => el.matches(":active"))).toBe(true);
+      if (forcedColors === "none") await expect(link).toHaveCSS("background-color", "rgb(22, 35, 26)");
+      await expect(label).toHaveCSS("text-decoration-line", underline);
+      await expect(link).toHaveCSS("text-decoration-line", "none");
+      expect(await link.boundingBox()).toEqual(before);
+      await page.mouse.up();
+    }
+  });
+}
+
+for (const width of [1440, 1024, 375, 320]) {
+  test(`bracket links keep coarse targets and fit at ${width}px`, async ({ browser }) => {
+    const context = await browser.newContext({ hasTouch: true, viewport: { width, height: 900 } });
+    const page = await context.newPage();
+    for (const path of ["/", "/library", "/library/table"]) {
+      await page.goto(path);
+      expect(await page.evaluate(() => matchMedia("(pointer: coarse)").matches)).toBe(true);
+      for (const box of await page.locator('.dc-nav__link').evaluateAll(links => links.map(link => link.getBoundingClientRect().toJSON()))) {
+        expect(box.width).toBeGreaterThanOrEqual(44);
+        expect(box.height).toBeGreaterThanOrEqual(44);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    }
+    await context.close();
+  });
+}
+
+test("modified clicks retain native document navigation", async ({ page, context }) => {
+  await page.goto("/library");
+  for (const selector of ['.dc-nav__link[href="/"]', '.dc-mode-switch a[data-mode="table"]']) {
+    const popupPromise = context.waitForEvent("page");
+    await page.locator(selector).click({ modifiers: ["ControlOrMeta"] });
+    const popup = await popupPromise;
+    await popup.waitForLoadState();
+    await expect(popup).toHaveURL(selector.includes("table") ? /\/library\/table$/ : /\/$/);
+    await expect(page).toHaveURL(/\/library$/);
+    await popup.close();
+  }
 });

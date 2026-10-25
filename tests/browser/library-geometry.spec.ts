@@ -571,7 +571,7 @@ test.describe("library geometry no-js", () => {
   });
 });
 
-for (const viewport of [{width:1440,height:900},{width:1024,height:768},{width:375,height:812}]) {
+for (const viewport of [{width:1440,height:900},{width:1024,height:768},{width:375,height:812},{width:320,height:568}]) {
   test(`corrective layout and stable controls ${viewport.width}px`, async ({page}, testInfo) => {
     test.skip(testInfo.project.name === 'chromium-mobile', 'Explicit viewport matrix.');
     await page.setViewportSize(viewport);
@@ -579,8 +579,8 @@ for (const viewport of [{width:1440,height:900},{width:1024,height:768},{width:3
     for (const url of ['/', '/library', '/', '/library']) {
       await page.goto(url);
       await page.evaluate(() => document.fonts.ready);
-      const positions = await page.locator('.dc-nav__link').evaluateAll(links => links.map(link => {
-        const node = Array.from(link.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent?.trim())!;
+      const positions = await page.locator('.dc-nav .dc-nav__link').evaluateAll(links => links.map(link => {
+        const node = link.querySelector('span:not([aria-hidden])')!;
         const range = document.createRange(); range.selectNodeContents(node); return range.getBoundingClientRect().x;
       }));
       if (menu) positions.forEach((x,i) => expect(Math.abs(x-menu![i])).toBeLessThan(1));
