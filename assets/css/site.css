@@ -656,6 +656,13 @@ dc-copy[copied] .dc-copy__button {
   --dc-home-avatar: min(16rem, 26svh, 28cqi);
 }
 
+@media (width <= 740px), (height <= 30rem) and (orientation: landscape) {
+  .dc-home-row--identity > .dc-panel--utility {
+    width: 100%;
+    margin-inline: auto;
+  }
+}
+
 @media (width >= 64rem) {
   .dc-home-row--identity > .dc-panel--utility {
     --dc-home-avatar: min(20rem, 28svh, 28cqi);

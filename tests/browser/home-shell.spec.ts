@@ -793,3 +793,73 @@ test.describe("home shell", () => {
     expect(tall.avatar!.w - tall.portrait!.w).toBeLessThan(48);
   });
 });
+
+// The capped portrait pane must share the stacked column's centre, including
+// the native fallback before enhancement. Tablet identity remains two columns.
+for (const javaScriptEnabled of [true, false]) {
+  test.describe(`portrait alignment JS=${javaScriptEnabled}`, () => {
+    test.use({ javaScriptEnabled });
+    for (const viewport of [
+      ...PHONES,
+      { width: 739, height: 844 },
+      { width: 740, height: 844 },
+      { width: 741, height: 844 },
+    ]) {
+      test(`${viewport.width}×${viewport.height} keeps the portrait composition aligned`, async ({ page }) => {
+        await page.setViewportSize(viewport);
+        await page.goto("/");
+        const portrait = page.locator("img.dc-portrait");
+        await expect.poll(() => portrait.evaluate((img: HTMLImageElement) => img.naturalWidth))
+          .toBeGreaterThan(0);
+        const measure = () => page.evaluate(() => {
+          const rect = (selector: string) => {
+            const box = document.querySelector(selector)!.getBoundingClientRect();
+            return { x: box.x, width: box.width, height: box.height, centre: box.x + box.width / 2 };
+          };
+          return {
+            column: rect(".dc-home"),
+            panel: rect(".dc-home-row--identity > .dc-panel--utility"),
+            toggle: rect(".dc-home dc-image-toggle"),
+            image: rect("img.dc-portrait"),
+            overflow: document.documentElement.scrollWidth - innerWidth,
+            fit: getComputedStyle(document.querySelector("img.dc-portrait")!).objectFit,
+          };
+        });
+        const before = await measure();
+        const compact = viewport.width <= 740 || viewport.height <= 480;
+        for (const box of [before.toggle, before.image]) {
+          expect(Math.abs(box.centre - before.panel.centre)).toBeLessThanOrEqual(1);
+        }
+        if (compact) {
+          expect(Math.abs(before.panel.centre - before.column.centre)).toBeLessThanOrEqual(1);
+        } else {
+          expect(Math.abs(before.panel.x - before.column.x)).toBeLessThanOrEqual(1);
+          expect(before.panel.width).toBeLessThan(before.column.width / 2);
+        }
+        expect(before.overflow).toBeLessThanOrEqual(1);
+        expect(before.fit).toBe("contain");
+        expect(Math.abs(before.image.width / before.image.height - 1)).toBeLessThan(0.03);
+        if (javaScriptEnabled) {
+          const button = page.locator("dc-image-toggle .dc-image-toggle__button");
+          await button.focus();
+          await expect(button).toBeFocused();
+          await page.keyboard.press("Enter");
+          await expect(page.locator("dc-image-toggle")).toHaveAttribute("showing", "original");
+          await expect.poll(() => portrait.evaluate((img: HTMLImageElement) =>
+            img.complete && img.naturalWidth > 0)).toBe(true);
+          const after = await measure();
+          expect(Math.abs(after.image.centre - before.image.centre)).toBeLessThanOrEqual(1);
+          expect(Math.abs(after.image.width - before.image.width)).toBeLessThanOrEqual(1);
+          expect(Math.abs(after.image.height - before.image.height)).toBeLessThanOrEqual(1);
+        } else {
+          await expect(page.locator("dc-image-toggle button")).toHaveCount(0);
+          const fallback = page.locator("dc-image-toggle .dc-image-original");
+          await expect(fallback.locator("summary")).toBeVisible();
+          await fallback.locator("summary").click();
+          await expect(fallback).toHaveAttribute("open", "");
+          await expect(fallback.locator("img")).toBeVisible();
+        }
+      });
+    }
+  });
+}
