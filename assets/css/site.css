@@ -1420,6 +1420,10 @@ dc-copy[copied] .dc-copy__button {
   max-width: 320px;
 }
 
+.dc-audio--reading dc-audio {
+  max-width: 320px;
+}
+
 /* Track Detail: player full column width. */
 .dc-audio--track .dc-audio__label {
   color: var(--dc-primary);

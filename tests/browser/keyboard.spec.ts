@@ -4,6 +4,10 @@ test.describe("native media shortcut guards", () => {
   for (const [tag, url] of [["audio", "/"], ["video", "/"], ["audio", "/library/regular-visitor"]]) {
     for (const key of [":", "/", "?"]) {
       test(`${key} stays with native ${tag} controls on ${url}`, async ({ page }, info) => {
+        // Track guards exercise the actual native fallback when its optional
+        // enhancement module cannot load; custom buttons/ranges are covered
+        // separately in enhancements.spec.ts.
+        if (url !== "/") await page.route("**/dc-audio.min.*.js", route => route.abort());
         await page.goto(url);
         if (url === "/") await expect(page.locator("dc-prompt")).toHaveAttribute("ready", "");
         await expect(page.locator("dc-help .dc-help__trigger")).toHaveCount(1);

@@ -21,20 +21,23 @@ Call: page, or dict page + form.
   {{- errorf "%s: audio %q has no entry in data/audio.json — run scripts/audio-metadata.py" $page.File.Path $entry.src }}
 {{- end }}
 {{- $id := printf "dc-audio-%d" (add $index 1) }}
-<p class="dc-audio dc-audio--{{ $form }}">
+{{ partial "declassified/component.html" "dc-audio" }}
+<figure class="dc-audio dc-audio--{{ $form }}">
   {{- if eq $form "reading" }}
   {{- /* The cue is decoration: the accessible name of the control is the label
        and the duration, without a triangle read out as a glyph. */ -}}
   <span class="dc-audio__label" id="{{ $id }}"{{ if $labelEn }} lang="en"{{ end }}><span class="dc-audio__cue" aria-hidden="true">▶</span>{{ $label }} · <span class="dc-audio__duration">{{ $meta.duration }}</span></span>
   {{- end }}
+  <dc-audio label="{{ $label }}">
   <audio
     controls
-    preload="none"
+    preload="{{ cond (eq $form "track") "auto" "none" }}"
     src="{{ $url }}"
     {{ if eq $form "reading" }}aria-labelledby="{{ $id }}"{{ else }}aria-label="{{ $label }} · {{ $meta.duration }}"{{ end }}>
     <a href="{{ $url }}">{{ $url }}</a>
   </audio>
+  </dc-audio>
   {{- /* Paper keeps the address instead of a dead control (research B8). */}}
   <span class="dc-audio__print"><span lang="en">audio:</span> {{ if $labelEn }}<span lang="en">{{ $label }}</span>{{ else }}{{ $label }}{{ end }} · {{ $meta.duration }} — {{ $url }}</span>
-</p>
+</figure>
 {{- end }}

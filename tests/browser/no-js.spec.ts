@@ -43,6 +43,9 @@ test.describe("no-js", () => {
     await page.goto("/library/regular-visitor");
     const audio = page.locator("audio");
     await expect(audio).toHaveCount(1);
+    await expect(audio).toBeVisible();
+    expect(await audio.evaluate((a: HTMLAudioElement) => a.controls)).toBe(true);
+    await expect(page.locator(".dc-audio-player")).toHaveCount(0);
     const src = await audio.getAttribute("src");
     expect(src).toBeTruthy();
     // Fallback download link inside <audio> for agents without media support.

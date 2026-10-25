@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Route } from "@playwright/test";
+import { readFileSync } from "node:fs";
 
 const controlScript = /\/js\/dc-(?:clock|command-palette|help)\.min\./;
 
@@ -403,4 +404,202 @@ for(const viewport of [{width:1440,height:900},{width:375,height:812}]) test(`pr
     if(slug==='regular-visitor') await expect(page.locator('.dc-track__file')).toContainText(duration);
     else await expect(page.locator('.dc-publication__meta [data-duration-kind="media"]')).toHaveText(duration);
   }
+});
+
+// The repository's Python static server ignores Range, as does the current
+// deployed MP3 endpoint. Real bytes + a Range-capable transport fixture exercise
+// the native seek capability; a separate case verifies truthful no-seek UI.
+async function rangedAudio(page: Page) {
+  const body=readFileSync('static/assets/library/regular-visitor/Постоянщик.mp3');
+  await page.route('**/assets/library/regular-visitor/*.mp3',async route=>{
+    const range=/^bytes=(\d+)-(\d*)$/.exec(route.request().headers().range||'');
+    const start=range?Number(range[1]):0;const end=range&&range[2]?Math.min(Number(range[2]),body.length-1):body.length-1;
+    if(start>=body.length){await route.fulfill({status:416,headers:{'Content-Range':`bytes */${body.length}`}});return;}
+    await route.fulfill({status:range?206:200,body:body.subarray(start,end+1),headers:{'Content-Type':'audio/mpeg','Accept-Ranges':'bytes','Content-Length':String(end-start+1),...(range?{'Content-Range':`bytes ${start}-${end}/${body.length}`}:{})}});
+  });
+}
+
+test.describe('terminal audio player',()=>{
+  test.beforeEach(async({page})=>{await rangedAudio(page);});
+  test('native media clock, play/pause, keyboard seek, volume, end and reconnect',async({page})=>{
+    await page.goto('/library/regular-visitor');
+    const host=page.locator('dc-audio'); const audio=host.locator('audio');
+    await expect(host).toHaveAttribute('enhanced','');
+    await expect(audio).toHaveAttribute('preload','auto');
+    await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.duration)).toBeCloseTo(138,0);
+    await expect(host.locator('.dc-audio-player__time')).toHaveText('00:00 / 02:18');
+    await expect(host.getByRole('status')).toHaveText('Ready');
+    expect(await audio.evaluate((a:HTMLAudioElement)=>a.paused)).toBe(true);
+    expect(await audio.evaluate((a:HTMLAudioElement)=>a.currentTime)).toBe(0);
+    const seek=host.getByRole('slider',{name:'Seek audio'});
+    await expect(seek).toBeEnabled();
+    await host.getByRole('button',{name:'Play audio',exact:true}).click();
+    await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.duration)).toBeCloseTo(138,0);
+    await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeGreaterThan(0.1);
+    await host.getByRole('button',{name:'Pause audio',exact:true}).click();
+    await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.paused)).toBe(true);
+    await seek.focus(); await seek.press('Home'); await seek.press('ArrowRight');
+    await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeCloseTo(0.1,1);
+    const volume=host.getByRole('slider',{name:'Audio volume'});
+    await volume.focus(); await volume.press('Home');
+    await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.volume)).toBe(0);
+    await volume.press('End');
+    await host.getByRole('button',{name:'Mute audio',exact:true}).click();
+    await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.muted)).toBe(true);
+    await host.getByRole('button',{name:'Unmute audio',exact:true}).click();
+    await host.getByRole('button',{name:'Play audio',exact:true}).focus();
+    await page.keyboard.press('Space');
+    await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.paused)).toBe(false);
+    await seek.focus(); await seek.press('End');
+    await expect(host.getByRole('status')).toHaveText('Ended');
+    await host.getByRole('button',{name:'Replay audio',exact:true}).click();
+    await expect.poll(()=>audio.evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeLessThan(2);
+    await host.getByRole('button',{name:'Pause audio',exact:true}).click();
+    const restored=await host.evaluate(el=>{const parent=el.parentElement!;el.remove();const a=el.querySelector('audio')!;const baseline=a.controls&&!a.hidden;parent.append(el);return baseline;});
+    expect(restored).toBe(true);
+    await expect(host.locator('.dc-audio-player')).toHaveCount(1);
+    await expect(host.getByRole('button')).toHaveCount(2);
+    // Reader pages intentionally have no command input. An unrelated text
+    // field must retain native Space while an audio component is present.
+    await page.evaluate(()=>{const input=document.createElement('input');input.setAttribute('aria-label','Text entry fixture');document.body.append(input);input.focus();});
+    const input=page.getByRole('textbox',{name:'Text entry fixture'});await input.fill('text');await page.keyboard.type(' ');
+    await expect(input).toHaveValue('text ');
+    expect(await audio.evaluate((a:HTMLAudioElement)=>a.paused)).toBe(true);
+  });
+
+  test('loading, unavailable source and retry expose real media states',async({page})=>{
+    let release:()=>void=()=>{};
+    const waiting=new Promise<void>(resolve=>{release=resolve;});
+    await page.route('**/*.mp3',async route=>{await waiting;await route.abort('failed');});
+    await page.goto('/library/regular-visitor',{waitUntil:'domcontentloaded'});
+    const host=page.locator('dc-audio');
+    await expect(host).toHaveAttribute('enhanced','');
+    await host.getByRole('button',{name:'Play audio',exact:true}).click();
+    await expect(host.getByRole('status')).toHaveText('Loading…');
+    await expect(host.locator('.dc-audio-player__time')).toHaveText('00:00 / --:--');
+    release();
+    await expect(host.getByRole('status')).toHaveText('Audio unavailable');
+    await expect(host.getByRole('link',{name:'Download audio'})).toHaveAttribute('href',/\.mp3$/);
+    await expect(host.getByRole('slider',{name:'Seek audio'})).toBeDisabled();
+    await page.unroute('**/*.mp3');
+    await host.getByRole('button',{name:'Retry audio',exact:true}).click();
+    await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeGreaterThan(0.1);
+    await expect(host.getByRole('status')).toContainText('Playing');
+  });
+
+  test('seek respects partial available ranges and gaps',async({page})=>{
+    await page.goto('/library/regular-visitor');const host=page.locator('dc-audio');
+    await host.getByRole('button',{name:'Play audio',exact:true}).click();
+    await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.readyState)).toBeGreaterThan(1);
+    await host.getByRole('button',{name:'Pause audio',exact:true}).click();
+    await host.locator('audio').evaluate((a:HTMLAudioElement)=>{
+      Object.defineProperty(a,'seekable',{configurable:true,get:()=>({length:1,start:()=>10,end:()=>20})});
+      a.dispatchEvent(new Event('progress'));
+    });
+    const seek=host.getByRole('slider',{name:'Seek audio'});
+    await expect(seek).toHaveAttribute('min','10');await expect(seek).toHaveAttribute('max','20');
+    await host.locator('audio').evaluate((a:HTMLAudioElement)=>{
+      Object.defineProperty(a,'seekable',{configurable:true,get:()=>({length:2,start:(i:number)=>i?20:0,end:(i:number)=>i?30:10})});
+      a.dispatchEvent(new Event('progress'));
+    });
+    await seek.evaluate((el:HTMLInputElement)=>{el.value='15';el.dispatchEvent(new Event('input',{bubbles:true}));});
+    await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeCloseTo(10,1);
+  });
+
+  test('module failure preserves visible native controls',async({page})=>{
+    await page.route('**/dc-audio.min.*.js',route=>route.abort());
+    await page.goto('/library/regular-visitor');
+    const audio=page.locator('dc-audio audio');
+    await expect(audio).toBeVisible();
+    expect(await audio.evaluate((a:HTMLAudioElement)=>a.controls)).toBe(true);
+    await expect(page.locator('.dc-audio-player')).toHaveCount(0);
+  });
+});
+
+test.describe('touch audio',()=>{
+  test.beforeEach(async({page})=>{await rangedAudio(page);});
+  test.use({hasTouch:true,viewport:{width:375,height:812}});
+  test('touch targets and playback fit the publication column',async({page})=>{
+    await page.goto('/library/regular-visitor');const host=page.locator('dc-audio');
+    for(const control of await host.locator('button,input').all())expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await host.getByRole('button',{name:'Play audio',exact:true}).tap();
+    await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeGreaterThan(0.1);
+    await host.getByRole('slider',{name:'Seek audio'}).tap();
+    await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeGreaterThan(20);
+    await host.getByRole('button',{name:'Pause audio',exact:true}).tap();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  });
+});
+
+
+test('current transport plays, exposes native seekability and replays',async({page})=>{
+  await page.goto('/library/regular-visitor');const host=page.locator('dc-audio');
+  await host.getByRole('button',{name:'Play audio',exact:true}).click();
+  await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeGreaterThan(0.1);
+  const canSeek=await host.locator('audio').evaluate((a:HTMLAudioElement)=>
+    Array.from({length:a.seekable.length},(_,i)=>a.seekable.end(i)>a.seekable.start(i)).some(Boolean));
+  if(canSeek) await expect(host.getByRole('slider',{name:'Seek audio'})).toBeEnabled();
+  else {
+    await expect(host.getByRole('slider',{name:'Seek audio'})).toBeDisabled();
+    await expect(host.getByRole('status')).toContainText('seek unavailable');
+  }
+  await host.locator('audio').evaluate((a:HTMLAudioElement)=>{a.playbackRate=16;});
+  await expect(host.getByRole('status')).toContainText('Ended',{timeout:15000});
+  await host.getByRole('button',{name:'Replay audio',exact:true}).click();
+  await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeLessThan(5);
+});
+
+// The accepted transport boundary is native HTML5 parity (DR-2026-043).
+// Both pages use the same real MP3 served as HTTP200, without a Range fixture.
+test('custom seeking preserves native HTML5 source capability', async ({ context }) => {
+  const native = await context.newPage();
+  const enhanced = await context.newPage();
+  await native.route('**/dc-audio.min.*.js', route => route.abort());
+  await Promise.all([native.goto('/library/regular-visitor'), enhanced.goto('/library/regular-visitor')]);
+  const nativeAudio = native.locator('audio');
+  const customAudio = enhanced.locator('audio');
+  await expect(nativeAudio).toBeVisible();
+  await expect(nativeAudio).toHaveJSProperty('controls', true);
+  await expect(enhanced.locator('dc-audio')).toHaveAttribute('enhanced', '');
+  await nativeAudio.focus();
+  await native.keyboard.press('Space');
+  await enhanced.getByRole('button', { name: 'Play audio', exact: true }).click();
+  for (const audio of [nativeAudio, customAudio]) {
+    await expect.poll(() => audio.evaluate((a: HTMLAudioElement) => a.currentTime)).toBeGreaterThan(.1);
+    await expect.poll(() => audio.evaluate((a: HTMLAudioElement) =>
+      a.buffered.length ? a.buffered.end(a.buffered.length - 1) : 0)).toBeGreaterThan(60);
+    await audio.evaluate((a: HTMLAudioElement) => a.pause());
+  }
+  const nativeRanges = await nativeAudio.evaluate((a: HTMLAudioElement) =>
+    Array.from({ length: a.seekable.length }, (_, i) => [a.seekable.start(i), a.seekable.end(i)]));
+  const customRanges = await customAudio.evaluate((a: HTMLAudioElement) =>
+    Array.from({ length: a.seekable.length }, (_, i) => [a.seekable.start(i), a.seekable.end(i)]));
+  const canSeek = nativeRanges.some(([start, end]) => end > start);
+  expect(customRanges.some(([start, end]) => end > start)).toBe(canSeek);
+  const slider = enhanced.getByRole('slider', { name: 'Seek audio' });
+  if (canSeek) {
+    await expect(slider).toBeEnabled();
+    await nativeAudio.evaluate((a: HTMLAudioElement) => new Promise<void>(resolve => {
+      a.addEventListener('seeked', () => resolve(), { once: true });
+      a.currentTime = 59;
+    }));
+    await slider.evaluate((el: HTMLInputElement) => new Promise<void>(resolve => {
+      const audio = el.closest('dc-audio')!.querySelector('audio')!;
+      audio.addEventListener('seeked', () => resolve(), { once: true });
+      el.value = '59';
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }));
+    const nativeTime = await nativeAudio.evaluate((a: HTMLAudioElement) => a.currentTime);
+    const customTime = await customAudio.evaluate((a: HTMLAudioElement) => a.currentTime);
+    expect(nativeTime).toBeGreaterThan(1);
+    expect(Math.abs(nativeTime - customTime)).toBeLessThan(.1);
+  } else {
+    await expect(slider).toBeDisabled();
+    await expect(enhanced.locator('dc-audio').getByRole('status')).toContainText('seek unavailable');
+    const beforeKey = await nativeAudio.evaluate((a: HTMLAudioElement) => a.currentTime);
+    await nativeAudio.focus();
+    await native.keyboard.press('ArrowRight');
+    await expect.poll(async () => Math.abs(await nativeAudio.evaluate((a: HTMLAudioElement) => a.currentTime) - beforeKey)).toBeLessThan(.1);
+  }
+  await Promise.all([native.close(), enhanced.close()]);
 });
