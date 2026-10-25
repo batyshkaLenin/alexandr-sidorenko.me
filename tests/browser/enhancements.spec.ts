@@ -603,3 +603,43 @@ test('custom seeking preserves native HTML5 source capability', async ({ context
   }
   await Promise.all([native.close(), enhanced.close()]);
 });
+
+test('audio controls reflow at 200% browser font size', async ({ page, context }, info) => {
+  test.skip(info.project.name === 'firefox-desktop', 'Browser font preferences use Chromium CDP here.');
+  const client = await context.newCDPSession(page);
+  await client.send('Page.enable');
+  for (const fontSize of [16, 32]) {
+    await client.send('Page.setFontSizes' as never, { fontSizes: { standard: fontSize, fixed: fontSize } } as never);
+    for (const width of [320, 375]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/library/regular-visitor');
+      await page.evaluate(() => document.fonts.ready);
+      const host = page.locator('dc-audio');
+      await expect(host).toHaveAttribute('enhanced', '');
+      const geometry = await host.evaluate(el => {
+        const box = el.getBoundingClientRect();
+        return {
+          overflow: document.documentElement.scrollWidth - innerWidth,
+          coarse: matchMedia('(pointer: coarse)').matches,
+          clockFont: parseFloat(getComputedStyle(el.querySelector('.dc-audio-player__time')!).fontSize),
+          controls: Array.from(el.querySelectorAll('button,input'), node => {
+            const rect = node.getBoundingClientRect();
+            return { x: rect.x, right: rect.right, width: rect.width, height: rect.height };
+          }),
+          x: box.x, right: box.right,
+        };
+      });
+      expect(geometry.overflow, `${width}px / ${fontSize}px`).toBeLessThanOrEqual(1);
+      expect(geometry.clockFont).toBeCloseTo(13 * fontSize / 16, 1);
+      for (const control of geometry.controls) {
+        expect(control.x).toBeGreaterThanOrEqual(geometry.x);
+        expect(control.right).toBeLessThanOrEqual(geometry.right);
+        expect(control.width).toBeGreaterThanOrEqual(geometry.coarse ? 44 : 24);
+        expect(control.height).toBeGreaterThanOrEqual(geometry.coarse ? 44 : 24);
+      }
+      const play = host.getByRole('button', { name: 'Play audio', exact: true });
+      await play.focus();
+      await expect(play).toHaveCSS('outline-width', '2px');
+    }
+  }
+});
