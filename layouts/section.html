@@ -12,7 +12,7 @@ Section override: h-feed/h-entry MF2; summaries via publication/summary.txt.
     {{/* Feed paths come from .OutputFormats, never written out by hand, so the
          section's own feeds stay correct if an output format is renamed. */}}
     <h1 class="dc-section-title">{{ .Title }}</h1>
-    <p class="dc-section-feeds as-library-secondary">{{ partial "publication/feed-links.html" . }}</p>
+    <p class="dc-section-feeds dc-section-meta as-library-secondary">{{ partial "publication/feed-links.html" . }}</p>
     {{ with .Content }}
     <div class="dc-panel__body dc-prose">{{ . }}</div>
     {{ end }}

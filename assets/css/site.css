@@ -1496,15 +1496,6 @@ dc-copy[copied] .dc-copy__button {
   padding-top: 14px;
 }
 
-/* Section heading + feed badges on one wrapping line. */
-.dc-section-head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-  align-items: baseline;
-  margin: 0 0 14px;
-}
-
 .dc-section-title {
   margin: 0;
   color: var(--dc-primary);
@@ -1512,21 +1503,28 @@ dc-copy[copied] .dc-copy__button {
   font-weight: 700;
 }
 
-.dc-section-feeds {
-  display: flex;
-  gap: 8px;
-  margin: 0;
-}
-
-/* Type/topic count+feeds: same badge gap as .dc-section-feeds. */
+/* Optional Library secondary row: counts, feeds or list/table modes. */
 .dc-section-meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
+  min-height: 1.5rem;
   gap: 8px;
   margin: 0 0 14px;
   color: var(--dc-muted);
   font-size: var(--dc-fs-ui);
+}
+
+.dc-section-meta a {
+  display: inline-flex;
+  align-items: center;
+  min-height: inherit;
+}
+
+@media (pointer: coarse) {
+  .dc-section-meta {
+    min-height: 2.75rem;
+  }
 }
 
 .dc-badge {
@@ -2088,8 +2086,6 @@ html:has(.dc-panel--detail) {
 }
 
 .dc-library {
-  --as-library-gap: 12px;
-  --as-library-secondary-height: 1.5rem;
   display: grid;
   grid-template-columns: var(--dc-rail-track) minmax(0, 1fr);
   gap: var(--dc-rail-gap);
@@ -2106,42 +2102,16 @@ html:has(.dc-panel--detail) {
   /* One content inset and one vertical rhythm for every Library view. */
   display: flex;
   flex-direction: column;
-  gap: var(--as-library-gap);
+  gap: 12px;
   width: 100%;
   max-width: 100%;
   margin-inline: 0;
 }
 
 /* The document panel owns the inset; nested bodies do not add another one. */
-.dc-library > .dc-panel > :is(.dc-panel__body, .dc-section-head, .dc-section-meta) {
+.dc-library > .dc-panel > :is(.dc-panel__body, .dc-section-meta) {
   padding: 0;
   margin: 0;
-}
-
-/* Optional secondary row: feeds, counts or modes. Views without one go
-   straight from the heading to their body; no empty toolbar is reserved. */
-.dc-library .as-library-secondary {
-  min-block-size: var(--as-library-secondary-height);
-  align-items: center;
-}
-
-.dc-library .as-library-secondary a {
-  display: inline-flex;
-  align-items: center;
-  min-block-size: var(--as-library-secondary-height);
-  box-sizing: border-box;
-}
-
-/* Modes stay inside their existing enhancement host; their content follows
-   the same interval as the panel's direct children. */
-.dc-library .dc-mode-switch {
-  margin-block-end: var(--as-library-gap);
-}
-
-@media (pointer: coarse) {
-  .dc-library {
-    --as-library-secondary-height: 2.75rem;
-  }
 }
 
 /* Floating command notch; type/topic line stays one row. */
@@ -2810,9 +2780,6 @@ as-viewsnav {
 }
 
 .dc-mode-switch a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
   font-weight: 400;
   text-decoration: none;
 }
@@ -2823,12 +2790,6 @@ as-viewsnav {
 
 .dc-mode-switch [aria-current="true"] > span {
   visibility: visible;
-}
-
-@media (pointer: coarse) {
-  .dc-mode-switch a {
-    min-height: 44px;
-  }
 }
 
 @media (forced-colors: active) {
