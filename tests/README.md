@@ -123,8 +123,35 @@ and QA. It covers clean-commit isolation, main/dev restrictions, toolchain pins,
 build/preflight/upload/promotion/smoke failures, concurrent deployment changes,
 record preservation and notification retries. Real account authorization,
 production bootstrap, live smoke and main/dev dashboard settings need separate
-environment evidence. Preserve the previous Vercel deployment until the domain
-cutover and stability window have been accepted.
+environment evidence. The W0004 owner decision on 2026-10-26 excludes returning
+hosting/DNS to Vercel; recovery after cutover uses Cloudflare configuration and
+verified Worker versions. Deleting previous-provider resources is a separate action.
+
+### Pre-cutover preparation (W0004)
+
+[Cutover runbook](../docs/cutover-runbook.md) describes the release freeze,
+exact-candidate staging checks, private DNS snapshot, TTL/nameserver sequence,
+and recovery using verified Cloudflare Worker versions. Its initial
+production Worker deployment is verified on `production.alexandr-sidorenko.workers.dev`;
+the runbook records exact commits, digests and deployment/version IDs. This is
+Implementation smoke. A pending Free Cloudflare DNS zone now contains all 15
+owner-supplied records; API read-back matches and both assigned nameservers
+answer iCloud MX/TXT queries. Raw snapshots and their SHA-256 manifest live in
+the protected local bundle named in the runbook. This is bounded inventory
+verification, not unknown-subdomain discovery. Effective platform CAA includes
+additional Cloudflare certificate-authority records. Registrar delegation,
+Worker Routes and live proxy switch are unchanged; independent Review/QA and
+the final cutover decision remain outstanding. The default Python urllib User-Agent receives
+Cloudflare 1010 on that origin; browser and HTTP matrix smoke pass. The current
+release wrapper's urllib smoke therefore needs separate follow-up before routine
+live releases; this bootstrap does not verify it. The procedure does not authorize
+DNS changes, a live walkthrough or rollback. Production switch requires
+independent pre-cutover Review/QA and a separate owner ACCEPT CUTOVER.
+
+Run the HTTP matrix with both an explicit origin and the matching release
+artifact directory; invoking it without `--base-url` reports a skip and exits
+zero, which is not deployed-origin evidence. DNS exports and private evidence
+belong outside the public repository and asset directory.
 
 Offline semantic suite alone (same as post-build half of `ci.sh`):
 
