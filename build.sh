@@ -145,10 +145,12 @@ main() {
   # committed snapshot is used as it is, so a fork or a local build needs no
   # credentials. The script never fails the build either — Last.fm being down
   # leaves the previous snapshot in place, exactly like the Webmention import.
-  if [[ "${BUILD_ENVIRONMENT}" == preview && "${HUGO_REFRESH_SNAPSHOTS:-1}" == 1 && -n "${LASTFM_API_KEY:-}" ]]; then
-    echo "Refreshing the last played track..."
-    python3 scripts/fetch-lastfm.py
-  fi
+  # Temporarily paused on preview and production pending Last.fm clarification.
+  # Keep the original import here so it can be restored with the Home module.
+  # if [[ "${BUILD_ENVIRONMENT}" == preview && "${HUGO_REFRESH_SNAPSHOTS:-1}" == 1 && -n "${LASTFM_API_KEY:-}" ]]; then
+  #   echo "Refreshing the last played track..."
+  #   python3 scripts/fetch-lastfm.py
+  # fi
 
   # The dev module's snapshot: weekly hours need WAKATIME_API_KEY, the
   # shape of the week is public. Runs regardless — the script keeps whatever it

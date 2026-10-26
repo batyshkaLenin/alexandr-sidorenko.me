@@ -123,14 +123,11 @@
 <as-activity class="dc-panel dc-panel--utility as-activity" data-built-at="{{ $builtAt.Format "2006-01-02T15:04:05Z07:00" }}">
   {{ partial "declassified/panel-label.html" "activity/" }}
   <div class="dc-panel__body as-activity__body">
-    {{- /* Last scrobbled track; missing snapshot removes the module. */ -}}
+    {{- /* Last.fm is paused on every environment pending terms clarification.
+    The original render block is retained in this template comment.
     {{- with (index (default dict hugo.Data.lastfm) "track") }}
     <section class="as-activity__module" data-activity-module="music" aria-labelledby="activity-music">
       <h2 class="as-activity__name" id="activity-music" lang="en">music</h2>
-      {{- /* The line is the link, but a quiet one: it wears the colour of its
-      own role and shows itself only under the pointer or the keyboard. Its
-      tooltip names the service and the moment the snapshot was taken — the
-      pane itself never prints the source (owner's call, 17 August 2026). */ -}}
       <p class="as-activity__value">
         <a href="{{ .url }}" target="_blank" rel="noopener"
            title="{{ partial "activity/source-title.html" (dict "source" "Last.fm" "snapshot" (default dict hugo.Data.lastfm)) }}">{{ .artist }} — {{ .name }}</a>
@@ -138,6 +135,11 @@
       <p class="as-activity__meta"><span lang="en">played</span> {{ partial "publication/date.html" (dict "date" (.played_at | time.AsTime) "form" "long") }}</p>
     </section>
     {{- end }}
+    */ -}}
+    <section class="as-activity__module" data-activity-module="music" aria-labelledby="activity-music">
+      <h2 class="as-activity__name" id="activity-music" lang="en">music</h2>
+      <p class="as-activity__value" lang="en">{{ i18n "activityMusicUnavailable" }}</p>
+    </section>
 
     {{- /* Dev: weekly hours + day bars; missing snapshot removes the module. */ -}}
     {{- with (default dict hugo.Data.dev) }}

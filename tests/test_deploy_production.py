@@ -388,10 +388,10 @@ shutil.copyfile(os.environ['BUILD_FIXTURE_HUGO'],destination/'hugo_extended_0.16
         self.assertIn("--panicOnWarning", args)
         self.assertEqual(original, self.global_config.read_bytes())
 
-    def test_preview_keeps_existing_refresh_behavior(self):
+    def test_preview_pauses_lastfm_but_keeps_dev_refresh(self):
         result = self.build("preview")
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertTrue((self.root / "fetched-lastfm").exists())
+        self.assertFalse((self.root / "fetched-lastfm").exists())
         self.assertTrue((self.root / "fetched-dev-activity").exists())
         args = json.loads((self.root / "hugo-args.json").read_text())
         self.assertEqual(args[args.index("--environment") + 1], "preview")

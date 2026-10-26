@@ -137,6 +137,8 @@ activitySourceAt:
   other: "Per {{ .Source }} as of {{ .At }}"
 activityRevision:
   other: "snapshot {{ .Revision }}"
+activityMusicUnavailable:
+  other: "Temporarily unavailable"
 relationsHeading:
   other: "Связи"
 relationsBacklinks:
