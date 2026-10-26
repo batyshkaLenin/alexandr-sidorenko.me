@@ -97,7 +97,15 @@ pre_build_checks() {
 }
 
 main() {
-  git config --global core.quotepath false
+  BUILD_ENVIRONMENT="${HUGO_BUILD_ENVIRONMENT:-preview}"
+  case "${BUILD_ENVIRONMENT}" in
+    preview|production) ;;
+    *) echo "ERROR: HUGO_BUILD_ENVIRONMENT must be preview or production." >&2; exit 1 ;;
+  esac
+  if [[ "${BUILD_ENVIRONMENT}" == production && -n "${PERF_PAGES:-}" ]]; then
+    echo "ERROR: measurement pages are not allowed in a production release." >&2
+    exit 1
+  fi
   if [[ $(git rev-parse --is-shallow-repository) == true ]]; then
     echo "Fetching full Git history..."
     git fetch --unshallow
@@ -119,9 +127,9 @@ main() {
   echo "Installing Hugo ${HUGO_VERSION} (extended)..."
   curl -sfL --output-dir "${build_temp_dir}" -O \
     "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-  mkdir -p "${HOME}/.local/hugo"
-  tar -C "${HOME}/.local/hugo" -xf "${build_temp_dir}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
-  export PATH="${HOME}/.local/hugo:${PATH}"
+  mkdir -p "${build_temp_dir}/hugo"
+  tar -C "${build_temp_dir}/hugo" -xf "${build_temp_dir}/hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+  export PATH="${build_temp_dir}/hugo:${PATH}"
   require_hugo_extended
 
   pre_build_checks
@@ -133,7 +141,7 @@ main() {
   # committed snapshot is used as it is, so a fork or a local build needs no
   # credentials. The script never fails the build either — Last.fm being down
   # leaves the previous snapshot in place, exactly like the Webmention import.
-  if [[ -n "${LASTFM_API_KEY:-}" ]]; then
+  if [[ "${BUILD_ENVIRONMENT}" == preview && "${HUGO_REFRESH_SNAPSHOTS:-1}" == 1 && -n "${LASTFM_API_KEY:-}" ]]; then
     echo "Refreshing the last played track..."
     python3 scripts/fetch-lastfm.py
   fi
@@ -141,14 +149,18 @@ main() {
   # The dev module's snapshot: weekly hours need WAKATIME_API_KEY, the
   # shape of the week is public. Runs regardless — the script keeps whatever it
   # cannot refresh and never fails the build, like the Last.fm import above.
-  echo "Refreshing the dev activity snapshot..."
-  python3 scripts/fetch-dev-activity.py || true
+  if [[ "${BUILD_ENVIRONMENT}" == preview && "${HUGO_REFRESH_SNAPSHOTS:-1}" == 1 ]]; then
+    echo "Refreshing the dev activity snapshot..."
+    python3 scripts/fetch-dev-activity.py || true
+  else
+    echo "Using committed activity snapshots."
+  fi
 
-  echo "Building the project (environment: preview)..."
+  echo "Building the project (environment: ${BUILD_ENVIRONMENT})..."
   # HUGO_DESTINATION lets release-local write outside a live `hugo server`
   # destination (server rewrites ./public with localhost baseURLs).
   DESTINATION="${HUGO_DESTINATION:-public}"
-  hugo build --gc --minify --cleanDestinationDir --panicOnWarning --environment preview \
+  hugo build --gc --minify --cleanDestinationDir --panicOnWarning --environment "${BUILD_ENVIRONMENT}" \
     --destination "${DESTINATION}"
 
   # Opt-in measurement scaffolding. `wrangler deploy` runs this script

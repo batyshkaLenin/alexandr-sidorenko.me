@@ -32,6 +32,93 @@ After Wrangler is pinned in `package.json` / lockfile:
 Browser tooling and Lighthouse stay **out** of this gate (local
 `release-local.sh` only).
 
+### Production releases and branch flow (W0003)
+
+The agreed branch flow is `feature/* → dev → main`: start work from `dev`,
+merge changes into `dev` for preview acceptance, then merge `dev` into `main`
+for production. `main` is production; `dev` is preview. This section specifies
+the intended setup; adding the release tooling does not change remote branches,
+Workers Builds settings, DNS or custom domains.
+
+Use separate Workers Builds targets so production and preview cannot overwrite
+each other. The existing `preview` Worker serves `dev`; its production branch
+setting must become `dev`. Its deploy command remains `npx wrangler deploy`
+(activates that preview Worker), with `npx wrangler versions upload` for optional
+feature-branch versions. The production Worker tracks `main`; disable its
+non-production branch builds. Its deploy command invokes the release wrapper
+below, rather than the default `wrangler deploy`. Select and verify its Worker
+name, account and HTTPS origin before enabling that command. Dashboard commands
+must be checked on the actual target; the preview-only default config is not a
+production target selection.
+
+```sh
+# Run from a checkout of main with npm ci already completed.
+# Use the full commit SHA; in Workers Builds use WORKERS_CI_COMMIT_SHA.
+python3 scripts/deploy-production.py deploy \
+  --commit FULL_SITE_COMMIT \
+  --worker PRODUCTION_WORKER \
+  --account-id CLOUDFLARE_ACCOUNT_ID \
+  --origin https://PRODUCTION_WORKER.ACCOUNT_SUBDOMAIN.workers.dev \
+  --record /tmp/production-deploy.json
+```
+
+Leave the dashboard Build command empty for this production wrapper: it invokes
+`scripts/ci.sh` itself in an isolated checkout of the exact commit and Theme
+gitlink. The wrapper checks local Wrangler against the release commit's pin,
+uses production Hugo output and committed activity snapshots, and runs the same
+PRE/POST-BUILD checks as PRs. It generates a temporary asset-only Wrangler config
+without the preview build hook or DNS/routes; upload cannot rebuild the artifact.
+Inherited local build destinations and Hugo overrides cannot contaminate it.
+
+Live promotion requires a commit reachable from local `main`. Workers Builds
+must identify branch `main` and the same commit. A fresh Worker without a
+previous deployment deliberately fails preflight: first bootstrap and verify a
+known rollback version as a separate controlled setup operation. An existing
+split deployment is not implicitly reduced to an arbitrary rollback choice.
+
+Before upload, the wrapper records and verifies the active deployment/version
+for rollback. It uploads a new version, checks that the active deployment has
+not changed, promotes that exact version and runs the HTTP matrix against the
+explicit origin. The served Home bytes must match the built release. A failed
+smoke exits non-zero and preserves the uploaded/deployed IDs and rollback target;
+it never silently announces success or rolls back an unrelated concurrent release.
+
+The JSON record includes Site/Theme commits, Hugo/Wrangler pins, artifact digest,
+new version/deployment IDs, previous deployment and rollback version. Keep the
+record with release evidence outside the public asset directory; successful
+records are also printed to the build log. Never reuse a record path. Use a
+unique record path per build and an operator-controlled, serialized production
+release process: the concurrency check is not an atomic Cloudflare lock.
+
+Append `--dry-run` to build, validate and check Wrangler packaging without
+uploading or promoting. It can run on a development commit; its record says
+`dry-run`, has no live deployment ID, and does not verify the remote rollback or
+HTTP behavior. Local dry-run is not a production deployment receipt.
+
+Notifications run separately after a successful smoke, and can be retried:
+
+```sh
+python3 scripts/deploy-production.py notify --record /tmp/production-deploy.json -- /path/to/notifier
+```
+
+The notifier receives `DEPLOY_RECORD`; provide credentials through its protected
+environment. Its exit status goes to a separate `.notification.json` sidecar.
+Failure or retry does not modify the successful deploy record or redeploy.
+
+Controlled checks use disposable Git repositories and fake Cloudflare/HTTP:
+
+```sh
+python3 -B scripts/check-production-deploy.py
+```
+
+This check is registered as `site.production-deploy` for Implementation, Review
+and QA. It covers clean-commit isolation, main/dev restrictions, toolchain pins,
+build/preflight/upload/promotion/smoke failures, concurrent deployment changes,
+record preservation and notification retries. Real account authorization,
+production bootstrap, live smoke and main/dev dashboard settings need separate
+environment evidence. Preserve the previous Vercel deployment until the domain
+cutover and stability window have been accepted.
+
 Offline semantic suite alone (same as post-build half of `ci.sh`):
 
 ```sh
