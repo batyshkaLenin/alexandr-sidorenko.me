@@ -6,7 +6,7 @@ Checkpoint: 2026-10-26 UTC. **Приложение обновлено; полн�
 
 По поручению владельца на production и preview вместо трека показано `Temporarily unavailable`. Старый шаблон сохранён в Hugo template comment, автоматический вызов `fetch-lastfm.py` — в Bash comments. Сам загрузчик и committed snapshot не удалены; Last.fm snapshot не публикуется в asset directory. Возвращение модуля требует отдельного решения после уточнения условий Last.fm.
 
-Сборка не вызывает Last.fm даже при заданном dummy API key и refresh=1: existing build-mode regression проверяет это на preview и production. Dev refresh preview сохранён. Письмо с описанием build-time API → local snapshot → static HTML подготовлено владельцу без отправки; `/resources`, указанный в API Terms, при проверке возвращает HTTP404.
+Сборка не вызывает Last.fm даже при заданном dummy API key и refresh=1: existing build-mode regression проверяет это на preview и production. Dev refresh preview сохранён. Письмо с описанием build-time API → local snapshot → static HTML, скриншотом и обоими workers.dev адресами подготовлено владельцу; 2026-10-26 владелец сообщил, что сам отправил письмо. Агент письмо не отправлял; ответ Last.fm пока не предоставлен. `/resources`, указанный в API Terms, при проверке возвращает HTTP404.
 
 ## Опубликованные версии
 
@@ -36,6 +36,10 @@ Previous Worker versions сохранены: production `7c3ba0f1-4bbc-48a4-8096
 Прямой HTTPS запрос к Cloudflare IP с корректным apex SNI и включённой проверкой сертификата: HTTP200, exact production Home digest и заглушка. Обычный системный DNS и Chrome пока показывают прежний Vercel сайт; это **не** live production-domain PASS. Normal www возвращает старый redirect, preview custom hostname — старый404. Worker origins проверены отдельно и работают.
 
 ## Оставшаяся приёмка
+
+Checkpoint21:54UTC: штатная форма Cloudflare1.1.1.1 Purge Cache приняла обновление NS-кэша. Последующий dig к1.1.1.1 подтвердил новые Cloudflare NS и A/AAAA; parent и Google также указывают Cloudflare. Локальный resolver пока отдаёт прежний apex/Vercel. У обеих authoritative NS и1.1.1.1 для www/preview stable hostname нет address records; normal www теперь не разрешается. Это отдельная реальная недостающая конфигурация, не только propagation.
+
+Подготовлен минимальный superseding network plan для решения владельца: сохранить существующий apex Custom Domain production и оба workers.dev; восстановить только www через exact-host Single Redirect307 на HTTPS apex с сохранением пути/query, затем один proxied originlessA www192.0.2.0; общий wildcard не восстанавливать. Сначала обязательны owner choice и fresh state readback, затем API read-back enabled redirect rule до DNS write. Независимый технический Review этого предложения: блокеров нет; необходимо проверить TLS/HTTP/HTTPS/www one-hop, unicode/encoded paths/query и unchanged currentDNS/root/preview после исполнения. Никаких rule/DNS writes на этом checkpoint не выполнено.
 
 Независимый technical live QA обеих workers.dev сред: PASS. Chrome156 desktop1905×2053/1440×1000 и mobile390×844: одна видимая music section с H2/accessible name и текстом заглушки, без links/images/time; Last.fm markup/requests отсутствуют, commit и Home hashes совпали, нет console errors/failed resources/overflow. Production robots.txt разрешает обход, preview robots.txt содержит Disallow:/; literal robots meta/X-Robots-Tag noindex не наблюдается и не заявляется. Это проверка текущего существующего механизма, а не изменение indexing policy.
 
