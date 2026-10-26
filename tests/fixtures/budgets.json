@@ -5,11 +5,11 @@
     "story": "S15",
     "task": "T69",
     "image_weight_kib_after_s15": 2077,
-    "css_limit_task": "W0059 / DR-2026-046 (temporary)",
+    "css_limit_task": "W0096 / W0074 / DR-2026-060",
     "css_bytes_measured_t208": 67746
   },
   "limits": {
-    "css_total_bytes": 81920,
+    "css_total_bytes": 79872,
     "js_total_bytes": 49152,
     "image_total_bytes": 2621440,
     "font_total_bytes": 262144,
@@ -19,7 +19,7 @@
   "notes": [
     "Audio/video bodies are out of the image budget (a track recording is intentionally large).",
     "search-index.json has its own ceiling in check-search-index.py.",
-    "CSS ceiling is temporarily 80 KiB (W0059 / DR-2026-046, owner approved 2026-10-25), raised from 72 KiB while the audio UI is completed. W0074 tracks the CSS audit and durable budget decision. Other ceilings are unchanged. Original T208 baseline was 67 746 bytes; the cap remains enforced against the complete CSS output.",
+    "CSS ceiling is permanently 78 KiB (W0096; W0074 / DR-2026-060, owner approved 2026-10-26): 75 564 bytes measured, headroom 4 308 bytes (5.7%). This replaces the temporary 80 KiB allowance. Other ceilings are unchanged. Original T208 baseline was 67 746 bytes; the cap remains enforced against the complete CSS output, including print and per-page styles.",
     "Font ceiling is 256 KiB (T230, 2026-09-16): 219 500 bytes of published woff2 after Fira Code became one variable file per subset plus symbols and math subsets, headroom 42 644 bytes (19%). A small new subset fits; bringing back the 400/700 duplicate (+84 KB) or a whole new face set does not.",
     "/sw.js is outside the JS ceiling by owner decision (T226, 2026-09-15): it does not block rendering and is fetched only on Service Worker registration. Since T227 it is the cleanup worker that retires that layer."
   ]
