@@ -306,3 +306,43 @@ test.describe("publication workspace", () => {
     await expect(page.locator("blockquote.as-parallel-text.dc-verse").first()).toBeVisible();
   });
 });
+
+for (const javaScriptEnabled of [true, false]) {
+  test.describe(`relations caption JS=${javaScriptEnabled}`, () => {
+    test.use({ javaScriptEnabled });
+    for (const width of [320, 390, 740, 1100, 1101, 1440]) {
+      test(`${width}px aligns the caption with its list without changing vertical spacing`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        for (const path of [NOTE, "/library/itchatter-hakatony", "/library/breath-of-the-wild-ost"]) {
+          await page.goto(path);
+          await page.evaluate(() => document.fonts.ready);
+          const relations = page.locator(".dc-relations");
+          const geometry = await relations.evaluate(section => {
+            const caption = section.querySelector(".dc-panel__label")!;
+            const range = document.createRange();
+            range.selectNodeContents(caption);
+            const style = getComputedStyle(caption);
+            return {
+              textX: range.getBoundingClientRect().x,
+              listX: section.querySelector(".dc-relations__list a")!.getBoundingClientRect().x,
+              padding: [style.paddingTop, style.paddingRight, style.paddingBottom, style.paddingLeft],
+              height: caption.getBoundingClientRect().height,
+              groupGap: getComputedStyle(section.querySelector(".dc-relations__label")!).marginBottom,
+              overflow: document.documentElement.scrollWidth - innerWidth,
+            };
+          });
+          expect(Math.abs(geometry.textX - geometry.listX)).toBeLessThanOrEqual(1);
+          expect(geometry.padding).toEqual(["6px", "12px", "6px", "0px"]);
+          expect(geometry.height).toBeCloseTo(31, 1);
+          expect(geometry.groupGap).toBe("6px");
+          expect(geometry.overflow).toBeLessThanOrEqual(1);
+          const link = relations.locator("a").first();
+          await page.keyboard.press("Tab");
+          await link.focus();
+          await expect(link).toBeFocused();
+          await expect(link).toHaveCSS("outline-width", "2px");
+        }
+      });
+    }
+  });
+}

@@ -480,6 +480,10 @@ dc-prompt[open] .dc-identity__cursor {
   font-size: var(--dc-fs-ui);
 }
 
+.dc-relations > .dc-panel__label {
+  padding-inline-start: 0;
+}
+
 .dc-relations__group + .dc-relations__group {
   margin-top: 16px;
 }
