@@ -502,6 +502,26 @@ test.describe('terminal audio player',()=>{
     }
   });
 
+  test('Play stays beside progress across compact and wide container boundaries', async ({ page }) => {
+    for (const width of [320,375,390,676,677,678,768,1440]) {
+      await page.setViewportSize({width,height:900});
+      await page.goto('/library/regular-visitor');
+      const host=page.locator('dc-audio');
+      await expect(host).toHaveAttribute('enhanced','');
+      const read=()=>host.evaluate(el=>{
+        const box=(selector:string)=>{const r=el.querySelector(selector)!.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height};};
+        return {play:box('.dc-audio-primary'),seek:box('.dc-audio-player__seek'),overflow:el.scrollWidth-el.clientWidth};
+      });
+      const before=await read();
+      expect(Math.abs(before.play.y+before.play.h/2-before.seek.y-before.seek.h/2)).toBeLessThanOrEqual(1);
+      expect(before.seek.x).toBeGreaterThan(before.play.x+before.play.w);
+      expect(before.overflow).toBeLessThanOrEqual(1);
+      await host.locator('audio').evaluate((audio:HTMLAudioElement)=>audio.dispatchEvent(new Event('waiting')));
+      await expect(host.getByRole('status')).toHaveText('Buffering');
+      expect(await read()).toEqual(before);
+    }
+  });
+
   test('transparent native ranges handle pointer, drag, keyboard and muted volume',async({page})=>{
     await page.goto('/library/regular-visitor');
     const host=page.locator('dc-audio'),audio=host.locator('audio');
@@ -714,7 +734,8 @@ test.describe('touch audio',()=>{
     }));
     const initial=await geometry();
     expect(initial.seek.width).toBeCloseTo(initial.row.width,0);
-    expect(initial.seek.y).toBeGreaterThan((await host.locator('button').first().boundingBox())!.y+initial.buttons[0].height);
+    const playBox=(await host.locator('button').first().boundingBox())!;
+    expect(Math.abs(initial.seek.y+initial.seek.height/2-playBox.y-playBox.height/2)).toBeLessThanOrEqual(1);
     expect(initial.buttons[0].width).toBe(initial.buttons[0].height);
     await host.getByRole('button',{name:'Play audio',exact:true}).tap();
     await expect.poll(()=>host.locator('audio').evaluate((a:HTMLAudioElement)=>a.currentTime)).toBeGreaterThan(0.1);
@@ -831,11 +852,13 @@ test('audio controls reflow at 200% browser font size', async ({ page, context }
           clockFont: parseFloat(getComputedStyle(el.querySelector('.dc-audio-player__time')!).fontSize),
           controls: Array.from(el.querySelectorAll('button,input'), node => {
             const rect = node.getBoundingClientRect();
-            return { x: rect.x, right: rect.right, width: rect.width, height: rect.height };
+            return { x: rect.x, y: rect.y, right: rect.right, width: rect.width, height: rect.height };
           }),
           x: box.x, right: box.right,
         };
       });
+      const [playBox, seekBox] = geometry.controls;
+      expect(Math.abs(playBox.y + playBox.height / 2 - seekBox.y - seekBox.height / 2)).toBeLessThanOrEqual(1);
       expect(geometry.playerOverflow, `${width}px / ${fontSize}px player`).toBeLessThanOrEqual(1);
       // The unchanged header navigation exceeds 280px at a 32px browser font.
       // Audio controls must still fit; the header correction is outside W0059.
@@ -890,4 +913,34 @@ test('multi-recording tracks retain each file duration while aggregate time stay
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+
+test('reading audio keeps Play beside progress in its narrow column', async ({ page }, info) => {
+  test.skip(info.project.name !== 'chromium-desktop', 'Disposable server-rendered reading fixture runs once.');
+  const root=mkdtempSync(join(tmpdir(),'reading-audio-layout-'));
+  try {
+    const content=join(root,'content'),output=join(root,'public');
+    cpSync('content',content,{recursive:true});
+    const fixture=join(content,'library','typography-playground.md');
+    writeFileSync(fixture,readFileSync(fixture,'utf8').replace('draft: true','draft: false'));
+    execFileSync('hugo',['build','--environment','preview','--panicOnWarning','--contentDir',content,'--destination',output,'--cacheDir',join(root,'cache')],{stdio:'pipe'});
+    await page.route('**/library/typography-playground',route=>route.fulfill({contentType:'text/html; charset=utf-8',body:readFileSync(join(output,'library','typography-playground','index.html'))}));
+    await rangedAudio(page);
+    for(const width of [320,390,677,1440]) {
+      await page.setViewportSize({width,height:900});
+      await page.goto('/library/typography-playground');
+      const host=page.locator('.dc-audio--reading dc-audio');
+      await expect(host).toHaveAttribute('enhanced','');
+      for(const fontSize of ['100%','200%']) {
+        await page.evaluate(value=>{document.documentElement.style.fontSize=value;},fontSize);
+        const geometry=await host.evaluate(el=>{
+          const boxes=Array.from(el.querySelectorAll('.dc-audio-primary,.dc-audio-player__seek'),node=>{const r=node.getBoundingClientRect();return r.y+r.height/2;});
+          return {boxes,overflow:el.scrollWidth-el.clientWidth};
+        });
+        expect(Math.abs(geometry.boxes[0]-geometry.boxes[1])).toBeLessThanOrEqual(1);
+        expect(geometry.overflow).toBeLessThanOrEqual(1);
+      }
+    }
+  } finally { rmSync(root,{recursive:true,force:true}); }
 });
