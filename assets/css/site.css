@@ -272,6 +272,13 @@
     flex-wrap: nowrap;
   }
 
+  /* Let the existing identity ellipsis shrink its outer flex item too. */
+  .dc-topbar > dc-prompt:not([open]),
+  .dc-topbar > as-prompt {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   .dc-identity {
     flex: 1 1 auto;
   }
@@ -301,8 +308,16 @@ dc-prompt[open] .dc-identity {
 }
 
 dc-prompt[open] .dc-identity__sep {
-  flex: none;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: pre;
+}
+
+dc-prompt[open] .dc-prompt__field {
+  flex: 1 1 12ch;
+  min-width: 4ch;
 }
 
 /* Hide drawn `_` while prompt is open (real caret). */
@@ -830,7 +845,7 @@ dc-copy[copied] .dc-copy__button {
   font-weight: 700;
   line-height: var(--dc-lh-tight);
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 /* Home chrome stays shell type, including about.md — tablet must not read
@@ -961,9 +976,10 @@ dc-copy[copied] .dc-copy__button {
 .dc-hero-meta {
   margin: 0;
   flex: 0 0 auto;
+  max-inline-size: 100%;
   color: var(--dc-faint);
   font-size: var(--dc-fs-meta);
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .dc-hero-socials {
@@ -1915,14 +1931,24 @@ as-statusbar {
   color: var(--dc-muted);
 }
 
+/* No-JS bar is one meta line plus 12px padding and 1px border. JS measures
+   wrapped hints/modes. Reserve the same space for native focus scrolling. */
+html:has(.dc-statusbar) {
+  scroll-padding-block-end: calc(var(--as-statusbar-height, calc(var(--dc-fs-meta) * var(--dc-lh-ui) + 13px)) + 8px);
+}
+
 body:has(.dc-statusbar) {
-  padding-bottom: 2.6em;
+  padding-bottom: calc(var(--as-statusbar-height, calc(var(--dc-fs-meta) * var(--dc-lh-ui) + 13px)) + 8px);
 }
 
 
 @media (width <= 740px), (height <= 30rem) and (orientation: landscape) {
   .dc-statusbar {
     display: none;
+  }
+
+  html:has(.dc-statusbar) {
+    scroll-padding-block-end: 0;
   }
 
   body:has(.dc-statusbar) {

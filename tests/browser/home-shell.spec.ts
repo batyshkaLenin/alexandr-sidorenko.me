@@ -898,12 +898,15 @@ for (const javaScriptEnabled of [true, false]) {
               library:rect(".dc-home-row--recent > .dc-panel"), activity:rect(".as-activity"),
               foot:rect(".dc-hero-foot"), portrait:rect(".dc-portrait"),
               font:parseFloat(bodyStyle.fontSize), inset:parseFloat(bodyStyle.paddingBottom)+1,
-              homeOverflow:home.scrollWidth-home.clientWidth, fit:getComputedStyle(img).objectFit,
+              homeOverflow:home.scrollWidth-home.clientWidth,
+              pageOverflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+              fit:getComputedStyle(img).objectFit,
             };
           });
           const geo = await read();
           const label = `${viewport.width}×${viewport.height}/${fontSize}px`;
           expect(geo.homeOverflow, label).toBeLessThanOrEqual(1);
+          expect(geo.pageOverflow, label).toBeLessThanOrEqual(1);
           expect(geo.font, label).toBeCloseTo(14*fontSize/16, 1);
           expect(geo.fit).toBe("contain");
           expect(geo.portrait.w/geo.portrait.h, label).toBeCloseTo(1, 2);
@@ -917,8 +920,6 @@ for (const javaScriptEnabled of [true, false]) {
           }
         }
       }
-      // Existing W0091 shell/header overflow and statusbar focus occlusion at
-      // 200% are tracked separately; this change must keep Home locally sized.
       await client.detach();
     });
   });

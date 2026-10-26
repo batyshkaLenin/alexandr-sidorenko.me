@@ -19,17 +19,31 @@ class AsStatusbar extends HTMLElement {
     this.keys = this.bar.querySelector("[data-statusbar-keys]");
 
     this.staticMode = this.mode && !this.mode.hidden ? this.mode.textContent : "";
-    if (this.keys) this.keys.textContent = this.hints();
-
-    this.onOpen = () => this.enter();
-    this.onClose = () => this.leave();
+    this.measure = () => {
+      if (this.isConnected) document.documentElement.style.setProperty(
+        "--as-statusbar-height", `${Math.ceil(this.bar.getBoundingClientRect().height)}px`,
+      );
+    };
+    this.onOpen = () => this.render(true);
+    this.onClose = () => this.render(false);
     document.addEventListener("dc-command-palette:open", this.onOpen);
     document.addEventListener("dc-command-palette:close", this.onClose);
+    window.addEventListener("resize", this.measure);
+    document.fonts?.addEventListener("loadingdone", this.measure);
+    if (typeof ResizeObserver === "function") {
+      this.observer = new ResizeObserver(this.measure);
+      this.observer.observe(this.bar);
+    }
+    this.render(false);
   }
 
   disconnectedCallback() {
     document.removeEventListener("dc-command-palette:open", this.onOpen);
     document.removeEventListener("dc-command-palette:close", this.onClose);
+    window.removeEventListener("resize", this.measure);
+    document.fonts?.removeEventListener("loadingdone", this.measure);
+    this.observer?.disconnect();
+    document.documentElement.style.removeProperty("--as-statusbar-height");
   }
 
   create() {
@@ -46,38 +60,26 @@ class AsStatusbar extends HTMLElement {
   }
 
   hints() {
-    const parts = [
-      document.querySelector("dc-listnav") && this.getAttribute("keys-list"),
-      document.querySelector("dc-command-palette") && this.getAttribute("keys-search"),
-      document.querySelector("dc-prompt") && this.getAttribute("keys-prompt"),
-      document.querySelector("dc-help") && this.getAttribute("keys-help"),
-    ];
-    return parts.filter(Boolean).join(" · ");
+    return [
+      ["dc-listnav", "keys-list"],
+      ["dc-command-palette", "keys-search"],
+      ["dc-prompt", "keys-prompt"],
+      ["dc-help", "keys-help"],
+    ].map(([tag, attr]) => document.querySelector(tag) && this.getAttribute(attr))
+      .filter(Boolean).join(" · ");
   }
 
-  enter() {
-    if (!this.mode) return;
-    this.mode.hidden = false;
-    if (this.modeSep) this.modeSep.hidden = true;
-    this.mode.textContent = this.getAttribute("mode-search") || "SEARCH";
-    if (this.keys) this.keys.textContent = this.getAttribute("keys-palette") || "";
-    if (this.state) this.state.hidden = true;
-  }
-
-  leave() {
+  render(search) {
     if (this.mode) {
-      if (this.staticMode) {
-        this.mode.hidden = false;
-        this.mode.textContent = this.staticMode;
-        if (this.modeSep) this.modeSep.hidden = false;
-      } else {
-        this.mode.textContent = "";
-        this.mode.hidden = true;
-        if (this.modeSep) this.modeSep.hidden = true;
-      }
+      this.mode.hidden = !search && !this.staticMode;
+      this.mode.textContent = search ? this.getAttribute("mode-search") || "SEARCH" : this.staticMode;
     }
-    if (this.keys) this.keys.textContent = this.hints();
-    if (this.state) this.state.hidden = false;
+    if (this.modeSep) this.modeSep.hidden = search || !this.staticMode;
+    if (this.keys) this.keys.textContent = search ? this.getAttribute("keys-palette") || "" : this.hints();
+    if (this.state) this.state.hidden = search;
+    // Palette restores focus after its close event, before ResizeObserver.
+    // Keep the native scroll safe area current for that immediate focus.
+    this.measure();
   }
 }
 

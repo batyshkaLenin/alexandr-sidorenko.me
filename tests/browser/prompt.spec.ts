@@ -227,3 +227,37 @@ test('W0088 reconnect retains keyboard invocation without a trigger', async ({ p
   await page.keyboard.press('Escape');
   await expect(nav).toBeFocused();
 });
+
+// The context prefix must give the input room when browser text is enlarged.
+test('200% browser text keeps the prompt editable beside header tools', async ({ page, context }, info) => {
+  test.skip(info.project.name !== 'chromium-desktop', 'Browser font settings use CDP; regular prompt behavior runs on every project.');
+  const client = await context.newCDPSession(page);
+  await client.send('Page.enable');
+  await client.send('Page.setFontSizes' as never, {fontSizes:{standard:32,fixed:32}} as never);
+  for (const width of [390, 741, 768, 1440]) {
+    await page.setViewportSize({width,height:900});
+    for (const path of ['/', '/library']) {
+      await page.goto(path);
+      await expect(page.locator('dc-prompt')).toHaveAttribute('ready', '');
+      await page.keyboard.press(':');
+      const input = page.locator('dc-prompt[open] input');
+      await expect(input).toBeFocused();
+      const geometry = await input.evaluate(el => ({
+        width:el.getBoundingClientRect().width,
+        min:parseFloat(getComputedStyle(el.parentElement!).minWidth),
+        overflow:document.documentElement.scrollWidth-document.documentElement.clientWidth,
+      }));
+      expect(geometry.width, `${path}/${width}`).toBeGreaterThanOrEqual(geometry.min - 1);
+      expect(geometry.width).toBeGreaterThan(40);
+      expect(geometry.overflow).toBeLessThanOrEqual(1);
+      await page.keyboard.type('library --topics');
+      await expect(input).toHaveValue('library --topics');
+      await expect(page.locator('.dc-palette__trigger')).toBeVisible();
+      const compact = await page.evaluate(() => matchMedia('(width <= 740px), (height <= 30rem) and (orientation: landscape)').matches);
+      if (!compact) await expect(page.locator('.dc-help__trigger')).toBeVisible();
+      await expect(page.locator('.dc-prompt__trigger')).toHaveCount(0);
+      await page.keyboard.press('Escape');
+      await expect(page.locator('dc-prompt[open]')).toHaveCount(0);
+    }
+  }
+});

@@ -944,3 +944,73 @@ test('reading audio keeps Play beside progress in its narrow column', async ({ p
     }
   } finally { rmSync(root,{recursive:true,force:true}); }
 });
+
+for (const resizeObserver of [true, false]) {
+  test(`statusbar reserves its real height across modes, resize and reconnect (RO ${resizeObserver})`, async ({page}) => {
+    if (!resizeObserver) await page.addInitScript(() => { window.ResizeObserver = undefined as never; });
+    await page.setViewportSize({width:768,height:900});
+    await page.goto('/');
+    const bar = page.locator('.dc-statusbar');
+    await expect(bar).toBeVisible();
+    const reserve = () => page.evaluate(() => {
+      const height = document.querySelector('.dc-statusbar')!.getBoundingClientRect().height;
+      const root = getComputedStyle(document.documentElement);
+      const body = getComputedStyle(document.body);
+      return {
+        measured:parseFloat(document.documentElement.style.getPropertyValue('--as-statusbar-height')),
+        actual:Math.ceil(height),
+        scroll:parseFloat(root.scrollPaddingBottom),
+        body:parseFloat(body.paddingBottom),
+      };
+    });
+    const expectReserve = async () => {
+      await expect.poll(async () => { const r=await reserve(); return r.measured===r.actual; }).toBe(true);
+      const r=await reserve();
+      expect(r.scroll).toBe(r.actual ? r.actual+8 : 0);
+      expect(r.body).toBe(r.scroll);
+    };
+    await expectReserve();
+    if (resizeObserver) {
+      await page.evaluate(() => { document.documentElement.style.fontSize = '20px'; });
+      await expectReserve();
+      await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
+      await expectReserve();
+    }
+    // Exercise wrapped hints, rather than a synthetic fixed-height bar.
+    await page.locator('as-statusbar').evaluate(el => {
+      el.setAttribute('keys-help', 'help '.repeat(30));
+      document.dispatchEvent(new CustomEvent('dc-command-palette:close'));
+    });
+    const wrapped = (await bar.boundingBox())!.height;
+    await expectReserve();
+    await page.keyboard.press('/');
+    await expect(page.locator('dc-command-palette dialog[open]')).toBeVisible();
+    await expectReserve();
+    expect((await bar.boundingBox())!.height).toBeLessThan(wrapped);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
+    await expectReserve();
+    await expect.poll(async () => (await bar.boundingBox())!.height).toBe(wrapped);
+    for (const width of [390, 1440, 768]) {
+      await page.setViewportSize({width,height:900});
+      await expectReserve();
+    }
+    await page.locator('as-statusbar').evaluate(el => {
+      window['__detachedStatusbar'] = el;
+      el.remove();
+      document.dispatchEvent(new CustomEvent('dc-command-palette:open'));
+    });
+    expect(await page.evaluate(() => document.documentElement.style.getPropertyValue('--as-statusbar-height'))).toBe('');
+    // A disconnected component must not react to the document mode event.
+    expect(await page.evaluate(() => window['__detachedStatusbar'].querySelector('[data-statusbar-mode]').hidden)).toBe(true);
+    await page.evaluate(() => document.body.append(window['__detachedStatusbar']));
+    await expect(bar).toBeVisible();
+    await expectReserve();
+    await page.keyboard.press('/');
+    await expect(page.locator('dc-command-palette dialog[open]')).toBeVisible();
+    await expectReserve();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
+    await expectReserve();
+  });
+}
