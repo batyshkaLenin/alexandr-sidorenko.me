@@ -152,14 +152,15 @@ main() {
   #   python3 scripts/fetch-lastfm.py
   # fi
 
-  # The dev module's snapshot: weekly hours need WAKATIME_API_KEY, the
-  # shape of the week is public. Runs regardless — the script keeps whatever it
-  # cannot refresh and never fails the build, like the Last.fm import above.
-  if [[ "${BUILD_ENVIRONMENT}" == preview && "${HUGO_REFRESH_SNAPSHOTS:-1}" == 1 ]]; then
+  # Production refreshes WakaTime (personal OAuth in WAKATIME_API_KEY) and
+  # public Code::Stats before Hugo. Preview always uses the saved snapshot.
+  # An explicit refresh=0 is reserved for reproducing an existing artifact.
+  # The importer keeps the previous values when a provider is unavailable.
+  if [[ "${BUILD_ENVIRONMENT}" == production && "${HUGO_REFRESH_SNAPSHOTS:-1}" == 1 ]]; then
     echo "Refreshing the dev activity snapshot..."
     python3 scripts/fetch-dev-activity.py || true
   else
-    echo "Using committed activity snapshots."
+    echo "Using saved activity snapshot."
   fi
 
   echo "Building the project (environment: ${BUILD_ENVIRONMENT})..."

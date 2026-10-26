@@ -7,6 +7,7 @@ are separate operations. --dry-run never uploads or promotes a version.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime
 import hashlib
 import json
 import os
@@ -41,6 +42,27 @@ def write_record(path: Path, record: dict) -> None:
 
 def file_digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def activity_snapshot(checkout: Path) -> dict:
+    """Bind only the public activity input used by this particular build."""
+    path = checkout / "data/dev.json"
+    if path.is_symlink() or not path.is_file() or path.stat().st_mode & 0o111:
+        raise ValueError("Activity snapshot must be a regular non-executable file")
+    data = json.loads(path.read_text())
+    allowed = {"contract", "fetched_at", "weekly_seconds", "levels"}
+    if (not isinstance(data, dict) or set(data) - allowed or type(data.get("contract")) is not int
+            or data["contract"] != 1
+            or not isinstance(data.get("fetched_at"), str)):
+        raise ValueError("Invalid public activity snapshot")
+    if datetime.fromisoformat(data["fetched_at"].replace("Z", "+00:00")).utcoffset() is None:
+        raise ValueError("Activity snapshot timestamp must include its timezone")
+    if "weekly_seconds" in data and (type(data["weekly_seconds"]) is not int or data["weekly_seconds"] < 0):
+        raise ValueError("Invalid activity weekly seconds")
+    if "levels" in data and (not isinstance(data["levels"], list) or len(data["levels"]) != 7
+            or any(type(level) is not int or not 0 <= level <= 7 for level in data["levels"])):
+        raise ValueError("Invalid activity levels")
+    return {"sha256": file_digest(path), "data": data}
 
 
 def asset_digest(directory: Path) -> str:
@@ -175,10 +197,14 @@ def release(args: argparse.Namespace, root: Path = ROOT) -> dict:
             # Overwrite inherited local destinations, environment and measurement flags.
             build_env = {**{key: value for key, value in env.items() if not key.startswith("HUGO_")},
                          "HUGO_BUILD_ENVIRONMENT": "production",
-                         "HUGO_REFRESH_SNAPSHOTS": "0", "HUGO_DESTINATION": str(assets),
+                         "HUGO_REFRESH_SNAPSHOTS": "1", "HUGO_DESTINATION": str(assets),
                          "PUBLIC_DIR": str(assets), "PERF_PAGES": ""}
             run(["bash", "scripts/ci.sh"], checkout, build_env)
-            run(["git", "-c", "core.fileMode=false", "diff", "--exit-code", "HEAD"], checkout, env)
+            # Only the declared generated activity snapshot may differ from
+            # the source commit. Keep its exact public input in the release record.
+            run(["git", "-c", "core.fileMode=false", "diff", "--exit-code", "HEAD", "--",
+                 ".", ":(exclude)data/dev.json"], checkout, env)
+            record["activity_snapshot"] = activity_snapshot(checkout)
             record["asset_digest"] = asset_digest(assets)
             record["home_digest"] = file_digest(assets / "index.html")
             source_config = read_config(checkout / "wrangler.jsonc")
@@ -232,6 +258,8 @@ def release(args: argparse.Namespace, root: Path = ROOT) -> dict:
             write_record(record_path, record)
             if asset_digest(assets) != record["asset_digest"]:
                 raise ValueError("Assets changed during upload")
+            if activity_snapshot(checkout) != record["activity_snapshot"]:
+                raise ValueError("Activity snapshot changed during upload")
             if current()["id"] != previous["id"]:
                 raise ValueError("Deployment changed concurrently; refusing promotion")
             cf("versions", "deploy", version + "@100%", "--yes",
@@ -242,7 +270,8 @@ def release(args: argparse.Namespace, root: Path = ROOT) -> dict:
             record.update(deployment_id=deployed["id"], phase="smoke", status="deployed-unverified")
             write_record(record_path, record)
             request = urllib.request.Request(record["origin"] + "/?release=" + args.commit,
-                                             headers={"Cache-Control": "no-cache"})
+                                             headers={"Cache-Control": "no-cache",
+                                                      "User-Agent": "alexandr-sidorenko.me http matrix check"})
             with urllib.request.urlopen(request, timeout=30) as response:
                 if response.geturl().split("?", 1)[0] != record["origin"] + "/":
                     raise ValueError("Smoke origin redirected elsewhere")

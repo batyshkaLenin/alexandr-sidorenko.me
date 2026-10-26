@@ -150,12 +150,17 @@ web-направления на Worker `production`; `lab` и mail сохран�
 ## 2. Freeze и финальная сборка
 
 1. Оператор фиксирует время freeze. Приостанавливаются публикации, merge в
-   release branch, автоматические promotions и обновления activity snapshots.
+   release branch, автоматические promotions и ручные изменения activity snapshots.
+   Production build автоматически обновляет WakaTime/Code::Stats перед Hugo;
+   конкретный полученный снимок становится отдельным входом release record.
+   Preview не обновляет эти источники. Last.fm остаётся временно отключённым.
    Проверить actual Cloudflare branch settings: отдельные preview/dev и
    production/main targets; production non-production branch builds отключены.
    Один оператор сериализует releases; проверка concurrency в wrapper не lock.
 2. Зафиксировать финальный commit из `main` и Theme gitlink. Любая последующая
    правка, включая content, требует нового candidate и повторной приёмки.
+   Запланированная generation `data/dev.json` входит в конкретный build:
+   записать её точный JSON и SHA-256, не подменять snapshot после проверки artifact.
 3. Получить изолированный полный Site checkout этого commit и полный Theme
    checkout его gitlink. Не использовать текущий локальный `public/`.
    Проверить `git rev-parse --is-shallow-repository` = `false` для обоих repo;
@@ -163,21 +168,27 @@ web-направления на Worker `production`; `lab` и mail сохран�
    Не принимать успешный fetch без проверки результата.
 4. В изолированном checkout установить зависимости из lockfile (`npm ci`) и
    pinned Hugo; проверить pins. Не обновлять зависимости для переключения.
-   Для сохраняемого artifact выполнить сборку без внешнего snapshot refresh:
+   Обычная production сборка обновляет activity snapshot; credential WakaTime
+   передать через защищённое окружение сборщика, не через аргумент команды:
 
    ```sh
    # Только в disposable checkout с проверенными commit/gitlink и toolchain.
    # Предварительно исключить inherited HUGO_* overrides из build environment.
-   HUGO_BUILD_ENVIRONMENT=production HUGO_REFRESH_SNAPSHOTS=0 \
+   HUGO_BUILD_ENVIRONMENT=production HUGO_REFRESH_SNAPSHOTS=1 \
      HUGO_DESTINATION=public PUBLIC_DIR=public PERF_PAGES= ./scripts/ci.sh
-   git -c core.fileMode=false diff --exit-code HEAD
+   git -c core.fileMode=false diff --exit-code HEAD -- . ':(exclude)data/dev.json'
    ```
 
+   Сверить и сохранить generated `data/dev.json` вне asset directory вместе с
+   его SHA-256. Это единственное разрешённое tracked source отличие; при обычной
+   сборке рабочего checkout оно проходит review/commit. Для воспроизведения уже
+   записанного snapshot допустим explicit refresh0, для нового штатного релиза — нет.
    Сохранить checkout/artifact в bundle, включая `_redirects`; не публиковать
    bundle через Worker assets. `ci.sh` должен дать PASS всем своим PRE/POST checks.
    Это ещё не remote smoke и не разрешение cutover.
 5. Для следующего штатного релиза после устранения ограничения
-   `F-W0004-URLLIB-1010` применить wrapper с явными входами из bundle:
+   `F-W0004-URLLIB-1010` (исправленный wrapper использует явный client User-Agent)
+   применить wrapper с явными входами из bundle:
 
    ```sh
    python3 scripts/deploy-production.py deploy \
@@ -187,10 +198,15 @@ web-направления на Worker `production`; `lab` и mail сохран�
    ```
 
    Все переменные здесь — обязательные заполненные входы, а не defaults.
-   Команда меняет активную версию выбранного Worker; выполнить её только в
-   разрешённой pre-cutover среде без production routes/domains. Wrapper сам
-   пересобирает exact commit, проверяет предыдущую version, загружает и
-   активирует candidate, проверяет Home digest и HTTP matrix. Если Worker новый
+   Команда меняет активную версию выбранного Worker. Для pre-cutover подготовки
+   выбрать разрешённый staging target; для штатного production релиза — явно
+   согласованные production Worker/origin. Разрешение на один target не переносить
+   на другой. Команда сама не меняет DNS/routes/Custom Domains. Wrapper
+   пересобирает exact source commit со свежим activity snapshot, сохраняет его
+   в `activity_snapshot` release record, проверяет предыдущую version, загружает и
+   активирует candidate, проверяет Home digest и HTTP matrix. Это отдельная сборка:
+   её фактический input/digest сверяются по её record, не по прежнему локальному
+   artifact. Если Worker новый
    и rollback baseline отсутствует, STOP: bootstrap — отдельная согласованная
    операция; не обходить preflight и не подставлять случайную версию.
    `--dry-run` проверяет локальную сборку/packaging, не remote готовность.

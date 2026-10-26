@@ -1,14 +1,14 @@
 {
   "contract": 1,
-  "fetched_at": "2026-10-25T21:55:47Z",
-  "weekly_seconds": 145305,
+  "fetched_at": "2026-10-26T22:46:56Z",
+  "weekly_seconds": 269146,
   "levels": [
-    2,
-    6,
-    2,
-    7,
     1,
     0,
-    0
+    1,
+    0,
+    0,
+    0,
+    7
   ]
 }

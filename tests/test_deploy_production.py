@@ -3,6 +3,7 @@
 Cloudflare and HTTP are controlled fakes; these tests make no live deployments.
 """
 import argparse
+import hashlib
 import importlib.util
 import io
 import json
@@ -48,6 +49,10 @@ elif a[:2]==['versions','view']:
 elif a[:2]==['versions','upload']:
  assert pathlib.Path(config['assets']['directory'],'index.html').read_text().startswith('clean:')
  if os.environ.get('RELEASE_TEST_FAIL_UPLOAD'): sys.exit(2)
+ if os.environ.get('RELEASE_TEST_TAMPER_SNAPSHOT'):
+  snapshot=pathlib.Path(config['assets']['directory']).parent/'data/dev.json'
+  data=json.loads(snapshot.read_text()); data['weekly_seconds']+=1
+  snapshot.write_text(json.dumps(data))
  if '--dry-run' not in a:
   pathlib.Path(os.environ['WRANGLER_OUTPUT_FILE_PATH']).write_text(json.dumps({'type':'version-upload','worker_name':'release-test','version_id':'33333333-3333-4333-8333-333333333333'})+'\\n')
 elif a[:2]==['versions','deploy']:
@@ -93,13 +98,19 @@ class ReleaseTests(unittest.TestCase):
         put(self.root, "scripts/ci.sh", '''#!/bin/sh
 set -eu
 test "$HUGO_BUILD_ENVIRONMENT" = production
-test "$HUGO_REFRESH_SNAPSHOTS" = 0
+test "$HUGO_REFRESH_SNAPSHOTS" = 1
 test -z "$PERF_PAGES"
 test "$PUBLIC_DIR" = "$HUGO_DESTINATION"
 test -z "${RELEASE_TEST_FAIL_BUILD:-}"
 mkdir -p "$PUBLIC_DIR"
 printf '%s:%s:%s' "$(cat content.txt)" "$(git rev-parse HEAD)" "$(git log -1 --format=%H -- content.txt)" > "$PUBLIC_DIR/index.html"
+printf '%s\\n' '{"contract":1,"fetched_at":"2026-10-26T22:15:00Z","weekly_seconds":7200,"levels":[0,1,2,3,4,5,7]}' > data/dev.json
+if test -n "${RELEASE_TEST_CHANGE_SOURCE:-}"; then printf changed > content.txt; fi
+if test -n "${RELEASE_TEST_BAD_SNAPSHOT:-}"; then printf '%s' '{"contract":1,"fetched_at":"2026-10-26T22:15:00Z","api_key":"must-not-be-recorded"}' > data/dev.json; fi
+if test -n "${RELEASE_TEST_LINK_SNAPSHOT:-}"; then rm data/dev.json; ln -s ../content.txt data/dev.json; fi
 ''')
+        put(self.root, "data/dev.json", json.dumps({"contract": 1, "fetched_at": "2026-01-01T00:00:00Z",
+                                                  "weekly_seconds": 3600, "levels": [0] * 7}))
         put(self.root, "scripts/check-http-matrix.py", "import os, sys\nsys.exit(1 if os.environ.get('RELEASE_TEST_FAIL_SMOKE') else 0)\n")
         put(self.root, "content.txt", "clean")
         put(self.root, ".tool-versions", "hugo 0.165.0\n")
@@ -123,7 +134,9 @@ printf '%s:%s:%s' "$(cat content.txt)" "$(git rev-parse HEAD)" "$(git log -1 --f
                                        origin="https://release-test.example.invalid", dry_run=False,
                                        record=Path(self.temporary.name) / "record.json")
         self.environ = patch.dict(os.environ, {"RELEASE_TEST_STATE": str(self.state),
-                                              "PERF_PAGES": "POISON", "PUBLIC_DIR": "POISON"})
+                                              "PERF_PAGES": "POISON", "PUBLIC_DIR": "POISON",
+                                              "HUGO_BUILD_ENVIRONMENT": "preview",
+                                              "HUGO_REFRESH_SNAPSHOTS": "0"})
         self.environ.start()
         self.addCleanup(self.environ.stop)
         self.response = unittest.mock.MagicMock()
@@ -166,6 +179,34 @@ printf '%s:%s:%s' "$(cat content.txt)" "$(git rev-parse HEAD)" "$(git log -1 --f
         self.assertEqual(record["previous_deployment_id"], PREVIOUS)
         self.assertEqual((self.root / "public/index.html").read_text(), "POISON")
         self.assertEqual((self.root / "content.txt").read_text(), "DIRTY")
+        self.assertEqual(record["activity_snapshot"]["data"]["weekly_seconds"], 7200)
+        self.assertEqual(record["activity_snapshot"]["data"]["fetched_at"], "2026-10-26T22:15:00Z")
+        snapshot_bytes = (json.dumps(record["activity_snapshot"]["data"], separators=(",", ":")) + "\n").encode()
+        self.assertEqual(record["activity_snapshot"]["sha256"], hashlib.sha256(snapshot_bytes).hexdigest())
+        self.assertEqual(json.loads((self.root / "data/dev.json").read_text())["weekly_seconds"], 3600)
+        self.assertEqual(self.urlopen.call_args.args[0].get_header("User-agent"),
+                         "alexandr-sidorenko.me http matrix check")
+
+    def test_generated_snapshot_does_not_allow_other_source_changes(self):
+        with patch.dict(os.environ, {"RELEASE_TEST_CHANGE_SOURCE": "1"}):
+            with self.assertRaises(subprocess.CalledProcessError):
+                self.release()
+        self.assertEqual(self.calls(), [])
+
+    def test_private_or_linked_snapshot_stops_before_upload(self):
+        for flag in ["RELEASE_TEST_BAD_SNAPSHOT", "RELEASE_TEST_LINK_SNAPSHOT"]:
+            with self.subTest(flag=flag), patch.dict(os.environ, {flag: "1"}):
+                self.args.record = Path(self.temporary.name) / (flag + ".json")
+                with self.assertRaises(ValueError):
+                    self.release()
+                self.assertEqual(self.calls(), [])
+                self.assertNotIn("activity_snapshot", json.loads(self.args.record.read_text()))
+
+    def test_snapshot_changed_during_upload_cannot_be_promoted(self):
+        with patch.dict(os.environ, {"RELEASE_TEST_TAMPER_SNAPSHOT": "1"}):
+            with self.assertRaisesRegex(ValueError, "Activity snapshot changed during upload"):
+                self.release()
+        self.assertNotIn(["versions", "deploy"], self.calls())
 
     def test_dry_run_has_no_remote_preflight_or_promotion(self):
         self.args.dry_run = True
@@ -373,28 +414,35 @@ shutil.copyfile(os.environ['BUILD_FIXTURE_HUGO'],destination/'hugo_extended_0.16
         env = {**os.environ, "PATH": str(self.root / "bin") + os.pathsep + os.environ["PATH"],
                "BUILD_FIXTURE_HUGO": str(self.archive), "HUGO_BUILD_ENVIRONMENT": environment,
                "GIT_CONFIG_GLOBAL": str(self.global_config), "LASTFM_API_KEY": "fixture-key",
+               "WAKATIME_API_KEY": "fixture-oauth-token",
                "PERF_PAGES": "", "HUGO_REFRESH_SNAPSHOTS": "1", **overrides}
         return subprocess.run(["bash", str(SITE / "build.sh")], cwd=self.root, env=env,
                               capture_output=True, text=True)
 
-    def test_production_uses_committed_snapshots_and_preserves_user_config(self):
+    def test_production_refreshes_dev_and_preserves_user_config(self):
         original = self.global_config.read_bytes()
-        result = self.build("production")
+        result = self.build("production", HUGO_REFRESH_SNAPSHOTS="")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertFalse((self.root / "fetched-lastfm").exists())
-        self.assertFalse((self.root / "fetched-dev-activity").exists())
+        self.assertTrue((self.root / "fetched-dev-activity").exists())
         args = json.loads((self.root / "hugo-args.json").read_text())
         self.assertEqual(args[args.index("--environment") + 1], "production")
         self.assertIn("--panicOnWarning", args)
         self.assertEqual(original, self.global_config.read_bytes())
 
-    def test_preview_pauses_lastfm_but_keeps_dev_refresh(self):
+    def test_preview_uses_saved_snapshot_even_when_refresh_is_requested(self):
         result = self.build("preview")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertFalse((self.root / "fetched-lastfm").exists())
-        self.assertTrue((self.root / "fetched-dev-activity").exists())
+        self.assertFalse((self.root / "fetched-dev-activity").exists())
         args = json.loads((self.root / "hugo-args.json").read_text())
         self.assertEqual(args[args.index("--environment") + 1], "preview")
+
+    def test_explicit_production_replay_can_freeze_the_snapshot(self):
+        result = self.build("production", HUGO_REFRESH_SNAPSHOTS="0")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse((self.root / "fetched-dev-activity").exists())
+        self.assertFalse((self.root / "fetched-lastfm").exists())
 
     def test_unknown_environment_and_production_measurement_pages_fail(self):
         self.assertNotEqual(self.build("typo").returncode, 0)

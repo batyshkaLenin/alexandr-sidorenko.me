@@ -65,8 +65,25 @@ python3 scripts/deploy-production.py deploy \
 Leave the dashboard Build command empty for this production wrapper: it invokes
 `scripts/ci.sh` itself in an isolated checkout of the exact commit and Theme
 gitlink. The wrapper checks local Wrangler against the release commit's pin,
-uses production Hugo output and committed activity snapshots, and runs the same
-PRE/POST-BUILD checks as PRs. It generates a temporary asset-only Wrangler config
+uses production Hugo output, refreshes WakaTime and Code::Stats activity before
+Hugo, and runs the same PRE/POST-BUILD checks as PRs. Supply the personal WakaTime
+OAuth token through the protected `WAKATIME_API_KEY` build variable; that legacy
+variable name is retained for compatibility. Preview builds do not refresh either
+source, even if credentials and `HUGO_REFRESH_SNAPSHOTS=1` are present. An explicit
+`HUGO_REFRESH_SNAPSHOTS=0` on a direct production build is for frozen replay;
+the normal production release wrapper always enables refresh.
+
+`data/dev.json` is the only permitted generated tracked-file delta in the
+isolated release checkout. The wrapper validates its public aggregate allowlist
+and records both the exact JSON data and its SHA-256 in `activity_snapshot`.
+Other tracked source changes, executable/symlink snapshots and private extra
+fields stop the release before upload. The caller checkout stays untouched.
+When a normal build refreshes `data/dev.json` in the working checkout, review and
+commit that generated delta with the change; do not discard it as build noise.
+Provider failures retain the importer's previous values. A source commit alone
+does not identify a production activity input: keep the actual release record.
+
+It generates a temporary asset-only Wrangler config
 without the preview build hook or DNS/routes; upload cannot rebuild the artifact.
 Inherited local build destinations and Hugo overrides cannot contaminate it.
 For a shallow source checkout, the isolated clone fetches complete history from
@@ -90,7 +107,8 @@ explicit origin. The served Home bytes must match the built release. A failed
 smoke exits non-zero and preserves the uploaded/deployed IDs and rollback target;
 it never silently announces success or rolls back an unrelated concurrent release.
 
-The JSON record includes Site/Theme commits, Hugo/Wrangler pins, artifact digest,
+The JSON record includes Site/Theme commits, Hugo/Wrangler pins, activity snapshot,
+artifact digest,
 new version/deployment IDs, previous deployment and rollback version. Keep the
 record with release evidence outside the public asset directory; successful
 records are also printed to the build log. Never reuse a record path. Use a
@@ -119,7 +137,8 @@ python3 -B scripts/check-production-deploy.py
 ```
 
 This check is registered as `site.production-deploy` for Implementation, Review
-and QA. It covers clean-commit isolation, main/dev restrictions, toolchain pins,
+and QA. It covers production refresh/preview no-fetch, generated-snapshot binding,
+unexpected-source/private-snapshot rejection, clean-commit isolation, main/dev restrictions, toolchain pins,
 build/preflight/upload/promotion/smoke failures, concurrent deployment changes,
 record preservation and notification retries. Real account authorization,
 production bootstrap, live smoke and main/dev dashboard settings need separate
@@ -127,7 +146,10 @@ environment evidence. The W0004 owner decision on 2026-10-26 excludes returning
 hosting/DNS to Vercel; recovery after cutover uses Cloudflare configuration and
 verified Worker versions. Deleting previous-provider resources is a separate action.
 
-### Pre-cutover preparation (W0004)
+### Pre-cutover preparation (W0004 checkpoint)
+
+The following describes the original preparation checkpoint. Later domain and
+deployment observations are recorded in [cutover status](../docs/cutover-result.md).
 
 [Cutover runbook](../docs/cutover-runbook.md) describes the release freeze,
 exact-candidate staging checks, private DNS snapshot, TTL/nameserver sequence,
@@ -143,8 +165,10 @@ additional Cloudflare certificate-authority records. Registrar delegation,
 Worker Routes and live proxy switch are unchanged; independent Review/QA and
 the final cutover decision remain outstanding. The default Python urllib User-Agent receives
 Cloudflare 1010 on that origin; browser and HTTP matrix smoke pass. The current
-release wrapper's urllib smoke therefore needs separate follow-up before routine
-live releases; this bootstrap does not verify it. The procedure does not authorize
+release wrapper's default urllib smoke required follow-up before routine live
+releases. W0097 supplies the explicit HTTP-matrix client User-Agent in that smoke;
+verify the current release record rather than treating the old bootstrap as live
+wrapper proof. The procedure does not authorize
 DNS changes, a live walkthrough or rollback. Production switch requires
 independent pre-cutover Review/QA and a separate owner ACCEPT CUTOVER.
 
