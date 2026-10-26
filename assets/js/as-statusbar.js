@@ -13,12 +13,13 @@ class AsStatusbar extends HTMLElement {
     this.bar = this.querySelector(".dc-statusbar") || this.create();
     if (!this.bar) return;
 
-    this.mode = this.bar.querySelector("[data-statusbar-mode]");
-    this.modeSep = this.bar.querySelector("[data-statusbar-mode-sep]");
-    this.state = this.bar.querySelector("[data-statusbar-state]");
-    this.keys = this.bar.querySelector("[data-statusbar-keys]");
+    const part = name => this.bar.querySelector(`[data-statusbar-${name}]`);
+    this.mode = part("mode");
+    this.modeSep = part("mode-sep");
+    this.state = part("state");
+    this.keys = part("keys");
 
-    this.staticMode = this.mode && !this.mode.hidden ? this.mode.textContent : "";
+    this.staticMode ??= this.mode && !this.mode.hidden ? this.mode.textContent : "";
     this.measure = () => {
       if (this.isConnected) document.documentElement.style.setProperty(
         "--as-statusbar-height", `${Math.ceil(this.bar.getBoundingClientRect().height)}px`,
@@ -34,7 +35,7 @@ class AsStatusbar extends HTMLElement {
       this.observer = new ResizeObserver(this.measure);
       this.observer.observe(this.bar);
     }
-    this.render(false);
+    this.render(!!document.querySelector("dc-command-palette dialog[open]"));
   }
 
   disconnectedCallback() {
@@ -61,11 +62,11 @@ class AsStatusbar extends HTMLElement {
 
   hints() {
     return [
-      ["dc-listnav", "keys-list"],
-      ["dc-command-palette", "keys-search"],
-      ["dc-prompt", "keys-prompt"],
-      ["dc-help", "keys-help"],
-    ].map(([tag, attr]) => document.querySelector(tag) && this.getAttribute(attr))
+      ["listnav", "list"],
+      ["command-palette", "search"],
+      ["prompt", "prompt"],
+      ["help", "help"],
+    ].map(([tag, attr]) => document.querySelector(`dc-${tag}`) && this.getAttribute(`keys-${attr}`))
       .filter(Boolean).join(" · ");
   }
 

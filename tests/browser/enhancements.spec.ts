@@ -1014,3 +1014,30 @@ for (const resizeObserver of [true, false]) {
     await expectReserve();
   });
 }
+
+test('statusbar reconnect during Search preserves the original page mode', async ({page}) => {
+  await page.setViewportSize({width:768,height:900});
+  for (const path of ['/', '/library', '/library/bluredu-new-teachers']) {
+    await page.goto(path);
+    const host = page.locator('as-statusbar');
+    const mode = host.locator('[data-statusbar-mode]');
+    const state = host.locator('[data-statusbar-state]');
+    const initial = {text:await mode.textContent(),hidden:await mode.isHidden()};
+    await page.keyboard.press('/');
+    await expect(page.locator('dc-command-palette dialog[open]')).toBeVisible();
+    await host.evaluate(el => { const parent=el.parentElement!;el.remove();parent.append(el); });
+    await expect(mode).toHaveText('SEARCH');
+    await expect(mode).toBeVisible();
+    if (await state.count()) await expect(state).toBeHidden();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dc-command-palette dialog[open]')).toHaveCount(0);
+    await expect(mode).toHaveText(initial.text!);
+    if (initial.hidden) await expect(mode).toBeHidden();
+    else await expect(mode).toBeVisible();
+    if (await state.count()) await expect(state).toBeVisible();
+    await expect.poll(() => host.evaluate(el => {
+      const height=el.querySelector('.dc-statusbar')!.getBoundingClientRect().height;
+      return parseFloat(document.documentElement.style.getPropertyValue('--as-statusbar-height'))===Math.ceil(height);
+    })).toBe(true);
+  }
+});
