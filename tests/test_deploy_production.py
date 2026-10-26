@@ -271,6 +271,18 @@ printf '%s:%s' "$(cat content.txt)" "$(git rev-parse HEAD)" > "$PUBLIC_DIR/index
             self.release()
         self.assertEqual(self.calls(), [])
 
+    def test_workers_builds_supports_an_exact_detached_main_checkout(self):
+        git(self.root, "checkout", "--detach", self.commit)
+        git(self.root, "branch", "-D", "main")
+        with patch.dict(os.environ, {"WORKERS_CI_BRANCH": "main", "WORKERS_CI_COMMIT_SHA": self.commit}):
+            self.assertEqual(self.release()["status"], "passed")
+
+    def test_workers_builds_requires_both_branch_and_commit_identity(self):
+        with patch.dict(os.environ, {"WORKERS_CI_BRANCH": "main"}):
+            os.environ.pop("WORKERS_CI_COMMIT_SHA", None)
+            with self.assertRaisesRegex(ValueError, "Workers Builds commit"):
+                self.release()
+
 
 class BuildModeTests(unittest.TestCase):
     """Run the actual build.sh with a local pinned-Hugo archive, without network."""

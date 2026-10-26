@@ -70,8 +70,9 @@ PRE/POST-BUILD checks as PRs. It generates a temporary asset-only Wrangler confi
 without the preview build hook or DNS/routes; upload cannot rebuild the artifact.
 Inherited local build destinations and Hugo overrides cannot contaminate it.
 
-Live promotion requires a commit reachable from local `main`. Workers Builds
-must identify branch `main` and the same commit. A fresh Worker without a
+Local live promotion requires a commit reachable from local `main`. Workers
+Builds must identify branch `main` and the same commit as the actual checkout;
+its checkout can be detached without a local branch ref. A fresh Worker without a
 previous deployment deliberately fails preflight: first bootstrap and verify a
 known rollback version as a separate controlled setup operation. An existing
 split deployment is not implicitly reduced to an arbitrary rollback choice.

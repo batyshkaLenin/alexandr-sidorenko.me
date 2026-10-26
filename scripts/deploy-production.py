@@ -106,11 +106,17 @@ def release(args: argparse.Namespace, root: Path = ROOT) -> dict:
                 "GIT_TERMINAL_PROMPT": "0"})
     try:
         if not args.dry_run:
-            if env.get("WORKERS_CI_BRANCH", "main") != "main":
-                raise ValueError("Production releases must come from main; dev is preview")
-            if env.get("WORKERS_CI_COMMIT_SHA", args.commit) != args.commit:
-                raise ValueError("Release commit differs from the Workers Builds commit")
-            run(["git", "merge-base", "--is-ancestor", args.commit, "refs/heads/main"], root, env)
+            if "WORKERS_CI_BRANCH" in env:
+                if env["WORKERS_CI_BRANCH"] != "main":
+                    raise ValueError("Production releases must come from main; dev is preview")
+                if env.get("WORKERS_CI_COMMIT_SHA") != args.commit:
+                    raise ValueError("Release commit differs from the Workers Builds commit")
+                # Workers Builds may provide a detached checkout without a local
+                # main ref. Bind its branch/commit assertion to the actual HEAD.
+                if run(["git", "rev-parse", "HEAD"], root, env, capture=True) != args.commit:
+                    raise ValueError("Checkout differs from the Workers Builds commit")
+            else:
+                run(["git", "merge-base", "--is-ancestor", args.commit, "refs/heads/main"], root, env)
             record["source_branch"] = "main"
         with tempfile.TemporaryDirectory(prefix="production-release-") as temporary:
             scratch = Path(temporary)
