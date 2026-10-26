@@ -926,14 +926,26 @@ dc-copy[copied] .dc-copy__button {
 }
 
 @media (width > 740px) and (height > 30rem) {
-  /* A column, not a fill: sibling margins add up instead of collapsing. */
-  .dc-home-row--identity > .h-card > .dc-prose {
+  .dc-home,
+  .dc-home-row--identity {
+    align-items: stretch;
+  }
+
+  .dc-home-row--identity > .h-card {
     display: flex;
     flex-direction: column;
   }
 
+  /* Fill the row without collapsing paragraph and footer spacing. */
+  .dc-home-row--identity > .h-card > .dc-prose {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
   .dc-home-row--identity .dc-hero-foot {
-    margin-top: 0.6em;
+    margin-block-start: auto;
+    padding-block-start: 0.6em;
   }
 }
 

@@ -523,7 +523,7 @@ test.describe("home shell", () => {
     { width: 925, height: 768 },
     { width: 980, height: 768 },
   ] as const) {
-    test(`${viewport.width}×${viewport.height} keeps the library pane tight`, async ({
+    test(`${viewport.width}×${viewport.height} fills the library row beside activity`, async ({
       page,
     }, testInfo) => {
       test.skip(testInfo.project.name === "chromium-mobile", "Tablet library slack once.");
@@ -541,7 +541,8 @@ test.describe("home shell", () => {
           document.querySelectorAll(".dc-home .dc-material--dense .dc-material__excerpt"),
         );
         return {
-          slack: p.bottom - m.bottom,
+          height: p.height,
+          activityHeight: document.querySelector(".as-activity")!.getBoundingClientRect().height,
           excerptVisible: excerpts.some((el) => {
             const cs = getComputedStyle(el);
             return cs.display !== "none" && el.getBoundingClientRect().width > 8;
@@ -549,7 +550,7 @@ test.describe("home shell", () => {
         };
       });
       expect(slack).toBeTruthy();
-      expect(slack!.slack).toBeLessThan(48);
+      expect(Math.abs(slack!.height - slack!.activityHeight)).toBeLessThanOrEqual(1);
       expect(slack!.excerptVisible).toBe(true);
       const rows = await homeLibraryRows(page);
       for (const row of rows) {
@@ -861,5 +862,64 @@ for (const javaScriptEnabled of [true, false]) {
         }
       });
     }
+  });
+}
+
+
+for (const javaScriptEnabled of [true, false]) {
+  test.describe(`Home row fill JS=${javaScriptEnabled}`, () => {
+    test.use({ javaScriptEnabled });
+    test("neighbour panels share height and about links stay at the bottom across boundaries and text scaling", async ({ page, context }, testInfo) => {
+      test.skip(testInfo.project.name === "firefox-desktop", "Browser font preference matrix uses Chromium CDP; standard Home cases cover other browsers.");
+      const client = await context.newCDPSession(page);
+      await client.send("Page.enable");
+      for (const fontSize of [16, 32]) {
+        await client.send("Page.setFontSizes" as never, { fontSizes: { standard: fontSize, fixed: fontSize } } as never);
+        for (const viewport of [
+          ...[740,741,925,926,927,994,995,996,1023,1024,1038,1039,1040,1041,1440].map(width => ({width,height:768})),
+          {width:844,height:390}, {width:1440,height:480}, {width:1440,height:1200},
+        ]) {
+          await page.setViewportSize(viewport);
+          await page.goto("/");
+          await expect.poll(() => page.locator(".dc-portrait").evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+          const read = () => page.evaluate(() => {
+            const rect = (selector: string) => {
+              const node = document.querySelector(selector)!;
+              const r = node.getBoundingClientRect();
+              return {x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom};
+            };
+            const aboutBody = document.querySelector(".h-card > .dc-prose")!;
+            const bodyStyle = getComputedStyle(aboutBody);
+            const home = document.querySelector(".dc-home")!;
+            const img = document.querySelector(".dc-portrait")!;
+            return {
+              active: matchMedia("(width > 740px) and (height > 30rem)").matches,
+              avatar:rect(".dc-home-row--identity > .dc-panel--utility"), about:rect(".h-card"),
+              library:rect(".dc-home-row--recent > .dc-panel"), activity:rect(".as-activity"),
+              foot:rect(".dc-hero-foot"), portrait:rect(".dc-portrait"),
+              font:parseFloat(bodyStyle.fontSize), inset:parseFloat(bodyStyle.paddingBottom)+1,
+              homeOverflow:home.scrollWidth-home.clientWidth, fit:getComputedStyle(img).objectFit,
+            };
+          });
+          const geo = await read();
+          const label = `${viewport.width}×${viewport.height}/${fontSize}px`;
+          expect(geo.homeOverflow, label).toBeLessThanOrEqual(1);
+          expect(geo.font, label).toBeCloseTo(14*fontSize/16, 1);
+          expect(geo.fit).toBe("contain");
+          expect(geo.portrait.w/geo.portrait.h, label).toBeCloseTo(1, 2);
+          if (geo.active) {
+            expect(Math.abs(geo.avatar.h-geo.about.h), label).toBeLessThanOrEqual(1);
+            expect(Math.abs(geo.avatar.y-geo.about.y), label).toBeLessThanOrEqual(1);
+            expect(geo.about.bottom-geo.foot.bottom, label).toBeCloseTo(geo.inset, 1);
+            if (Math.abs(geo.library.y-geo.activity.y)<1) {
+              expect(Math.abs(geo.library.h-geo.activity.h), label).toBeLessThanOrEqual(1);
+            }
+          }
+        }
+      }
+      // Existing W0091 shell/header overflow and statusbar focus occlusion at
+      // 200% are tracked separately; this change must keep Home locally sized.
+      await client.detach();
+    });
   });
 }

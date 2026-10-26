@@ -10,7 +10,7 @@ const VIEWPORTS = [
 
 const PAGES = ["/", "/library", "/library/table", "/library/bluredu-new-teachers"];
 
-type PanelReport = { label: string; outside: string[]; slack: number };
+type PanelReport = { label: string; outside: string[]; slack: number; y: number; height: number };
 
 // In-flow content of each visible pane: positioned layers (overlays, the TOC
 // rail, visually hidden text) and anything inside its own scroller are not
@@ -40,7 +40,7 @@ async function panels(page: Page, selector: string): Promise<PanelReport[]> {
           }
         }
         const label = panel.querySelector(".dc-panel__label")?.textContent?.trim() || String(panel.className).split(" ")[0];
-        return { label, outside: outside.slice(0, 5), slack: Math.round(box.bottom - bottom) };
+        return { label, outside: outside.slice(0, 5), slack: Math.round(box.bottom - bottom), y: box.y, height: box.height };
       });
   }, selector);
 }
@@ -66,14 +66,24 @@ test.describe("CSS isolation", () => {
   }
 
   for (const viewport of VIEWPORTS.filter((v) => v.width >= 768)) {
-    test(`${viewport.width}×${viewport.height}: Home panes are as tall as their content`, async ({ page }) => {
+    test(`${viewport.width}×${viewport.height}: Home pairs share their row; single panes keep content height`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await page.goto("/");
       await page.evaluate(() => document.fonts.ready.then(() => undefined));
       const reports = await panels(page, ".dc-home .dc-panel, .dc-home > .as-activity");
       expect(reports.length).toBeGreaterThanOrEqual(3);
       for (const panel of reports) {
-        expect(panel.slack, panel.label).toBeLessThan(40);
+        const peers = reports.filter(other => other !== panel && Math.abs(other.y - panel.y) <= 1);
+        if (peers.length) {
+          // The owner-approved Home composition fills intrinsic row tracks.
+          // Containment/overflow above and short-window reachability below
+          // still apply to every panel; this does not permit clipped content.
+          for (const peer of peers) {
+            expect(Math.abs(panel.height - peer.height), `${panel.label} / ${peer.label}`).toBeLessThanOrEqual(1);
+          }
+        } else {
+          expect(panel.slack, panel.label).toBeLessThan(40);
+        }
       }
       const clipped = await page.evaluate(() => {
         const home = document.querySelector(".dc-home")!.getBoundingClientRect();

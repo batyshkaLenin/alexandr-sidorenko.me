@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Blocks do not size themselves after their neighbours (LAYOUT-ISOLATION).
+"""Check content-sized blocks and named composition exceptions (LAYOUT-ISOLATION).
 
     python3 scripts/check-css-isolation.py
 
-A parent sets tracks, gaps and order; each block is as tall as its content.
-The declarations below are how one pane used to stretch to another's height,
-so each needs a named reason in ALLOWED: parts of one component may share a
-box, sibling panes may not.
+A parent sets tracks, gaps and order; blocks default to their content height.
+Declarations that couple heights need an exact selector/property reason in
+ALLOWED, including explicitly approved component compositions. These exceptions
+do not permit unlisted selectors or unrelated height properties.
 """
 
 from __future__ import annotations
@@ -26,8 +26,12 @@ ALIGN = {"align-items", "align-self", "align-content", "place-items", "place-sel
 FULL_HEIGHT = {"height", "min-height", "block-size", "min-block-size"}
 PUSH_DOWN = {"margin-top", "margin-block-start"}
 
-# (source, selector, property) -> why it is not neighbour alignment.
+# (source, selector, property) -> the component-specific reason it is allowed.
 ALLOWED = {
+    ("assets/css/site.css", ".dc-home, .dc-home-row--identity", "align-items"):
+        "W0093 / DR-2026-059: Home panels share intrinsic grid rows, without fixed heights",
+    ("assets/css/site.css", ".dc-home-row--identity .dc-hero-foot", "margin-block-start"):
+        "W0093 / DR-2026-059: about links sit at the bottom of the approved Home row",
     ("assets/css/site.css", ".dc-library__views", "align-items"):
         "links of one ViewsNav share its row as touch targets",
     ("assets/css/site.css", ".as-external-media__iframe", "height"):
@@ -106,7 +110,7 @@ def main() -> int:
         for error in errors:
             print(f"  - {error}", file=sys.stderr)
         return 1
-    print(f"OK: {len(SOURCES)} stylesheet(s), {len(used)} named allowance(s), no neighbour alignment")
+    print(f"OK: {len(SOURCES)} stylesheet(s), {len(used)} named allowance(s), no unapproved neighbour alignment")
     return 0
 
 
