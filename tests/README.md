@@ -356,6 +356,19 @@ and an empty Hugo TOC. Duplicate explicit IDs and a broken target are negative
 checker cases; IDs are never rewritten to make the check pass. Fixture output
 is temporary and cannot enter the normal build or deployment.
 
+Copy scenarios in `browser.enhancements` and `browser.font-scaling` opt into
+`tests/browser/fixtures/copy.ts`. It builds disposable Hugo previews with an
+isolated Webmention snapshot, both with a response and with no responses.
+The real publication renderer supplies the native permalink and registers the
+real `dc-copy` asset; public content and approved response data stay unchanged.
+The tests cover exact clipboard contents, the 24×24 px phone target, and native
+links with JavaScript disabled or the Copy script blocked. Worker teardown
+removes fixture data, output, resources and cache. Run just these scenarios with:
+
+```sh
+npx playwright test tests/browser/enhancements.spec.ts tests/browser/font-scaling.spec.ts --project=chromium-desktop --grep 'copy'
+```
+
 The static a11y check also validates any emitted Contents landmark: at least
 three unique links, each pointing to an existing h2/h3 ID. Eligibility counts
 Hugo Markdown fragments, not template headings, reading time or a new flag.

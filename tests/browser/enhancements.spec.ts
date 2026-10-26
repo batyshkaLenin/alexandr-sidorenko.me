@@ -1,4 +1,5 @@
-import { test, expect, type Page, type Route } from "@playwright/test";
+import { expect, type Page, type Route } from "@playwright/test";
+import { test } from "./fixtures/copy";
 import { readFileSync, cpSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -311,7 +312,7 @@ test.describe("enhancements", () => {
     await expect(prompt.locator("input.dc-prompt__input")).toBeVisible();
   });
 
-  test("copy control on an article copies the wrapped link", async ({ page, context }, testInfo) => {
+  test("copy control on an article copies the wrapped link", async ({ page, context, copyFixture }, testInfo) => {
     test.skip(testInfo.project.name === "chromium-mobile", "Copy is desktop-representative.");
     // Playwright Firefox does not expose clipboard-read/write permissions.
     test.skip(
@@ -319,18 +320,49 @@ test.describe("enhancements", () => {
       "Clipboard read permission is Chromium-only in Playwright.",
     );
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-    await page.goto("/library/bluredu-new-teachers");
-    const copy = page.locator("dc-copy").first();
+    await copyFixture.serve(context);
+    await page.goto(copyFixture.article);
+    const copy = page.locator(".dc-responses dc-copy");
     await expect(copy).toHaveCount(1);
     const href = await copy.locator("a[href]").first().getAttribute("href");
     expect(href).toBeTruthy();
     const button = copy.locator("button.dc-copy__button");
     await expect(button).toBeVisible();
+    // A stale clipboard from an earlier run must not hide a no-op copy handler.
+    await page.evaluate(() => navigator.clipboard.writeText("Copy test: not copied yet"));
     await button.click();
     await expect(copy).toHaveAttribute("copied", "");
     const clipboard = await page.evaluate(() => navigator.clipboard.readText());
-    expect(clipboard).toContain("bluredu-new-teachers");
+    expect(clipboard).toBe(href);
   });
+
+  test("copy control is absent on an article without responses", async ({ page, context, copyFixture }) => {
+    await copyFixture.serve(context, false);
+    await page.goto(copyFixture.article);
+    await expect(page.locator(".dc-panel--detail h1")).toBeVisible();
+    await expect(page.locator(".dc-responses, dc-copy, .dc-copy__button")).toHaveCount(0);
+    await expect(page.locator('script[src*="/dc-copy."]')).toHaveCount(0);
+  });
+
+  for (const javaScriptEnabled of [false, true]) {
+    test.describe(`copy fallback JS ${javaScriptEnabled ? "on, script blocked" : "off"}`, () => {
+      test.use({ javaScriptEnabled });
+      test("copy permalink remains a native link", async ({ page, context, copyFixture }) => {
+        await copyFixture.serve(context);
+        if (javaScriptEnabled) await page.route(/\/js\/dc-copy\.min\./, route => route.abort());
+        await page.goto(copyFixture.article);
+        const copy = page.locator(".dc-responses dc-copy");
+        const link = copy.locator("a[href]");
+        await expect(link).toBeVisible();
+        const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
+        expect(canonical).toBeTruthy();
+        await expect(link).toHaveAttribute("href", canonical!);
+        await expect(copy.locator("button")).toHaveCount(0);
+        await link.focus();
+        await expect(link).toBeFocused();
+      });
+    });
+  }
 
   test("status chrome uses unambiguous hints without NORMAL or LIBRARY · VIEW", async ({
     page,

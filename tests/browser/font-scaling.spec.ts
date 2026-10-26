@@ -1,4 +1,5 @@
-import { test, expect, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./fixtures/copy";
 
 // A reader who raises the browser font size raises the root font size; every
 // text role must follow it instead of staying at a fixed pixel size.
@@ -117,10 +118,12 @@ test.describe("font scaling", () => {
     });
   }
 
-  test("the copy control keeps a 24px target on a phone", async ({ page }) => {
+  test("the copy control keeps a 24px target on a phone", async ({ page, context, copyFixture }) => {
+    await copyFixture.serve(context);
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/library/bluredu-new-teachers");
-    const button = page.locator(".dc-copy__button").first();
+    await page.goto(copyFixture.article);
+    const button = page.locator(".dc-responses dc-copy .dc-copy__button");
+    await expect(button).toBeVisible();
     await button.scrollIntoViewIfNeeded();
     const box = (await button.boundingBox())!;
     expect(box.height).toBeGreaterThanOrEqual(24);
