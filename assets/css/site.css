@@ -2804,6 +2804,19 @@ as-viewsnav {
 /* Narrow: tree is a sibling of details so closed <details> cannot hide it.
    Wide parks the tree in the rail, where it is always open. */
 @media (width <= 1100px) {
+  .dc-toc__summary {
+    color: var(--dc-primary);
+    list-style: disclosure-closed inside;
+  }
+
+  .dc-toc__summary::-webkit-details-marker {
+    display: revert;
+  }
+
+  .dc-toc__disclosure[open] > .dc-toc__summary {
+    list-style-type: disclosure-open;
+  }
+
   .dc-toc:not(:has(.dc-toc__disclosure[open])) > .dc-toc__rail > .dc-toc__tree {
     display: none;
   }

@@ -224,6 +224,45 @@ for (const javaScriptEnabled of [true, false]) test.describe(`prose TOC JS ${jav
     });
   }
 
+  for (const width of [320, 390, 740, 1100]) test(`disclosure colour and native marker show its state at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(ARTICLE);
+    const summary = page.locator(".dc-toc__summary");
+    const details = page.locator(".dc-toc__disclosure");
+    const first = page.locator(".dc-toc a").first();
+    await expect(summary).toHaveText("toc/");
+    await expect(details).not.toHaveAttribute("open");
+    await expect(summary).toHaveCSS("list-style-type", "disclosure-closed");
+    await expect(summary).toHaveCSS("list-style-position", "inside");
+    const colour = await summary.evaluate(node => {
+      const probe = document.createElement("span");
+      probe.style.color = "var(--dc-primary)";
+      node.append(probe);
+      const result = { actual: getComputedStyle(node).color, expected: getComputedStyle(probe).color };
+      probe.remove();
+      return result;
+    });
+    expect(colour.actual).toBe(colour.expected);
+    await summary.focus();
+    await page.keyboard.press("Enter");
+    await expect(details).toHaveAttribute("open", "");
+    await expect(summary).toHaveCSS("list-style-type", "disclosure-open");
+    await expect(first).toBeVisible();
+    expect(await summary.evaluate(node => node.matches(":focus-visible")
+      && getComputedStyle(node).outlineStyle !== "none")).toBe(true);
+    await page.keyboard.press("Space");
+    await expect(details).not.toHaveAttribute("open");
+    await expect(first).toBeHidden();
+    await page.emulateMedia({ forcedColors: "active", reducedMotion: "reduce" });
+    await expect(summary).toHaveCSS("list-style-type", "disclosure-closed");
+    const touch = await page.evaluate(() => matchMedia("(pointer: coarse)").matches);
+    if (touch) await summary.tap(); else await summary.click();
+    await expect(details).toHaveAttribute("open", "");
+    await expect(summary).toHaveCSS("list-style-type", "disclosure-open");
+    await expect(first).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  });
+
   for (const width of [390, 1440]) test(`native Cyrillic anchors, focus, reload and history at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(FICTION);
