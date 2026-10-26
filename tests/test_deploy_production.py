@@ -8,6 +8,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tarfile
 import tempfile
@@ -97,7 +98,7 @@ test -z "$PERF_PAGES"
 test "$PUBLIC_DIR" = "$HUGO_DESTINATION"
 test -z "${RELEASE_TEST_FAIL_BUILD:-}"
 mkdir -p "$PUBLIC_DIR"
-printf '%s:%s' "$(cat content.txt)" "$(git rev-parse HEAD)" > "$PUBLIC_DIR/index.html"
+printf '%s:%s:%s' "$(cat content.txt)" "$(git rev-parse HEAD)" "$(git log -1 --format=%H -- content.txt)" > "$PUBLIC_DIR/index.html"
 ''')
         put(self.root, "scripts/check-http-matrix.py", "import os, sys\nsys.exit(1 if os.environ.get('RELEASE_TEST_FAIL_SMOKE') else 0)\n")
         put(self.root, "content.txt", "clean")
@@ -128,7 +129,7 @@ printf '%s:%s' "$(cat content.txt)" "$(git rev-parse HEAD)" > "$PUBLIC_DIR/index
         self.response = unittest.mock.MagicMock()
         self.response.__enter__.return_value = self.response
         self.response.geturl.return_value = self.args.origin + "/?release=" + self.commit
-        self.response.read.return_value = ("clean:" + self.commit).encode()
+        self.response.read.return_value = ("clean:" + self.commit + ":" + self.commit).encode()
         self.http = patch.object(DEPLOY.urllib.request, "urlopen", return_value=self.response)
         self.urlopen = self.http.start()
         self.addCleanup(self.http.stop)
@@ -138,6 +139,21 @@ printf '%s:%s' "$(cat content.txt)" "$(git rev-parse HEAD)" > "$PUBLIC_DIR/index
 
     def calls(self):
         return json.loads(self.state.read_text())["calls"] if self.state.exists() else []
+
+    def advance_history(self):
+        put(self.root, "unrelated.txt", "second commit; content.txt is unchanged")
+        git(self.root, "add", "unrelated.txt")
+        git(self.root, "commit", "-qm", "unrelated history")
+        self.args.commit = git(self.root, "rev-parse", "HEAD")
+
+    def shallow_copy(self, source, name):
+        target = Path(self.temporary.name) / name
+        subprocess.run(["git", "clone", "--depth=1", source.as_uri(), str(target)],
+                       check=True, capture_output=True)
+        subprocess.run(["git", "clone", str(self.root / "themes/declassified"),
+                        str(target / "themes/declassified")], check=True, capture_output=True)
+        shutil.copytree(self.root / "node_modules", target / "node_modules")
+        return target
 
     def test_exact_commit_and_record(self):
         record = self.release()
@@ -283,6 +299,40 @@ printf '%s:%s' "$(cat content.txt)" "$(git rev-parse HEAD)" > "$PUBLIC_DIR/index
             with self.assertRaisesRegex(ValueError, "Workers Builds commit"):
                 self.release()
 
+    def test_full_and_shallow_sources_build_the_same_history_dependent_artifact(self):
+        self.advance_history()
+        self.args.dry_run = True
+        self.args.record = Path(self.temporary.name) / "full.json"
+        full = self.release()
+        shallow = self.shallow_copy(self.root, "shallow-source")
+        put(shallow, "content.txt", "DIRTY SHALLOW SOURCE")
+        self.assertEqual(git(shallow, "rev-parse", "--is-shallow-repository"), "true")
+        self.args.record = Path(self.temporary.name) / "shallow.json"
+        result = DEPLOY.release(self.args, shallow)
+        self.assertEqual(result["asset_digest"], full["asset_digest"])
+        self.assertEqual(result["home_digest"], full["home_digest"])
+        self.assertEqual(git(shallow, "rev-parse", "--is-shallow-repository"), "true")
+        self.assertEqual((shallow / "content.txt").read_text(), "DIRTY SHALLOW SOURCE")
+
+    def test_a_shallow_upstream_cannot_silently_supply_incomplete_history(self):
+        self.advance_history()
+        upstream = self.shallow_copy(self.root, "shallow-upstream")
+        shallow = self.shallow_copy(upstream, "shallow-caller")
+        with self.assertRaisesRegex(ValueError, "history is incomplete"):
+            DEPLOY.release(self.args, shallow)
+        self.assertEqual(self.calls(), [])
+        self.assertEqual(json.loads(self.args.record.read_text())["phase"], "history")
+
+    def test_missing_upstream_stops_before_upload_without_leaking_remote_details(self):
+        self.advance_history()
+        shallow = self.shallow_copy(self.root, "missing-history-source")
+        git(shallow, "remote", "set-url", "origin", "file:///missing-history-fixture-private-token")
+        with self.assertRaisesRegex(ValueError, "Could not obtain complete Git history"):
+            DEPLOY.release(self.args, shallow)
+        self.assertEqual(self.calls(), [])
+        record = json.loads(self.args.record.read_text())
+        self.assertNotIn("fixture-private-token", record["error"])
+
 
 class BuildModeTests(unittest.TestCase):
     """Run the actual build.sh with a local pinned-Hugo archive, without network."""
@@ -349,6 +399,20 @@ shutil.copyfile(os.environ['BUILD_FIXTURE_HUGO'],destination/'hugo_extended_0.16
     def test_unknown_environment_and_production_measurement_pages_fail(self):
         self.assertNotEqual(self.build("typo").returncode, 0)
         self.assertNotEqual(self.build("production", PERF_PAGES="some-fonts").returncode, 0)
+        self.assertFalse((self.root / "hugo-args.json").exists())
+
+    def test_build_refuses_history_that_remains_shallow_after_successful_fetch(self):
+        put(self.root, "later.txt", "unrelated second commit")
+        git(self.root, "add", "later.txt")
+        git(self.root, "commit", "-qm", "later commit")
+        cache, isolated = self.root / "cache", self.root / "isolated"
+        git(self.root, "clone", "--depth=1", self.root.as_uri(), str(cache))
+        git(self.root, "clone", "--no-hardlinks", "--no-checkout", str(cache), str(isolated))
+        git(isolated, "checkout", "--detach", "HEAD")
+        self.root = isolated
+        result = self.build("production")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Git history is incomplete after fetch", result.stderr)
         self.assertFalse((self.root / "hugo-args.json").exists())
 
 

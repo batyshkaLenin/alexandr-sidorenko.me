@@ -62,6 +62,30 @@ def read_config(path: Path) -> dict:
     return json.loads(text)
 
 
+def complete_history(source: Path, checkout: Path, env: dict[str, str]) -> None:
+    """Fetch history in scratch from the source's upstream, never a shallow cache.
+
+    Fetching --unshallow from a local shallow checkout can return success while
+    leaving the receiver shallow. Hugo's GitInfo needs the complete history.
+    Keep remote URLs and Git's raw fetch diagnostics out of release logs: the
+    source's URL may contain CI authentication information.
+    """
+    if run(["git", "rev-parse", "--is-shallow-repository"], checkout, env, capture=True) == "false":
+        return
+    upstream = run(["git", "remote", "get-url", "origin"], source, env, capture=True)
+    if not upstream:
+        raise ValueError("Complete Git history requires the original upstream remote")
+    if ":" not in upstream and not Path(upstream).is_absolute():
+        upstream = str((source / upstream).resolve())
+    for arguments in (["git", "remote", "set-url", "origin", upstream],
+                      ["git", "fetch", "--unshallow", "origin"]):
+        result = subprocess.run(arguments, cwd=checkout, env=env, text=True, capture_output=True)
+        if result.returncode:
+            raise ValueError("Could not obtain complete Git history from the source upstream")
+    if run(["git", "rev-parse", "--is-shallow-repository"], checkout, env, capture=True) != "false":
+        raise ValueError("Git history is incomplete after fetching the source upstream")
+
+
 def latest_deployment(deployments: list[dict]) -> dict:
     if not deployments:
         raise ValueError("No previous deployment: seed and verify a rollback target first")
@@ -128,6 +152,9 @@ def release(args: argparse.Namespace, root: Path = ROOT) -> dict:
             # A checkout cannot silently reuse an uncommitted deployment wrapper.
             if (checkout / "scripts/deploy-production.py").read_bytes() != Path(__file__).read_bytes():
                 raise ValueError("Commit the release tooling and use that commit's script")
+            record["phase"] = "history"
+            write_record(record_path, record)
+            complete_history(root, checkout, env)
             theme = run(["git", "rev-parse", "HEAD:themes/declassified"], checkout, env, capture=True)
             theme_path = checkout / "themes/declassified"
             run(["git", "clone", "--no-hardlinks", "--no-checkout", "--",

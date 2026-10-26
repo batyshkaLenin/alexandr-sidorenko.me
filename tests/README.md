@@ -69,6 +69,12 @@ uses production Hugo output and committed activity snapshots, and runs the same
 PRE/POST-BUILD checks as PRs. It generates a temporary asset-only Wrangler config
 without the preview build hook or DNS/routes; upload cannot rebuild the artifact.
 Inherited local build destinations and Hugo overrides cannot contaminate it.
+For a shallow source checkout, the isolated clone fetches complete history from
+that source's original upstream. Fetch success alone is insufficient: the clone
+must actually cease to be shallow before Hugo can read GitInfo/lastmod. The
+caller checkout stays untouched. A missing/incomplete upstream stops the release
+before upload. Controlled tests compare history-dependent artifact digests from
+full and shallow sources at the same commit.
 
 Local live promotion requires a commit reachable from local `main`. Workers
 Builds must identify branch `main` and the same commit as the actual checkout;

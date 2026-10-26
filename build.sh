@@ -109,6 +109,10 @@ main() {
   if [[ $(git rev-parse --is-shallow-repository) == true ]]; then
     echo "Fetching full Git history..."
     git fetch --unshallow
+    if [[ $(git rev-parse --is-shallow-repository) == true ]]; then
+      echo "ERROR: Git history is incomplete after fetch; refusing history-dependent output." >&2
+      exit 1
+    fi
   fi
 
   echo "Site commit: $(git rev-parse HEAD)"
