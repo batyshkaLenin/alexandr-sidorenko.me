@@ -884,52 +884,108 @@ for (const javaScriptEnabled of [true, false]) {
 }
 
 for (const javaScriptEnabled of [true, false]) {
-  test.describe(`W0081 list metadata JS ${javaScriptEnabled}`, () => {
+  test.describe(`W0117 list metadata JS ${javaScriptEnabled}`, () => {
     test.use({ javaScriptEnabled });
-    for (const width of [375, 1440]) {
-      test(`topics follow previews and type/date text spacing stays constant at ${width}px`, async ({ page }) => {
-        await page.setViewportSize({ width, height: 900 });
-        await page.goto('/library');
-        await page.evaluate(() => document.fonts.ready);
-        const rows = page.locator('[data-mode-panel="list"] .dc-material');
-        expect(await rows.count()).toBeGreaterThan(0);
-        const gaps = [];
-        for (const row of await rows.all()) {
-          await expect(row.locator('[data-duration-kind]')).toHaveCount(0);
-          await expect(row).toHaveAttribute('data-capabilities');
-          const geometry = await row.evaluate((el) => {
-            const type = el.querySelector('.dc-list__type')!;
+    for (const width of [320, 375, 390, 430, 1440]) {
+      for (const fontSize of [16, 32]) {
+        test(`shared columns and badge insets at ${width}px, font ${fontSize}`, async ({ page, context }, testInfo) => {
+          test.skip(testInfo.project.name === 'firefox-desktop', 'Browser font emulation uses Chromium CDP.');
+          const client = await context.newCDPSession(page);
+          await client.send('Page.enable');
+          await client.send('Page.setFontSizes' as never, { fontSizes: { standard: fontSize, fixed: fontSize } } as never);
+          await page.setViewportSize({ width, height: 900 });
+          await page.goto('/library');
+          await page.evaluate(() => document.fonts.ready);
+          const rows = page.locator('[data-mode-panel="list"] .dc-material');
+          expect(await rows.count()).toBeGreaterThan(0);
+          await expect(rows.locator('[data-duration-kind]')).toHaveCount(0);
+          await expect(page.locator('.dc-material__marker')).toHaveCount(0);
+
+          // Include the longest supported type even when it has no published row.
+          await page.evaluate(() => {
+            const list = document.querySelector('[data-mode-panel="list"] .dc-material-list')!;
+            const stress = list.firstElementChild!.cloneNode(true) as HTMLElement;
+            stress.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+            stress.querySelector('.dc-list__type')!.textContent = 'POETRY_COLLECTION';
+            list.append(stress);
+          });
+          const geometry = await rows.evaluateAll(elements => elements.map(el => {
+            const type = el.querySelector<HTMLElement>('.dc-list__type')!;
             const date = el.querySelector('time')!;
-            const text = document.createRange();
-            text.selectNodeContents(type);
+            const box = type.getBoundingClientRect();
+            const typeText = document.createRange();
+            typeText.selectNodeContents(type);
+            const text = typeText.getBoundingClientRect();
+            const character = document.createRange();
+            character.setStart(type.firstChild!, 0);
+            character.setEnd(type.firstChild!, 1);
+            const dateText = document.createRange();
+            dateText.selectNodeContents(date);
+            const dateBox = dateText.getBoundingClientRect();
             const summary = el.querySelector('.p-summary');
             const topics = el.querySelector('.as-material-topics');
             const preceding = summary || el.querySelector('.dc-material__meta')!;
             return {
-              type: type.textContent,
-              gap: date.getBoundingClientRect().left - text.getBoundingClientRect().right,
-              sameLine: Math.abs(date.getBoundingClientRect().top - type.getBoundingClientRect().top) < 20,
+              type: type.textContent!, boxLeft: box.left, boxWidth: box.width, boxHeight: box.height,
+              textStart: text.left, dateLeft: dateBox.left,
+              insetLeft: text.left - box.left, insetRight: box.right - text.right,
+              textBottom: text.bottom, dateBottom: dateBox.bottom,
+              stacked: dateBox.top >= box.bottom,
+              contained: type.scrollWidth <= type.clientWidth + 1,
+              padding: getComputedStyle(type).padding,
+              border: getComputedStyle(type).borderWidth,
+              minWidth: getComputedStyle(type).minWidth,
+              alignment: getComputedStyle(type).justifyContent,
+              wrapped: typeText.getClientRects().length > 1,
+              characterWidth: character.getBoundingClientRect().width + 1,
               topicsAfter: !topics || !!(preceding.compareDocumentPosition(topics) & Node.DOCUMENT_POSITION_FOLLOWING),
               topicsBelow: !topics || topics.getBoundingClientRect().top >= preceding.getBoundingClientRect().bottom - 1,
               emptySummary: summary && !summary.textContent?.trim(),
             };
-          });
-          expect(geometry.sameLine, geometry.type!).toBe(true);
-          expect(geometry.topicsAfter).toBe(true);
-          expect(geometry.topicsBelow).toBe(true);
-          expect(geometry.emptySummary).toBeFalsy();
-          gaps.push(geometry);
-        }
-        expect(new Set(gaps.map(row => row.type)).size).toBeGreaterThan(2);
-        for (const row of gaps) {
-          expect(row.gap, row.type!).toBeGreaterThan(0);
-          expect(row.gap, row.type!).toBeCloseTo(gaps[0].gap, 0);
-        }
-        const track = rows.filter({ has: page.locator('a[href="/library/regular-visitor"]') });
-        await expect(track).toHaveAttribute('data-capabilities', /\baudio\b/);
-        await expect(page.locator('.dc-material__marker')).toHaveCount(0);
-        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
-      });
+          }));
+          expect(new Set(geometry.map(row => row.type)).size).toBeGreaterThan(2);
+          for (const row of geometry) {
+            expect(Math.abs(row.textStart - geometry[0].textStart), row.type).toBeLessThanOrEqual(1);
+            expect(Math.abs(row.dateLeft - geometry[0].dateLeft), row.type).toBeLessThanOrEqual(1);
+            // A wrapped line can leave less than one character unused at its
+            // end; a single-line badge must fit its text symmetrically.
+            expect(Math.abs(row.insetLeft - row.insetRight), row.type).toBeLessThanOrEqual(row.wrapped ? row.characterWidth : 1);
+            expect(Math.abs(row.insetLeft - geometry[0].insetLeft), row.type).toBeLessThanOrEqual(1);
+            expect(row.boxWidth, row.type).toBeGreaterThanOrEqual(testInfo.project.name === 'chromium-mobile' ? 44 : 24);
+            expect(row.boxHeight, row.type).toBeGreaterThanOrEqual(testInfo.project.name === 'chromium-mobile' ? 44 : 24);
+            expect(row.contained, row.type).toBe(true);
+            expect(row.topicsAfter).toBe(true);
+            expect(row.topicsBelow).toBe(true);
+            expect(row.emptySummary).toBeFalsy();
+            if (row.stacked) {
+              expect(fontSize, 'Only enlarged text needs the separate date line').toBe(32);
+            } else {
+              expect(Math.abs(row.textBottom - row.dateBottom), row.type).toBeLessThanOrEqual(1);
+            }
+          }
+          const typeLink = rows.first().locator('a.dc-list__type');
+          await rows.first().locator('.u-url').focus();
+          await page.keyboard.press('Tab');
+          await expect(typeLink).toBeFocused();
+          await typeLink.scrollIntoViewIfNeeded();
+          expect(await typeLink.evaluate(el => {
+            const box = el.getBoundingClientRect();
+            const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+            const style = getComputedStyle(el);
+            return hit?.closest('a') === el && style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) >= 2;
+          })).toBe(true);
+          expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+          await testInfo.attach('list-metadata-geometry', { body: JSON.stringify(geometry, null, 2), contentType: 'application/json' });
+        });
+      }
     }
+
+    test('type links navigate natively and List keeps its machine capabilities', async ({ page }) => {
+      await page.goto('/library');
+      const track = page.locator('[data-mode-panel="list"] .dc-material').filter({ has: page.locator('a[href="/library/regular-visitor"]') });
+      await expect(track).toHaveAttribute('data-capabilities', /\baudio\b/);
+      await track.locator('a.dc-list__type').click();
+      await expect(page).toHaveURL(/\/library\/types\/track$/);
+    });
   });
 }

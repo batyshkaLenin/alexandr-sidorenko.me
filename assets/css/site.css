@@ -2357,9 +2357,48 @@ as-viewsnav {
   color: var(--dc-faint);
 }
 
-/* Keep the text-to-date gap stable inside differently sized link targets. */
-.dc-material__meta a.dc-list__type {
-  justify-content: flex-end;
+/* List shares intrinsic metadata columns across rows. Badge frames keep their
+   own content width; the unused column space belongs outside each frame. */
+[data-mode-panel="list"] {
+  container: as-library-list / inline-size;
+}
+
+[data-mode-panel="list"] .dc-material-list {
+  display: grid;
+  grid-template-columns: max-content max-content minmax(0, 1fr);
+  column-gap: 8px;
+}
+
+[data-mode-panel="list"] .dc-material,
+[data-mode-panel="list"] .dc-material__meta {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+
+[data-mode-panel="list"] .dc-material > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+[data-mode-panel="list"] .dc-material__meta a.dc-list__type {
+  justify-self: start;
+  justify-content: flex-start;
+  padding-inline: 8px;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* At enlarged text sizes, keep complete labels and dates in separate lines
+   rather than squeezing either column beyond the available reading width. */
+@container as-library-list (width < 14em) {
+  [data-mode-panel="list"] .dc-material-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-mode-panel="list"] .dc-material__meta .dc-material__sep {
+    display: none;
+  }
 }
 
 .as-material-topics {
