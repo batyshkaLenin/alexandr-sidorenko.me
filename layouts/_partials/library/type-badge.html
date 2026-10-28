@@ -1,19 +1,21 @@
 {{- /*
 Type badge: family colour + machine type key (T169).
-Input: dict "page" … ["plural" true] ["linked" true].
+Input: dict "page" … ["plural" true] ["linked" true] ["compact" true].
 `linked` turns the badge into the type page. Types group headings already
 wrap the badge, so they pass linked=false.
 */ -}}
 {{- $page := .page -}}
 {{- $plural := .plural -}}
 {{- $linked := default false .linked -}}
+{{- $compact := default false .compact -}}
 {{- with $page.Params.type -}}
   {{- $class := printf "dc-list__type dc-type--%s" (partial "publication/type-family.html" .) -}}
+  {{- if $compact -}}{{- $class = printf "%s as-type-label" $class -}}{{- end -}}
   {{- $label := partial "publication/type-label.html" (dict "type" . "page" $page "plural" $plural) -}}
   {{- $typePage := site.GetPage (printf "/types/%s" .) -}}
   {{- if and $linked $typePage -}}
-<a href="{{ partial "canonical-url.html" $typePage.RelPermalink }}" lang="en" class="{{ $class }}">{{ $label }}</a>
+<a href="{{ partial "canonical-url.html" $typePage.RelPermalink }}" lang="en" class="{{ $class }}">{{ if $compact }}<span class="as-type-label__face">{{ $label }}</span>{{ else }}{{ $label }}{{ end }}</a>
   {{- else -}}
-<span lang="en" class="{{ $class }}">{{ $label }}</span>
+<span lang="en" class="{{ $class }}">{{ if $compact }}<span class="as-type-label__face">{{ $label }}</span>{{ else }}{{ $label }}{{ end }}</span>
   {{- end -}}
 {{- end -}}

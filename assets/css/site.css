@@ -2384,9 +2384,37 @@ as-viewsnav {
 [data-mode-panel="list"] .dc-material__meta a.dc-list__type {
   justify-self: start;
   justify-content: flex-start;
-  padding-inline: 8px;
+  padding: 0;
+  border: 0;
   max-inline-size: 100%;
   overflow-wrap: anywhere;
+}
+
+/* The face owns the visible frame; the anchor keeps its full pointer target. */
+.as-type-label__face {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  padding: 4px;
+  border: 1px solid var(--dc-border);
+  line-height: normal;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+[data-mode-panel="list"] .as-type-label:hover {
+  background: transparent;
+  outline: none;
+}
+
+.as-type-label:hover .as-type-label__face {
+  border-color: var(--dc-accent-hover);
+  background: var(--dc-border);
+}
+
+[data-mode-panel="list"] .as-type-label:focus-visible {
+  outline: 2px solid var(--dc-primary);
+  outline-offset: 2px;
 }
 
 /* At enlarged text sizes, keep complete labels and dates in separate lines
@@ -2407,6 +2435,20 @@ as-viewsnav {
   gap: 8px;
   margin: 6px 0 0;
   font-size: var(--dc-fs-meta);
+}
+
+/* Keep the visible final line at the same bottom inset as an excerpt while
+   retaining the taller touch targets above that line. */
+[data-mode-panel="list"] .as-material-topics {
+  align-items: flex-end;
+}
+
+[data-mode-panel="list"] .as-material-topics a {
+  align-items: flex-end;
+}
+
+.as-material-topics__label {
+  color: var(--dc-faint);
 }
 
 /* Dense: one line TITLE → TYPE → DATE. */

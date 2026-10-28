@@ -51,7 +51,7 @@ Capabilities remain machine-readable; visual capability badges are omitted.
   </h{{ $level }}>
   <p class="dc-material__meta">
     {{- if $showType }}
-    {{ partial "library/type-badge.html" (dict "page" $page "linked" true) }}
+    {{ partial "library/type-badge.html" (dict "page" $page "linked" true "compact" true) }}
     <span class="dc-material__sep" aria-hidden="true">·</span>
     {{- end }}
     {{ partial "publication/date.html" (dict "date" $page.Date "form" "long" "class" "dc-material__date dt-published") }}
@@ -71,6 +71,7 @@ Capabilities remain machine-readable; visual capability badges are omitted.
   {{- end }}
   {{- with $page.GetTerms "tags" }}
   <p class="as-material-topics">
+    <span class="as-material-topics__label" lang="en">topics:</span>
     {{- range . }}
     <a class="p-category" rel="tag" href="{{ partial "canonical-url.html" .RelPermalink }}">{{ .LinkTitle }}</a>
     {{- end }}

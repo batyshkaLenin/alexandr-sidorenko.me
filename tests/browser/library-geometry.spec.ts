@@ -625,7 +625,13 @@ test('type hover owns its feedback without moving the row or title',async({page}
     await type.scrollIntoViewIfNeeded();
     const before=await type.boundingBox();
     await type.hover();
-    await expect(type).toHaveCSS('outline-style','solid');
+    if (url === '/library') {
+      const face = type.locator('.as-type-label__face');
+      await expect(face).toHaveCSS('border-top-color', 'rgb(255, 111, 158)');
+      expect(await face.boundingBox()).not.toBeNull();
+    } else {
+      await expect(type).toHaveCSS('outline-style','solid');
+    }
     await expect(title).toHaveCSS('text-decoration-line','none');
     expect(await type.boundingBox()).toEqual(before);
     await type.focus();
@@ -884,7 +890,7 @@ for (const javaScriptEnabled of [true, false]) {
 }
 
 for (const javaScriptEnabled of [true, false]) {
-  test.describe(`W0117 list metadata JS ${javaScriptEnabled}`, () => {
+  test.describe(`W0119 list metadata JS ${javaScriptEnabled}`, () => {
     test.use({ javaScriptEnabled });
     for (const width of [320, 375, 390, 430, 1440]) {
       for (const fontSize of [16, 32]) {
@@ -898,6 +904,12 @@ for (const javaScriptEnabled of [true, false]) {
           await page.evaluate(() => document.fonts.ready);
           const rows = page.locator('[data-mode-panel="list"] .dc-material');
           expect(await rows.count()).toBeGreaterThan(0);
+          for (const block of await rows.locator('.as-material-topics').all()) {
+            await expect(block.locator('.as-material-topics__label')).toHaveText('topics:');
+            await expect(block.locator('.as-material-topics__label')).toHaveAttribute('lang', 'en');
+            await expect(block.locator('.as-material-topics__label')).not.toHaveAttribute('href');
+            expect(await block.locator('a[rel="tag"].p-category').count()).toBeGreaterThan(0);
+          }
           await expect(rows.locator('[data-duration-kind]')).toHaveCount(0);
           await expect(page.locator('.dc-material__marker')).toHaveCount(0);
 
@@ -906,34 +918,58 @@ for (const javaScriptEnabled of [true, false]) {
             const list = document.querySelector('[data-mode-panel="list"] .dc-material-list')!;
             const stress = list.firstElementChild!.cloneNode(true) as HTMLElement;
             stress.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
-            stress.querySelector('.dc-list__type')!.textContent = 'POETRY_COLLECTION';
+            stress.querySelector('.as-type-label__face')!.textContent = 'POETRY_COLLECTION';
             list.append(stress);
+            // Exercise wrapped/multiple topics with and without a preview.
+            const tagged = list.querySelector('.as-material-topics')!.closest('li')!;
+            for (const noPreview of [false, true]) {
+              const copy = tagged.cloneNode(true) as HTMLElement;
+              copy.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+              if (noPreview) copy.querySelector('.p-summary')?.remove();
+              const topics = copy.querySelector('.as-material-topics')!;
+              const original = topics.querySelector('a')!;
+              for (const label of ['Очень длинная тематическая ссылка с несколькими словами для проверки переноса', 'Код']) {
+                const link = original.cloneNode(true) as HTMLAnchorElement;
+                link.textContent = label;
+                topics.append(link);
+              }
+              list.append(copy);
+            }
           });
           const geometry = await rows.evaluateAll(elements => elements.map(el => {
             const type = el.querySelector<HTMLElement>('.dc-list__type')!;
             const date = el.querySelector('time')!;
-            const box = type.getBoundingClientRect();
+            const hit = type.getBoundingClientRect();
+            const face = type.querySelector<HTMLElement>('.as-type-label__face')!;
+            const box = face.getBoundingClientRect();
             const typeText = document.createRange();
-            typeText.selectNodeContents(type);
+            typeText.selectNodeContents(face);
             const text = typeText.getBoundingClientRect();
             const character = document.createRange();
-            character.setStart(type.firstChild!, 0);
-            character.setEnd(type.firstChild!, 1);
+            character.setStart(face.firstChild!, 0);
+            character.setEnd(face.firstChild!, 1);
             const dateText = document.createRange();
             dateText.selectNodeContents(date);
             const dateBox = dateText.getBoundingClientRect();
             const summary = el.querySelector('.p-summary');
             const topics = el.querySelector('.as-material-topics');
             const preceding = summary || el.querySelector('.dc-material__meta')!;
+            const last = topics?.querySelector('a:last-child') || summary || date;
+            const lastText = document.createRange();
+            lastText.selectNodeContents(last);
+            const bottomGap = el.getBoundingClientRect().bottom
+              - parseFloat(getComputedStyle(el).borderBottomWidth) - lastText.getBoundingClientRect().bottom;
             return {
               type: type.textContent!, boxLeft: box.left, boxWidth: box.width, boxHeight: box.height,
+              hitWidth: hit.width, hitHeight: hit.height, bottomGap,
+              insetTop: text.top - box.top, insetBottom: box.bottom - text.bottom,
               textStart: text.left, dateLeft: dateBox.left,
               insetLeft: text.left - box.left, insetRight: box.right - text.right,
               textBottom: text.bottom, dateBottom: dateBox.bottom,
-              stacked: dateBox.top >= box.bottom,
-              contained: type.scrollWidth <= type.clientWidth + 1,
-              padding: getComputedStyle(type).padding,
-              border: getComputedStyle(type).borderWidth,
+              stacked: dateBox.top >= hit.bottom,
+              contained: face.scrollWidth <= face.clientWidth + 1 && type.scrollWidth <= type.clientWidth + 1,
+              padding: getComputedStyle(face).padding,
+              border: getComputedStyle(face).borderWidth,
               minWidth: getComputedStyle(type).minWidth,
               alignment: getComputedStyle(type).justifyContent,
               wrapped: typeText.getClientRects().length > 1,
@@ -951,8 +987,14 @@ for (const javaScriptEnabled of [true, false]) {
             // end; a single-line badge must fit its text symmetrically.
             expect(Math.abs(row.insetLeft - row.insetRight), row.type).toBeLessThanOrEqual(row.wrapped ? row.characterWidth : 1);
             expect(Math.abs(row.insetLeft - geometry[0].insetLeft), row.type).toBeLessThanOrEqual(1);
-            expect(row.boxWidth, row.type).toBeGreaterThanOrEqual(testInfo.project.name === 'chromium-mobile' ? 44 : 24);
-            expect(row.boxHeight, row.type).toBeGreaterThanOrEqual(testInfo.project.name === 'chromium-mobile' ? 44 : 24);
+            expect(row.hitWidth, row.type).toBeGreaterThanOrEqual(testInfo.project.name === 'chromium-mobile' ? 44 : 24);
+            expect(row.hitHeight, row.type).toBeGreaterThanOrEqual(testInfo.project.name === 'chromium-mobile' ? 44 : 24);
+            expect(Math.abs(row.insetTop - row.insetBottom), row.type).toBeLessThanOrEqual(1);
+            if (!row.wrapped) {
+              const insets = [row.insetLeft, row.insetRight, row.insetTop, row.insetBottom];
+              expect(Math.max(...insets) - Math.min(...insets), row.type).toBeLessThanOrEqual(1);
+            }
+            expect(Math.abs(row.bottomGap - geometry[0].bottomGap), row.type).toBeLessThanOrEqual(1);
             expect(row.contained, row.type).toBe(true);
             expect(row.topicsAfter).toBe(true);
             expect(row.topicsBelow).toBe(true);
