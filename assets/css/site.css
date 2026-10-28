@@ -2451,6 +2451,16 @@ as-viewsnav {
   color: var(--dc-faint);
 }
 
+/* When metadata is the footer, align its text at the end of the full target.
+   The face's bottom padding uses the row inset instead of adding another gap. */
+[data-mode-panel="list"] .dc-material:not(:has(.p-summary, .as-material-topics)) .as-type-label {
+  align-items: flex-end;
+}
+
+[data-mode-panel="list"] .dc-material:not(:has(.p-summary, .as-material-topics)) .as-type-label__face {
+  margin-bottom: -4px;
+}
+
 /* Dense: one line TITLE → TYPE → DATE. */
 .dc-material--dense .dc-material__row {
   display: flex;

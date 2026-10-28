@@ -935,6 +935,16 @@ for (const javaScriptEnabled of [true, false]) {
               }
               list.append(copy);
             }
+            // Metadata can itself be the last visible block. Its larger link
+            // target must not add trailing space when both optional parts omit.
+            const metadataOnly = tagged.cloneNode(true) as HTMLElement;
+            metadataOnly.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+            metadataOnly.querySelector('.p-summary')?.remove();
+            metadataOnly.querySelector('.as-material-topics')?.remove();
+            list.append(metadataOnly);
+            const metadataLong = metadataOnly.cloneNode(true) as HTMLElement;
+            metadataLong.querySelector('.as-type-label__face')!.textContent = 'POETRY_COLLECTION';
+            list.append(metadataLong);
           });
           const geometry = await rows.evaluateAll(elements => elements.map(el => {
             const type = el.querySelector<HTMLElement>('.dc-list__type')!;
@@ -1016,6 +1026,19 @@ for (const javaScriptEnabled of [true, false]) {
             const style = getComputedStyle(el);
             return hit?.closest('a') === el && style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) >= 2;
           })).toBe(true);
+          const metadataLinks = rows.filter({ hasNot: page.locator('.p-summary, .as-material-topics') }).locator('a.dc-list__type');
+          for (const link of await metadataLinks.all()) {
+            await link.scrollIntoViewIfNeeded();
+            await link.focus();
+            expect(await link.evaluate(el => {
+              const hit = el.getBoundingClientRect();
+              const face = el.querySelector('.as-type-label__face')!.getBoundingClientRect();
+              const row = el.closest('li')!.getBoundingClientRect();
+              const owns = (x: number, y: number) => document.elementFromPoint(x, y)?.closest('a') === el;
+              return face.bottom <= row.bottom && owns(hit.left + hit.width / 2, hit.top + 1)
+                && owns(face.left + face.width / 2, face.bottom - 1);
+            }), 'terminal metadata face and full target remain inside their row and reachable').toBe(true);
+          }
           expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
           await testInfo.attach('list-metadata-geometry', { body: JSON.stringify(geometry, null, 2), contentType: 'application/json' });
         });
